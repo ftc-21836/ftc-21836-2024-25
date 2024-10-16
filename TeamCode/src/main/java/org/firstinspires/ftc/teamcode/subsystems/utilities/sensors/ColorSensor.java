@@ -18,7 +18,11 @@ public final class ColorSensor {
     public ColorSensor(HardwareMap hardwareMap, String name, float gain) {
         sensor = hardwareMap.get(NormalizedColorSensor.class, name);
         sensor.setGain(gain);
-        if (sensor instanceof SwitchableLight) ((SwitchableLight) sensor).enableLight(true);
+        enableLight(true);
+    }
+
+    public void enableLight(boolean lightOn) {
+        if (sensor instanceof SwitchableLight) ((SwitchableLight) sensor).enableLight(lightOn);
     }
 
     public void update() {

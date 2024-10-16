@@ -64,7 +64,7 @@ public final class Robot {
         drone.updateAngles(ANGLE_DRONE_LOADED, ANGLE_DRONE_LAUNCHED);
         spike.updateAngles(ANGLE_SPIKE_RELEASED, ANGLE_SPIKE_LOCKED);
 
-        if (intake.pixelsTransferred()) deposit.paintbrush.lockPixels(intake.colors);
+//        if (intake.pixelsTransferred()) deposit.paintbrush.lockPixels(intake.colors);
 
         intake.run(
                 deposit.paintbrush.numOfPixels,
@@ -81,7 +81,7 @@ public final class Robot {
     public void printTelemetry() {
 //        drivetrain.printNumericalTelemetry();
         mTelemetry.addLine();
-        deposit.paintbrush.printTelemetry();
+//        deposit.paintbrush.printTelemetry();
         mTelemetry.addLine();
         deposit.lift.printTelemetry();
         mTelemetry.addLine();

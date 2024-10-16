@@ -19,7 +19,7 @@ public final class EditablePose {
     }
 
     public EditablePose(Pose2d pose) {
-        this(pose.position.x, pose.position.y, pose.heading);
+        this(pose.position.x, pose.position.y, pose.heading.log());
     }
 
     public EditablePose clone() {

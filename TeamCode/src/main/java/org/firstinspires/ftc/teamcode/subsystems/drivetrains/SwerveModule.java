@@ -65,12 +65,12 @@ public final class SwerveModule {
 
         public double offset() {
             switch(this) {
-                default:
                 case BR: return OFFSET_BR;
                 case BL: return OFFSET_BL;
                 case FR: return OFFSET_FR;
                 case FL: return OFFSET_FL;
             }
+            return 0;
         }
     }
 

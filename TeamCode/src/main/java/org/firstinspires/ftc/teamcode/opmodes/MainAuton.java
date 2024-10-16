@@ -12,7 +12,6 @@ import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.cycle;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isBackdropSide;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.parking;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.partnerWillDoRand;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_PARK;
@@ -53,14 +52,10 @@ public final class MainAuton extends LinearOpMode {
     }
 
     enum AutonConfig {
-        EDITING_LEFT,
-        EDITING_CENTER,
-        EDITING_RIGHT,
         EDITING_ALLIANCE,
         EDITING_SIDE,
         EDITING_PARK,
         EDITING_CYCLE,
-        EDITING_PARTNER,
         EDITING_WAIT;
 
         public static final AutonConfig[] selections = values();
@@ -117,11 +112,6 @@ public final class MainAuton extends LinearOpMode {
             if (keyPressed(1, DPAD_DOWN)) selection = selection.plus(1);
 
             if (keyPressed(1, X)) switch (selection) {
-                case EDITING_LEFT:
-                case EDITING_CENTER:
-                case EDITING_RIGHT:
-                    int index = selection.ordinal();
-                    break;
                 case EDITING_ALLIANCE:
                     isRed = !isRed;
                     break;
@@ -132,11 +122,8 @@ public final class MainAuton extends LinearOpMode {
                     parking = parking.plus(1);
                     break;
                 case EDITING_CYCLE:
-                    cycle = !cycle;
-                    break;
-                case EDITING_PARTNER:
                 default:
-                    partnerWillDoRand = !partnerWillDoRand;
+                    cycle = !cycle;
                     break;
             }
 

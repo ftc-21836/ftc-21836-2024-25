@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
@@ -26,11 +25,6 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDI
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_AUTO_SLOW;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.FIVE_STACK;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.FLOOR;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.FOUR_STACK;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.THREE_STACK;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.TWO_STACK;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -169,17 +163,10 @@ public final class MainTeleOp extends LinearOpMode {
 //            else if (keyPressed(1, DPAD_DOWN))  robot.drivetrain.setTargetHeading(PI);
 //            else if (keyPressed(1, DPAD_RIGHT)) robot.drivetrain.setTargetHeading(PI * 1.5);
 
-            if (keyPressed(1, Y))               robot.intake.setHeight(FIVE_STACK);
-            if (keyPressed(1, X))               robot.intake.setHeight(FOUR_STACK);
-            if (keyPressed(1, B))               robot.intake.setHeight(THREE_STACK);
-            if (keyPressed(1, A))               robot.intake.setHeight(TWO_STACK);
-            if (keyPressed(1, RIGHT_BUMPER))    robot.intake.setHeight(FLOOR);
-
         } else {
 
             if (keyPressed(1, DPAD_DOWN))       robot.deposit.lift.changeRowBy(-1);
             else if (keyPressed(1, DPAD_UP))    robot.deposit.lift.changeRowBy(1);
-            else if (keyPressed(1, DPAD_LEFT))  robot.deposit.paintbrush.dropPixel();
 
             if (keyPressed(1, Y))               robot.deposit.goToLastRow();
             if (keyPressed(1, X))               robot.intake.toggle();

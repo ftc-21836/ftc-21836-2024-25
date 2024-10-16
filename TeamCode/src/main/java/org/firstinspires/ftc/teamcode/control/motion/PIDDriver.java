@@ -6,7 +6,6 @@ import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
@@ -37,9 +36,7 @@ public final class PIDDriver {
             yController = new PIDController(),
             rotController = new PIDController();
 
-    public boolean driveTo(Drivetrain dt, EditablePose target) {
-
-        EditablePose current = dt.getPoseEstimate();
+    public DriverOutput driveTo(EditablePose current, EditablePose target) {
 
         double currentX = current.x;
         double currentY = current.y;
@@ -71,14 +68,24 @@ public final class PIDDriver {
         double x2 = x * cos - y * sin;
         double y2 = y * cos + x * sin;
 
-        dt.setDrivePower(new EditablePose(
+        DriverOutput output = new DriverOutput();
+
+        output.drivePower = new EditablePose(
                 x2,
                 y2 * STRAFE_MULTIPLIER,
                 rot
-        ));
+        );
 
-        return  abs(xError) <= admissibleError.x &&
-                abs(yError) <= admissibleError.y &&
-                abs(headingError) <= admissibleError.heading;
+        output.withinError = abs(xError) <= admissibleError.x &&
+                            abs(yError) <= admissibleError.y &&
+                            abs(headingError) <= admissibleError.heading;
+
+        return output;
+    }
+
+    public static class DriverOutput {
+
+        public boolean withinError;
+        public EditablePose drivePower;
     }
 }

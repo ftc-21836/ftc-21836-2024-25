@@ -3,25 +3,22 @@ package org.firstinspires.ftc.teamcode.subsystems.centerstage;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
-import static org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel.Color.EMPTY;
-import static org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel.Color.GREEN;
-import static org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel.Color.PURPLE;
-import static org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel.Color.WHITE;
-import static org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel.Color.YELLOW;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.FLOOR;
+import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Sample.NONE;
+import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.HAS_0_PIXELS;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.HAS_1_PIXEL;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.PIVOTING;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.PIXELS_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.PIXELS_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.PIXEL_1_SETTLING;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.WAITING_FOR_DEPOSIT;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.State.WAITING_FOR_DEPOSIT;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
-import static java.lang.Math.max;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -30,7 +27,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
-import org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
@@ -72,12 +68,12 @@ public final class Intake {
                     0.6,
                     0.45
             ),
-            minPurple = new HSV(
+            minRed = new HSV(
                     205,
                     0.55,
                     0.01
             ),
-            maxPurple = new HSV(
+            maxRed = new HSV(
                     225,
                     1,
                     0.35
@@ -92,30 +88,35 @@ public final class Intake {
                     1,
                     0.15
             ),
-            minGreen = new HSV(
+            minBlue = new HSV(
                     130,
                     0.5,
                     0.01
             ),
-            maxGreen = new HSV(
+            maxBlue = new HSV(
                     160,
                     1,
                     0.2
             );
 
+    public enum Sample {
+        NONE,
+        NEUTRAL,
+        BLUE,
+        RED
+    }
+
     private final MotorEx motor;
 
     private final ColorSensor[] sensors;
     private final HSV[] HSVs = {new HSV(), new HSV()};
-    private final Pixel.Color[] reads = {EMPTY, EMPTY};
-    public final Pixel.Color[] colors = {EMPTY, EMPTY};
+    public Sample color = NONE;
 
     private final TouchSensor pivotSensor;
 
     private final SimpleServoPivot pivot, latch;
 
     private Intake.State state = HAS_0_PIXELS;
-    private Intake.Height height = FLOOR;
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceRetracted = new ElapsedTime();
 
@@ -133,31 +134,6 @@ public final class Intake {
         PIXELS_SETTLING,
         RETRACTED,
     }
-
-    public enum Height {
-        FLOOR,
-        TWO_STACK,
-        THREE_STACK,
-        FOUR_STACK,
-        FIVE_STACK;
-
-        private static final Intake.Height[] values = values();
-
-        public Intake.Height minus(int less) {
-            return values[max(ordinal() - less, 0)];
-        }
-
-        public double getAngle() {
-            switch (this) {
-                default: case FLOOR: return 0;
-                case TWO_STACK: return ANGLE_STACK_2;
-                case THREE_STACK: return ANGLE_STACK_3;
-                case FOUR_STACK: return ANGLE_STACK_4;
-                case FIVE_STACK: return ANGLE_STACK_5;
-            }
-        }
-    }
-
 
     Intake(HardwareMap hardwareMap) {
 
@@ -191,15 +167,14 @@ public final class Intake {
     }
 
     /**
-     * @return The {@link Pixel.Color} corresponding to the provided {@link HSV} as per the tuned value bounds
+     * @return The {@link Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
      */
-    public static Pixel.Color fromHSV(HSV hsv) {
+    public static Sample fromHSV(HSV hsv) {
         return
-                hsv.between(minPurple, maxPurple) ? PURPLE :
-                hsv.between(minGreen, maxGreen) ? GREEN :
-                hsv.between(minYellow, maxYellow) ? YELLOW :
-                hsv.between(minWhite, maxWhite) ? WHITE :
-                EMPTY;
+                hsv.between(minRed, maxRed) ? RED :
+                hsv.between(minBlue, maxBlue) ? BLUE :
+                hsv.between(minYellow, maxYellow) ? NEUTRAL :
+                NONE;
     }
 
     void run(int pixelsInDeposit, boolean depositIsExtended, boolean liftIsScoring) {
@@ -211,7 +186,7 @@ public final class Intake {
         switch (state) {
             case HAS_0_PIXELS:
 
-                boolean bottomFull = (colors[0] = readColorSensor(0)) != EMPTY;
+                boolean bottomFull = (color = readColorSensor(0)) != NONE;
                 if (bottomFull || !isIntaking) {
                     state = PIXEL_1_SETTLING;
                     timer.reset();
@@ -224,16 +199,16 @@ public final class Intake {
 
             case HAS_1_PIXEL:
 
-                boolean topFull = (colors[1] = readColorSensor(1)) != EMPTY;
+                boolean topFull = (color = readColorSensor(1)) != NONE;
                 if (topFull || !isIntaking || intakingAmount == 1) {
-                    if (colors[0] != EMPTY) latch.setActivated(true);
+                    if (color != NONE) latch.setActivated(true);
                     state = WAITING_FOR_DEPOSIT;
                 } else break;
 
             case WAITING_FOR_DEPOSIT:
 
-                boolean bottomEmpty = colors[0] == EMPTY;
-                int pixelsInIntake = (colors[1] == EMPTY ? 0 : 1) + (bottomEmpty ? 0 : 1);
+                boolean bottomEmpty = color == NONE;
+                int pixelsInIntake = (color == NONE ? 0 : 1) + (bottomEmpty ? 0 : 1);
 
                 if (bottomEmpty) {
                     retract();
@@ -242,7 +217,6 @@ public final class Intake {
                     state = PIVOTING;
                     pivot.setActivated(true);
                     timer.reset();
-                    setHeight(FLOOR);
                 } else break;
 
             case PIVOTING:
@@ -257,7 +231,7 @@ public final class Intake {
 
             case PIXELS_FALLING:
 
-                if (readColorSensor(1) == EMPTY && readColorSensor(0) == EMPTY) {
+                if (readColorSensor(1) == NONE && readColorSensor(0) == NONE) {
                     state = PIXELS_SETTLING;
                     timer.reset();
                 } else break;
@@ -290,7 +264,6 @@ public final class Intake {
 
         double ANGLE_PIVOT_DOWN =
                 doneIntaking ? ANGLE_PIVOT_VERTICAL :
-                height != FLOOR ? height.getAngle() :
                 motorPower > 0 ? 0 :
                 ANGLE_PIVOT_FLOOR_CLEARANCE;
 
@@ -309,9 +282,9 @@ public final class Intake {
         motor.set(motorPower);
     }
 
-    private Pixel.Color readColorSensor(int i) {
+    private Sample readColorSensor(int i) {
         sensors[i].update();
-        return reads[i] = fromHSV(HSVs[i] = sensors[i].getHSV());
+        return fromHSV(HSVs[i] = sensors[i].getHSV());
     }
 
     private void retract() {
@@ -326,10 +299,6 @@ public final class Intake {
 
     boolean pixelsTransferred() {
         return pixelsTransferred;
-    }
-
-    public void setHeight(Intake.Height height) {
-        this.height = height;
     }
 
     public void setMotorPower(double motorPower) {
@@ -351,9 +320,6 @@ public final class Intake {
 
     void printTelemetry() {
         mTelemetry.addLine("Intaking " + intakingAmount + " pixels");
-        mTelemetry.addLine();
-        mTelemetry.addData("Top color", reads[1].name());
-        mTelemetry.addData("Bottom color", reads[0].name());
     }
 
     void printNumericalTelemetry() {

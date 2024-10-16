@@ -4,7 +4,6 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1150;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
-import static org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel.Color.EMPTY;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.ROW_CLIMBED;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.ROW_CLIMBING;
@@ -21,7 +20,6 @@ import static java.lang.Math.round;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -30,9 +28,7 @@ import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.FeedforwardGains;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.LowPassGains;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
-import org.firstinspires.ftc.teamcode.control.gainmatrices.ProfileConstraints;
 import org.firstinspires.ftc.teamcode.control.motion.State;
-import org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 
 @Config
@@ -91,12 +87,6 @@ public final class Deposit {
                 20
         );
 
-        public static ProfileConstraints profileConstraints = new ProfileConstraints(
-                40,
-                100,
-                0
-        );
-
         public static double
                 kG = 0.15,
                 INCHES_PER_TICK = 0.0088581424,
@@ -132,9 +122,7 @@ public final class Deposit {
             motors[1].setInverted(true);
             for (MotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
 
-            MotorEx motor = new MotorEx(hardwareMap, "right back", RPM_312);
-
-            encoder = motor.encoder;
+            encoder = new MotorEx(hardwareMap, "right back", RPM_312).encoder;
 
             reset();
         }
@@ -244,7 +232,6 @@ public final class Deposit {
         private final ElapsedTime timer = new ElapsedTime(), retractionTimer = new ElapsedTime();
         private boolean droppedPixel = true, floor = false;
         int numOfPixels = 0;
-        public final Pixel.Color[] colors = {EMPTY, EMPTY};
 
         private Paintbrush(HardwareMap hardwareMap) {
             pivot = new SimpleServoPivot(
@@ -267,35 +254,8 @@ public final class Deposit {
             );
         }
 
-        public void lockPixels(Pixel.Color... colors) {
-            int pixelsInIntake = 0;
-            for (Pixel.Color color : colors) if (color != EMPTY) pixelsInIntake++;
-
-            if (pixelsInIntake == 1) {
-                if (numOfPixels == 0) this.colors[1] = colors[0];
-                if (numOfPixels == 1) this.colors[0] = colors[0];
-            } else if (pixelsInIntake == 2) {
-                this.colors[1] = colors[1];
-                this.colors[0] = colors[0];
-            }
-
-            numOfPixels = clip(numOfPixels + pixelsInIntake, 0, 2);
-        }
-
         public void toggleFloor() {
             floor = !floor;
-        }
-
-        public void dropPixel() {
-            numOfPixels = clip(numOfPixels - 1, 0, 2);
-            if (numOfPixels <= 1) colors[0] = EMPTY;
-            if (numOfPixels == 0) {
-                colors[1] = EMPTY;
-                if (pivot.isActivated()) {
-                    droppedPixel = false;
-                    timer.reset();
-                }
-            }
         }
 
         private void run() {
@@ -314,11 +274,6 @@ public final class Deposit {
             hook.run();
 
             if (pivot.isActivated()) retractionTimer.reset();
-        }
-
-        void printTelemetry() {
-            mTelemetry.addData("First color", colors[0].name());
-            mTelemetry.addData("Second color", colors[1].name());
         }
     }
 }
