@@ -1,17 +1,17 @@
-package org.firstinspires.ftc.teamcode.subsystems.centerstage;
+package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1150;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.ROW_CLIMBED;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.ROW_CLIMBING;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.ROW_RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Paintbrush.TIME_DROP_SECOND;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Paintbrush.TIME_FLOOR_RETRACTION;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Paintbrush.TIME_SCORING_RETRACTION;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Robot.maxVoltage;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.ROW_CLIMBED;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.ROW_CLIMBING;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.ROW_RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Paintbrush.TIME_DROP_SECOND;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Paintbrush.TIME_FLOOR_RETRACTION;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Paintbrush.TIME_SCORING_RETRACTION;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Paintbrush.ANGLE_PIVOT_OFFSET;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Paintbrush.ANGLE_PIVOT_OFFSET;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 

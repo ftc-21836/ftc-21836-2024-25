@@ -32,7 +32,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.centerstage.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {

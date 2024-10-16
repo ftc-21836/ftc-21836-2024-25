@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.control.controllers;
 
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Robot.maxVoltage;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 
 import org.firstinspires.ftc.teamcode.control.motion.State;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.FeedforwardGains;

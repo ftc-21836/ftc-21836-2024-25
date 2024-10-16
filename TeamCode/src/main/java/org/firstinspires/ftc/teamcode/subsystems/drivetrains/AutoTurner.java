@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrains;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Robot.maxVoltage;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.config.Config;

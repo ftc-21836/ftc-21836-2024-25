@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.control.gainmatrices;
 
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.PERCENT_OVERSHOOT;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.feedforwardGains;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Deposit.Lift.pidGains;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.PERCENT_OVERSHOOT;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.feedforwardGains;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.pidGains;
 
 public final class TestSMARTDAMP {
 

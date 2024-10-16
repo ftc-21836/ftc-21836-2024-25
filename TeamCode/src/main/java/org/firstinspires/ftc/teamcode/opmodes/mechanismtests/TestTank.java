@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Robot.maxVoltage;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 
 import static java.lang.Math.max;
 

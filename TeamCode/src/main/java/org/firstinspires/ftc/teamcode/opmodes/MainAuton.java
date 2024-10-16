@@ -29,7 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.vision.detectors.TeamPropDetector;
 import org.firstinspires.ftc.teamcode.control.vision.pipelines.PropDetectPipeline;
-import org.firstinspires.ftc.teamcode.subsystems.centerstage.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @Autonomous(preselectTeleOp = "MainTeleOp")
 public final class MainAuton extends LinearOpMode {

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrains;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.BARE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.BRAKE;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
-import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Robot.maxVoltage;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
