@@ -12,8 +12,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrains.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrains.MecanumDrivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 
 

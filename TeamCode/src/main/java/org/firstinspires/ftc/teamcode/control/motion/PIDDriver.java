@@ -10,7 +10,6 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrains.Drivetrain;
 
 @Config
 public final class PIDDriver {

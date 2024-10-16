@@ -13,11 +13,8 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.control.vision.pipelines.placementalg.Pixel.Color.WHITE;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isBackdropSide;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.BACKWARD;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.FORWARD;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.autonEndPose;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx2;
@@ -34,9 +31,6 @@ import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Heigh
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.FOUR_STACK;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.THREE_STACK;
 import static org.firstinspires.ftc.teamcode.subsystems.centerstage.Intake.Height.TWO_STACK;
-import static java.lang.Math.PI;
-import static java.lang.Math.atan2;
-import static java.lang.Math.hypot;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -140,11 +134,11 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
         }
 
-        if (lockSlowMode) robot.drivetrain.lockSlowMode();
+//        if (lockSlowMode) robot.drivetrain.lockSlowMode();
 
         if (autonEndPose == null) autonEndPose = AutonVars.startPose.byBoth().toPose2d();
-        robot.drivetrain.setPoseEstimate(autonEndPose);
-        robot.drivetrain.setCurrentHeading(autonEndPose.getHeading() - (isRed ? FORWARD : BACKWARD));
+//        robot.drivetrain.setPoseEstimate(autonEndPose);
+//        robot.drivetrain.setCurrentHeading(autonEndPose.getHeading() - (isRed ? FORWARD : BACKWARD));
     }
 
     static void teleOpControls() {
@@ -165,15 +159,15 @@ public final class MainTeleOp extends LinearOpMode {
             robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
             if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
-            // SET HEADING:
-            double y = gamepadEx1.getRightY();
-            if (hypot(x, y) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(y, x) - FORWARD);
-            x = 0;
+//            // SET HEADING:
+//            double y = gamepadEx1.getRightY();
+//            if (hypot(x, y) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(y, x) - FORWARD);
+//            x = 0;
 
-            if (keyPressed(1, DPAD_UP))         robot.drivetrain.setTargetHeading(0);
-            else if (keyPressed(1, DPAD_LEFT))  robot.drivetrain.setTargetHeading(PI * 0.5);
-            else if (keyPressed(1, DPAD_DOWN))  robot.drivetrain.setTargetHeading(PI);
-            else if (keyPressed(1, DPAD_RIGHT)) robot.drivetrain.setTargetHeading(PI * 1.5);
+//            if (keyPressed(1, DPAD_UP))         robot.drivetrain.setTargetHeading(0);
+//            else if (keyPressed(1, DPAD_LEFT))  robot.drivetrain.setTargetHeading(PI * 0.5);
+//            else if (keyPressed(1, DPAD_DOWN))  robot.drivetrain.setTargetHeading(PI);
+//            else if (keyPressed(1, DPAD_RIGHT)) robot.drivetrain.setTargetHeading(PI * 1.5);
 
             if (keyPressed(1, Y))               robot.intake.setHeight(FIVE_STACK);
             if (keyPressed(1, X))               robot.intake.setHeight(FOUR_STACK);
@@ -186,7 +180,6 @@ public final class MainTeleOp extends LinearOpMode {
             if (keyPressed(1, DPAD_DOWN))       robot.deposit.lift.changeRowBy(-1);
             else if (keyPressed(1, DPAD_UP))    robot.deposit.lift.changeRowBy(1);
             else if (keyPressed(1, DPAD_LEFT))  robot.deposit.paintbrush.dropPixel();
-            else if (keyPressed(1, DPAD_RIGHT)) robot.deposit.paintbrush.lockPixels(WHITE);
 
             if (keyPressed(1, Y))               robot.deposit.goToLastRow();
             if (keyPressed(1, X))               robot.intake.toggle();
@@ -203,12 +196,12 @@ public final class MainTeleOp extends LinearOpMode {
                 ));
 
         robot.run();
-        robot.drivetrain.run(
-                overrideMode ? 0 : gamepadEx1.getLeftX(),
-                overrideMode ? 0 : gamepadEx1.getLeftY(),
-                x,
-                driveSlow
-        );
+//        robot.drivetrain.run(
+//                overrideMode ? 0 : gamepadEx1.getLeftX(),
+//                overrideMode ? 0 : gamepadEx1.getLeftY(),
+//                x,
+//                driveSlow
+//        );
     }
 
     static boolean isTranslating() {
