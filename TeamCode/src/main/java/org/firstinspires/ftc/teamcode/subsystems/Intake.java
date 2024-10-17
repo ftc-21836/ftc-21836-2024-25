@@ -9,12 +9,10 @@ import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_PIVOTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_RAISING;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.DROPPING_BAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.WAITING_FOR_DEPOSIT;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
@@ -119,6 +117,8 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
+    private final Sample badSample = isRed ? BLUE : RED;
+
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
     private boolean isIntaking = false;
@@ -131,8 +131,6 @@ public final class Intake {
         BUCKET_PIVOTING,
         DROPPING_BAD_SAMPLE,
         EXTENDO_RETRACTING,
-        WAITING_FOR_DEPOSIT,
-        BUCKET_RETRACTING,
     }
 
     Intake(HardwareMap hardwareMap) {
@@ -183,7 +181,7 @@ public final class Intake {
                     state = BUCKET_RAISING;
                     timer.reset();
                 } else {
-                    bucket.setActivated(depositIsActive);
+                    bucket.setActivated(depositIsActive || (depositHasSample && sample != NONE));
                     break;
                 }
 
@@ -196,29 +194,29 @@ public final class Intake {
 
             case INTAKING:
 
-                Sample badSample = isRed ? BLUE : RED;
-
                 colorSensor.update();
                 hsv = colorSensor.getHSV();
-                Sample sample = Sample.fromHSV(hsv);
+                sample = Sample.fromHSV(hsv);
 
                 if (sample == badSample) {
                     latch.setActivated(true);
+                    bucket.setActivated(false);
                     state = BUCKET_PIVOTING;
                     timer.reset();
-                } else if (sample != NONE || !isIntaking) {
-                    if (sample != NONE) latch.setActivated(true);
-                    this.sample = sample;
-                    state = EXTENDO_RETRACTING;
-                    extendo.setActivated(false);
-                    timer.reset();
+                } else {
+                    if (sample != NONE || !isIntaking) {
+                        if (sample != NONE) latch.setActivated(true);
+                        state = EXTENDO_RETRACTING;
+                        extendo.setActivated(false);
+                        timer.reset();
+                    }
                     break;
-                } else break;
+                }
 
             case BUCKET_PIVOTING:
 
                 if (timer.seconds() >= TIME_BUCKET_PIVOT) {
-                    latch.setActivated(false);
+                    releaseSample();
                     state = DROPPING_BAD_SAMPLE;
                     timer.reset();
                 } else break;
@@ -227,30 +225,18 @@ public final class Intake {
 
                 if (timer.seconds() >= TIME_DROP) {
                     state = INTAKING;
+                    bucket.setActivated(true);
                 } else break;
 
             case EXTENDO_RETRACTING:
 
-                if (extendoSensor.isPressed()) state = WAITING_FOR_DEPOSIT;
-                else if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
-                else break;
-
-            case WAITING_FOR_DEPOSIT:
-
-                if (this.sample == NONE) {
+                if (extendoSensor.isPressed()) {
                     state = RETRACTED;
                     isIntaking = false;
-                } else if (!depositIsExtended && !depositHasSample) {
-                    bucket.setActivated(false);
-                    state = BUCKET_RETRACTING;
-                } else break;
-
-            case BUCKET_RETRACTING:
-
-                if (bucketSensor.isPressed()) {
-                    state = RETRACTED;
-                    isIntaking = false;
-                } else break;
+                } else {
+                    if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
+                    break;
+                }
         }
 
         if (!bucket.isActivated()) timeSinceBucketRetracted.reset();
@@ -275,11 +261,12 @@ public final class Intake {
     }
 
     boolean awaitingTransfer() {
-        return state == RETRACTED && sample != NONE;
+        return sample != NONE && bucketSensor.isPressed() && extendoSensor.isPressed();
     }
 
     void releaseSample() {
         latch.setActivated(false);
+        sample = NONE;
     }
 
     boolean clearOfDeposit() {
