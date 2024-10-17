@@ -4,8 +4,10 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 
@@ -19,7 +21,7 @@ public final class Robot {
             ANGLE_SPIKE_LOCKED = 90,
             ANGLE_SPIKE_RELEASED = 0;
 
-//    public final Drivetrain drivetrain;
+    public final MecanumDrive drivetrain;
     public final Intake intake;
     public final Deposit deposit;
     public final SimpleServoPivot drone, spike;
@@ -29,8 +31,7 @@ public final class Robot {
     public Robot(HardwareMap hardwareMap) {
         bulkReader = new BulkReader(hardwareMap);
 
-//        drivetrain = new MecanumDrivetrain(hardwareMap);
-//        drivetrain.update();
+        drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
         intake = new Intake(hardwareMap);
         deposit = new Deposit(hardwareMap);
         drone = new SimpleServoPivot(
@@ -56,7 +57,7 @@ public final class Robot {
 
     public void readSensors() {
         bulkReader.bulkRead();
-//        drivetrain.update();
+        drivetrain.updatePoseEstimate();
         deposit.lift.readSensors();
     }
 
@@ -79,7 +80,7 @@ public final class Robot {
     }
 
     public void printTelemetry() {
-//        drivetrain.printNumericalTelemetry();
+        drivetrain.printNumericalTelemetry();
         mTelemetry.addLine();
 //        deposit.paintbrush.printTelemetry();
         mTelemetry.addLine();
