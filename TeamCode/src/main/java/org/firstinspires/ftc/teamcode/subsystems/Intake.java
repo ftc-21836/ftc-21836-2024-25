@@ -239,7 +239,7 @@ public final class Intake {
                 }
         }
 
-        if (!bucket.isActivated() && state != BUCKET_PIVOTING && state != DROPPING_BAD_SAMPLE) timeSinceBucketRetracted.reset();
+        if (isRetracted()) timeSinceBucketRetracted.reset();
 
         if (state != INTAKING) setMotorPower(0);
 
@@ -261,7 +261,11 @@ public final class Intake {
     }
 
     boolean awaitingTransfer() {
-        return sample != NONE && bucketSensor.isPressed() && extendoSensor.isPressed();
+        return sample != NONE && isRetracted();
+    }
+
+    private boolean isRetracted() {
+        return bucketSensor.isPressed() && extendoSensor.isPressed();
     }
 
     void releaseSample() {
