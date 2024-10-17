@@ -19,8 +19,13 @@ public final class Robot {
             ANGLE_SPIKE_LOCKED = 90,
             ANGLE_SPIKE_RELEASED = 0;
 
+    public static boolean
+            depositHasSample = false,
+            depositIsExtended = false,
+            depositTryingToExtend = false;
+
     public final MecanumDrive drivetrain;
-//    public final Intake intake;
+    public final Intake intake;
 //    public final Deposit deposit;
 //    public final SimpleServoPivot drone, spike;
 
@@ -30,7 +35,7 @@ public final class Robot {
         bulkReader = new BulkReader(hardwareMap);
 
         drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-//        intake = new Intake(hardwareMap);
+        intake = new Intake(hardwareMap);
 //        deposit = new Deposit(hardwareMap);
 //        drone = new SimpleServoPivot(
 //                ANGLE_DRONE_LOADED,
@@ -63,13 +68,15 @@ public final class Robot {
 //        drone.updateAngles(ANGLE_DRONE_LOADED, ANGLE_DRONE_LAUNCHED);
 //        spike.updateAngles(ANGLE_SPIKE_RELEASED, ANGLE_SPIKE_LOCKED);
 
-//        if (intake.pixelsTransferred()) deposit.paintbrush.lockPixels(intake.colors);
+//        if (intake.awaitingTransfer()) {
+//            deposit.paintbrush.lockPixels(intake.colors);
+//        }
 
-//        intake.run(
-//                deposit.paintbrush.numOfPixels,
-//                deposit.isExtended(),
-//                deposit.lift.isScoring()
-//        );
+        intake.run(
+                depositHasSample,
+                depositIsExtended,
+                depositTryingToExtend
+        );
 //        deposit.run(intake.clearOfDeposit());
 //
 //
@@ -84,7 +91,7 @@ public final class Robot {
         mTelemetry.addLine();
 //        deposit.lift.printTelemetry();
         mTelemetry.addLine();
-//        intake.printTelemetry();
+        intake.printTelemetry();
         mTelemetry.addLine();
         mTelemetry.addLine();
         mTelemetry.addLine();
@@ -92,6 +99,6 @@ public final class Robot {
         mTelemetry.addLine();
 //        deposit.lift.printNumericalTelemetry();
         mTelemetry.addLine();
-//        intake.printNumericalTelemetry();
+        intake.printNumericalTelemetry();
     }
 }
