@@ -77,16 +77,6 @@ public final class Deposit {
                 0.2
         );
 
-        public static FeedforwardGains feedforwardGains = new FeedforwardGains(
-                0.0015,
-                0.000085
-        );
-
-        public static LowPassGains lowPassGains = new LowPassGains(
-                0.85,
-                20
-        );
-
         public static double
                 kG = 0.15,
                 INCHES_PER_TICK = 0.0088581424,
