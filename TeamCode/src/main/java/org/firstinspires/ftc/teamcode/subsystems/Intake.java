@@ -231,10 +231,7 @@ public final class Intake {
                 if (extendoSensor.isPressed()) {
                     state = RETRACTED;
                     isIntaking = false;
-                } else {
-                    if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
-                    break;
-                }
+                } else if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
         }
 
         if (isRetracted()) timeSinceBucketRetracted.reset();
@@ -260,6 +257,10 @@ public final class Intake {
         motor.set(motorPower);
     }
 
+    boolean clearOfDeposit() {
+        return timeSinceBucketRetracted.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
+    }
+
     boolean awaitingTransfer() {
         return sample != NONE && isRetracted();
     }
@@ -271,10 +272,6 @@ public final class Intake {
     void releaseSample() {
         latch.setActivated(false);
         sample = NONE;
-    }
-
-    boolean clearOfDeposit() {
-        return timeSinceBucketRetracted.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
     }
 
     public void setMotorPower(double motorPower) {
