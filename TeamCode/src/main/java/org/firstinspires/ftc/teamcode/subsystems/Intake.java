@@ -243,8 +243,8 @@ public final class Intake {
 
         if (state != INTAKING) setMotorPower(0);
 
-        double ANGLE_BUCKET_DOWN =
-                state == INTAKING ? ANGLE_BUCKET_INTAKING - (motorPower != 0 ? 0 : ANGLE_BUCKET_FLOOR_CLEARANCE) :
+        double ANGLE_BUCKET_DOWN = state == INTAKING ?
+                ANGLE_BUCKET_INTAKING - (motorPower == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0) :
                 ANGLE_BUCKET_VERTICAL;
 
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED,ANGLE_BUCKET_DOWN);
