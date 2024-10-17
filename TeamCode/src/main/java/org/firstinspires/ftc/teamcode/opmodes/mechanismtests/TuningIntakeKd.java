@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_PIVOT_OFFSET;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_PIVOT_TRANSFERRING;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_BUCKET_RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_BUCKET_INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 
@@ -26,8 +26,8 @@ public final class TuningIntakeKd extends LinearOpMode {
         BulkReader bulkReader = new BulkReader(hardwareMap);
 
         pivot = new SimpleServoPivot(
-                ANGLE_PIVOT_OFFSET,
-                ANGLE_PIVOT_OFFSET + ANGLE_PIVOT_TRANSFERRING,
+                ANGLE_BUCKET_RETRACTED,
+                ANGLE_BUCKET_RETRACTED + ANGLE_BUCKET_INTAKING,
                 getAxonServo(hardwareMap, "intake right"),
                 getReversedServo(getAxonServo(hardwareMap, "intake left"))
         );
@@ -43,8 +43,8 @@ public final class TuningIntakeKd extends LinearOpMode {
             gamepadEx1.readButtons();
 
             pivot.updateAngles(
-                    ANGLE_PIVOT_OFFSET,
-                    ANGLE_PIVOT_OFFSET + ANGLE_PIVOT_TRANSFERRING
+                    ANGLE_BUCKET_RETRACTED,
+                    ANGLE_BUCKET_RETRACTED + ANGLE_BUCKET_INTAKING
             );
 
             if (keyPressed(1, X)) pivot.toggle();
