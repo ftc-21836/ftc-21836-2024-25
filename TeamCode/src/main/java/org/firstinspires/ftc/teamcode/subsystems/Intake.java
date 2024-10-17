@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
@@ -26,6 +25,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
+import org.firstinspires.ftc.teamcode.opmodes.AutonVars;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
@@ -117,7 +117,7 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
-    private final Sample badSample = isRed ? BLUE : RED;
+    private final Sample badSample = AutonVars.isRed ? BLUE : RED;
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
