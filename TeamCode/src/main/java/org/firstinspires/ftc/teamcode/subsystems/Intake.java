@@ -253,6 +253,8 @@ public final class Intake {
 
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
 
+        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED,ANGLE_EXTENDO_EXTENDED);
+
         bucket.run();
         latch.run();
         extendo.run();
