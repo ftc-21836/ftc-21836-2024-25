@@ -168,9 +168,7 @@ public final class Intake {
         timer.reset();
     }
 
-    void run(boolean depositHasSample, boolean depositIsExtended, boolean depositTryingToExtend) {
-
-        boolean depositIsActive = depositTryingToExtend || depositIsExtended;
+    void run(boolean depositHasSample, boolean depositIsActive) {
 
         switch (state) {
 

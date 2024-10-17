@@ -21,8 +21,7 @@ public final class Robot {
 
     public static boolean
             depositHasSample = false,
-            depositIsExtended = false,
-            depositTryingToExtend = false;
+            depositIsActive = false;
 
     public final MecanumDrive drivetrain;
     public final Intake intake;
@@ -72,11 +71,7 @@ public final class Robot {
 //            deposit.paintbrush.lockPixels(intake.colors);
 //        }
 
-        intake.run(
-                depositHasSample,
-                depositIsExtended,
-                depositTryingToExtend
-        );
+        intake.run(depositHasSample, depositIsActive);
 //        deposit.run(intake.clearOfDeposit());
 //
 //
