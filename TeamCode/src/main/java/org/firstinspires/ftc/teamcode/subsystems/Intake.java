@@ -239,7 +239,7 @@ public final class Intake {
                 }
         }
 
-        if (!bucket.isActivated()) timeSinceBucketRetracted.reset();
+        if (!bucket.isActivated() && state != BUCKET_PIVOTING && state != DROPPING_BAD_SAMPLE) timeSinceBucketRetracted.reset();
 
         if (state != INTAKING) setMotorPower(0);
 
