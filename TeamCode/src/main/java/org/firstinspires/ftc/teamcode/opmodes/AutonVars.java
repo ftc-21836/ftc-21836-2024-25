@@ -26,7 +26,7 @@ public final class AutonVars {
 
     public static boolean
             isRed = true,
-            isBackdropSide = true,
+            isRight = true,
             cycle = false;
 
     static ParkingLocation parking = CORNER;

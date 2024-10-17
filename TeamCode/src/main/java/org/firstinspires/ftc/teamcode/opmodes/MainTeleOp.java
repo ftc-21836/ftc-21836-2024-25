@@ -12,8 +12,8 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isBackdropSide;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
+import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRight;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.FORWARD;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.autonEndPose;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
@@ -110,7 +110,7 @@ public final class MainTeleOp extends LinearOpMode {
                     isRed = !isRed;
                     break;
                 case EDITING_SIDE:
-                    isBackdropSide = !isBackdropSide;
+                    isRight = !isRight;
                     break;
                 case EDITING_AUTO_SLOW:
                     doAutoSlow = !doAutoSlow;
@@ -123,7 +123,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             mTelemetry.addLine((isRed ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
-            mTelemetry.addLine((isBackdropSide ? "BACKDROP " : "AUDIENCE ") + "side" + selection.markIf(EDITING_SIDE));
+            mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
             mTelemetry.addLine("Auto slow is " + (doAutoSlow ? "enabled" : "disabled") + selection.markIf(EDITING_AUTO_SLOW));
             mTelemetry.addLine();

@@ -37,7 +37,7 @@ public final class EditablePose {
 
     public EditablePose bySide() {
         return new EditablePose(
-                x + (AutonVars.isBackdropSide ? 0 : X_START_LEFT - X_START_RIGHT),
+                x + (AutonVars.isRight ? 0 : X_START_LEFT - X_START_RIGHT),
                 y,
                 heading
         );
@@ -45,9 +45,9 @@ public final class EditablePose {
 
     public EditablePose flipBySide() {
         return new EditablePose(
-                AutonVars.isBackdropSide ? x : X_START_RIGHT + X_START_LEFT - x,
+                AutonVars.isRight ? x : X_START_RIGHT + X_START_LEFT - x,
                 y,
-                AutonVars.isBackdropSide ? heading : Math.PI - heading
+                AutonVars.isRight ? heading : Math.PI - heading
         );
     }
 

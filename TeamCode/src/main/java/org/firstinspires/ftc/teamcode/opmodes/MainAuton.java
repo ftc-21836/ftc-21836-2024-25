@@ -9,7 +9,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.PARTNER_WAIT;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.cycle;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isBackdropSide;
+import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRight;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.parking;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_ALLIANCE;
@@ -66,19 +66,6 @@ public final class MainAuton extends LinearOpMode {
         public String markIf(AutonConfig s) {
             return this == s ? " <" : "";
         }
-
-        public void printTelemetry() {
-            mTelemetry.addLine((isRed ? "RED " : "BLUE ") + markIf(EDITING_ALLIANCE));
-            mTelemetry.addLine();
-            mTelemetry.addLine((isBackdropSide ? "BACKDROP " : "AUDIENCE ") + "side" + markIf(EDITING_SIDE));
-            mTelemetry.addLine();
-            mTelemetry.addLine(parking.name() + " PARKING" + markIf(EDITING_PARK));
-            mTelemetry.addLine();
-            mTelemetry.addLine("WILL " + (cycle ? "CYCLE" : "NOT CYCLE") + markIf(EDITING_CYCLE));
-            mTelemetry.addLine();
-            mTelemetry.addLine("Pause after spike: " + PARTNER_WAIT + markIf(EDITING_WAIT));
-            mTelemetry.addLine();
-        }
     }
 
     public static int loopMod(int a, int b) {
@@ -116,7 +103,7 @@ public final class MainAuton extends LinearOpMode {
                     isRed = !isRed;
                     break;
                 case EDITING_SIDE:
-                    isBackdropSide = !isBackdropSide;
+                    isRight = !isRight;
                     break;
                 case EDITING_PARK:
                     parking = parking.plus(1);
@@ -139,7 +126,7 @@ public final class MainAuton extends LinearOpMode {
 
             mTelemetry.update();
         }
-        robot.preload(isBackdropSide);
+        robot.preload(isRight);
         robot.run();
 
         TeamPropDetector detector = new TeamPropDetector(hardwareMap);
@@ -179,7 +166,7 @@ public final class MainAuton extends LinearOpMode {
     private void printConfig(AutonConfig selection) {
         mTelemetry.addLine((isRed ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
-        mTelemetry.addLine((isBackdropSide ? "BACKDROP " : "AUDIENCE ") + "side" + selection.markIf(EDITING_SIDE));
+        mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
         mTelemetry.addLine();
         mTelemetry.addLine(parking.name() + " PARKING" + selection.markIf(EDITING_PARK));
         mTelemetry.addLine();
