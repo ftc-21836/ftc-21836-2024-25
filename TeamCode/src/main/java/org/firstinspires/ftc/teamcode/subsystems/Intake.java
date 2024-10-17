@@ -58,16 +58,6 @@ public final class Intake {
      * HSV value bound for intake pixel detection
      */
     public static HSV
-            minWhite = new HSV(
-                    0,
-                    0,
-                    0.03
-            ),
-            maxWhite = new HSV(
-                    360,
-                    0.6,
-                    0.45
-            ),
             minRed = new HSV(
                     205,
                     0.55,
@@ -108,8 +98,8 @@ public final class Intake {
 
     private final MotorEx motor;
 
-    private final ColorSensor[] sensors;
-    private final HSV[] HSVs = {new HSV(), new HSV()};
+    private final ColorSensor colorSensor;
+    private HSV HSV = new HSV();
     public Sample color = NONE;
 
     private final TouchSensor pivotSensor;
@@ -156,10 +146,7 @@ public final class Intake {
         motor.setZeroPowerBehavior(FLOAT);
         motor.setInverted(true);
 
-        sensors = new ColorSensor[]{
-            new ColorSensor(hardwareMap, "bottom color", (float) COLOR_SENSOR_GAIN),
-            new ColorSensor(hardwareMap, "top color", (float) COLOR_SENSOR_GAIN),
-        };
+        colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
         pivotSensor = hardwareMap.get(TouchSensor.class, "intake pivot sensor");
 
@@ -283,8 +270,8 @@ public final class Intake {
     }
 
     private Sample readColorSensor(int i) {
-        sensors[i].update();
-        return fromHSV(HSVs[i] = sensors[i].getHSV());
+        colorSensor.update();
+        return fromHSV(HSV = colorSensor.getHSV());
     }
 
     private void retract() {
@@ -323,8 +310,6 @@ public final class Intake {
     }
 
     void printNumericalTelemetry() {
-        HSVs[1].toTelemetry("Top HSV");
-        mTelemetry.addLine();
-        HSVs[0].toTelemetry("Bottom HSV");
+        HSV.toTelemetry("Bucket HSV");
     } 
 }
