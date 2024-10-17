@@ -27,9 +27,9 @@ public final class TuningIntakeKd extends LinearOpMode {
 
         pivot = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
-                ANGLE_BUCKET_RETRACTED + ANGLE_BUCKET_INTAKING,
-                getAxonServo(hardwareMap, "intake right"),
-                getReversedServo(getAxonServo(hardwareMap, "intake left"))
+                ANGLE_BUCKET_INTAKING,
+                getAxonServo(hardwareMap, "bucket right"),
+                getReversedServo(getAxonServo(hardwareMap, "bucket left"))
         );
 
         // Initialize gamepads:
@@ -43,8 +43,8 @@ public final class TuningIntakeKd extends LinearOpMode {
             gamepadEx1.readButtons();
 
             pivot.updateAngles(
-                    ANGLE_BUCKET_RETRACTED,
-                    ANGLE_BUCKET_RETRACTED + ANGLE_BUCKET_INTAKING
+                ANGLE_BUCKET_RETRACTED,
+                ANGLE_BUCKET_INTAKING,
             );
 
             if (keyPressed(1, X)) pivot.toggle();
