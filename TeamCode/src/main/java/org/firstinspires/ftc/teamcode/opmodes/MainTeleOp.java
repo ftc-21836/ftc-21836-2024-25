@@ -2,15 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRight;
@@ -26,7 +21,6 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDI
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_AUTO_SLOW;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
-
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
 
@@ -141,21 +135,21 @@ public final class MainTeleOp extends LinearOpMode {
 
     static void teleOpControls() {
 
-        if (keyPressed(2, DPAD_RIGHT))   robot.spike.toggle();
+//        if (keyPressed(2, DPAD_RIGHT))   robot.spike.toggle();
         if (keyPressed(2, LEFT_BUMPER))   doAutoSlow = !doAutoSlow;
-        if (keyPressed(2, DPAD_LEFT))   robot.deposit.paintbrush.toggleFloor();
+//        if (keyPressed(2, DPAD_LEFT))   robot.deposit.paintbrush.toggleFloor();
 
-        robot.intake.setMotorPower(
-                gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-        );
+//        robot.intake.setMotorPower(
+//                gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+//        );
 
         double x = gamepadEx1.getRightX();
         boolean overrideMode = gamepadEx1.isDown(LEFT_BUMPER);
 
         if (overrideMode) {
 
-            robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
-            if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+//            robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
+//            if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
             // SET HEADING:
             double y = gamepadEx1.getRightY();
@@ -169,11 +163,11 @@ public final class MainTeleOp extends LinearOpMode {
 
         } else {
 
-            if (keyPressed(1, DPAD_DOWN))       robot.deposit.lift.changeRowBy(-1);
-            else if (keyPressed(1, DPAD_UP))    robot.deposit.lift.changeRowBy(1);
-
-            if (keyPressed(1, Y))               robot.deposit.goToLastRow();
-            if (keyPressed(1, X))               robot.intake.toggle();
+//            if (keyPressed(1, DPAD_DOWN))       robot.deposit.lift.changeRowBy(-1);
+//            else if (keyPressed(1, DPAD_UP))    robot.deposit.lift.changeRowBy(1);
+//
+//            if (keyPressed(1, Y))               robot.deposit.goToLastRow();
+//            if (keyPressed(1, X))               robot.intake.toggle();
             if (keyPressed(1, B))               robot.endgame();
 
         }
@@ -182,7 +176,7 @@ public final class MainTeleOp extends LinearOpMode {
         boolean driveSlow =
                 gamepadEx1.isDown(RIGHT_BUMPER) ||
                 (doAutoSlow && (
-                        (robot.deposit.lift.isScoring() && robot.deposit.lift.isExtended()) ||
+//                        (robot.deposit.lift.isScoring() && robot.deposit.lift.isExtended()) ||
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0
                 ));
 
