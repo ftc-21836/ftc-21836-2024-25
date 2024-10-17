@@ -291,7 +291,7 @@ public final class Intake {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("Bucket contains", (sample == NONE ? "no" : "a " + sample.name()) + " sample");
+        mTelemetry.addData("Bucket", (sample == NONE ? "empty" : "contains a " + sample.name() + " sample"));
     }
 
     void printNumericalTelemetry() {
