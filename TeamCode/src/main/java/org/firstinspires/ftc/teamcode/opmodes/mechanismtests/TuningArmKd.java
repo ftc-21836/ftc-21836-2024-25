@@ -3,7 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Arm.ANGLE_PIVOT_RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 
 @TeleOp(group = "Single mechanism test")
-public final class TuningPaintbrushKd extends LinearOpMode {
+public final class TuningArmKd extends LinearOpMode {
 
     SimpleServoPivot pivot;
 
@@ -25,8 +26,8 @@ public final class TuningPaintbrushKd extends LinearOpMode {
         BulkReader bulkReader = new BulkReader(hardwareMap);
 
         pivot = new SimpleServoPivot(
-                ANGLE_PIVOT_RETRACTED,
-                ANGLE_PIVOT_RETRACTED + 120,
+                ANGLE_ARM_RETRACTED,
+                ANGLE_ARM_SAMPLE,
                 getAxonServo(hardwareMap, "deposit left"),
                 getReversedServo(getAxonServo(hardwareMap, "deposit right"))
         );
@@ -41,7 +42,7 @@ public final class TuningPaintbrushKd extends LinearOpMode {
             bulkReader.bulkRead();
             gamepadEx1.readButtons();
 
-            pivot.updateAngles(ANGLE_PIVOT_RETRACTED, ANGLE_PIVOT_RETRACTED + 120);
+            pivot.updateAngles(ANGLE_ARM_RETRACTED, ANGLE_ARM_SAMPLE);
 
             if (keyPressed(1, X)) pivot.toggle();
 

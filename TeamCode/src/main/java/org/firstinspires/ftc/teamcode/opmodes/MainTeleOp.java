@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
@@ -30,6 +35,7 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @TeleOp
@@ -126,7 +132,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
         }
 
-//        if (lockSlowMode) robot.drivetrain.lockSlowMode();
+        if (lockSlowMode) robot.drivetrain.lockSlowMode();
 
         if (autonEndPose == null) autonEndPose = AutonVars.startPose.byBoth().toPose2d();
 //        robot.drivetrain.setPoseEstimate(autonEndPose);
@@ -135,9 +141,7 @@ public final class MainTeleOp extends LinearOpMode {
 
     static void teleOpControls() {
 
-//        if (keyPressed(2, DPAD_RIGHT))   robot.spike.toggle();
         if (keyPressed(2, LEFT_BUMPER))   doAutoSlow = !doAutoSlow;
-//        if (keyPressed(2, DPAD_LEFT))   robot.deposit.paintbrush.toggleFloor();
 
         robot.intake.setMotorPower(
                 gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
@@ -148,14 +152,14 @@ public final class MainTeleOp extends LinearOpMode {
 
         if (overrideMode) {
 
-//            robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
-//            if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+            robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
+            if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
             // SET HEADING:
             double y = gamepadEx1.getRightY();
             if (hypot(x, y) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(y, x) - FORWARD);
             x = 0;
-//
+
 //            if (keyPressed(1, DPAD_UP))         robot.drivetrain.setTargetHeading(0);
 //            else if (keyPressed(1, DPAD_LEFT))  robot.drivetrain.setTargetHeading(PI * 0.5);
 //            else if (keyPressed(1, DPAD_DOWN))  robot.drivetrain.setTargetHeading(PI);
@@ -163,12 +167,15 @@ public final class MainTeleOp extends LinearOpMode {
 
         } else {
 
-//            if (keyPressed(1, DPAD_DOWN))       robot.deposit.lift.changeRowBy(-1);
-//            else if (keyPressed(1, DPAD_UP))    robot.deposit.lift.changeRowBy(1);
-//
-//            if (keyPressed(1, Y))               robot.deposit.goToLastRow();
+            if (keyPressed(1, DPAD_DOWN))       robot.deposit.goToScoringPosition(false);
+            else if (keyPressed(1, DPAD_UP))    robot.deposit.goToScoringPosition(true);
+            else if (keyPressed(1, DPAD_LEFT))  robot.deposit.handleSample();
+            else if (keyPressed(1, DPAD_RIGHT)) robot.deposit.transfer(Intake.Sample.NEUTRAL);
+
+            if (keyPressed(1, A))               robot.deposit.retract();
+            if (keyPressed(1, B))               robot.deposit.incrementClimb();
+
             if (keyPressed(1, X))               robot.intake.toggle();
-//            if (keyPressed(1, B))               robot.endgame();
 
         }
 
@@ -176,7 +183,7 @@ public final class MainTeleOp extends LinearOpMode {
         boolean driveSlow =
                 gamepadEx1.isDown(RIGHT_BUMPER) ||
                 (doAutoSlow && (
-//                        (robot.deposit.lift.isScoring() && robot.deposit.lift.isExtended()) ||
+                        robot.deposit.slowMode() ||
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0
                 ));
 
