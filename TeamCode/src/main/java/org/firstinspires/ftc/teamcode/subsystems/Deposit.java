@@ -3,19 +3,20 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1150;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
-import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.ROW_CLIMBED;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.ROW_CLIMBING;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.ROW_RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Paintbrush.TIME_DROP_SECOND;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Paintbrush.TIME_FLOOR_RETRACTION;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Paintbrush.TIME_SCORING_RETRACTION;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Arm.TIME_DROP;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Arm.TIME_RETRACTION_FROM_BASKET;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Arm.TIME_RETRACTION_FROM_CHAMBER;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.Position.HAS_SPECIMEN;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.Position.INTAKING;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Lift.Position.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
-import static java.lang.Math.round;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -25,46 +26,62 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
-import org.firstinspires.ftc.teamcode.control.gainmatrices.FeedforwardGains;
-import org.firstinspires.ftc.teamcode.control.gainmatrices.LowPassGains;
+import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.control.motion.State;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
 @Config
 public final class Deposit {
 
-    public final Paintbrush paintbrush;
+    public final Arm arm;
     public final Lift lift;
-
-    private double lastRow = 1;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
-        paintbrush = new Paintbrush(hardwareMap);
+        arm = new Arm(hardwareMap);
     }
 
-    public void goToLastRow() {
-        lift.setTargetRow(lastRow);
-    }
+    private double specimenScoringHeight = Lift.HEIGHT_CHAMBER_HIGH;
 
     void run(boolean intakeClear) {
 
-        if (!paintbrush.droppedPixel && (paintbrush.timer.seconds() >= TIME_DROP_SECOND)) {
-            paintbrush.droppedPixel = true;
-            lastRow = lift.targetRow;
-            lift.setTargetRow(ROW_RETRACTED);
+        if (!arm.doneScoring) {
+            if (arm.specimenMode) {
+
+                // score specimen
+                if (lift.targetPosition != RETRACTED) {
+                    specimenScoringHeight = lift.currentState.x;
+                    lift.setTargetPosition(RETRACTED);
+                } else if (lift.currentState.x <= specimenScoringHeight - Lift.HEIGHT_DIFFERENCE_SPECIMEN_SCORING) {
+                    arm.claw.setActivated(false);
+                    arm.doneScoring = true;
+                    arm.specimenMode = false;
+                }
+
+            } else if (arm.scoreTimer.seconds() >= TIME_DROP) {
+                arm.doneScoring = true;
+                lift.setTargetPosition(RETRACTED);
+            }
+        } else {
+            if (arm.specimenMode) {
+                if (arm.sample == NONE && lift.targetPosition != INTAKING) lift.setTargetPosition(INTAKING);
+                if (arm.sample != NONE && lift.targetPosition == INTAKING) lift.setTargetPosition(HAS_SPECIMEN);
+            }
         }
 
         lift.run(intakeClear);
 
-        boolean extendPaintbrush = intakeClear && lift.targetRow != ROW_CLIMBING && lift.targetRow != ROW_CLIMBED && lift.isScoring();
-        paintbrush.pivot.setActivated(extendPaintbrush);
-        paintbrush.run();
+        boolean extendArm = intakeClear && (lift.isExtending() || (!arm.doneScoring && arm.specimenMode)) && !lift.targetPosition.isClimbing;
+
+        arm.pivot.setActivated(extendArm);
+
+        arm.run();
     }
 
-    boolean isExtended() {
-        return lift.isExtended() || paintbrush.retractionTimer.seconds() <= (paintbrush.floor ? TIME_FLOOR_RETRACTION : TIME_SCORING_RETRACTION);
+    boolean isActive() {
+        return lift.isExtending() || lift.isExtended() || arm.retractionTimer.seconds() <= (arm.specimenMode ? TIME_RETRACTION_FROM_CHAMBER : TIME_RETRACTION_FROM_BASKET);
     }
 
     @Config
@@ -80,17 +97,58 @@ public final class Deposit {
         public static double
                 kG = 0.15,
                 INCHES_PER_TICK = 0.0088581424,
-                ROW_RETRACTED = -1,
-                ROW_FLOOR_SCORING = -0.5,
-                ROW_CLIMBED = -0.75,
-                ROW_CLIMBING = 6.25,
-                HEIGHT_RETRACTED = 0.5,
-                HEIGHT_ROW_0 = 2.5,
-                HEIGHT_PIXEL = 2.59945,
-                PERCENT_OVERSHOOT = 0,
-                SPEED_RETRACTION = -0.1,
-                POS_1 = 0,
-                POS_2 = 25;
+                HEIGHT_RETRACTED_MAX = 0.5,
+                HEIGHT_INTAKING = 1,
+                HEIGHT_OFFSET_POST_INTAKING = 1,
+                HEIGHT_BASKET_LOW = 1,
+                HEIGHT_BASKET_HIGH = 1,
+                HEIGHT_CHAMBER_LOW = 1,
+                HEIGHT_CHAMBER_HIGH = 1,
+                HEIGHT_RUNG_LOW_RAISED = 1,
+                HEIGHT_RUNG_LOW_PULLING = 1,
+                HEIGHT_RUNG_HIGH_RAISED = 1,
+                HEIGHT_RUNG_HIGH_PULLING = 1,
+                HEIGHT_TO_ACTIVATE_LIMITER_BAR = 1,
+                HEIGHT_DIFFERENCE_SPECIMEN_SCORING = 1;
+
+        public enum Position {
+            RETRACTED,
+            HAS_SPECIMEN,
+            INTAKING,
+            BASKET_LOW,
+            BASKET_HIGH,
+            CHAMBER_LOW,
+            CHAMBER_HIGH,
+            RUNG_LOW_RAISED,
+            RUNG_LOW_PULLING,
+            RUNG_HIGH_RAISED,
+            RUNG_HIGH_ACTIVATE_LIMITER_BAR,
+            RUNG_HIGH_PULLING;
+
+            private final boolean isClimbing, autoSlow;
+
+            Position() {
+                isClimbing = ordinal() >= 7;
+                autoSlow = ordinal() >= 2;
+            }
+
+            public double toInches() {
+                switch (this) {
+                    case HAS_SPECIMEN: return HEIGHT_INTAKING + HEIGHT_OFFSET_POST_INTAKING;
+                    case INTAKING: return HEIGHT_INTAKING;
+                    case BASKET_LOW: return HEIGHT_BASKET_LOW;
+                    case BASKET_HIGH: return HEIGHT_BASKET_HIGH;
+                    case CHAMBER_LOW: return HEIGHT_CHAMBER_LOW;
+                    case CHAMBER_HIGH: return HEIGHT_CHAMBER_HIGH;
+                    case RUNG_LOW_RAISED: return HEIGHT_RUNG_LOW_RAISED;
+                    case RUNG_LOW_PULLING: return HEIGHT_RUNG_LOW_PULLING;
+                    case RUNG_HIGH_RAISED: return HEIGHT_RUNG_HIGH_RAISED;
+                    case RUNG_HIGH_ACTIVATE_LIMITER_BAR: return HEIGHT_TO_ACTIVATE_LIMITER_BAR;
+                    case RUNG_HIGH_PULLING: return HEIGHT_RUNG_HIGH_PULLING;
+                    default: return 0;
+                }
+            }
+        }
 
         // Motors and variables to manage their readings:
         private final MotorEx[] motors;
@@ -98,7 +156,10 @@ public final class Deposit {
         private State currentState, targetState;
         private final PIDController controller = new PIDController();
 
-        private double manualLiftPower, targetRow, offset;
+        private double manualLiftPower;
+        private int encoderOffset;
+
+        private Lift.Position targetPosition = RETRACTED;
 
         // Battery voltage sensor and variable to track its readings:
         private final VoltageSensor batteryVoltageSensor;
@@ -118,37 +179,27 @@ public final class Deposit {
         }
 
         public void reset() {
-            targetRow = ROW_RETRACTED;
+            targetPosition = RETRACTED;
             controller.reset();
-            offset = encoder.getPosition();
+            encoderOffset = encoder.getPosition();
             targetState = currentState = new State();
         }
 
-        public boolean isScoring() {
-            return targetRow != ROW_RETRACTED;
+        public boolean heightWarrantsSlow() {
+            return targetPosition.autoSlow;
+        }
+
+        boolean isExtending() {
+            return targetPosition != RETRACTED;
         }
 
         public boolean isExtended() {
-            return currentState.x > HEIGHT_RETRACTED;
+            return currentState.x > HEIGHT_RETRACTED_MAX;
         }
 
-        public void climb() {
-            setTargetRow(targetRow == ROW_CLIMBING ? ROW_CLIMBED : ROW_CLIMBING);
-        }
-
-        public void setTargetRow(double targetRow) {
-            this.targetRow = clip(targetRow, ROW_RETRACTED, 10);
-            double inches = rowToInches(this.targetRow);
-            targetState = new State(inches);
-        }
-
-        private static double rowToInches(double row) {
-            if (row == ROW_RETRACTED) return 0;
-            return row * HEIGHT_PIXEL + HEIGHT_ROW_0;
-        }
-
-        public void changeRowBy(int deltaRow) {
-            setTargetRow(round(targetRow + deltaRow));
+        public void setTargetPosition(Lift.Position targetPosition) {
+            this.targetPosition = targetPosition;
+            targetState = new State(targetPosition.toInches());
         }
 
         public void setLiftPower(double manualLiftPower) {
@@ -156,39 +207,33 @@ public final class Deposit {
         }
 
         public void readSensors() {
-            currentState = new State(INCHES_PER_TICK * (encoder.getPosition() - offset));
+            currentState = new State(INCHES_PER_TICK * (encoder.getPosition() - encoderOffset));
             controller.setGains(pidGains);
         }
 
         private void run(boolean intakeClear) {
 
-            if (manualLiftPower != 0) targetState = currentState;
+            if (manualLiftPower != 0) targetState = currentState; // replace PID target with current state if using manual control
 
-            State setpoint = intakeClear ? targetState : new State(0);
-            controller.setTarget(setpoint);
+            controller.setTarget(intakeClear ? targetState : new State(0)); // set PID target to 0 (retract) if intake isn't yet out of the way
 
             boolean retracted = !isExtended();
 
             double voltageScalar = maxVoltage / batteryVoltageSensor.getVoltage();
-            double output =
-                    (
-                            retracted ? 0 : kG * voltageScalar
-                    ) + (
-                        manualLiftPower != 0 ?          manualLiftPower * voltageScalar :
-                        (retracted && setpoint.x == 0 ?  SPEED_RETRACTION * voltageScalar : 0) +
-                        controller.calculate(currentState)
-                    )
-            ;
+
+            double gravityFeedforward = retracted ? 0 : kG * voltageScalar;
+
+            double output = gravityFeedforward + (
+                            manualLiftPower != 0 ?                              // if manual input is being used:
+                                    manualLiftPower * voltageScalar :               // control with manual power (and voltage compensate)
+                                    controller.calculate(currentState)  // control with PID output
+            );
+
             for (MotorEx motor : motors) motor.set(output);
         }
 
         void printTelemetry() {
-            String namedPos =
-                    targetRow == ROW_RETRACTED ? "Retracted" :
-                    targetRow == ROW_CLIMBING ? "Climbing" :
-                    targetRow == ROW_CLIMBED? "Climbed" :
-                    "Row " + targetRow;
-            mTelemetry.addData("Named target position", namedPos);
+            mTelemetry.addData("Named target position", targetPosition.name());
         }
 
         void printNumericalTelemetry() {
@@ -202,68 +247,121 @@ public final class Deposit {
     }
 
     @Config
-    public static final class Paintbrush {
+    public static final class Arm {
 
         public static double
-                ANGLE_PIVOT_OFFSET = 17.25,
-                ANGLE_PIVOT_SCORING = 127,
-                ANGLE_PIVOT_FLOOR = 190,
+                ANGLE_PIVOT_RETRACTED = 10,
+                ANGLE_PIVOT_SPECIMEN = 100, // wall pickup and chambers
+                ANGLE_PIVOT_SAMPLE = 130, // dropping in observation zone and baskets
                 ANGLE_CLAW_OPEN = 13,
-                ANGLE_CLAW_CLOSED = 50,
-                ANGLE_HOOK_OPEN = 8,
-                ANGLE_HOOK_CLOSED = 45,
-                TIME_DROP_FIRST = 0.5,
-                TIME_DROP_SECOND = 0.65,
-                TIME_SCORING_RETRACTION = 0.2,
-                TIME_FLOOR_RETRACTION = 0.25;
+                ANGLE_CLAW_TRANSFER = 30,
+                ANGLE_CLAW_CLOSED = 60,
+                TIME_DROP = 1,
+                TIME_RETRACTION_FROM_BASKET = 1,
+                TIME_RETRACTION_FROM_CHAMBER = 1,
+                COLOR_SENSOR_GAIN = 1;
 
-        private final SimpleServoPivot pivot, hook, claw;
+        /**
+         * HSV value bound for sample grabbing
+         */
+        public static HSV
+                minRed = new HSV(
+                        205,
+                        0.55,
+                        0.01
+                ),
+                maxRed = new HSV(
+                        225,
+                        1,
+                        0.35
+                ),
+                minBlue = new HSV(
+                        130,
+                        0.5,
+                        0.01
+                ),
+                maxBlue = new HSV(
+                        160,
+                        1,
+                        0.2
+                );
 
-        private final ElapsedTime timer = new ElapsedTime(), retractionTimer = new ElapsedTime();
-        private boolean droppedPixel = true, floor = false;
-        int numOfPixels = 0;
+        public Intake.Sample hsvToSample(HSV hsv) {
+            return
+                    hsv.between(minRed, maxRed) ? RED :
+                    hsv.between(minBlue, maxBlue) ? BLUE :
+                    NONE;
+        }
 
-        private Paintbrush(HardwareMap hardwareMap) {
+        private final SimpleServoPivot pivot, claw;
+
+        private final ElapsedTime scoreTimer = new ElapsedTime(), retractionTimer = new ElapsedTime();
+        private boolean doneScoring = true, specimenMode = false;
+        private Intake.Sample sample = NONE;
+
+        private final ColorSensor sampleSensor;
+
+        private Arm(HardwareMap hardwareMap) {
             pivot = new SimpleServoPivot(
-                    ANGLE_PIVOT_OFFSET,
-                    ANGLE_PIVOT_OFFSET + ANGLE_PIVOT_SCORING,
-                    getAxonServo(hardwareMap, "deposit left"),
-                    getReversedServo(getAxonServo(hardwareMap, "deposit right"))
-            );
-
-            hook = new SimpleServoPivot(
-                    ANGLE_HOOK_OPEN,
-                    ANGLE_HOOK_CLOSED,
-                    getGoBildaServo(hardwareMap, "pixel hook")
+                    ANGLE_PIVOT_RETRACTED,
+                    ANGLE_PIVOT_SAMPLE,
+                    getAxonServo(hardwareMap, "arm left"),
+                    getReversedServo(getAxonServo(hardwareMap, "arm right"))
             );
 
             claw = new SimpleServoPivot(
                     ANGLE_CLAW_OPEN,
                     ANGLE_CLAW_CLOSED,
-                    getReversedServo(getGoBildaServo(hardwareMap, "pixel claw"))
+                    getReversedServo(getGoBildaServo(hardwareMap, "claw"))
             );
+
+            sampleSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);
         }
 
-        public void toggleFloor() {
-            floor = !floor;
+        void transfer(Intake.Sample sample) {
+            this.sample = sample;
+            claw.setActivated(true);
+        }
+
+        public void handleSample() {
+            if (sample == NONE) {           // no sample --> toggle specimen mode
+                specimenMode = !specimenMode;
+//                pivot.setActivated(true);
+            } else if (specimenMode) {      // has sample + in specimen mode --> score specimen
+                doneScoring = false;
+                scoreTimer.reset();
+            } else {                        // has sample + not specimen mode --> score sample in basket
+                sample = NONE;
+                claw.setActivated(false);
+                if (!pivot.isActivated()) return;
+                doneScoring = false;
+                scoreTimer.reset();
+            }
         }
 
         private void run() {
-            pivot.updateAngles(
-                    ANGLE_PIVOT_OFFSET,
-                    ANGLE_PIVOT_OFFSET + (floor ? ANGLE_PIVOT_FLOOR : ANGLE_PIVOT_SCORING)
-            );
-            claw.updateAngles(ANGLE_CLAW_OPEN, ANGLE_CLAW_CLOSED);
-            hook.updateAngles(ANGLE_HOOK_OPEN, ANGLE_HOOK_CLOSED);
 
-            claw.setActivated(numOfPixels >= 1);
-            hook.setActivated(numOfPixels == 2);
+            if (specimenMode) {
+                sampleSensor.update();
+                sample = hsvToSample(sampleSensor.getHSV());
+                if (sample != NONE) claw.setActivated(true);
+            }
+
+            pivot.updateAngles(
+                    ANGLE_PIVOT_RETRACTED,
+                    specimenMode ? ANGLE_PIVOT_SPECIMEN : ANGLE_PIVOT_SAMPLE
+            );
+
+            claw.updateAngles(
+                    pivot.isActivated() ? ANGLE_CLAW_OPEN : ANGLE_CLAW_TRANSFER,
+                    ANGLE_CLAW_CLOSED
+            );
 
             pivot.run();
             claw.run();
-            hook.run();
 
             if (pivot.isActivated()) retractionTimer.reset();
         }
+
     }
 }
