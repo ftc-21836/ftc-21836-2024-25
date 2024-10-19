@@ -293,7 +293,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (lift.currentState.x <= releaseSpecimenHeight) {
+                if (lift.currentState.x <= releaseSpecimenHeight || handleSample) {
                     claw.setActivated(false);
                     state = RETRACTED;
                 }
