@@ -116,7 +116,7 @@ public final class Deposit {
 
     private Deposit.State state = RETRACTED;
 
-    private boolean highScorePosition, goToScoringPosition, handleSample, incrementClimb, retract;
+    private boolean highScorePosition, goToScoringPosition, handleSample, climb, retract;
 
     private double releaseSpecimenHeight = Lift.HEIGHT_CHAMBER_HIGH - Lift.HEIGHT_OFFSET_SPECIMEN_SCORING;
 
@@ -186,8 +186,8 @@ public final class Deposit {
                     }
                 }
                 
-                if (incrementClimb) {
-                    incrementClimb = false;
+                if (climb) {
+                    climb = false;
 
                     innerHooks.setActivated(true);
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_RAISED);
@@ -301,8 +301,8 @@ public final class Deposit {
 
             case ABOVE_LOW_RUNG:
 
-                if (incrementClimb) {
-                    incrementClimb = false;
+                if (climb) {
+                    climb = false;
 
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_CLIMBING);
                     state = CLIMBING_LOW_RUNG;
@@ -310,8 +310,8 @@ public final class Deposit {
 
             case CLIMBING_LOW_RUNG:
 
-                if (incrementClimb) {
-                    incrementClimb = false;
+                if (climb) {
+                    climb = false;
 
                     outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                     state = OUTER_HOOKS_ENGAGING;
@@ -319,8 +319,8 @@ public final class Deposit {
 
             case OUTER_HOOKS_ENGAGING:
 
-                if (incrementClimb) {
-                    incrementClimb = false;
+                if (climb) {
+                    climb = false;
 
                     outerHooks.set(0);
 
@@ -331,8 +331,8 @@ public final class Deposit {
 
             case ABOVE_HIGH_RUNG:
 
-                if (incrementClimb) {
-                    incrementClimb = false;
+                if (climb) {
+                    climb = false;
 
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
 
@@ -343,8 +343,8 @@ public final class Deposit {
 
             case CLIMBING_HIGH_RUNG:
 
-                if (incrementClimb) {
-                    incrementClimb = false;
+                if (climb) {
+                    climb = false;
 
                     if (outerHooks.get() != 0) outerHooks.set(0);
                     else limiterBars.setActivated(true);
@@ -353,7 +353,7 @@ public final class Deposit {
                 break;
         }
 
-        goToScoringPosition = handleSample = incrementClimb = retract = false;
+        goToScoringPosition = handleSample = climb = retract = false;
 
         boolean climbing = state.ordinal() >= ABOVE_LOW_RUNG.ordinal();
         boolean extendArm = intakeClear && state != RETRACTED && !climbing;
@@ -404,8 +404,8 @@ public final class Deposit {
         retract = true;
     }
     
-    public void incrementClimb() {
-        incrementClimb = true;
+    public void climb() {
+        climb = true;
     }
 
     public void transfer(Intake.Sample sample) {

@@ -173,7 +173,7 @@ public final class MainTeleOp extends LinearOpMode {
             else if (keyPressed(1, DPAD_RIGHT)) robot.deposit.transfer(Intake.Sample.NEUTRAL);
 
             if (keyPressed(1, A))               robot.deposit.retract();
-            if (keyPressed(1, B))               robot.deposit.incrementClimb();
+            if (keyPressed(1, B))               robot.deposit.climb();
 
             if (keyPressed(1, X))               robot.intake.toggle();
 
