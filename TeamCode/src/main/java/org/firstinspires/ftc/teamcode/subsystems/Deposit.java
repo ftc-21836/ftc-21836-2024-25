@@ -164,30 +164,26 @@ public final class Deposit {
                 if (sample == NONE) {
 
                     if (handleSample) {
-                        handleSample = false;
 
                         lift.setTargetPosition(Lift.HEIGHT_INTAKING_SPECIMEN);
                         state = INTAKING_SPECIMEN;
                         break;
                     }
 
-                } else {                                   // if retracted + has sample
-                    if (goToScoringPosition) {                          // if go to scoring position, go to high or low basket
-                        goToScoringPosition = false;
+                } else if (goToScoringPosition) {           // if go to scoring position, go to high or low basket
 
-                        lift.setTargetPosition(highScorePosition ?
-                                Lift.HEIGHT_BASKET_HIGH :
-                                Lift.HEIGHT_BASKET_LOW
-                        );
+                    lift.setTargetPosition(highScorePosition ?
+                            Lift.HEIGHT_BASKET_HIGH :
+                            Lift.HEIGHT_BASKET_LOW
+                    );
 
-                        state = AT_BASKET;
-                        break;
+                    state = AT_BASKET;
+                    break;
 
-                    }
                 }
+
                 
                 if (climb) {
-                    climb = false;
 
                     innerHooks.setActivated(true);
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_RAISED);
@@ -199,14 +195,12 @@ public final class Deposit {
             case AT_BASKET:
 
                 if (retract) {
-                    retract = false;
                     lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
                     break;
                 }
 
                 if (goToScoringPosition) {
-                    goToScoringPosition = false;
 
                     lift.setTargetPosition(highScorePosition ?
                             Lift.HEIGHT_BASKET_HIGH :
@@ -215,18 +209,18 @@ public final class Deposit {
                 }
 
                 if (handleSample) {
-                    handleSample = false;
 
                     claw.setActivated(false);
                     sample = NONE;
                     state = SAMPLE_FALLING;
                     timeSinceSampleReleased.reset();
-                } else break;
+                }
+
+                break;
 
             case SAMPLE_FALLING:
 
                 if (timeSinceSampleReleased.seconds() >= TIME_DROP || retract) {
-                    retract = false;
 
                     lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
@@ -238,7 +232,6 @@ public final class Deposit {
             case INTAKING_SPECIMEN:
 
                 if (retract) {
-                    retract = false;
                     lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
                     break;
@@ -246,18 +239,18 @@ public final class Deposit {
 
                 sample = hsvToSample(sampleSensor.getHSV());
                 if (sample != NONE || handleSample) {
-                    handleSample = false;
 
                     claw.setActivated(true);
                     lift.setTargetPosition(Lift.HEIGHT_INTAKING_SPECIMEN + Lift.HEIGHT_OFFSET_POST_INTAKING);
                     state = HAS_SPECIMEN;
 
-                } else break;
+                }
+
+                break;
 
             case HAS_SPECIMEN:
 
                 if (goToScoringPosition) {
-                    goToScoringPosition = false;
 
                     lift.setTargetPosition(highScorePosition ?
                             Lift.HEIGHT_CHAMBER_HIGH :
@@ -272,7 +265,6 @@ public final class Deposit {
             case AT_CHAMBER:
 
                 if (goToScoringPosition) {
-                    goToScoringPosition = false;
 
                     lift.setTargetPosition(highScorePosition ?
                             Lift.HEIGHT_CHAMBER_HIGH :
@@ -281,14 +273,15 @@ public final class Deposit {
                 }
 
                 if (handleSample) {
-                    handleSample = false;
 
                     releaseSpecimenHeight = lift.currentState.x - Lift.HEIGHT_OFFSET_SPECIMEN_SCORING;
 
                     lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = SCORING_SPECIMEN;
 
-                } else break;
+                }
+
+                break;
 
             case SCORING_SPECIMEN:
 
@@ -302,49 +295,52 @@ public final class Deposit {
             case ABOVE_LOW_RUNG:
 
                 if (climb) {
-                    climb = false;
 
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_CLIMBING);
                     state = CLIMBING_LOW_RUNG;
-                } else break;
+                }
+
+                break;
 
             case CLIMBING_LOW_RUNG:
 
                 if (climb) {
-                    climb = false;
 
                     outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                     state = OUTER_HOOKS_ENGAGING;
-                } else break;
+                }
+
+                break;
 
             case OUTER_HOOKS_ENGAGING:
 
                 if (climb) {
-                    climb = false;
 
                     outerHooks.set(0);
 
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
 
-                } else break;
+                }
+
+                break;
 
             case ABOVE_HIGH_RUNG:
 
                 if (climb) {
-                    climb = false;
 
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
 
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_CLIMBING);
                     state = CLIMBING_HIGH_RUNG;
 
-                } else break;
+                }
+
+                break;
 
             case CLIMBING_HIGH_RUNG:
 
                 if (climb) {
-                    climb = false;
 
                     if (outerHooks.get() != 0) outerHooks.set(0);
                     else limiterBars.setActivated(true);
