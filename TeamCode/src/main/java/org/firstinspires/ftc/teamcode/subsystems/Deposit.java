@@ -198,6 +198,13 @@ public final class Deposit {
 
             case AT_BASKET:
 
+                if (retract) {
+                    retract = false;
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    state = RETRACTED;
+                    break;
+                }
+
                 if (goToScoringPosition) {
                     goToScoringPosition = false;
 
@@ -218,7 +225,8 @@ public final class Deposit {
 
             case SAMPLE_FALLING:
 
-                if (timeSinceSampleReleased.seconds() >= TIME_DROP) {
+                if (timeSinceSampleReleased.seconds() >= TIME_DROP || retract) {
+                    retract = false;
 
                     lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
@@ -228,6 +236,13 @@ public final class Deposit {
                 break;
 
             case INTAKING_SPECIMEN:
+
+                if (retract) {
+                    retract = false;
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    state = RETRACTED;
+                    break;
+                }
 
                 sample = hsvToSample(sampleSensor.getHSV());
                 if (sample != NONE || handleSample) {
@@ -367,13 +382,6 @@ public final class Deposit {
         if (arm.isActivated()) timeSinceArmExtended.reset();
     }
 
-    public void retract() {
-        if (state.ordinal() >= HAS_SPECIMEN.ordinal()) return;
-
-        lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
-        state = RETRACTED;
-    }
-
     boolean isActive() {
         return state != RETRACTED || lift.isExtended() || timeSinceArmExtended.seconds() <= TIME_ARM_RETRACTION;
     }
@@ -389,6 +397,10 @@ public final class Deposit {
 
     public void handleSample() {
         handleSample = true;
+    }
+
+    public void retract() {
+        retract = true;
     }
     
     public void incrementClimb() {
