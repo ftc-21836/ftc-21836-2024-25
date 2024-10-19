@@ -56,7 +56,20 @@ public final class Deposit {
             TIME_RETRACTION_OUTER_HOOKS = 0.5,
             COLOR_SENSOR_GAIN = 1,
             SPEED_OUTER_HOOKS_EXTENDING = 0.5,
-            SPEED_OUTER_HOOKS_RETRACTING = -.1;
+            SPEED_OUTER_HOOKS_RETRACTING = -.1,
+            HEIGHT_RETRACTED = 0,
+            HEIGHT_INTAKING_SPECIMEN = 1,
+            HEIGHT_OFFSET_POST_INTAKING = 1,
+            HEIGHT_BASKET_LOW = 1,
+            HEIGHT_BASKET_HIGH = 1,
+            HEIGHT_CHAMBER_LOW = 1,
+            HEIGHT_CHAMBER_HIGH = 1,
+            HEIGHT_RUNG_LOW_RAISED = 1,
+            HEIGHT_RUNG_LOW_CLIMBING = 1,
+            HEIGHT_RUNG_HIGH_RAISED = 1,
+            HEIGHT_TO_ACTIVATE_LIMITER_BAR = 1,
+            HEIGHT_RUNG_HIGH_CLIMBING = 1,
+            HEIGHT_OFFSET_SPECIMEN_SCORING = 1;
 
     /**
      * HSV value bound for sample grabbing
@@ -119,7 +132,7 @@ public final class Deposit {
 
     private boolean highScorePosition, goToScoringPosition, handleSample, climb, retract;
 
-    private double releaseSpecimenHeight = Lift.HEIGHT_CHAMBER_HIGH - Lift.HEIGHT_OFFSET_SPECIMEN_SCORING;
+    private double releaseSpecimenHeight = HEIGHT_CHAMBER_HIGH - HEIGHT_OFFSET_SPECIMEN_SCORING;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
@@ -166,7 +179,7 @@ public final class Deposit {
 
                     if (handleSample) {
 
-                        lift.setTargetPosition(Lift.HEIGHT_INTAKING_SPECIMEN);
+                        lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN);
                         state = INTAKING_SPECIMEN;
                         break;
                     }
@@ -174,8 +187,8 @@ public final class Deposit {
                 } else if (goToScoringPosition) {           // if go to scoring position, go to high or low basket
 
                     lift.setTargetPosition(highScorePosition ?
-                            Lift.HEIGHT_BASKET_HIGH :
-                            Lift.HEIGHT_BASKET_LOW
+                            HEIGHT_BASKET_HIGH :
+                            HEIGHT_BASKET_LOW
                     );
 
                     state = AT_BASKET;
@@ -187,7 +200,7 @@ public final class Deposit {
                 if (climb) {
 
                     innerHooks.setActivated(true);
-                    lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_RAISED);
+                    lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED);
                     state = ABOVE_LOW_RUNG;
                 }
                 
@@ -196,7 +209,7 @@ public final class Deposit {
             case AT_BASKET:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(HEIGHT_RETRACTED);
                     state = RETRACTED;
                     break;
                 }
@@ -204,8 +217,8 @@ public final class Deposit {
                 if (goToScoringPosition) {
 
                     lift.setTargetPosition(highScorePosition ?
-                            Lift.HEIGHT_BASKET_HIGH :
-                            Lift.HEIGHT_BASKET_LOW
+                            HEIGHT_BASKET_HIGH :
+                            HEIGHT_BASKET_LOW
                     );
                 }
 
@@ -223,7 +236,7 @@ public final class Deposit {
 
                 if (timeSinceSampleReleased.seconds() >= TIME_DROP || retract) {
 
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(HEIGHT_RETRACTED);
                     state = RETRACTED;
 
                 }
@@ -233,7 +246,7 @@ public final class Deposit {
             case INTAKING_SPECIMEN:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(HEIGHT_RETRACTED);
                     state = RETRACTED;
                     break;
                 }
@@ -243,7 +256,7 @@ public final class Deposit {
                 if (sample != NONE) {
 
                     claw.setActivated(true);
-                    lift.setTargetPosition(Lift.HEIGHT_INTAKING_SPECIMEN + Lift.HEIGHT_OFFSET_POST_INTAKING);
+                    lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING);
                     state = HAS_SPECIMEN;
 
                 }
@@ -255,8 +268,8 @@ public final class Deposit {
                 if (goToScoringPosition) {
 
                     lift.setTargetPosition(highScorePosition ?
-                            Lift.HEIGHT_CHAMBER_HIGH :
-                            Lift.HEIGHT_CHAMBER_LOW
+                            HEIGHT_CHAMBER_HIGH :
+                            HEIGHT_CHAMBER_LOW
                     );
 
                     state = AT_CHAMBER;
@@ -267,7 +280,7 @@ public final class Deposit {
             case AT_CHAMBER:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_INTAKING_SPECIMEN + Lift.HEIGHT_OFFSET_POST_INTAKING);
+                    lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING);
                     state = HAS_SPECIMEN;
                     break;
                 }
@@ -275,16 +288,16 @@ public final class Deposit {
                 if (goToScoringPosition) {
 
                     lift.setTargetPosition(highScorePosition ?
-                            Lift.HEIGHT_CHAMBER_HIGH :
-                            Lift.HEIGHT_CHAMBER_LOW
+                            HEIGHT_CHAMBER_HIGH :
+                            HEIGHT_CHAMBER_LOW
                     );
                 }
 
                 if (handleSample) {
 
-                    releaseSpecimenHeight = lift.currentState.x - Lift.HEIGHT_OFFSET_SPECIMEN_SCORING;
+                    releaseSpecimenHeight = lift.currentState.x - HEIGHT_OFFSET_SPECIMEN_SCORING;
 
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(HEIGHT_RETRACTED);
                     state = SCORING_SPECIMEN;
 
                 }
@@ -303,7 +316,7 @@ public final class Deposit {
             case ABOVE_LOW_RUNG:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(HEIGHT_RETRACTED);
                     state = RETRACTED;
                     innerHooks.setActivated(false);
                     break;
@@ -311,7 +324,7 @@ public final class Deposit {
 
                 if (climb) {
 
-                    lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_CLIMBING);
+                    lift.setTargetPosition(HEIGHT_RUNG_LOW_CLIMBING);
                     state = CLIMBING_LOW_RUNG;
                 }
 
@@ -320,7 +333,7 @@ public final class Deposit {
             case CLIMBING_LOW_RUNG:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_RAISED);
+                    lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED);
                     state = ABOVE_LOW_RUNG;
                     break;
                 }
@@ -340,7 +353,7 @@ public final class Deposit {
                     outerHooks.set(0);
 
                     innerHooks.setActivated(false);
-                    lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_RAISED);
+                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
 
                 }
@@ -353,7 +366,7 @@ public final class Deposit {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
                     innerHooks.setActivated(true);
-                    lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_CLIMBING);
+                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_CLIMBING);
                     state = CLIMBING_HIGH_RUNG;
 
                 }
@@ -363,7 +376,7 @@ public final class Deposit {
             case CLIMBING_HIGH_RUNG:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_RAISED);
+                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
                     break;
                 }
@@ -456,20 +469,7 @@ public final class Deposit {
         public static double
                 kG = 0.15,
                 INCHES_PER_TICK = 0.0088581424,
-                HEIGHT_RETRACTED = 0,
-                HEIGHT_RETRACTED_THRESHOLD = 0.5,
-                HEIGHT_INTAKING_SPECIMEN = 1,
-                HEIGHT_OFFSET_POST_INTAKING = 1,
-                HEIGHT_BASKET_LOW = 1,
-                HEIGHT_BASKET_HIGH = 1,
-                HEIGHT_CHAMBER_LOW = 1,
-                HEIGHT_CHAMBER_HIGH = 1,
-                HEIGHT_RUNG_LOW_RAISED = 1,
-                HEIGHT_RUNG_LOW_CLIMBING = 1,
-                HEIGHT_RUNG_HIGH_RAISED = 1,
-                HEIGHT_TO_ACTIVATE_LIMITER_BAR = 1,
-                HEIGHT_RUNG_HIGH_CLIMBING = 1,
-                HEIGHT_OFFSET_SPECIMEN_SCORING = 1;
+                HEIGHT_RETRACTED_THRESHOLD = 0.5;
 
         // Motors and variables to manage their readings:
         private final MotorEx[] motors;
