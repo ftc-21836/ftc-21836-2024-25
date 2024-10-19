@@ -320,6 +320,7 @@ public final class Deposit {
 
                     outerHooks.set(0);
 
+                    innerHooks.setActivated(false);
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
 
@@ -332,7 +333,7 @@ public final class Deposit {
                 if (climb) {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
-
+                    innerHooks.setActivated(true);
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_CLIMBING);
                     state = CLIMBING_HIGH_RUNG;
 
