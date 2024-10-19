@@ -180,11 +180,12 @@ public final class MainTeleOp extends LinearOpMode {
 
         // Field-centric driving with control stick inputs:
         boolean driveSlow =
-                gamepadEx1.isDown(RIGHT_BUMPER) ||
-                (doAutoSlow && (
-                        robot.deposit.slowMode() ||
-                        gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0
-                ));
+                gamepadEx1.isDown(RIGHT_BUMPER) || (
+                        doAutoSlow && (
+                                robot.deposit.movingToScore() && robot.intake.clearOfDeposit() ||    // deposit intends to move and intake is not blocking it or
+                                gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0                             // driver is running intake motor
+                        )
+                );
 
         robot.run();
         robot.drivetrain.run(

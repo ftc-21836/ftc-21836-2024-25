@@ -411,7 +411,7 @@ public final class Deposit {
         return state != RETRACTED || lift.isExtended() || timeSinceArmExtended.seconds() <= TIME_ARM_RETRACTION;
     }
 
-    public boolean slowMode() {
+    public boolean movingToScore() {
         return state != RETRACTED && state != HAS_SPECIMEN;
     }
 
