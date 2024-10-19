@@ -41,7 +41,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
 
-    static boolean doAutoSlow = true;
+    static boolean autoSlowEnabled = true;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -59,7 +59,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             robot.run();
 
-            mTelemetry.addData("Auto slow is", doAutoSlow ? "enabled" : "disabled");
+            mTelemetry.addData("Auto slow is", autoSlowEnabled ? "enabled" : "disabled");
             mTelemetry.addLine();
             robot.printTelemetry();
             mTelemetry.update();
@@ -113,7 +113,7 @@ public final class MainTeleOp extends LinearOpMode {
                     isRight = !isRight;
                     break;
                 case EDITING_AUTO_SLOW:
-                    doAutoSlow = !doAutoSlow;
+                    autoSlowEnabled = !autoSlowEnabled;
                     break;
                 case EDITING_SLOW_LOCK:
                 default:
@@ -121,13 +121,13 @@ public final class MainTeleOp extends LinearOpMode {
                     break;
             }
 
-            mTelemetry.addLine((isRed ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
+            mTelemetry.addLine((isRed ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
-            mTelemetry.addLine("Auto slow is " + (doAutoSlow ? "enabled" : "disabled") + selection.markIf(EDITING_AUTO_SLOW));
+            mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "ENABLED" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
             mTelemetry.addLine();
-            mTelemetry.addLine("Slow mode is " + (lockSlowMode ? "LOCKED" : "OFF") + selection.markIf(EDITING_SLOW_LOCK));
+            mTelemetry.addLine("Permanent slow mode " + (lockSlowMode ? "LOCKED" : "OFF") + selection.markIf(EDITING_SLOW_LOCK));
 
             mTelemetry.update();
         }
@@ -141,7 +141,7 @@ public final class MainTeleOp extends LinearOpMode {
 
     static void teleOpControls() {
 
-        if (keyPressed(2, LEFT_BUMPER))   doAutoSlow = !doAutoSlow;
+        if (keyPressed(2, LEFT_BUMPER))   autoSlowEnabled = !autoSlowEnabled;
 
         robot.intake.setMotorPower(
                 gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
@@ -179,20 +179,17 @@ public final class MainTeleOp extends LinearOpMode {
         }
 
         // Field-centric driving with control stick inputs:
-        boolean driveSlow =
-                gamepadEx1.isDown(RIGHT_BUMPER) || (
-                        doAutoSlow && (
-                                robot.deposit.movingToScore() && robot.intake.clearOfDeposit() ||    // deposit intends to move and intake is not blocking it or
-                                gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0                             // driver is running intake motor
-                        )
-                );
+        boolean autoSlowActive = autoSlowEnabled && (                                  // auto slow enabled in teleop config and one of the below is true:
+                robot.deposit.movingToScore() && robot.intake.clearOfDeposit() ||   // deposit intends to move and intake is not blocking it
+                gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0                            // driver is running intake motor
+        );
 
         robot.run();
         robot.drivetrain.run(
                 overrideMode ? 0 : gamepadEx1.getLeftX(),
                 overrideMode ? 0 : gamepadEx1.getLeftY(),
                 x,
-                driveSlow
+                gamepadEx1.isDown(RIGHT_BUMPER) || autoSlowActive  // go slow if driver inputs or auto slow requested by subsystems
         );
     }
 
