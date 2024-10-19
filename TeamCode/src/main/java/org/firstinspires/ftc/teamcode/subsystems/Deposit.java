@@ -116,7 +116,7 @@ public final class Deposit {
 
     private Deposit.State state = RETRACTED;
 
-    private boolean goToScoringPosition = false, highScorePosition = true, handleSample = false, incrementClimb = false;
+    private boolean highScorePosition, goToScoringPosition, handleSample, incrementClimb, retract;
 
     private double releaseSpecimenHeight = Lift.HEIGHT_CHAMBER_HIGH - Lift.HEIGHT_OFFSET_SPECIMEN_SCORING;
 
@@ -337,6 +337,8 @@ public final class Deposit {
 
                 break;
         }
+
+        goToScoringPosition = handleSample = incrementClimb = retract = false;
 
         boolean depositExtended = state.ordinal() > RETRACTED.ordinal();
         boolean climbing = state.ordinal() >= ABOVE_LOW_RUNG.ordinal();
