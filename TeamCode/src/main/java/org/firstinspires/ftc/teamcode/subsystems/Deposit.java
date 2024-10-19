@@ -266,6 +266,12 @@ public final class Deposit {
 
             case AT_CHAMBER:
 
+                if (retract) {
+                    lift.setTargetPosition(Lift.HEIGHT_INTAKING_SPECIMEN + Lift.HEIGHT_OFFSET_POST_INTAKING);
+                    state = HAS_SPECIMEN;
+                    break;
+                }
+
                 if (goToScoringPosition) {
 
                     lift.setTargetPosition(highScorePosition ?
@@ -296,6 +302,13 @@ public final class Deposit {
 
             case ABOVE_LOW_RUNG:
 
+                if (retract) {
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    state = RETRACTED;
+                    innerHooks.setActivated(false);
+                    break;
+                }
+
                 if (climb) {
 
                     lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_CLIMBING);
@@ -305,6 +318,12 @@ public final class Deposit {
                 break;
 
             case CLIMBING_LOW_RUNG:
+
+                if (retract) {
+                    lift.setTargetPosition(Lift.HEIGHT_RUNG_LOW_RAISED);
+                    state = ABOVE_LOW_RUNG;
+                    break;
+                }
 
                 if (climb) {
 
@@ -342,6 +361,12 @@ public final class Deposit {
                 break;
 
             case CLIMBING_HIGH_RUNG:
+
+                if (retract) {
+                    lift.setTargetPosition(Lift.HEIGHT_RUNG_HIGH_RAISED);
+                    state = ABOVE_HIGH_RUNG;
+                    break;
+                }
 
                 if (climb) {
 
