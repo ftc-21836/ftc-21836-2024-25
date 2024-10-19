@@ -52,6 +52,10 @@ public final class Robot {
         deposit.run(intake.clearOfDeposit());
     }
 
+    public boolean requestingSlowMode() {
+        return deposit.movingToScore() && intake.clearOfDeposit(); // deposit intends to move and intake is not blocking it
+    }
+
     public void printTelemetry() {
         drivetrain.printNumericalTelemetry();
         mTelemetry.addLine();

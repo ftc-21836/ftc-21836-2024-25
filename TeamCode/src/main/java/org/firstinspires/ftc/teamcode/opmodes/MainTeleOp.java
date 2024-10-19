@@ -179,9 +179,9 @@ public final class MainTeleOp extends LinearOpMode {
         }
 
         // Field-centric driving with control stick inputs:
-        boolean autoSlowActive = autoSlowEnabled && (                                  // auto slow enabled in teleop config and one of the below is true:
-                robot.deposit.movingToScore() && robot.intake.clearOfDeposit() ||   // deposit intends to move and intake is not blocking it
-                gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0                            // driver is running intake motor
+        boolean autoSlowActive = autoSlowEnabled && (       // auto slow enabled in teleop config and one of the below is true:
+                robot.requestingSlowMode() ||               // subsystems requesting slow mode
+                gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0    // driver is running intake motor
         );
 
         robot.run();

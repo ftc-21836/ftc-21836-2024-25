@@ -257,7 +257,7 @@ public final class Intake {
         motor.set(motorPower);
     }
 
-    public boolean clearOfDeposit() {
+    boolean clearOfDeposit() {
         return timeSinceBucketRetracted.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
     }
 
