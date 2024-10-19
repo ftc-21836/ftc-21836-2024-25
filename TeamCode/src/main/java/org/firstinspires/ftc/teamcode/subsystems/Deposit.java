@@ -503,7 +503,7 @@ public final class Deposit {
             targetState = currentState = new org.firstinspires.ftc.teamcode.control.motion.State();
         }
 
-        public boolean isExtended() {
+        private boolean isExtended() {
             return currentState.x > HEIGHT_RETRACTED_THRESHOLD;
         }
 
@@ -515,7 +515,7 @@ public final class Deposit {
             this.manualLiftPower = manualLiftPower;
         }
 
-        public void readSensors() {
+        void readSensors() {
             currentState = new org.firstinspires.ftc.teamcode.control.motion.State(INCHES_PER_TICK * (encoder.getPosition() - encoderOffset));
             controller.setGains(pidGains);
         }
