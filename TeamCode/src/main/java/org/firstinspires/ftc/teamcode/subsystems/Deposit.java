@@ -16,6 +16,7 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_LOW_
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
@@ -237,8 +238,9 @@ public final class Deposit {
                     break;
                 }
 
-                sample = hsvToSample(sampleSensor.getHSV());
-                if (sample != NONE || handleSample) {
+                sample = handleSample ? NEUTRAL : hsvToSample(sampleSensor.getHSV());
+
+                if (sample != NONE) {
 
                     claw.setActivated(true);
                     lift.setTargetPosition(Lift.HEIGHT_INTAKING_SPECIMEN + Lift.HEIGHT_OFFSET_POST_INTAKING);
