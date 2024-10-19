@@ -367,7 +367,7 @@ public final class Deposit {
         );
 
         claw.updateAngles(
-                arm.isActivated() ? ANGLE_CLAW_OPEN : ANGLE_CLAW_TRANSFER,
+                state == RETRACTED ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
                 ANGLE_CLAW_CLOSED
         );
 
