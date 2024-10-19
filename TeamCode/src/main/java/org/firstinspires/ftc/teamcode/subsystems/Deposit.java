@@ -355,9 +355,8 @@ public final class Deposit {
 
         goToScoringPosition = handleSample = incrementClimb = retract = false;
 
-        boolean depositExtended = state.ordinal() > RETRACTED.ordinal();
         boolean climbing = state.ordinal() >= ABOVE_LOW_RUNG.ordinal();
-        boolean extendArm = intakeClear && depositExtended && !climbing;
+        boolean extendArm = intakeClear && state != RETRACTED && !climbing;
         arm.setActivated(extendArm);
 
         arm.updateAngles(
