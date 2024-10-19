@@ -359,9 +359,11 @@ public final class Deposit {
         boolean extendArm = intakeClear && state != RETRACTED && !climbing;
         arm.setActivated(extendArm);
 
+        boolean handlingSpecimen = INTAKING_SPECIMEN.ordinal() <= state.ordinal() && state.ordinal() <= SCORING_SPECIMEN.ordinal();
+
         arm.updateAngles(
                 ANGLE_ARM_RETRACTED,
-                ANGLE_ARM_SAMPLE
+                handlingSpecimen ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
         );
 
         claw.updateAngles(
