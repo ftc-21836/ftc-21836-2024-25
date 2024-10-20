@@ -35,6 +35,7 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 public final class Intake {
 
     public static double
+            SPEED_MULTIPLIER_EXTENDO = 0.1,
             DISTANCE_EXTENDO_ARMS_RETRACTED = 67.4,
             DISTANCE_EXTENDO_LINKAGE_ARM = 240,
             DISTANCE_EXTENDO_RETRACTED = 0,
@@ -127,7 +128,7 @@ public final class Intake {
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
     private boolean isIntaking = false;
-    private double motorPower;
+    private double motorPower, extendedLength, extendedAngle;
 
     enum State {
         RETRACTED,
@@ -139,6 +140,8 @@ public final class Intake {
     }
 
     Intake(HardwareMap hardwareMap) {
+
+        resetExtendedLength();
 
         bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
@@ -156,7 +159,7 @@ public final class Intake {
 
         extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
-                ANGLE_EXTENDO_EXTENDED_MAX,
+                extendedAngle,
                 getGoBildaServo(hardwareMap, "extendo right"),
                 getReversedServo(getGoBildaServo(hardwareMap, "extendo left"))
         );
@@ -211,6 +214,7 @@ public final class Intake {
                         if (sample != NONE) latch.setActivated(true);
                         state = EXTENDO_RETRACTING;
                         extendo.setActivated(false);
+                        resetExtendedLength();
                         timer.reset();
                     }
                     break;
@@ -253,7 +257,7 @@ public final class Intake {
 
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
 
-        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
+        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, extendedAngle);
 
         bucket.run();
         latch.run();
@@ -277,6 +281,20 @@ public final class Intake {
     void releaseSample() {
         latch.setActivated(false);
         sample = NONE;
+    }
+
+    private void resetExtendedLength() {
+        offsetExtension(DISTANCE_EXTENDO_EXTENDED_MAX - extendedLength);
+    }
+
+    public void offsetExtension(double offset) {
+        extendedLength = clip(
+                extendedLength + offset,
+                DISTANCE_EXTENDO_EXTENDED_MIN,
+                DISTANCE_EXTENDO_EXTENDED_MAX
+        );
+
+        extendedAngle = extensionToAngle(extendedLength);
     }
 
     public void setMotorPower(double motorPower) {

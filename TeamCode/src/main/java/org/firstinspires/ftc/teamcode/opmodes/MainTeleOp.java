@@ -26,6 +26,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDI
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_AUTO_SLOW;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.SPEED_MULTIPLIER_EXTENDO;
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
 
@@ -143,14 +144,14 @@ public final class MainTeleOp extends LinearOpMode {
 
         if (keyPressed(2, LEFT_BUMPER))   autoSlowEnabled = !autoSlowEnabled;
 
-        robot.intake.setMotorPower(
-                gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-        );
-
         double x = gamepadEx1.getRightX();
         boolean overrideMode = gamepadEx1.isDown(LEFT_BUMPER);
 
         if (overrideMode) {
+
+            robot.intake.offsetExtension(SPEED_MULTIPLIER_EXTENDO * (
+                    gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+            ));
 
             robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
             if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
@@ -166,6 +167,10 @@ public final class MainTeleOp extends LinearOpMode {
 //            else if (keyPressed(1, DPAD_RIGHT)) robot.drivetrain.setTargetHeading(PI * 1.5);
 
         } else {
+
+            robot.intake.setMotorPower(
+                    gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+            );
 
             if (keyPressed(1, DPAD_UP))         robot.deposit.goToScoringPosition(true);
             else if (keyPressed(1, DPAD_LEFT))  robot.deposit.goToScoringPosition(false);
