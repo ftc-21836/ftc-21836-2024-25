@@ -50,6 +50,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.PoseMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.TankCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.TankLocalizerInputsMessage;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedDcMotorEx;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,7 +110,7 @@ public final class TankDrive {
     public final AccelConstraint defaultAccelConstraint =
             new ProfileAccelConstraint(PARAMS.minProfileAccel, PARAMS.maxProfileAccel);
 
-    public final List<DcMotorEx> leftMotors, rightMotors;
+    public final List<CachedDcMotorEx> leftMotors, rightMotors;
 
     public final LazyImu lazyImu;
 
@@ -135,8 +136,8 @@ public final class TankDrive {
         public DriveLocalizer() {
             {
                 List<Encoder> leftEncs = new ArrayList<>();
-                for (DcMotorEx m : leftMotors) {
-                    Encoder e = new OverflowEncoder(new RawEncoder(m));
+                for (CachedDcMotorEx m : leftMotors) {
+                    Encoder e = new OverflowEncoder(new RawEncoder(m.motor));
                     leftEncs.add(e);
                 }
                 this.leftEncs = Collections.unmodifiableList(leftEncs);
@@ -144,8 +145,8 @@ public final class TankDrive {
 
             {
                 List<Encoder> rightEncs = new ArrayList<>();
-                for (DcMotorEx m : rightMotors) {
-                    Encoder e = new OverflowEncoder(new RawEncoder(m));
+                for (CachedDcMotorEx m : rightMotors) {
+                    Encoder e = new OverflowEncoder(new RawEncoder(m.motor));
                     rightEncs.add(e);
                 }
                 this.rightEncs = Collections.unmodifiableList(rightEncs);
@@ -223,14 +224,14 @@ public final class TankDrive {
         // TODO: make sure your config has motors with these names (or change them)
         //   add additional motors on each side if you have them
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftMotors = Arrays.asList(hardwareMap.get(DcMotorEx.class, "left"));
-        rightMotors = Arrays.asList(hardwareMap.get(DcMotorEx.class, "right"));
+        leftMotors = Arrays.asList(new CachedDcMotorEx(hardwareMap.get(DcMotorEx.class, "left")));
+        rightMotors = Arrays.asList(new CachedDcMotorEx(hardwareMap.get(DcMotorEx.class, "right")));
 
-        for (DcMotorEx m : leftMotors) {
-            m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        for (CachedDcMotorEx m : leftMotors) {
+            m.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
-        for (DcMotorEx m : rightMotors) {
-            m.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        for (CachedDcMotorEx m : rightMotors) {
+            m.motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
 
         // TODO: reverse motor directions if needed
@@ -257,10 +258,10 @@ public final class TankDrive {
             maxPowerMag = Math.max(maxPowerMag, power.value());
         }
 
-        for (DcMotorEx m : leftMotors) {
+        for (CachedDcMotorEx m : leftMotors) {
             m.setPower(wheelVels.left.get(0) / maxPowerMag);
         }
-        for (DcMotorEx m : rightMotors) {
+        for (CachedDcMotorEx m : rightMotors) {
             m.setPower(wheelVels.right.get(0) / maxPowerMag);
         }
     }
@@ -297,10 +298,10 @@ public final class TankDrive {
             }
 
             if (t >= timeTrajectory.duration) {
-                for (DcMotorEx m : leftMotors) {
+                for (CachedDcMotorEx m : leftMotors) {
                     m.setPower(0);
                 }
-                for (DcMotorEx m : rightMotors) {
+                for (CachedDcMotorEx m : rightMotors) {
                     m.setPower(0);
                 }
 
@@ -326,10 +327,10 @@ public final class TankDrive {
             double rightPower = feedforward.compute(wheelVels.right) / voltage;
             tankCommandWriter.write(new TankCommandMessage(voltage, leftPower, rightPower));
 
-            for (DcMotorEx m : leftMotors) {
+            for (CachedDcMotorEx m : leftMotors) {
                 m.setPower(leftPower);
             }
-            for (DcMotorEx m : rightMotors) {
+            for (CachedDcMotorEx m : rightMotors) {
                 m.setPower(rightPower);
             }
 
@@ -387,10 +388,10 @@ public final class TankDrive {
             }
 
             if (t >= turn.duration) {
-                for (DcMotorEx m : leftMotors) {
+                for (CachedDcMotorEx m : leftMotors) {
                     m.setPower(0);
                 }
-                for (DcMotorEx m : rightMotors) {
+                for (CachedDcMotorEx m : rightMotors) {
                     m.setPower(0);
                 }
 
@@ -419,10 +420,10 @@ public final class TankDrive {
             double rightPower = feedforward.compute(wheelVels.right) / voltage;
             tankCommandWriter.write(new TankCommandMessage(voltage, leftPower, rightPower));
 
-            for (DcMotorEx m : leftMotors) {
+            for (CachedDcMotorEx m : leftMotors) {
                 m.setPower(leftPower);
             }
-            for (DcMotorEx m : rightMotors) {
+            for (CachedDcMotorEx m : rightMotors) {
                 m.setPower(rightPower);
             }
 
