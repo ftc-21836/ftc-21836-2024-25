@@ -48,7 +48,10 @@ public final class Deposit {
             ANGLE_BARS_EXTENDED = 90,
             TIME_DROP = 1,
             TIME_ARM_RETRACTION = 1,
-            TIME_RETRACTION_OUTER_HOOKS = 0.5,
+            TIME_OUTER_HOOKS_EXTENSION = 0.5,
+            TIME_OUTER_HOOKS_RETRACTION = 0.5,
+            TIME_INNER_HOOKS_DISENGAGING = 0.5,
+            DURATION_INNER_HOOKS_RETRACTED = 2,
             COLOR_SENSOR_GAIN = 1,
             SPEED_OUTER_HOOKS_EXTENDING = 0.5,
             SPEED_OUTER_HOOKS_RETRACTING = -.1,
@@ -60,11 +63,11 @@ public final class Deposit {
             HEIGHT_CHAMBER_LOW = 1,
             HEIGHT_CHAMBER_HIGH = 1,
             HEIGHT_RUNG_LOW_RAISED = 1,
-            HEIGHT_RUNG_LOW_CLIMBING = 1,
+            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -1,
             HEIGHT_RUNG_HIGH_RAISED = 1,
             HEIGHT_TO_ACTIVATE_LIMITER_BAR = 1,
-            HEIGHT_RUNG_HIGH_CLIMBING = 1,
-            HEIGHT_OFFSET_SPECIMEN_SCORING = 1;
+            HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -1,
+            HEIGHT_OFFSET_SPECIMEN_SCORING = -1;
 
     /**
      * HSV value bound for sample grabbing
@@ -119,7 +122,7 @@ public final class Deposit {
 
     private final MotorEx outerHooks;
 
-    private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();
+    private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime(), timer = new ElapsedTime();
 
     Intake.Sample sample = NONE;
 
@@ -127,7 +130,7 @@ public final class Deposit {
 
     private boolean highScorePosition, goToScoringPosition, handleSample, climb, retract;
 
-    private double releaseSpecimenHeight = HEIGHT_CHAMBER_HIGH - HEIGHT_OFFSET_SPECIMEN_SCORING;
+    private double releaseSpecimenHeight = HEIGHT_CHAMBER_HIGH + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
@@ -290,7 +293,7 @@ public final class Deposit {
 
                 if (handleSample) {
 
-                    releaseSpecimenHeight = lift.currentState.x - HEIGHT_OFFSET_SPECIMEN_SCORING;
+                    releaseSpecimenHeight = lift.currentState.x + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
                     lift.setTargetPosition(HEIGHT_RETRACTED);
                     state = SCORING_SPECIMEN;
@@ -319,7 +322,7 @@ public final class Deposit {
 
                 if (climb) {
 
-                    lift.setTargetPosition(HEIGHT_RUNG_LOW_CLIMBING);
+                    lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
                     state = CLIMBING_LOW_RUNG;
                 }
 
@@ -347,9 +350,10 @@ public final class Deposit {
 
                     outerHooks.set(0);
 
-                    innerHooks.setActivated(false);
                     lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
+
+                    timer.reset();
 
                 }
 
@@ -357,11 +361,15 @@ public final class Deposit {
 
             case ABOVE_HIGH_RUNG:
 
+                innerHooks.setActivated(
+                        timer.seconds() < TIME_INNER_HOOKS_DISENGAGING ||
+                        timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
+                );
+
                 if (climb) {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
-                    innerHooks.setActivated(true);
-                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_CLIMBING);
+                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
                     state = CLIMBING_HIGH_RUNG;
 
                 }
