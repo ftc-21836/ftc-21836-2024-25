@@ -127,8 +127,9 @@ public final class MecanumDrive {
     }
 
     public void printNumericalTelemetry() {
-        mTelemetry.addData("Current heading (radians)", getHeading());
-        mTelemetry.addData("Current heading (degrees)", toDegrees(getHeading()));
+        double heading = getHeading();
+        mTelemetry.addData("Current heading (radians)", heading);
+        mTelemetry.addData("Current heading (degrees)", toDegrees(heading));
     }
 
     public static class Params {
