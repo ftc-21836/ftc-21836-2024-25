@@ -4,7 +4,6 @@ import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.LogoFacingDirec
 import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -117,12 +116,6 @@ public final class MecanumDrive {
             xCommand *= SLOW_FACTOR;
             turnCommand *= SLOW_FACTOR;
         }
-
-        double voltageScalar = maxVoltage / voltageSensor.getVoltage();
-
-        yCommand *= voltageScalar;
-        xCommand *= voltageScalar;
-        turnCommand *= voltageScalar;
 
         // run motors
         setDrivePowers(new PoseVelocity2d(
