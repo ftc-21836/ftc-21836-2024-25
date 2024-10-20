@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems.utilities;
 
 
-import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.CachedSimpleServo;
@@ -16,16 +15,16 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.Cached
 public class SimpleServoPivot {
 
     public static CachedSimpleServo getReversedServo(CachedSimpleServo servo) {
-        servo.servo.setInverted(true);
+        servo.setInverted(true);
         return servo;
     }
 
     public static CachedSimpleServo getAxonServo(HardwareMap hardwareMap, String name) {
-        return new CachedSimpleServo(new SimpleServo(hardwareMap, name, 0, 355));
+        return new CachedSimpleServo(hardwareMap, name, 0, 355);
     }
 
     public static CachedSimpleServo getGoBildaServo(HardwareMap hardwareMap, String name) {
-        return new CachedSimpleServo(new SimpleServo(hardwareMap, name, 0, 280));
+        return new CachedSimpleServo(hardwareMap, name, 0, 280);
     }
 
     private final CachedSimpleServo[] servos;
