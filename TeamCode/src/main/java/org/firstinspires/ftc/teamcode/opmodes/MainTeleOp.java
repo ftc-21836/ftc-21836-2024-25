@@ -40,29 +40,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-
-        teleOpInit(this);
-
-        // Control loop:
-        while (opModeIsActive()) {
-            // Read sensors + gamepads:
-            robot.readSensors();
-            gamepadEx1.readButtons();
-            gamepadEx2.readButtons();
-
-            teleOpControls();
-
-            robot.run();
-
-            mTelemetry.addData("Auto slow is", OpModeVars.autoSlowEnabled ? "enabled" : "disabled");
-            mTelemetry.addLine();
-            robot.printTelemetry();
-            mTelemetry.update();
-        }
-    }
-
     enum TeleOpConfig {
         EDITING_ALLIANCE,
         EDITING_SIDE,
@@ -79,24 +56,30 @@ public final class MainTeleOp extends LinearOpMode {
         }
     }
 
-    static void teleOpInit(LinearOpMode opMode) {
+    static boolean isTranslating() {
+        return gamepadEx1.getLeftX() != 0 || gamepadEx1.getLeftY() != 0 || gamepadEx1.getRightX() != 0;
+    }
+
+    @Override
+    public void runOpMode() throws InterruptedException {
 
         // Initialize multiple telemetry outputs:
-        mTelemetry = new MultipleTelemetry(opMode.telemetry, FtcDashboard.getInstance().getTelemetry());
+        mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Initialize robot:
-        robot = new Robot(opMode.hardwareMap, isRed);
+        robot = new Robot(hardwareMap, isRed);
         robot.run();
 
         // Initialize gamepads:
-        gamepadEx1 = new GamepadEx(opMode.gamepad1);
-        gamepadEx2 = new GamepadEx(opMode.gamepad2);
+        gamepadEx1 = new GamepadEx(gamepad1);
+        gamepadEx2 = new GamepadEx(gamepad2);
 
         TeleOpConfig selection = EDITING_ALLIANCE;
 
         boolean lockSlowMode = false;
+        boolean autoSlowEnabled = true;
         // Get gamepad 1 button input and locks slow mode:
-        while (opMode.opModeInInit()) {
+        while (opModeInInit()) {
             gamepadEx1.readButtons();
 
             if (keyPressed(1, DPAD_UP))   selection = selection.plus(-1);
@@ -110,7 +93,7 @@ public final class MainTeleOp extends LinearOpMode {
                     isRight = !isRight;
                     break;
                 case EDITING_AUTO_SLOW:
-                    OpModeVars.autoSlowEnabled = !OpModeVars.autoSlowEnabled;
+                    autoSlowEnabled = !autoSlowEnabled;
                     break;
                 case EDITING_SLOW_LOCK:
                 default:
@@ -122,79 +105,89 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
-            mTelemetry.addLine("Auto slow " + (OpModeVars.autoSlowEnabled ? "ENABLED" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
+            mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "ENABLED" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
             mTelemetry.addLine();
             mTelemetry.addLine("Permanent slow mode " + (lockSlowMode ? "LOCKED" : "OFF") + selection.markIf(EDITING_SLOW_LOCK));
 
             mTelemetry.update();
         }
 
-        if (lockSlowMode) robot.drivetrain.lockSlowMode();
-
 //        if (autonEndPose == null) autonEndPose = OpModeVars.startPose.byBoth().toPose2d();
 //        robot.drivetrain.setPoseEstimate(autonEndPose);
 //        robot.drivetrain.setCurrentHeading(autonEndPose.getHeading() - (isRed ? FORWARD : BACKWARD));
-    }
 
-    static void teleOpControls() {
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        if (keyPressed(2, LEFT_BUMPER))   OpModeVars.autoSlowEnabled = !OpModeVars.autoSlowEnabled;
+        // Control loop:
+        while (opModeIsActive()) {
+            // Read sensors + gamepads:
+            robot.readSensors();
+            gamepadEx1.readButtons();
+            gamepadEx2.readButtons();
 
-        double x = gamepadEx1.getRightX();
-        boolean overrideMode = gamepadEx1.isDown(LEFT_BUMPER);
+            if (keyPressed(2, LEFT_BUMPER))   autoSlowEnabled = !autoSlowEnabled;
 
-        if (overrideMode) {
+            double x = gamepadEx1.getRightX();
+            boolean overrideMode = gamepadEx1.isDown(LEFT_BUMPER);
 
-            robot.intake.offsetExtension(SPEED_MULTIPLIER_EXTENDO * (
-                    gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-            ));
+            if (overrideMode) {
 
-            robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
-            if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+                robot.intake.offsetExtension(SPEED_MULTIPLIER_EXTENDO * (
+                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+                ));
 
-            // SET HEADING:
-            double y = gamepadEx1.getRightY();
-            if (hypot(x, y) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(y, x) - FORWARD);
-            x = 0;
+                robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
+                if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
-//            if (keyPressed(1, DPAD_UP))         robot.drivetrain.setTargetHeading(0);
-//            else if (keyPressed(1, DPAD_LEFT))  robot.drivetrain.setTargetHeading(PI * 0.5);
-//            else if (keyPressed(1, DPAD_DOWN))  robot.drivetrain.setTargetHeading(PI);
-//            else if (keyPressed(1, DPAD_RIGHT)) robot.drivetrain.setTargetHeading(PI * 1.5);
+                // SET HEADING:
+                double y = gamepadEx1.getRightY();
+                if (hypot(x, y) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(y, x) - FORWARD);
+                x = 0;
 
-        } else {
+    //            if (keyPressed(1, DPAD_UP))         robot.drivetrain.setTargetHeading(0);
+    //            else if (keyPressed(1, DPAD_LEFT))  robot.drivetrain.setTargetHeading(PI * 0.5);
+    //            else if (keyPressed(1, DPAD_DOWN))  robot.drivetrain.setTargetHeading(PI);
+    //            else if (keyPressed(1, DPAD_RIGHT)) robot.drivetrain.setTargetHeading(PI * 1.5);
 
-            robot.intake.setMotorPower(
-                    gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+            } else {
+
+                robot.intake.setMotorPower(
+                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+                );
+
+                if (keyPressed(1, DPAD_UP))         robot.deposit.goToScoringPosition(true);
+                else if (keyPressed(1, DPAD_LEFT))  robot.deposit.goToScoringPosition(false);
+                else if (keyPressed(1, DPAD_DOWN))  robot.deposit.retract();
+
+                if (keyPressed(1, X))               robot.intake.toggle();
+                if (keyPressed(1, Y))               robot.deposit.climb();
+                if (keyPressed(1, A))               robot.deposit.transfer(Robot.Sample.NEUTRAL);
+                if (keyPressed(1, B))               robot.deposit.handleSample();
+
+            }
+
+            robot.run();
+
+            // Field-centric driving with control stick inputs:
+            boolean driveSlow = gamepadEx1.isDown(RIGHT_BUMPER) ||
+                    autoSlowEnabled && (       // auto slow enabled in teleop config and one of the below is true:
+                            robot.requestingSlowMode() ||               // subsystems requesting slow mode
+                            gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0    // driver is running intake motor
+                    );
+
+            if (driveSlow && lockSlowMode) lockSlowMode = false;
+
+            robot.drivetrain.run(
+                    overrideMode ? 0 : gamepadEx1.getLeftX(),
+                    overrideMode ? 0 : gamepadEx1.getLeftY(),
+                    x,
+                    driveSlow || lockSlowMode  // go slow if driver inputs or auto slow requested by subsystems
             );
 
-            if (keyPressed(1, DPAD_UP))         robot.deposit.goToScoringPosition(true);
-            else if (keyPressed(1, DPAD_LEFT))  robot.deposit.goToScoringPosition(false);
-            else if (keyPressed(1, DPAD_DOWN))  robot.deposit.retract();
-
-            if (keyPressed(1, X))               robot.intake.toggle();
-            if (keyPressed(1, Y))               robot.deposit.climb();
-            if (keyPressed(1, A))               robot.deposit.transfer(Robot.Sample.NEUTRAL);
-            if (keyPressed(1, B))               robot.deposit.handleSample();
-
+            mTelemetry.addData("Auto slow is", autoSlowEnabled ? "enabled" : "disabled");
+            mTelemetry.addLine();
+            robot.printTelemetry();
+            mTelemetry.update();
         }
-
-        // Field-centric driving with control stick inputs:
-        boolean autoSlowActive = OpModeVars.autoSlowEnabled && (       // auto slow enabled in teleop config and one of the below is true:
-                robot.requestingSlowMode() ||               // subsystems requesting slow mode
-                gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0    // driver is running intake motor
-        );
-
-        robot.run();
-        robot.drivetrain.run(
-                overrideMode ? 0 : gamepadEx1.getLeftX(),
-                overrideMode ? 0 : gamepadEx1.getLeftY(),
-                x,
-                gamepadEx1.isDown(RIGHT_BUMPER) || autoSlowActive  // go slow if driver inputs or auto slow requested by subsystems
-        );
-    }
-
-    static boolean isTranslating() {
-        return gamepadEx1.getLeftX() != 0 || gamepadEx1.getLeftY() != 0 || gamepadEx1.getRightX() != 0;
     }
 }

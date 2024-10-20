@@ -72,7 +72,6 @@ public final class MecanumDrive {
 
     private double headingOffset;
     public static double SLOW_FACTOR = 0.3, ODO_INCHES_PER_TICK = ((38 / 25.4) * PI) / 8192.0;
-    private boolean slowModeLocked = false;
 
     /**
      * Set internal heading of the robot to correct field-centric direction
@@ -111,8 +110,7 @@ public final class MecanumDrive {
         xCommand = x * cos - y * sin;
         yCommand = y * cos + x * sin;
 
-        if (useSlowMode) slowModeLocked = false;
-        if (useSlowMode || slowModeLocked) {
+        if (useSlowMode) {
             yCommand *= SLOW_FACTOR;
             xCommand *= SLOW_FACTOR;
             turnCommand *= SLOW_FACTOR;
@@ -126,10 +124,6 @@ public final class MecanumDrive {
                 ),
                 -turnCommand
         ));
-    }
-
-    public void lockSlowMode() {
-        this.slowModeLocked = true;
     }
 
     public void printNumericalTelemetry() {

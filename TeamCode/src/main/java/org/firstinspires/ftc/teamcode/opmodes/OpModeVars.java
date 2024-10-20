@@ -26,7 +26,6 @@ public final class OpModeVars {
     static boolean
             isRed = true,
             isRight = true,
-            autoSlowEnabled = true,
             cycle = false;
 
     static ParkingLocation parking = CORNER;
