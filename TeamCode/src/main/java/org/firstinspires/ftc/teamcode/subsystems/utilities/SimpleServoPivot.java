@@ -13,26 +13,26 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 public class SimpleServoPivot {
 
-    public static SimpleServo getReversedServo(SimpleServo servo) {
-        servo.setInverted(true);
+    public static CachedSimpleServo getReversedServo(CachedSimpleServo servo) {
+        servo.servo.setInverted(true);
         return servo;
     }
 
-    public static SimpleServo getAxonServo(HardwareMap hardwareMap, String name) {
-        return new SimpleServo(hardwareMap, name, 0, 355);
+    public static CachedSimpleServo getAxonServo(HardwareMap hardwareMap, String name) {
+        return new CachedSimpleServo(new SimpleServo(hardwareMap, name, 0, 355));
     }
 
-    public static SimpleServo getGoBildaServo(HardwareMap hardwareMap, String name) {
-        return new SimpleServo(hardwareMap, name, 0, 280);
+    public static CachedSimpleServo getGoBildaServo(HardwareMap hardwareMap, String name) {
+        return new CachedSimpleServo(new SimpleServo(hardwareMap, name, 0, 280));
     }
 
-    private final SimpleServo[] servos;
+    private final CachedSimpleServo[] servos;
 
     private double ANGLE_INITIAL, ANGLE_ACTIVATED;
 
     private boolean activated = false;
 
-    public SimpleServoPivot(double ANGLE_INITIAL, double ANGLE_ACTIVATED, SimpleServo... servos) {
+    public SimpleServoPivot(double ANGLE_INITIAL, double ANGLE_ACTIVATED, CachedSimpleServo... servos) {
         this.servos = servos;
         updateAngles(ANGLE_INITIAL, ANGLE_ACTIVATED);
     }
@@ -71,6 +71,6 @@ public class SimpleServoPivot {
      * Hold {@link #servos} position
      */
     public void run() {
-        for (SimpleServo servo : servos) servo.turnToAngle(activated ? ANGLE_ACTIVATED : ANGLE_INITIAL);
+        for (CachedSimpleServo servo : servos) servo.turnToAngle(activated ? ANGLE_ACTIVATED : ANGLE_INITIAL);
     }
 }
