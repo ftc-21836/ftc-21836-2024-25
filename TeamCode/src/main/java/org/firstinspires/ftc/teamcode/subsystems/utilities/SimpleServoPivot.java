@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode.subsystems.utilities;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.CachedSimpleServo;
+
 /**
  * Servo(s) with two set positions <p>
  * Controlled by {@link #toggle} and {@link #setActivated}

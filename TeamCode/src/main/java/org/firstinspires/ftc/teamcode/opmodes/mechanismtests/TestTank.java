@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
-import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.CachedMotorEx;
 
 
 @TeleOp(group = "Single mechanism test")

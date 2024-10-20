@@ -61,7 +61,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumLocalizerInputsMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.PoseMessage;
-import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedDcMotorEx;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.CachedDcMotorEx;
 
 import java.util.Arrays;
 import java.util.LinkedList;

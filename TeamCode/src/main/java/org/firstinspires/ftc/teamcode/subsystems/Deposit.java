@@ -28,7 +28,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
-import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 

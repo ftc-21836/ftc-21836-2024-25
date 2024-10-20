@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
-import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.AnalogEncoder;
 
 @Config
