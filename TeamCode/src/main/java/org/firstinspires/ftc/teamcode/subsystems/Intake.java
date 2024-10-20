@@ -2,23 +2,21 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
-import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.HAS_0_PIXELS;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.HAS_1_PIXEL;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.PIVOTING;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.PIXELS_FALLING;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.PIXELS_SETTLING;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.PIXEL_1_SETTLING;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_PIVOTING;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_RAISING;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.DROPPING_BAD_SAMPLE;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.EXTENDO_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.WAITING_FOR_DEPOSIT;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
+import static java.lang.Math.acos;
+import static java.lang.Math.pow;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -27,6 +25,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
+import org.firstinspires.ftc.teamcode.opmodes.AutonVars;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
@@ -34,21 +33,24 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 public final class Intake {
 
     public static double
-            ANGLE_PIVOT_OFFSET = 9,
-            ANGLE_PIVOT_FLOOR_CLEARANCE = 2.5,
-            ANGLE_PIVOT_TRANSFERRING = 196.5,
-            ANGLE_PIVOT_VERTICAL = 110,
+            ANGLE_BUCKET_RETRACTED = 9,
+            ANGLE_BUCKET_INTAKING = 196.5,
+            ANGLE_BUCKET_FLOOR_CLEARANCE = 60,
+            ANGLE_BUCKET_VERTICAL = 90,
+            ANGLE_LATCH_TRANSFERRING = 0,
             ANGLE_LATCH_INTAKING = 105,
             ANGLE_LATCH_LOCKED = 159,
-            ANGLE_LATCH_TRANSFERRING = 0,
-            TIME_PIXEL_1_SETTLING = 0.35,
-            TIME_PIVOTING = 0,
-            TIME_SETTLING = 0.2,
-            TIME_INTAKE_FLIP_TO_LIFT = 0.2,
+            ANGLE_EXTENDO_RETRACTED = 0,
+            ANGLE_EXTENDO_EXTENDED = 150,
+            TIME_BUCKET_PIVOT = 1,
+            TIME_DROP = 1,
+            TIME_BUCKET_RAISE_TO_EXTEND = 1,
+            TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 1,
             TIME_REVERSING = 0.175,
-            SPEED_SLOW_REVERSING = -0.2,
             SPEED_REVERSING = -0.6,
-            COLOR_SENSOR_GAIN = 1;
+            COLOR_SENSOR_GAIN = 1,
+            DISTANCE_EXTENDO_RETRACTED = 67.4,
+            DISTANCE_EXTENDO_LINKAGE_ARM = pow(240, 2);
 
     /**
      * HSV value bound for intake pixel detection
@@ -89,47 +91,56 @@ public final class Intake {
         NONE,
         NEUTRAL,
         BLUE,
-        RED
+        RED;
+
+        /**
+         * @return The {@link Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
+         */
+        public static Sample fromHSV(HSV hsv) {
+            return
+                    hsv.between(minRed, maxRed) ? RED :
+                    hsv.between(minBlue, maxBlue) ? BLUE :
+                    hsv.between(minYellow, maxYellow) ? NEUTRAL :
+                    NONE;
+        }
     }
 
     private final MotorEx motor;
 
     private final ColorSensor colorSensor;
-    private HSV HSV = new HSV();
-    public Sample color = NONE;
+    private HSV hsv = new HSV();
+    Sample sample = NONE;
 
-    private final TouchSensor pivotSensor;
+    private final TouchSensor bucketSensor, extendoSensor;
 
-    private final SimpleServoPivot pivot, latch;
+    private final SimpleServoPivot bucket, latch, extendo;
 
-    private Intake.State state = HAS_0_PIXELS;
+    private Intake.State state = RETRACTED;
 
-    private final ElapsedTime timer = new ElapsedTime(), timeSinceRetracted = new ElapsedTime();
+    private final Sample badSample = AutonVars.isRed ? BLUE : RED;
 
-    private boolean pixelsTransferred = false, isIntaking = false;
-    private int intakingAmount = 2;
+    private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
+
+    private boolean isIntaking = false;
     private double motorPower;
 
     enum State {
-        HAS_0_PIXELS,
-        PIXEL_1_SETTLING,
-        HAS_1_PIXEL,
-        WAITING_FOR_DEPOSIT,
-        PIVOTING,
-        PIXELS_FALLING,
-        PIXELS_SETTLING,
         RETRACTED,
+        BUCKET_RAISING,
+        INTAKING,
+        BUCKET_PIVOTING,
+        DROPPING_BAD_SAMPLE,
+        EXTENDO_RETRACTING,
     }
 
     Intake(HardwareMap hardwareMap) {
 
-        pivot = new SimpleServoPivot(
-                ANGLE_PIVOT_OFFSET,
-                ANGLE_PIVOT_OFFSET + ANGLE_PIVOT_TRANSFERRING,
-                getAxonServo(hardwareMap, "intake right"),
-                getReversedServo(getAxonServo(hardwareMap, "intake left"))
+        bucket = new SimpleServoPivot(
+                ANGLE_BUCKET_RETRACTED,
+                ANGLE_BUCKET_VERTICAL,
+                getAxonServo(hardwareMap, "bucket right"),
+                getReversedServo(getAxonServo(hardwareMap, "bucket left"))
         );
-        pivot.setActivated(true);
 
         latch = new SimpleServoPivot(
                 ANGLE_LATCH_TRANSFERRING,
@@ -138,159 +149,134 @@ public final class Intake {
                 getReversedServo(getGoBildaServo(hardwareMap, "latch left"))
         );
 
+        extendo = new SimpleServoPivot(
+                ANGLE_EXTENDO_RETRACTED,
+                ANGLE_EXTENDO_EXTENDED,
+                getGoBildaServo(hardwareMap, "extendo right"),
+                getReversedServo(getGoBildaServo(hardwareMap, "extendo left"))
+        );
+
         motor = new MotorEx(hardwareMap, "intake", RPM_1620);
         motor.setZeroPowerBehavior(FLOAT);
         motor.setInverted(true);
 
         colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
-        pivotSensor = hardwareMap.get(TouchSensor.class, "intake pivot sensor");
+        bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
+        extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
 
         timer.reset();
     }
 
-    /**
-     * @return The {@link Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
-     */
-    public static Sample fromHSV(HSV hsv) {
-        return
-                hsv.between(minRed, maxRed) ? RED :
-                hsv.between(minBlue, maxBlue) ? BLUE :
-                hsv.between(minYellow, maxYellow) ? NEUTRAL :
-                NONE;
-    }
-
-    void run(int pixelsInDeposit, boolean depositIsExtended, boolean liftIsScoring) {
-
-        if (pixelsTransferred) pixelsTransferred = false;
-
-        boolean depositIsRunning = liftIsScoring || depositIsExtended;
+    void run(boolean depositHasSample, boolean depositIsActive) {
 
         switch (state) {
-            case HAS_0_PIXELS:
-
-                boolean bottomFull = (color = readColorSensor(0)) != NONE;
-                if (bottomFull || !isIntaking) {
-                    state = PIXEL_1_SETTLING;
-                    timer.reset();
-                } else break;
-
-            case PIXEL_1_SETTLING:
-
-                if (!isIntaking || timer.seconds() >= TIME_PIXEL_1_SETTLING) state = HAS_1_PIXEL;
-                else break;
-
-            case HAS_1_PIXEL:
-
-                boolean topFull = (color = readColorSensor(1)) != NONE;
-                if (topFull || !isIntaking || intakingAmount == 1) {
-                    if (color != NONE) latch.setActivated(true);
-                    state = WAITING_FOR_DEPOSIT;
-                } else break;
-
-            case WAITING_FOR_DEPOSIT:
-
-                boolean bottomEmpty = color == NONE;
-                int pixelsInIntake = (color == NONE ? 0 : 1) + (bottomEmpty ? 0 : 1);
-
-                if (bottomEmpty) {
-                    retract();
-                    break;
-                } else if (!depositIsExtended && pixelsInIntake + pixelsInDeposit <= 2) {
-                    state = PIVOTING;
-                    pivot.setActivated(true);
-                    timer.reset();
-                } else break;
-
-            case PIVOTING:
-
-                if (pivotSensor.isPressed() && timer.seconds() >= TIME_PIVOTING) {
-                    state = PIXELS_FALLING;
-                    latch.setActivated(false);
-                } else {
-                    setMotorPower(timer.seconds() <= TIME_REVERSING ? SPEED_REVERSING : SPEED_SLOW_REVERSING);
-                    break;
-                }
-
-            case PIXELS_FALLING:
-
-                if (readColorSensor(1) == NONE && readColorSensor(0) == NONE) {
-                    state = PIXELS_SETTLING;
-                    timer.reset();
-                } else break;
-
-            case PIXELS_SETTLING:
-
-                pixelsTransferred = timer.seconds() >= TIME_SETTLING;
-                if (pixelsTransferred) retract();
-                else break;
 
             case RETRACTED:
 
                 if (isIntaking) {
-                    state = HAS_0_PIXELS;
-                    pivot.setActivated(false);
+                    bucket.setActivated(true);
+                    state = BUCKET_RAISING;
+                    timer.reset();
                 } else {
-                    pivot.setActivated(!depositIsRunning);
+                    bucket.setActivated(depositIsActive || (depositHasSample && sample != NONE));
                     break;
                 }
 
+            case BUCKET_RAISING:
+
+                if (timer.seconds() >= TIME_BUCKET_RAISE_TO_EXTEND) {
+                    extendo.setActivated(true);
+                    state = INTAKING;
+                } else break;
+
+            case INTAKING:
+
+                colorSensor.update();
+                hsv = colorSensor.getHSV();
+                sample = Sample.fromHSV(hsv);
+
+                if (sample == badSample) {
+                    latch.setActivated(true);
+                    bucket.setActivated(false);
+                    state = BUCKET_PIVOTING;
+                    timer.reset();
+                } else {
+                    if (sample != NONE || !isIntaking) {
+                        if (sample != NONE) latch.setActivated(true);
+                        state = EXTENDO_RETRACTING;
+                        extendo.setActivated(false);
+                        timer.reset();
+                    }
+                    break;
+                }
+
+            case BUCKET_PIVOTING:
+
+                if (timer.seconds() >= TIME_BUCKET_PIVOT) {
+                    releaseSample();
+                    state = DROPPING_BAD_SAMPLE;
+                    timer.reset();
+                } else break;
+
+            case DROPPING_BAD_SAMPLE:
+
+                if (timer.seconds() >= TIME_DROP) {
+                    state = INTAKING;
+                    bucket.setActivated(true);
+                } else break;
+
+            case EXTENDO_RETRACTING:
+
+                if (extendoSensor.isPressed()) {
+                    state = RETRACTED;
+                    isIntaking = false;
+                } else if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
         }
 
+        if (isRetracted()) timeSinceBucketRetracted.reset();
 
-        if (pivot.isActivated()) timeSinceRetracted.reset();
+        if (state != INTAKING) setMotorPower(0);
 
-        boolean doneIntaking = state.ordinal() >= WAITING_FOR_DEPOSIT.ordinal();
-        boolean donePivoting = state.ordinal() > PIVOTING.ordinal();
+        double ANGLE_BUCKET_DOWN = state == INTAKING ?
+                ANGLE_BUCKET_INTAKING - (motorPower == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0) :
+                ANGLE_BUCKET_VERTICAL;
 
-        if (donePivoting || state == PIXEL_1_SETTLING) setMotorPower(0);
+        bucket.updateAngles(ANGLE_BUCKET_RETRACTED,ANGLE_BUCKET_DOWN);
 
-        double ANGLE_PIVOT_DOWN =
-                doneIntaking ? ANGLE_PIVOT_VERTICAL :
-                motorPower > 0 ? 0 :
-                ANGLE_PIVOT_FLOOR_CLEARANCE;
-
-        pivot.updateAngles(
-                ANGLE_PIVOT_OFFSET + ANGLE_PIVOT_DOWN,
-                ANGLE_PIVOT_OFFSET + ANGLE_PIVOT_TRANSFERRING
-        );
-
-        double ANGLE_LATCH_UNLOCKED = doneIntaking ? ANGLE_LATCH_TRANSFERRING : ANGLE_LATCH_INTAKING;
+        double ANGLE_LATCH_UNLOCKED = state == INTAKING ? ANGLE_LATCH_INTAKING : ANGLE_LATCH_TRANSFERRING;
 
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
 
-        pivot.run();
+        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED,ANGLE_EXTENDO_EXTENDED);
+
+        bucket.run();
         latch.run();
+        extendo.run();
 
         motor.set(motorPower);
     }
 
-    private Sample readColorSensor(int i) {
-        colorSensor.update();
-        return fromHSV(HSV = colorSensor.getHSV());
-    }
-
-    private void retract() {
-        state = RETRACTED;
-        isIntaking = false;
-        setIntakingAmount(2);
-    }
-
     boolean clearOfDeposit() {
-        return timeSinceRetracted.seconds() >= TIME_INTAKE_FLIP_TO_LIFT;
+        return timeSinceBucketRetracted.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
     }
 
-    boolean pixelsTransferred() {
-        return pixelsTransferred;
+    boolean awaitingTransfer() {
+        return sample != NONE && isRetracted();
+    }
+
+    private boolean isRetracted() {
+        return bucketSensor.isPressed() && extendoSensor.isPressed();
+    }
+
+    void releaseSample() {
+        latch.setActivated(false);
+        sample = NONE;
     }
 
     public void setMotorPower(double motorPower) {
         if (motorPower != 0) isIntaking = true;
         this.motorPower = motorPower;
-    }
-
-    public void setIntakingAmount(int pixelCount) {
-        this.intakingAmount = clip(pixelCount, 1, 2);
     }
 
     public void setExtended(boolean isIntaking) {
@@ -301,11 +287,15 @@ public final class Intake {
         setExtended(!isIntaking);
     }
 
+    public static double extensionToAngle(double millimeters) {
+        return 0.5 * acos(1 - pow(millimeters + DISTANCE_EXTENDO_RETRACTED, 2) / (2 * DISTANCE_EXTENDO_LINKAGE_ARM));
+    }
+
     void printTelemetry() {
-        mTelemetry.addLine("Intaking " + intakingAmount + " pixels");
+        mTelemetry.addData("Bucket", (sample == NONE ? "empty" : "contains a " + sample.name() + " sample"));
     }
 
     void printNumericalTelemetry() {
-        HSV.toTelemetry("Bucket HSV");
+        hsv.toTelemetry("Bucket HSV");
     } 
 }

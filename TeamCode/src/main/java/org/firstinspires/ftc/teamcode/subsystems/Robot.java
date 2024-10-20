@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -12,17 +13,11 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 @Config
 public final class Robot {
 
-    public static double
-            maxVoltage = 13,
-            ANGLE_DRONE_LOADED = 50,
-            ANGLE_DRONE_LAUNCHED = 0,
-            ANGLE_SPIKE_LOCKED = 90,
-            ANGLE_SPIKE_RELEASED = 0;
+    public static double maxVoltage = 13;
 
     public final MecanumDrive drivetrain;
-//    public final Intake intake;
-//    public final Deposit deposit;
-//    public final SimpleServoPivot drone, spike;
+    public final Intake intake;
+    public final Deposit deposit;
 
     private final BulkReader bulkReader;
 
@@ -30,18 +25,8 @@ public final class Robot {
         bulkReader = new BulkReader(hardwareMap);
 
         drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-//        intake = new Intake(hardwareMap);
-//        deposit = new Deposit(hardwareMap);
-//        drone = new SimpleServoPivot(
-//                ANGLE_DRONE_LOADED,
-//                ANGLE_DRONE_LAUNCHED,
-//                getGoBildaServo(hardwareMap, "drone")
-//        );
-//        spike = new SimpleServoPivot(
-//                ANGLE_SPIKE_RELEASED,
-//                ANGLE_SPIKE_LOCKED,
-//                getGoBildaServo(hardwareMap, "floor pixel")
-//        );
+        intake = new Intake(hardwareMap);
+        deposit = new Deposit(hardwareMap);
     }
 
     public void preload(boolean backdropSide) {
@@ -56,42 +41,35 @@ public final class Robot {
     public void readSensors() {
         bulkReader.bulkRead();
         drivetrain.updatePoseEstimate();
-//        deposit.lift.readSensors();
+        deposit.lift.readSensors();
     }
 
     public void run() {
-//        drone.updateAngles(ANGLE_DRONE_LOADED, ANGLE_DRONE_LAUNCHED);
-//        spike.updateAngles(ANGLE_SPIKE_RELEASED, ANGLE_SPIKE_LOCKED);
 
-//        if (intake.pixelsTransferred()) deposit.paintbrush.lockPixels(intake.colors);
+        if (intake.awaitingTransfer()) deposit.transfer(intake.sample);
 
-//        intake.run(
-//                deposit.paintbrush.numOfPixels,
-//                deposit.isExtended(),
-//                deposit.lift.isScoring()
-//        );
-//        deposit.run(intake.clearOfDeposit());
-//
-//
-//        drone.run();
-//        spike.run();
+        intake.run(deposit.sample != NONE, deposit.isActive());
+        deposit.run(intake.clearOfDeposit());
+    }
+
+    public boolean requestingSlowMode() {
+        return deposit.movingToScore() && intake.clearOfDeposit(); // deposit intends to move and intake is not blocking it
     }
 
     public void printTelemetry() {
         drivetrain.printNumericalTelemetry();
         mTelemetry.addLine();
-//        deposit.paintbrush.printTelemetry();
+        deposit.printTelemetry();
         mTelemetry.addLine();
-//        deposit.lift.printTelemetry();
         mTelemetry.addLine();
-//        intake.printTelemetry();
+        intake.printTelemetry();
         mTelemetry.addLine();
         mTelemetry.addLine();
         mTelemetry.addLine();
         drivetrain.printNumericalTelemetry();
         mTelemetry.addLine();
-//        deposit.lift.printNumericalTelemetry();
+        deposit.lift.printNumericalTelemetry();
         mTelemetry.addLine();
-//        intake.printNumericalTelemetry();
+        intake.printNumericalTelemetry();
     }
 }
