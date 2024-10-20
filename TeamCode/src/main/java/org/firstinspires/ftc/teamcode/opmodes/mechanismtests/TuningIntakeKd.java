@@ -44,7 +44,7 @@ public final class TuningIntakeKd extends LinearOpMode {
 
             pivot.updateAngles(
                 ANGLE_BUCKET_RETRACTED,
-                ANGLE_BUCKET_INTAKING,
+                ANGLE_BUCKET_INTAKING
             );
 
             if (keyPressed(1, X)) pivot.toggle();

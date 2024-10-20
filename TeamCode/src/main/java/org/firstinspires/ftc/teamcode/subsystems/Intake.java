@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
+import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
@@ -15,8 +16,9 @@ import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
-import static java.lang.Math.acos;
-import static java.lang.Math.pow;
+import static java.lang.Math.PI;
+import static java.lang.Math.asin;
+import static java.lang.Math.sin;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.MotorEx;
@@ -33,6 +35,13 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 public final class Intake {
 
     public static double
+            DISTANCE_EXTENDO_ARMS_RETRACTED = 67.4,
+            DISTANCE_EXTENDO_LINKAGE_ARM = 240,
+            DISTANCE_EXTENDO_RETRACTED = 0,
+            DISTANCE_EXTENDO_EXTENDED_MIN = 25.19855,
+            DISTANCE_EXTENDO_EXTENDED_MAX = 410,
+            ANGLE_EXTENDO_RETRACTED = extensionToAngle(DISTANCE_EXTENDO_RETRACTED),
+            ANGLE_EXTENDO_EXTENDED_MAX = extensionToAngle(DISTANCE_EXTENDO_EXTENDED_MAX),
             ANGLE_BUCKET_RETRACTED = 9,
             ANGLE_BUCKET_INTAKING = 196.5,
             ANGLE_BUCKET_FLOOR_CLEARANCE = 60,
@@ -40,17 +49,13 @@ public final class Intake {
             ANGLE_LATCH_TRANSFERRING = 0,
             ANGLE_LATCH_INTAKING = 105,
             ANGLE_LATCH_LOCKED = 159,
-            ANGLE_EXTENDO_RETRACTED = 0,
-            ANGLE_EXTENDO_EXTENDED = 150,
             TIME_BUCKET_PIVOT = 1,
             TIME_DROP = 1,
             TIME_BUCKET_RAISE_TO_EXTEND = 1,
             TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 1,
             TIME_REVERSING = 0.175,
             SPEED_REVERSING = -0.6,
-            COLOR_SENSOR_GAIN = 1,
-            DISTANCE_EXTENDO_RETRACTED = 67.4,
-            DISTANCE_EXTENDO_LINKAGE_ARM = pow(240, 2);
+            COLOR_SENSOR_GAIN = 1;
 
     /**
      * HSV value bound for intake pixel detection
@@ -151,7 +156,7 @@ public final class Intake {
 
         extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
-                ANGLE_EXTENDO_EXTENDED,
+                ANGLE_EXTENDO_EXTENDED_MAX,
                 getGoBildaServo(hardwareMap, "extendo right"),
                 getReversedServo(getGoBildaServo(hardwareMap, "extendo left"))
         );
@@ -248,7 +253,7 @@ public final class Intake {
 
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
 
-        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED,ANGLE_EXTENDO_EXTENDED);
+        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
 
         bucket.run();
         latch.run();
@@ -287,8 +292,12 @@ public final class Intake {
         setExtended(!isIntaking);
     }
 
-    public static double extensionToAngle(double millimeters) {
-        return 0.5 * acos(1 - pow(millimeters + DISTANCE_EXTENDO_RETRACTED, 2) / (2 * DISTANCE_EXTENDO_LINKAGE_ARM));
+    static double extensionToAngle(double millimeters) {
+        return 180 / PI * asin(0.5 * (clip(millimeters, DISTANCE_EXTENDO_RETRACTED, DISTANCE_EXTENDO_EXTENDED_MAX) + DISTANCE_EXTENDO_ARMS_RETRACTED) / DISTANCE_EXTENDO_LINKAGE_ARM);
+    }
+
+    static double angleToExtension(double theta) {
+        return 2 * DISTANCE_EXTENDO_LINKAGE_ARM * sin(PI / 180 * clip(theta, ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX)) - DISTANCE_EXTENDO_ARMS_RETRACTED;
     }
 
     void printTelemetry() {
