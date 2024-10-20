@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware;
+package org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware;
 
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;

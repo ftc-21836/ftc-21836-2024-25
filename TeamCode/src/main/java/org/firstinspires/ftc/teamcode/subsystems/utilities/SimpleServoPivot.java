@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems.utilities;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedHardware.CachedSimpleServo;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo;
 
 /**
  * Servo(s) with two set positions <p>
