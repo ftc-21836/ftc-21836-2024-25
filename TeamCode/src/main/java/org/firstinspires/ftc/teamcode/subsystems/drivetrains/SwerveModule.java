@@ -11,12 +11,12 @@ import static java.lang.Math.signum;
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.AnalogEncoder;
 
 @Config
@@ -77,7 +77,7 @@ public final class SwerveModule {
     private final SwerveModuleID id;
     private final SwerveModule.State current, target;
 
-    private final MotorEx motor;
+    private final CachedMotorEx motor;
     private final CRServo servo;
     private final VoltageSensor batteryVoltageSensor;
 
@@ -89,7 +89,7 @@ public final class SwerveModule {
 
         this.id = id;
 
-        this.motor = new MotorEx(hardwareMap, id.motorName, BARE);
+        this.motor = new CachedMotorEx(hardwareMap, id.motorName, BARE);
         setZeroPowerBehavior(BRAKE);
 
         this.servo = new CRServo(hardwareMap, id.servoName);

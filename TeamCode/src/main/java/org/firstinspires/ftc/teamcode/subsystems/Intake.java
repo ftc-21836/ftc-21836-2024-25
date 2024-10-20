@@ -4,16 +4,16 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NONE;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_PIVOTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_RAISING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.DROPPING_BAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NONE;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
@@ -22,12 +22,12 @@ import static java.lang.Math.asin;
 import static java.lang.Math.sin;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
@@ -104,7 +104,7 @@ public final class Intake {
                 NONE;
     }
 
-    private final MotorEx motor;
+    private final CachedMotorEx motor;
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
@@ -159,7 +159,7 @@ public final class Intake {
                 getReversedServo(getGoBildaServo(hardwareMap, "extendo left"))
         );
 
-        motor = new MotorEx(hardwareMap, "intake", RPM_1620);
+        motor = new CachedMotorEx(hardwareMap, "intake", RPM_1620);
         motor.setZeroPowerBehavior(FLOAT);
         motor.setInverted(true);
 

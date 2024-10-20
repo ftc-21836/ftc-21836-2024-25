@@ -7,11 +7,11 @@ import static org.firstinspires.ftc.teamcode.subsystems.Lift.INCHES_PER_TICK;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
 
 @TeleOp(group = "Single mechanism test")
 public final class TestLiftEncoder extends LinearOpMode {
@@ -25,7 +25,7 @@ public final class TestLiftEncoder extends LinearOpMode {
         BulkReader bulkReader = new BulkReader(hardwareMap);
 
         // Motors and variables to manage their readings:
-        Motor.Encoder encoder = new MotorEx(hardwareMap, "right back", RPM_312).encoder;
+        Motor.Encoder encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         double offset = encoder.getPosition();
         
         waitForStart();

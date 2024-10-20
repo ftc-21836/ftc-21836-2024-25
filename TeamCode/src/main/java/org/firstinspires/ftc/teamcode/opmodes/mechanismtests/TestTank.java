@@ -4,12 +4,12 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
 import static java.lang.Math.max;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
 
 
 @TeleOp(group = "Single mechanism test")
@@ -22,11 +22,11 @@ public final class TestTank extends LinearOpMode {
         gamepadEx1 = new GamepadEx(gamepad1);
         BulkReader bulkReader = new BulkReader(hardwareMap);
 
-        MotorEx[] motors = {
-                new MotorEx(hardwareMap, "m0", 560, 300),
-                new MotorEx(hardwareMap, "m1", 560, 300),
-                new MotorEx(hardwareMap, "m2", 560, 300),
-                new MotorEx(hardwareMap, "m3", 560, 300),
+        CachedMotorEx[] motors = {
+                new CachedMotorEx(hardwareMap, "m0", 560, 300),
+                new CachedMotorEx(hardwareMap, "m1", 560, 300),
+                new CachedMotorEx(hardwareMap, "m2", 560, 300),
+                new CachedMotorEx(hardwareMap, "m3", 560, 300),
         };
 
         motors[1].setInverted(true);

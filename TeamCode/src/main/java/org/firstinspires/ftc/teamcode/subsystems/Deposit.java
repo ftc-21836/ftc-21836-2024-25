@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_HIGH_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.AT_BASKET;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.AT_CHAMBER;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.CLIMBING_HIGH_RUNG;
@@ -11,7 +12,6 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SPECIM
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.OUTER_HOOKS_ENGAGING;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.BLUE;
@@ -24,11 +24,11 @@ import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPiv
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
@@ -120,7 +120,7 @@ public final class Deposit {
     private final SimpleServoPivot arm, claw, innerHooks, limiterBars;
     private final ColorSensor sampleSensor;
 
-    private final MotorEx outerHooks;
+    private final CachedMotorEx outerHooks;
 
     private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime(), timer = new ElapsedTime();
 
@@ -162,7 +162,7 @@ public final class Deposit {
                 getReversedServo(getGoBildaServo(hardwareMap, "left bar"))
         );
 
-        outerHooks = new MotorEx(hardwareMap, "outer hooks", Motor.GoBILDA.RPM_1150);
+        outerHooks = new CachedMotorEx(hardwareMap, "outer hooks", Motor.GoBILDA.RPM_1150);
         outerHooks.setZeroPowerBehavior(FLOAT);
 
         sampleSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);

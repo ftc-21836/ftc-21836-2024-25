@@ -6,13 +6,13 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
 import org.firstinspires.ftc.teamcode.control.motion.State;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.CachedMotorEx;
 
 @Config
 public final class Lift {
@@ -31,7 +31,7 @@ public final class Lift {
             MAX_VOLTAGE = 13;
 
     // Motors and variables to manage their readings:
-    private final MotorEx[] motors;
+    private final CachedMotorEx[] motors;
     private final Motor.Encoder encoder;
     State currentState, targetState;
     private final PIDController controller = new PIDController();
@@ -44,14 +44,14 @@ public final class Lift {
 
     Lift(HardwareMap hardwareMap) {
         this.batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
-        this.motors = new MotorEx[]{
-                new MotorEx(hardwareMap, "lift right", RPM_312),
-                new MotorEx(hardwareMap, "lift left", RPM_312)
+        this.motors = new CachedMotorEx[]{
+                new CachedMotorEx(hardwareMap, "lift right", RPM_312),
+                new CachedMotorEx(hardwareMap, "lift left", RPM_312)
         };
         motors[1].setInverted(true);
-        for (MotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
+        for (CachedMotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
 
-        encoder = new MotorEx(hardwareMap, "right back", RPM_312).encoder;
+        encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
 
         reset();
     }
@@ -98,7 +98,7 @@ public final class Lift {
                         controller.calculate(currentState)  // control with PID output
         );
 
-        for (MotorEx motor : motors) motor.set(output);
+        for (CachedMotorEx motor : motors) motor.set(output);
     }
 
     void printNumericalTelemetry() {
