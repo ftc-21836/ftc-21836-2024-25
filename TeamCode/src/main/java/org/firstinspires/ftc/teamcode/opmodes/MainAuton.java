@@ -7,16 +7,16 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.PARTNER_WAIT;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.cycle;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRight;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRed;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.parking;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_PARK;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.PARTNER_WAIT;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.cycle;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRed;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRight;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.parking;
 import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -26,7 +26,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.vision.detectors.TeamPropDetector;
 import org.firstinspires.ftc.teamcode.control.vision.pipelines.PropDetectPipeline;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
@@ -132,7 +131,7 @@ public final class MainAuton extends LinearOpMode {
         TeamPropDetector detector = new TeamPropDetector(hardwareMap);
         detector.pipeline.isRed = isRed;
 
-        EditablePose startPose = OpModeVars.startPose.byBoth();
+//        EditablePose startPose = OpModeVars.startPose.byBoth();
 //        robot.drivetrain.setPoseEstimate(startPose);
 
 //        TrajectorySequence[] sequences = generateTrajectories(startPose);
