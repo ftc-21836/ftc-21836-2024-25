@@ -12,10 +12,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRight;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.FORWARD;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.autonEndPose;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx2;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
@@ -26,6 +23,8 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDI
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_AUTO_SLOW;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRed;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRight;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.SPEED_MULTIPLIER_EXTENDO;
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
@@ -36,13 +35,10 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
-
-    static boolean autoSlowEnabled = true;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -60,7 +56,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             robot.run();
 
-            mTelemetry.addData("Auto slow is", autoSlowEnabled ? "enabled" : "disabled");
+            mTelemetry.addData("Auto slow is", OpModeVars.autoSlowEnabled ? "enabled" : "disabled");
             mTelemetry.addLine();
             robot.printTelemetry();
             mTelemetry.update();
@@ -89,7 +85,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(opMode.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Initialize robot:
-        robot = new Robot(opMode.hardwareMap);
+        robot = new Robot(opMode.hardwareMap, isRed);
         robot.run();
 
         // Initialize gamepads:
@@ -114,7 +110,7 @@ public final class MainTeleOp extends LinearOpMode {
                     isRight = !isRight;
                     break;
                 case EDITING_AUTO_SLOW:
-                    autoSlowEnabled = !autoSlowEnabled;
+                    OpModeVars.autoSlowEnabled = !OpModeVars.autoSlowEnabled;
                     break;
                 case EDITING_SLOW_LOCK:
                 default:
@@ -126,7 +122,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
-            mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "ENABLED" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
+            mTelemetry.addLine("Auto slow " + (OpModeVars.autoSlowEnabled ? "ENABLED" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
             mTelemetry.addLine();
             mTelemetry.addLine("Permanent slow mode " + (lockSlowMode ? "LOCKED" : "OFF") + selection.markIf(EDITING_SLOW_LOCK));
 
@@ -135,14 +131,14 @@ public final class MainTeleOp extends LinearOpMode {
 
         if (lockSlowMode) robot.drivetrain.lockSlowMode();
 
-        if (autonEndPose == null) autonEndPose = AutonVars.startPose.byBoth().toPose2d();
+//        if (autonEndPose == null) autonEndPose = OpModeVars.startPose.byBoth().toPose2d();
 //        robot.drivetrain.setPoseEstimate(autonEndPose);
 //        robot.drivetrain.setCurrentHeading(autonEndPose.getHeading() - (isRed ? FORWARD : BACKWARD));
     }
 
     static void teleOpControls() {
 
-        if (keyPressed(2, LEFT_BUMPER))   autoSlowEnabled = !autoSlowEnabled;
+        if (keyPressed(2, LEFT_BUMPER))   OpModeVars.autoSlowEnabled = !OpModeVars.autoSlowEnabled;
 
         double x = gamepadEx1.getRightX();
         boolean overrideMode = gamepadEx1.isDown(LEFT_BUMPER);
@@ -178,13 +174,13 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (keyPressed(1, X))               robot.intake.toggle();
             if (keyPressed(1, Y))               robot.deposit.climb();
-            if (keyPressed(1, A))               robot.deposit.transfer(Intake.Sample.NEUTRAL);
+            if (keyPressed(1, A))               robot.deposit.transfer(Robot.Sample.NEUTRAL);
             if (keyPressed(1, B))               robot.deposit.handleSample();
 
         }
 
         // Field-centric driving with control stick inputs:
-        boolean autoSlowActive = autoSlowEnabled && (       // auto slow enabled in teleop config and one of the below is true:
+        boolean autoSlowActive = OpModeVars.autoSlowEnabled && (       // auto slow enabled in teleop config and one of the below is true:
                 robot.requestingSlowMode() ||               // subsystems requesting slow mode
                 gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0    // driver is running intake motor
         );

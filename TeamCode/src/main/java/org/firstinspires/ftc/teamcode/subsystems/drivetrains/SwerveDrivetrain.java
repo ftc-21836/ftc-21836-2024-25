@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrains;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 import static org.firstinspires.ftc.teamcode.subsystems.drivetrains.SwerveModule.SwerveModuleID.BL;
 import static org.firstinspires.ftc.teamcode.subsystems.drivetrains.SwerveModule.SwerveModuleID.BR;
 import static org.firstinspires.ftc.teamcode.subsystems.drivetrains.SwerveModule.SwerveModuleID.FL;
@@ -26,6 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.HeadingIMU;
 @Config
 public final class SwerveDrivetrain {
 
+    public static double MAX_VOLTAGE = 13;
 
     private final SwerveModule[] modules;
 
@@ -163,7 +163,7 @@ public final class SwerveDrivetrain {
             turnCommand *= SLOW_FACTOR;
         }
 
-        double voltageScalar = maxVoltage / batteryVoltageSensor.getVoltage();
+        double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
         yCommand *= voltageScalar;
         xCommand *= voltageScalar;

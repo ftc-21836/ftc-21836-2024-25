@@ -14,10 +14,10 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.RED;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NONE;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
@@ -94,7 +94,7 @@ public final class Deposit {
                     0.2
             );
 
-    public Intake.Sample hsvToSample(HSV hsv) {
+    public Robot.Sample hsvToSample(HSV hsv) {
         return
                 hsv.between(minRed, maxRed) ? RED :
                 hsv.between(minBlue, maxBlue) ? BLUE :
@@ -124,7 +124,7 @@ public final class Deposit {
 
     private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime(), timer = new ElapsedTime();
 
-    Intake.Sample sample = NONE;
+    Robot.Sample sample = NONE;
 
     private Deposit.State state = RETRACTED;
 
@@ -448,7 +448,7 @@ public final class Deposit {
         climb = true;
     }
 
-    public void transfer(Intake.Sample sample) {
+    public void transfer(Robot.Sample sample) {
         this.sample = sample;
         claw.setActivated(true);
     }

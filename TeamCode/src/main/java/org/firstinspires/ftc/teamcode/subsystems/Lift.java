@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -28,7 +27,8 @@ public final class Lift {
     public static double
             kG = 0.15,
             INCHES_PER_TICK = 0.0088581424,
-            HEIGHT_RETRACTED_THRESHOLD = 0.5;
+            HEIGHT_RETRACTED_THRESHOLD = 0.5,
+            MAX_VOLTAGE = 13;
 
     // Motors and variables to manage their readings:
     private final MotorEx[] motors;
@@ -88,7 +88,7 @@ public final class Lift {
 
         boolean retracted = !isExtended();
 
-        double voltageScalar = maxVoltage / batteryVoltageSensor.getVoltage();
+        double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
         double gravityFeedforward = retracted ? 0 : kG * voltageScalar;
 

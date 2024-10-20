@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrains;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -23,7 +22,8 @@ public class AutoTurner {
     public static double
             kStatic = 0.0,
             TURN_SETTLING_TIME = 0.0,
-            TRANSLATION_SETTLING_TIME = 0.0;
+            TRANSLATION_SETTLING_TIME = 0.0,
+            MAX_VOLTAGE = 13;
 
     public static LowPassGains derivFilterGains = new LowPassGains(
             0.5,
@@ -57,7 +57,7 @@ public class AutoTurner {
         headingController.setGains(pidGains);
         kDFilter.setGains(derivFilterGains);
 
-        double voltageScalar = maxVoltage / batteryVoltageSensor.getVoltage();
+        double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         boolean useManualInput = turnCommand != 0.0;
 
         if (useManualInput || !useAutoTurn) {

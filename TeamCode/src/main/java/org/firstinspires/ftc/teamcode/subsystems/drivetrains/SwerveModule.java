@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems.drivetrains;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.BARE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.BRAKE;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
+import static org.firstinspires.ftc.teamcode.subsystems.drivetrains.SwerveDrivetrain.MAX_VOLTAGE;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.signum;
@@ -119,7 +119,7 @@ public final class SwerveModule {
 
     public void run() {
 
-        double scalar = maxVoltage / batteryVoltageSensor.getVoltage();
+        double scalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
         target.optimize(current);
 

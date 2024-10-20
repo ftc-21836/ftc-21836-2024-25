@@ -7,11 +7,11 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.PARTNER_WAIT;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.cycle;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRight;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.isRed;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.parking;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.PARTNER_WAIT;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.cycle;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRight;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRed;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.parking;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_PARK;
@@ -83,7 +83,7 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry);
 
         // Initialize robot:
-        robot = new Robot(hardwareMap);
+        robot = new Robot(hardwareMap, isRed);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -132,7 +132,7 @@ public final class MainAuton extends LinearOpMode {
         TeamPropDetector detector = new TeamPropDetector(hardwareMap);
         detector.pipeline.isRed = isRed;
 
-        EditablePose startPose = AutonVars.startPose.byBoth();
+        EditablePose startPose = OpModeVars.startPose.byBoth();
 //        robot.drivetrain.setPoseEstimate(startPose);
 
 //        TrajectorySequence[] sequences = generateTrajectories(startPose);

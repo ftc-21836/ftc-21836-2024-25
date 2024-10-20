@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.maxVoltage;
-
 import static java.lang.Math.max;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -45,7 +43,7 @@ public final class TestTank extends LinearOpMode {
 
             gamepadEx1.readButtons();
 
-            double scalar = maxVoltage / batteryVoltageSensor.getVoltage();
+            double scalar = 12 / batteryVoltageSensor.getVoltage();
 
             double y = gamepadEx1.getLeftY();
             double turn = gamepadEx1.getRightX();

@@ -4,9 +4,10 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.RED;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NONE;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_PIVOTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_RAISING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.DROPPING_BAD_SAMPLE;
@@ -27,7 +28,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
-import org.firstinspires.ftc.teamcode.opmodes.AutonVars;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
@@ -93,29 +93,22 @@ public final class Intake {
                     0.2
             );
 
-    public enum Sample {
-        NONE,
-        NEUTRAL,
-        BLUE,
-        RED;
-
-        /**
-         * @return The {@link Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
-         */
-        public static Sample fromHSV(HSV hsv) {
-            return
-                    hsv.between(minRed, maxRed) ? RED :
-                    hsv.between(minBlue, maxBlue) ? BLUE :
-                    hsv.between(minYellow, maxYellow) ? NEUTRAL :
-                    NONE;
-        }
+    /**
+     * @return The {@link Robot.Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
+     */
+    private Robot.Sample hsvToSample(HSV hsv) {
+        return
+                hsv.between(minRed, maxRed) ? RED :
+                hsv.between(minBlue, maxBlue) ? BLUE :
+                hsv.between(minYellow, maxYellow) ? NEUTRAL :
+                NONE;
     }
 
     private final MotorEx motor;
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
-    Sample sample = NONE;
+    Robot.Sample sample = NONE;
 
     private final TouchSensor bucketSensor, extendoSensor;
 
@@ -123,7 +116,7 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
-    private final Sample badSample = AutonVars.isRed ? BLUE : RED;
+    private final Robot.Sample badSample;
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
@@ -139,7 +132,9 @@ public final class Intake {
         EXTENDO_RETRACTING,
     }
 
-    Intake(HardwareMap hardwareMap) {
+    Intake(HardwareMap hardwareMap, boolean isRed) {
+
+        badSample = isRed ? BLUE : RED;
 
         resetExtendedLength();
 
@@ -202,7 +197,7 @@ public final class Intake {
 
                 colorSensor.update();
                 hsv = colorSensor.getHSV();
-                sample = Sample.fromHSV(hsv);
+                sample = hsvToSample(hsv);
 
                 if (sample == badSample) {
                     latch.setActivated(true);

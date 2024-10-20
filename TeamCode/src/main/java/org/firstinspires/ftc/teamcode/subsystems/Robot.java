@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.Sample.NONE;
+import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NONE;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -13,19 +13,24 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 @Config
 public final class Robot {
 
-    public static double maxVoltage = 13;
-
     public final MecanumDrive drivetrain;
     public final Intake intake;
     public final Deposit deposit;
 
     private final BulkReader bulkReader;
 
-    public Robot(HardwareMap hardwareMap) {
+    public enum Sample {
+        NONE,
+        NEUTRAL,
+        BLUE,
+        RED,
+    }
+
+    public Robot(HardwareMap hardwareMap, boolean isRed) {
         bulkReader = new BulkReader(hardwareMap);
 
         drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-        intake = new Intake(hardwareMap);
+        intake = new Intake(hardwareMap, isRed);
         deposit = new Deposit(hardwareMap);
     }
 

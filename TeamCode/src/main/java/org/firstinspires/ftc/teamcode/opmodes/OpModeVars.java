@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.ParkingLocation.CORNER;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.ParkingLocation.CORNER;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.FORWARD;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.loopMod;
 
@@ -9,7 +9,7 @@ import com.acmerobotics.dashboard.config.Config;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 
 @Config
-public final class AutonVars {
+public final class OpModeVars {
 
     enum ParkingLocation {
         CORNER,
@@ -23,10 +23,10 @@ public final class AutonVars {
         }
     }
 
-
-    public static boolean
+    static boolean
             isRed = true,
             isRight = true,
+            autoSlowEnabled = true,
             cycle = false;
 
     static ParkingLocation parking = CORNER;
