@@ -71,7 +71,7 @@ import java.util.List;
 public final class MecanumDrive {
 
     private double headingOffset;
-    public static double SLOW_FACTOR = 0.3;
+    public static double SLOW_FACTOR = 0.3, ODO_INCHES_PER_TICK = ((38 / 25.4) * PI) / 8192.0;
     private boolean slowModeLocked = false;
 
     /**
@@ -322,7 +322,7 @@ public final class MecanumDrive {
 
         localizer = new ThreeDeadWheelLocalizer(
                 hardwareMap,
-                ((38 / 25.4) * PI) / 8192.0
+                ODO_INCHES_PER_TICK
         );
 
         setCurrentHeading(0);
