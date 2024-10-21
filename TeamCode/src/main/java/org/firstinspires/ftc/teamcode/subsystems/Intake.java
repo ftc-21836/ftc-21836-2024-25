@@ -148,8 +148,7 @@ public final class Intake {
         latch = new SimpleServoPivot(
                 ANGLE_LATCH_TRANSFERRING,
                 ANGLE_LATCH_LOCKED,
-                getGoBildaServo(hardwareMap, "latch right"),
-                getReversedServo(getGoBildaServo(hardwareMap, "latch left"))
+                getGoBildaServo(hardwareMap, "latch")
         );
 
         extendo = new SimpleServoPivot(
