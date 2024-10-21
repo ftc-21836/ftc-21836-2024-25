@@ -283,6 +283,8 @@ public final class Intake {
     }
 
     public void offsetExtension(double offset) {
+        if (offset == 0) return;
+
         extendedLength = clip(
                 extendedLength + offset,
                 DISTANCE_EXTENDO_EXTENDED_MIN,
