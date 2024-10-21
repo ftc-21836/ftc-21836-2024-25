@@ -279,14 +279,15 @@ public final class Intake {
     }
 
     private void resetExtendedLength() {
-        offsetExtension(DISTANCE_EXTENDO_EXTENDED_MAX - extendedLength);
+        extendedLength = DISTANCE_EXTENDO_EXTENDED_MAX;
+        extendedAngle = ANGLE_EXTENDO_EXTENDED_MAX;
     }
 
     public void offsetExtension(double offset) {
         if (offset == 0) return;
 
         extendedLength = clip(
-                extendedLength + offset,
+                extendedLength + offset * SPEED_MULTIPLIER_EXTENDO,
                 DISTANCE_EXTENDO_EXTENDED_MIN,
                 DISTANCE_EXTENDO_EXTENDED_MAX
         );

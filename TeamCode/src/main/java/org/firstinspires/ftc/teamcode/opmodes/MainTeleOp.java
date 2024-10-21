@@ -25,7 +25,6 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDI
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRight;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.SPEED_MULTIPLIER_EXTENDO;
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
 
@@ -132,9 +131,9 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (overrideMode) {
 
-                robot.intake.offsetExtension(SPEED_MULTIPLIER_EXTENDO * (
+                robot.intake.offsetExtension(
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-                ));
+                );
 
                 robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
                 if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
