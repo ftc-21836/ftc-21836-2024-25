@@ -4,6 +4,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
@@ -157,10 +158,10 @@ public final class MainTeleOp extends LinearOpMode {
                 if (keyPressed(1, DPAD_UP))         robot.deposit.goToScoringPosition(true);
                 else if (keyPressed(1, DPAD_LEFT))  robot.deposit.goToScoringPosition(false);
                 else if (keyPressed(1, DPAD_DOWN))  robot.deposit.retract();
+                if (keyPressed(1, DPAD_RIGHT))      robot.deposit.transfer(Robot.Sample.NEUTRAL);
 
                 if (keyPressed(1, X))               robot.intake.toggle();
                 if (keyPressed(1, Y))               robot.deposit.climb();
-                if (keyPressed(1, A))               robot.deposit.transfer(Robot.Sample.NEUTRAL);
                 if (keyPressed(1, B))               robot.deposit.handleSample();
 
             }
