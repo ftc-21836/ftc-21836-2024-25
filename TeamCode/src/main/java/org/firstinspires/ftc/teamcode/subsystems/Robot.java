@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NONE;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -14,8 +13,8 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 public final class Robot {
 
     public final MecanumDrive drivetrain;
-    public final Intake intake;
-    public final Deposit deposit;
+//    public final Intake intake;
+//    public final Deposit deposit;
 
     private final BulkReader bulkReader;
 
@@ -30,8 +29,8 @@ public final class Robot {
         bulkReader = new BulkReader(hardwareMap);
 
         drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
-        intake = new Intake(hardwareMap, isRed);
-        deposit = new Deposit(hardwareMap);
+//        intake = new Intake(hardwareMap, isRed);
+//        deposit = new Deposit(hardwareMap);
     }
 
     public void preload(boolean backdropSide) {
@@ -46,35 +45,36 @@ public final class Robot {
     public void readSensors() {
         bulkReader.bulkRead();
         drivetrain.updatePoseEstimate();
-        deposit.lift.readSensors();
+//        deposit.lift.readSensors();
     }
 
     public void run() {
 
-        if (intake.awaitingTransfer()) deposit.transfer(intake.sample);
-
-        intake.run(deposit.sample != NONE, deposit.isActive());
-        deposit.run(intake.clearOfDeposit());
+//        if (intake.awaitingTransfer()) deposit.transfer(intake.sample);
+//
+//        intake.run(deposit.sample != NONE, deposit.isActive());
+//        deposit.run(intake.clearOfDeposit());
     }
 
     public boolean requestingSlowMode() {
-        return deposit.movingToScore() && intake.clearOfDeposit(); // deposit intends to move and intake is not blocking it
+        return false;
+//                deposit.movingToScore() && intake.clearOfDeposit(); // deposit intends to move and intake is not blocking it
     }
 
     public void printTelemetry() {
         drivetrain.printNumericalTelemetry();
         mTelemetry.addLine();
-        deposit.printTelemetry();
+//        deposit.printTelemetry();
         mTelemetry.addLine();
         mTelemetry.addLine();
-        intake.printTelemetry();
+//        intake.printTelemetry();
         mTelemetry.addLine();
         mTelemetry.addLine();
         mTelemetry.addLine();
         drivetrain.printNumericalTelemetry();
         mTelemetry.addLine();
-        deposit.lift.printNumericalTelemetry();
+//        deposit.lift.printNumericalTelemetry();
         mTelemetry.addLine();
-        intake.printNumericalTelemetry();
+//        intake.printNumericalTelemetry();
     }
 }
