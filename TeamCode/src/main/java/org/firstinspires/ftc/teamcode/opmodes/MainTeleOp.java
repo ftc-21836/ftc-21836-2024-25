@@ -98,9 +98,9 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
-            mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "ENABLED" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
+            mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "enabled" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
             mTelemetry.addLine();
-            mTelemetry.addLine("Permanent slow mode " + (lockSlowMode ? "LOCKED" : "OFF") + selection.markIf(EDITING_SLOW_LOCK));
+            mTelemetry.addLine("Slow mode " + (lockSlowMode ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
 
             mTelemetry.update();
         }
@@ -176,7 +176,9 @@ public final class MainTeleOp extends LinearOpMode {
                     driveSlow || lockSlowMode  // go slow if driver inputs or auto slow requested by subsystems
             );
 
-            mTelemetry.addData("Auto slow is", autoSlowEnabled ? "enabled" : "disabled");
+            mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "enabled" : "DISABLED"));
+            mTelemetry.addLine();
+            mTelemetry.addLine("Slow mode " + (lockSlowMode ? "LOCKED" : "unlocked"));
             mTelemetry.addLine();
             robot.printTelemetry();
             mTelemetry.update();
