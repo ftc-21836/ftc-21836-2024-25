@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
 import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.LogoFacingDirection.UP;
-import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
 import static java.lang.Math.PI;
@@ -137,7 +137,7 @@ public final class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection = UP;
-        public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection = FORWARD;
+        public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection = BACKWARD;
 
         // drive model parameters
         public double inPerTick = 1;
