@@ -107,8 +107,8 @@ public final class MecanumDrive {
                 x = xCommand,
                 y = yCommand;
 
-//        xCommand = x * cos - y * sin;
-//        yCommand = y * cos + x * sin;
+        xCommand = x * cos - y * sin;
+        yCommand = y * cos + x * sin;
 
         if (useSlowMode) {
             yCommand *= SLOW_FACTOR;
