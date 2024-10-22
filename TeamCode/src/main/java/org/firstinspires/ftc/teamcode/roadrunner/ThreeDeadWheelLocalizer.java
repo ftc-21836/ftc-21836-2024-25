@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
-import static org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive.ODO_INCHES_PER_TICK;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.Time;
@@ -21,13 +19,12 @@ import org.firstinspires.ftc.teamcode.roadrunner.messages.ThreeDeadWheelInputsMe
 @Config
 public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
-        private final double
-                SIDE_OFFSET = -6.9851641317052, // in; offset of the right wheel
-                FORWARD_OFFSET = -1.875; // in; offset of the lateral wheel
 
-        public double par0YTicks = SIDE_OFFSET / ODO_INCHES_PER_TICK; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = -par0YTicks; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = FORWARD_OFFSET / ODO_INCHES_PER_TICK; // x position of the perpendicular encoder (in tick units)
+        public double inchesPerTick = 0.0005737329718469917;
+
+        public double par0YTicks = -12174.939343677926; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks = 12174.939343677926; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks = -3268.070848297075; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
@@ -39,7 +36,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
     private int lastPar0Pos, lastPar1Pos, lastPerpPos;
     private boolean initialized;
 
-    public ThreeDeadWheelLocalizer(HardwareMap hardwareMap, double inPerTick) {
+    public ThreeDeadWheelLocalizer(HardwareMap hardwareMap) {
         // TODO: make sure your config has **motors** with these names (or change them)
         //   the encoders should be plugged into the slot matching the named motor
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -50,7 +47,7 @@ public final class ThreeDeadWheelLocalizer implements Localizer {
         // TODO: reverse encoder directions if needed
         //   par0.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        this.inPerTick = inPerTick;
+        this.inPerTick = PARAMS.inchesPerTick;
 
         FlightRecorder.write("THREE_DEAD_WHEEL_PARAMS", PARAMS);
     }

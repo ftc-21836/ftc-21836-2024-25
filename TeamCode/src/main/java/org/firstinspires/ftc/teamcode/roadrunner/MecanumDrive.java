@@ -71,7 +71,7 @@ import java.util.List;
 public final class MecanumDrive {
 
     private double headingOffset;
-    public static double SLOW_FACTOR = 0.3, ODO_INCHES_PER_TICK = ((38 / 25.4) * PI) / 8192.0;
+    public static double SLOW_FACTOR = 0.3;
 
     /**
      * Set internal heading of the robot to correct field-centric direction
@@ -317,7 +317,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new ThreeDeadWheelLocalizer(hardwareMap, ODO_INCHES_PER_TICK);
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap);
 
         setCurrentHeading(0);
 

@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive.ODO_INCHES_PER_TICK;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -21,8 +20,7 @@ public final class TestOdoPodEncoders extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         ThreeDeadWheelLocalizer localizer = new ThreeDeadWheelLocalizer(
-                hardwareMap,
-                ODO_INCHES_PER_TICK
+                hardwareMap
         );
 
         waitForStart();
