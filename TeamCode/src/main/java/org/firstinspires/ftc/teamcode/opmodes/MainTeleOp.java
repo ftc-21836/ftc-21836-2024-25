@@ -119,6 +119,7 @@ public final class MainTeleOp extends LinearOpMode {
             gamepadEx2.readButtons();
 
             if (keyPressed(2, LEFT_BUMPER))   autoSlowEnabled = !autoSlowEnabled;
+            if (keyPressed(2, RIGHT_BUMPER))   lockSlowMode = !lockSlowMode;
 
             double x = gamepadEx1.getRightX();
             boolean overrideMode = gamepadEx1.isDown(LEFT_BUMPER);
@@ -167,8 +168,6 @@ public final class MainTeleOp extends LinearOpMode {
                             robot.requestingSlowMode() ||               // subsystems requesting slow mode
                             gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0    // driver is running intake motor
                     );
-
-            if (driveSlow && lockSlowMode) lockSlowMode = false;
 
             robot.drivetrain.run(
                     overrideMode ? 0 : gamepadEx1.getLeftX(),

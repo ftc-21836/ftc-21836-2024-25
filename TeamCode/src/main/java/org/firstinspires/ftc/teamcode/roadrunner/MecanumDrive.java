@@ -87,7 +87,7 @@ public final class MecanumDrive {
     }
 
     private double getRawHeading() {
-        return pose.heading.log();
+        return pose.heading.toDouble();
     }
 
     /**
