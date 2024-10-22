@@ -26,9 +26,9 @@ public final class Robot {
     }
 
     public Robot(HardwareMap hardwareMap, boolean isRed) {
-        bulkReader = new BulkReader(hardwareMap);
 
         drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+        bulkReader = new BulkReader(hardwareMap);
 //        intake = new Intake(hardwareMap, isRed);
 //        deposit = new Deposit(hardwareMap);
     }
