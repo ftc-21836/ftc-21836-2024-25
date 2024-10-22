@@ -312,6 +312,7 @@ public final class MecanumDrive {
         lazyImu =
                 new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
                 PARAMS.logoFacingDirection, PARAMS.usbFacingDirection));
+        lazyImu.get();
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
