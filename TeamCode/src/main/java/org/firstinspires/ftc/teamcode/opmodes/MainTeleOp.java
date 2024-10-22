@@ -103,9 +103,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
             mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "enabled" : "DISABLED") + selection.markIf(EDITING_AUTO_SLOW));
-            mTelemetry.addLine();
             mTelemetry.addLine("Slow mode " + (lockSlowMode ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
-            mTelemetry.addLine();
             mTelemetry.addLine((useFieldCentric ? "Field" : "ROBOT") + " centric driving" + selection.markIf(EDITING_FIELD_CENTRIC));
 
             mTelemetry.update();
@@ -185,8 +183,8 @@ public final class MainTeleOp extends LinearOpMode {
             );
 
             mTelemetry.addLine("Auto slow " + (autoSlowEnabled ? "enabled" : "DISABLED"));
-            mTelemetry.addLine();
             mTelemetry.addLine("Slow mode " + (lockSlowMode ? "LOCKED" : "unlocked"));
+            mTelemetry.addLine((useFieldCentric ? "Field" : "ROBOT") + " centric driving");
             mTelemetry.addLine();
             robot.printTelemetry();
             mTelemetry.update();
