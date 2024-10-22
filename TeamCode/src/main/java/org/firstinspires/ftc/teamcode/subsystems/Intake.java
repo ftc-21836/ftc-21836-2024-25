@@ -10,10 +10,10 @@ import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.DROPPING_BA
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.NONE;
-import static org.firstinspires.ftc.teamcode.subsystems.Robot.Sample.RED;
+import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystems.Sample.NONE;
+import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
@@ -94,9 +94,9 @@ public final class Intake {
             );
 
     /**
-     * @return The {@link Robot.Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
+     * @return The {@link Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
      */
-    private Robot.Sample hsvToSample(HSV hsv) {
+    private Sample hsvToSample(HSV hsv) {
         return
                 hsv.between(minRed, maxRed) ? RED :
                 hsv.between(minBlue, maxBlue) ? BLUE :
@@ -108,7 +108,7 @@ public final class Intake {
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
-    Robot.Sample sample = NONE;
+    Sample sample = NONE;
 
     private final TouchSensor bucketSensor, extendoSensor;
 
@@ -116,7 +116,7 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
-    private final Robot.Sample badSample;
+    private final Sample badSample;
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 

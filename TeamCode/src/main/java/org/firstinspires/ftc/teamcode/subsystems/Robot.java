@@ -18,13 +18,6 @@ public final class Robot {
 
     private final BulkReader bulkReader;
 
-    public enum Sample {
-        NONE,
-        NEUTRAL,
-        BLUE,
-        RED,
-    }
-
     public Robot(HardwareMap hardwareMap, boolean isRed) {
 
         drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
