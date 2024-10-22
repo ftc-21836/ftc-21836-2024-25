@@ -30,8 +30,8 @@ public final class TestOdoPodEncoders extends LinearOpMode {
             bulkReader.bulkRead();
 
 
-            mTelemetry.addData("Right", localizer.par0.getPositionAndVelocity().position);
-            mTelemetry.addData("Left", localizer.par1.getPositionAndVelocity().position);
+            mTelemetry.addData("Left", localizer.par0.getPositionAndVelocity().position);
+            mTelemetry.addData("Right", localizer.par1.getPositionAndVelocity().position);
             mTelemetry.addData("Lateral", localizer.perp.getPositionAndVelocity().position);
             mTelemetry.update();
         }
