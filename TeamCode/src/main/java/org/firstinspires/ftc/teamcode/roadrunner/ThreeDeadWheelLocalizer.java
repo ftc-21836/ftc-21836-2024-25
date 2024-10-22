@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
+import static org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive.ODO_INCHES_PER_TICK;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.Time;
@@ -19,9 +21,13 @@ import org.firstinspires.ftc.teamcode.roadrunner.messages.ThreeDeadWheelInputsMe
 @Config
 public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
-        public double par0YTicks = 0.0; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = 1.0; // y position of the second parallel encoder (in tick units)
-        public double perpXTicks = 0.0; // x position of the perpendicular encoder (in tick units)
+        private final double
+                SIDE_OFFSET = -6.9851641317052, // in; offset of the right wheel
+                FORWARD_OFFSET = -1.875; // in; offset of the lateral wheel
+
+        public double par0YTicks = SIDE_OFFSET / ODO_INCHES_PER_TICK; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks = -par0YTicks; // y position of the second parallel encoder (in tick units)
+        public double perpXTicks = FORWARD_OFFSET / ODO_INCHES_PER_TICK; // x position of the perpendicular encoder (in tick units)
     }
 
     public static Params PARAMS = new Params();
