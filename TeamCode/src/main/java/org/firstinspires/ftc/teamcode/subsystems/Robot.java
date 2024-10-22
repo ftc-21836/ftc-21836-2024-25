@@ -62,8 +62,6 @@ public final class Robot {
     }
 
     public void printTelemetry() {
-        drivetrain.printNumericalTelemetry();
-        mTelemetry.addLine();
 //        deposit.printTelemetry();
         mTelemetry.addLine();
         mTelemetry.addLine();
