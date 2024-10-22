@@ -97,18 +97,20 @@ public final class MecanumDrive {
      * @param yCommand forward input
      * @param turnCommand turning input
      */
-    public void run(double xCommand, double yCommand, double turnCommand, boolean useSlowMode) {
+    public void run(double xCommand, double yCommand, double turnCommand, boolean useSlowMode, boolean useFieldCentric) {
 
-        // counter-rotate translation vector by current heading
-        double
-                theta = -getHeading(),
-                cos = cos(theta),
-                sin = sin(theta),
-                x = xCommand,
-                y = yCommand;
+        if (useFieldCentric) {
+            // counter-rotate translation vector by current heading
+            double
+                    theta = getHeading(),
+                    cos = cos(theta),
+                    sin = sin(theta),
+                    x = xCommand,
+                    y = yCommand;
 
-        xCommand = x * cos - y * sin;
-        yCommand = y * cos + x * sin;
+            xCommand = x * cos - y * sin;
+            yCommand = y * cos + x * sin;
+        }
 
         if (useSlowMode) {
             yCommand *= SLOW_FACTOR;
