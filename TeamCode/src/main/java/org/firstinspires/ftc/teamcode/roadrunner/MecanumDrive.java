@@ -102,7 +102,7 @@ public final class MecanumDrive {
         if (useFieldCentric) {
             // counter-rotate translation vector by current heading
             double
-                    theta = getHeading(),
+                    theta = -getHeading(),
                     cos = cos(theta),
                     sin = sin(theta),
                     x = xCommand,
