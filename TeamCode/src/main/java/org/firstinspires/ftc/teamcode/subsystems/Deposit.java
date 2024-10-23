@@ -296,6 +296,7 @@ public final class Deposit {
 
                 if (lift.currentPosition <= releaseSpecimenHeight || command == CLAW) {
                     claw.setActivated(false);
+                    sample = null;
                     state = RETRACTED;
                     break;
                 }
