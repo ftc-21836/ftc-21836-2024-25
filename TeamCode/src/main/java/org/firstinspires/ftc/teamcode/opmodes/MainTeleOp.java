@@ -58,7 +58,7 @@ public final class MainTeleOp extends LinearOpMode {
 
         // Initialize robot:
         Robot robot = new Robot(hardwareMap, autonEndPose);
-        robot.drivetrain.setCurrentHeading(autonEndPose.heading.toDouble() - (isRed ? FORWARD : BACKWARD));
+        robot.drivetrain.setCurrentHeading(autonEndPose.heading.toDouble() - FORWARD);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
