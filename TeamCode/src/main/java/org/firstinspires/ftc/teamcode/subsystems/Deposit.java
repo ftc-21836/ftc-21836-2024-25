@@ -206,7 +206,7 @@ public final class Deposit {
             case AT_BASKET:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(0);
                     state = RETRACTED;
                     break;
                 }
@@ -233,7 +233,7 @@ public final class Deposit {
 
                 if (timeSinceSampleReleased.seconds() >= TIME_DROP || retract) {
 
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(0);
                     state = RETRACTED;
 
                 }
@@ -243,7 +243,7 @@ public final class Deposit {
             case INTAKING_SPECIMEN:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(0);
                     state = RETRACTED;
                     break;
                 }
@@ -294,7 +294,7 @@ public final class Deposit {
 
                     releaseSpecimenHeight = lift.currentState.x + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(0);
                     state = SCORING_SPECIMEN;
 
                 }
@@ -313,7 +313,7 @@ public final class Deposit {
             case ABOVE_LOW_RUNG:
 
                 if (retract) {
-                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
+                    lift.setTargetPosition(0);
                     state = RETRACTED;
                     innerHooks.setActivated(false);
                     break;
