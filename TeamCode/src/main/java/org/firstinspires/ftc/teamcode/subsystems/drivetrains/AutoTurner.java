@@ -95,7 +95,7 @@ public class AutoTurner {
     }
 
     public void printTelemetry() {
-        mTelemetry.addData("Auto turn ", useAutoTurn ? "ACTIVE" : "inactive");
+        mTelemetry.addData("Auto turn ", useAutoTurn ? "active" : "INACTIVE");
     }
 
     public void printNumericalTelemetry() {

@@ -38,9 +38,9 @@ public final class MainTeleOp extends LinearOpMode {
 
     enum TeleOpConfig {
         EDITING_ALLIANCE,
-        EDITING_SIDE,
         EDITING_SLOW_LOCK,
-        EDITING_FIELD_CENTRIC;
+        EDITING_FIELD_CENTRIC,
+        EDITING_AUTO_TURN;
 
         public static final TeleOpConfig[] selections = values();
 
@@ -85,8 +85,10 @@ public final class MainTeleOp extends LinearOpMode {
                     slowModeLocked = !slowModeLocked;
                     break;
                 case EDITING_FIELD_CENTRIC:
-                default:
                     useFieldCentric = !useFieldCentric;
+                    break;
+                case EDITING_AUTO_TURN:
+                    autoTurner.toggleAutoTurn();
                     break;
             }
 
@@ -95,7 +97,9 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine("Slow mode " + (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();
-            mTelemetry.addLine((useFieldCentric ? "Field" : "ROBOT") + " centric driving" + selection.markIf(EDITING_FIELD_CENTRIC));
+            mTelemetry.addLine((useFieldCentric ? "Field centric" : "ROBOT CENTRIC") + " driving" + selection.markIf(EDITING_FIELD_CENTRIC));
+            mTelemetry.addLine();
+            autoTurner.printTelemetry();
 
             mTelemetry.update();
         }
@@ -173,6 +177,8 @@ public final class MainTeleOp extends LinearOpMode {
                     useFieldCentric
             );
             robot.printTelemetry();
+            mTelemetry.addLine();
+            autoTurner.printNumericalTelemetry();
             mTelemetry.update();
         }
     }
