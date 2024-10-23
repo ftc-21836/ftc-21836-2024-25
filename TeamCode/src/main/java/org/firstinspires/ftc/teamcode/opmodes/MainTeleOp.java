@@ -58,7 +58,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Initialize robot:
-        Robot robot = new Robot(hardwareMap, isRed, autonEndPose);
+        Robot robot = new Robot(hardwareMap, autonEndPose);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -96,6 +96,8 @@ public final class MainTeleOp extends LinearOpMode {
 
             mTelemetry.update();
         }
+
+//        robot.intake.updateAlliance(isRed);
 
 //        if (autonEndPose == null) autonEndPose = OpModeVars.startPose.byBoth().toPose2d();
 //        robot.drivetrain.setPoseEstimate(autonEndPose);

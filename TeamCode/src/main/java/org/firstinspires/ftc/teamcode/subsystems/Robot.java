@@ -18,11 +18,11 @@ public final class Robot {
 
     private final BulkReader bulkReader;
 
-    public Robot(HardwareMap hardwareMap, boolean isRed, Pose2d startPose) {
+    public Robot(HardwareMap hardwareMap, Pose2d startPose) {
 
         drivetrain = new MecanumDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
-//        intake = new Intake(hardwareMap, isRed);
+//        intake = new Intake(hardwareMap);
 //        deposit = new Deposit(hardwareMap);
     }
 

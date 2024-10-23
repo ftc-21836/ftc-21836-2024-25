@@ -116,7 +116,7 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
-    private final Sample badSample;
+    private Sample badSample;
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
@@ -132,9 +132,11 @@ public final class Intake {
         EXTENDO_RETRACTING,
     }
 
-    Intake(HardwareMap hardwareMap, boolean isRed) {
-
+    public void updateAlliance(boolean isRed) {
         badSample = isRed ? BLUE : RED;
+    }
+
+    Intake(HardwareMap hardwareMap) {
 
         resetExtendedLength();
 

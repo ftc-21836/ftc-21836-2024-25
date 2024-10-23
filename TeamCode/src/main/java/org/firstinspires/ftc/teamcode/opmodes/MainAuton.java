@@ -70,7 +70,7 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry);
 
         // Initialize robot:
-        Robot robot = new Robot(hardwareMap, isRed, new Pose2d(0, 0, 0));
+        Robot robot = new Robot(hardwareMap, new Pose2d(0, 0, 0));
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
