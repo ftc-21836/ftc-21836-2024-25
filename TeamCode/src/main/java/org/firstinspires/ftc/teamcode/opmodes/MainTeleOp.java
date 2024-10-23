@@ -6,6 +6,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.autonEndPose;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
@@ -57,7 +58,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Initialize robot:
-        Robot robot = new Robot(hardwareMap, isRed);
+        Robot robot = new Robot(hardwareMap, isRed, autonEndPose);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);

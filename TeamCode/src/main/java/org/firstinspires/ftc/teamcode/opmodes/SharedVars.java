@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.X_START_RIGHT;
-import static org.firstinspires.ftc.teamcode.opmodes.AutonVars.Y_START;
 import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -29,7 +27,7 @@ public final class SharedVars {
 
     public static MultipleTelemetry mTelemetry;
 
-    static Pose2d robotPose = new Pose2d(X_START_RIGHT, Y_START, FORWARD);
+    static Pose2d autonEndPose = new Pose2d(0,0,0);
 
     static boolean isRed = true;
 

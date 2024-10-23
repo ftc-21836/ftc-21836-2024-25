@@ -13,6 +13,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITI
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.ParkingLocation.CORNER;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.autonEndPose;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
@@ -21,6 +22,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -68,7 +70,7 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry);
 
         // Initialize robot:
-        Robot robot = new Robot(hardwareMap, isRed);
+        Robot robot = new Robot(hardwareMap, isRed, new Pose2d(0, 0, 0));
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -146,9 +148,10 @@ public final class MainAuton extends LinearOpMode {
         while (opModeIsActive()) {
             // Manually clear old sensor data from the last loop:
             robot.readSensors();
+            autonEndPose = robot.drivetrain.pose;
+
             robot.run();
 
-//            autonEndPose = robot.drivetrain.getPoseEstimate();
             // Push telemetry data
             robot.printTelemetry();
             mTelemetry.update();
