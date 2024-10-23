@@ -19,7 +19,7 @@ public class PropDetectPipeline extends OpenCvPipeline {
 
     private final Telemetry telemetry;
 
-    public boolean isRed = true;
+    public boolean isRedAlliance = true;
 
     public enum Randomization {
         LEFT,
@@ -84,7 +84,9 @@ public class PropDetectPipeline extends OpenCvPipeline {
         // Executed every time a new frame is dispatched
         Imgproc.cvtColor(input, input, Imgproc.COLOR_RGB2HSV);
 
-        Core.inRange(input, (isRed ? minRed : minBlue), (isRed ? maxRed : maxBlue), input);
+        Scalar lowerB = isRedAlliance ? minRed : minBlue;
+        Scalar upperB = isRedAlliance ? maxRed : maxBlue;
+        Core.inRange(input, lowerB, upperB, input);
 
         Mat left = input.submat(LEFT_AREA);
         Mat middle = input.submat(CENTER_AREA);
@@ -103,7 +105,7 @@ public class PropDetectPipeline extends OpenCvPipeline {
 
         int max = max(leftInt, middleInt);
 
-        location = max < (isRed ? MIN_RED : MIN_BLUE) ? RIGHT : max == leftInt ? LEFT : CENTER;
+        location = max < (isRedAlliance ? MIN_RED : MIN_BLUE) ? RIGHT : max == leftInt ? LEFT : CENTER;
         telemetry.addData("Prop Location", location.toString());
         telemetry.update();
 

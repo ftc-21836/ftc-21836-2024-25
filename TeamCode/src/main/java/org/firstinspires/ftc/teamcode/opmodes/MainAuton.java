@@ -14,7 +14,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITI
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.ParkingLocation.CORNER;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.autonEndPose;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRed;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
@@ -93,7 +93,7 @@ public final class MainAuton extends LinearOpMode {
 
             if (keyPressed(1, X)) switch (selection) {
                 case EDITING_ALLIANCE:
-                    isRed = !isRed;
+                    isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_SIDE:
                     isRight = !isRight;
@@ -124,7 +124,7 @@ public final class MainAuton extends LinearOpMode {
         robot.run();
 
         TeamPropDetector detector = new TeamPropDetector(hardwareMap);
-        detector.pipeline.isRed = isRed;
+        detector.pipeline.isRedAlliance = isRedAlliance;
 
 //        EditablePose startPose = OpModeVars.startPose.byBoth();
 //        robot.drivetrain.setPoseEstimate(startPose);
@@ -159,7 +159,7 @@ public final class MainAuton extends LinearOpMode {
     }
 
     private void printConfig(AutonConfig selection, boolean isRight, boolean cycle, ParkingLocation parking, double partnerWait) {
-        mTelemetry.addLine((isRed ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
+        mTelemetry.addLine((isRedAlliance ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
         mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
         mTelemetry.addLine();

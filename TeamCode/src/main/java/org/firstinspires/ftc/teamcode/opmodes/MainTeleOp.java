@@ -1,16 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.BACKWARD;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.autonEndPose;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRed;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
@@ -20,7 +17,6 @@ import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
-import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
 
@@ -76,7 +72,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (keyPressed(1, X)) switch (selection) {
                 case EDITING_ALLIANCE:
-                    isRed = !isRed;
+                    isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;
@@ -86,7 +82,7 @@ public final class MainTeleOp extends LinearOpMode {
                     break;
             }
 
-            mTelemetry.addLine((isRed ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine("Slow mode " + (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
@@ -96,7 +92,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
         }
 
-//        robot.intake.updateAlliance(isRed);
+//        robot.intake.setAlliance(isRedAlliance);
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 

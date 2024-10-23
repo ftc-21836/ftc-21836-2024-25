@@ -13,15 +13,14 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.OUTER_HOOK
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.OutputPosition.HIGH;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.OutputPosition.LOW;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.OutputPosition.FLOOR;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.HIGH;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.LOW;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.CLAW;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.CLIMB;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.RETRACT;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystems.Sample.NONE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
@@ -102,7 +101,7 @@ public final class Deposit {
         return
                 hsv.between(minRed, maxRed) ? RED :
                 hsv.between(minBlue, maxBlue) ? BLUE :
-                NONE;
+                null;
     }
 
     enum State {
@@ -122,7 +121,7 @@ public final class Deposit {
         CLIMBING_HIGH_RUNG,
     }
 
-    public enum OutputPosition {
+    public enum DropPosition {
         FLOOR,
         LOW,
         HIGH,
@@ -142,13 +141,13 @@ public final class Deposit {
 
     private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime(), timer = new ElapsedTime();
 
-    Sample sample = NONE;
+    private Sample sample;
 
     private Deposit.State state = RETRACTED;
 
-    private OutputPosition position = FLOOR;
+    private DropPosition position = FLOOR;
 
-    private UserCommand command = null;
+    private UserCommand command;
 
     private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
@@ -188,25 +187,23 @@ public final class Deposit {
         sampleSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);
     }
 
-    void run(boolean intakeClear) {
+    void run(boolean intakeClearOfDeposit) {
 
         if (command == RETRACT) setPosition(FLOOR);
 
         switch (state) {
             case RETRACTED:
 
-                if (sample == NONE) {
+                if (hasSample()) {
 
-                    if (command == CLAW) {
-
-                        lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN);
-                        state = INTAKING_SPECIMEN;
-                        break;
-                    }
-
-                } else {
                     setPosition(FLOOR);
                     state = HAS_SAMPLE;
+                    break;
+
+                } else if (command == CLAW) {
+
+                    lift.setPosition(HEIGHT_INTAKING_SPECIMEN);
+                    state = INTAKING_SPECIMEN;
                     break;
                 }
 
@@ -216,7 +213,7 @@ public final class Deposit {
 
             case HAS_SAMPLE:
                 
-                lift.setTargetPosition(
+                lift.setPosition(
                     position == HIGH ? HEIGHT_BASKET_HIGH :
                     position == LOW ? HEIGHT_BASKET_LOW :
                     0
@@ -225,7 +222,7 @@ public final class Deposit {
                 if (command == CLAW) {
 
                     claw.setActivated(false);
-                    sample = NONE;
+                    sample = null;
                     state = SCORING_SAMPLE;
                     timeSinceSampleReleased.reset();
                 }
@@ -238,7 +235,7 @@ public final class Deposit {
 
                 if (timeSinceSampleReleased.seconds() >= TIME_DROP || command == RETRACT) {
 
-                    lift.setTargetPosition(0);
+                    lift.setPosition(0);
                     state = RETRACTED;
 
                 }
@@ -250,17 +247,17 @@ public final class Deposit {
             case INTAKING_SPECIMEN:
 
                 if (command == RETRACT) {
-                    lift.setTargetPosition(0);
+                    lift.setPosition(0);
                     state = RETRACTED;
                     break;
                 }
 
                 sample = command == CLAW ? NEUTRAL : hsvToSample(sampleSensor.getHSV());
 
-                if (sample != NONE) {
+                if (hasSample()) {
 
                     claw.setActivated(true);
-                    lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING);
+                    lift.setPosition(HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING);
                     setPosition(FLOOR);
                     state = HAS_SPECIMEN;
 
@@ -272,7 +269,7 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                lift.setTargetPosition(
+                lift.setPosition(
                     position == HIGH ? HEIGHT_CHAMBER_HIGH :
                     position == LOW ? HEIGHT_CHAMBER_LOW :
                     HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING
@@ -280,9 +277,9 @@ public final class Deposit {
 
                 if (command == CLAW) {
 
-                    releaseSpecimenHeight = lift.currentState.x + HEIGHT_OFFSET_SPECIMEN_SCORING;
+                    releaseSpecimenHeight = lift.currentPosition + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
-                    lift.setTargetPosition(0);
+                    lift.setPosition(0);
                     state = SCORING_SPECIMEN;
 
                 }
@@ -293,7 +290,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (lift.currentState.x <= releaseSpecimenHeight || command == CLAW) {
+                if (lift.currentPosition <= releaseSpecimenHeight || command == CLAW) {
                     claw.setActivated(false);
                     state = RETRACTED;
                 }
@@ -305,7 +302,7 @@ public final class Deposit {
             case ABOVE_LOW_RUNG:
 
                 if (command == RETRACT) {
-                    lift.setTargetPosition(0);
+                    lift.setPosition(0);
                     state = RETRACTED;
                     innerHooks.setActivated(false);
                     break;
@@ -313,7 +310,7 @@ public final class Deposit {
 
                 if (command == CLIMB) {
 
-                    lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
+                    lift.setPosition(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
                     state = CLIMBING_LOW_RUNG;
                 }
 
@@ -322,7 +319,7 @@ public final class Deposit {
             case CLIMBING_LOW_RUNG:
 
                 if (command == RETRACT) {
-                    lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED);
+                    lift.setPosition(HEIGHT_RUNG_LOW_RAISED);
                     state = ABOVE_LOW_RUNG;
                     break;
                 }
@@ -341,7 +338,7 @@ public final class Deposit {
 
                     outerHooks.set(0);
 
-                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED);
+                    lift.setPosition(HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
 
                     timer.reset();
@@ -360,7 +357,7 @@ public final class Deposit {
                 if (command == CLIMB) {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
-                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
+                    lift.setPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
                     state = CLIMBING_HIGH_RUNG;
 
                 }
@@ -370,7 +367,7 @@ public final class Deposit {
             case CLIMBING_HIGH_RUNG:
 
                 if (command == RETRACT) {
-                    lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED);
+                    lift.setPosition(HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
                     break;
                 }
@@ -387,7 +384,7 @@ public final class Deposit {
         command = null;
 
         boolean climbing = state.ordinal() >= ABOVE_LOW_RUNG.ordinal();
-        boolean extendArm = intakeClear && state != RETRACTED && !climbing;
+        boolean extendArm = intakeClearOfDeposit && state != RETRACTED && !climbing;
         arm.setActivated(extendArm);
 
         boolean handlingSpecimen = INTAKING_SPECIMEN.ordinal() <= state.ordinal() && state.ordinal() <= SCORING_SPECIMEN.ordinal();
@@ -409,14 +406,14 @@ public final class Deposit {
         innerHooks.run();
         limiterBars.run();
 
-        lift.run(intakeClear);
+        lift.run(intakeClearOfDeposit);
 
         if (arm.isActivated()) timeSinceArmExtended.reset();
     }
 
     private void climb() {
         innerHooks.setActivated(true);
-        lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED);
+        lift.setPosition(HEIGHT_RUNG_LOW_RAISED);
         state = ABOVE_LOW_RUNG;
     }
 
@@ -432,8 +429,12 @@ public final class Deposit {
         this.command = command;
     }
 
-    public void setPosition(OutputPosition position) {
+    public void setPosition(DropPosition position) {
         this.position = position;
+    }
+
+    boolean hasSample() {
+        return sample != null;
     }
 
     public void transfer(Sample sample) {
@@ -444,7 +445,7 @@ public final class Deposit {
     void printTelemetry() {
         mTelemetry.addData("Current state", state);
         mTelemetry.addLine();
-        mTelemetry.addData("Deposit", (sample == NONE ? "empty" : "contains a " + sample.name() + " sample"));
+        mTelemetry.addData("Deposit", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
     }
 
 }

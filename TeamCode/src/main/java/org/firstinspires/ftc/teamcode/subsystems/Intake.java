@@ -12,7 +12,6 @@ import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystems.Sample.NONE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
@@ -27,8 +26,8 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
-import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
 @Config
@@ -101,22 +100,20 @@ public final class Intake {
                 hsv.between(minRed, maxRed) ? RED :
                 hsv.between(minBlue, maxBlue) ? BLUE :
                 hsv.between(minYellow, maxYellow) ? NEUTRAL :
-                NONE;
+                null;
     }
 
     private final CachedMotorEx motor;
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
-    Sample sample = NONE;
+    private Sample sample, badSample;
 
     private final TouchSensor bucketSensor, extendoSensor;
 
     private final SimpleServoPivot bucket, latch, extendo;
 
     private Intake.State state = RETRACTED;
-
-    private Sample badSample;
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
@@ -132,8 +129,8 @@ public final class Intake {
         EXTENDO_RETRACTING,
     }
 
-    public void updateAlliance(boolean isRed) {
-        badSample = isRed ? BLUE : RED;
+    public void setAlliance(boolean redAlliance) {
+        badSample = redAlliance ? BLUE : RED;
     }
 
     Intake(HardwareMap hardwareMap) {
@@ -183,7 +180,7 @@ public final class Intake {
                     state = BUCKET_RAISING;
                     timer.reset();
                 } else {
-                    bucket.setActivated(depositIsActive || (depositHasSample && sample != NONE));
+                    bucket.setActivated(depositIsActive || (depositHasSample && hasSample()));
                     break;
                 }
 
@@ -206,8 +203,8 @@ public final class Intake {
                     state = BUCKET_PIVOTING;
                     timer.reset();
                 } else {
-                    if (sample != NONE || !isIntaking) {
-                        if (sample != NONE) latch.setActivated(true);
+                    if (hasSample() || !isIntaking) {
+                        if (hasSample()) latch.setActivated(true);
                         state = EXTENDO_RETRACTING;
                         extendo.setActivated(false);
                         resetExtendedLength();
@@ -262,21 +259,27 @@ public final class Intake {
         motor.set(motorPower);
     }
 
+    private boolean hasSample() {
+        return sample != null;
+    }
+
     boolean clearOfDeposit() {
         return timeSinceBucketRetracted.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
     }
 
     boolean awaitingTransfer() {
-        return sample != NONE && isRetracted();
+        return hasSample() && isRetracted();
     }
 
     private boolean isRetracted() {
         return bucketSensor.isPressed() && extendoSensor.isPressed();
     }
 
-    void releaseSample() {
+    Sample releaseSample() {
+        Sample releasedSample = sample;
+        sample = null;
         latch.setActivated(false);
-        sample = NONE;
+        return releasedSample;
     }
 
     private void resetExtendedLength() {
@@ -318,7 +321,7 @@ public final class Intake {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("Bucket", (sample == NONE ? "empty" : "contains a " + sample.name() + " sample"));
+        mTelemetry.addData("Bucket", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
     }
 
     void printNumericalTelemetry() {

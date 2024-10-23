@@ -33,8 +33,10 @@ public final class Lift {
     // Motors and variables to manage their readings:
     private final CachedMotorEx[] motors;
     private final Motor.Encoder encoder;
-    State currentState, targetState;
+    double currentPosition, targetPosition;
     private final PIDController controller = new PIDController();
+
+    private final State ZERO_STATE = new State();
 
     private double manualLiftPower;
     private int encoderOffset;
@@ -59,15 +61,15 @@ public final class Lift {
     public void reset() {
         controller.reset();
         encoderOffset = encoder.getPosition();
-        targetState = currentState = new org.firstinspires.ftc.teamcode.control.motion.State();
+        targetPosition = currentPosition = 0;
     }
 
     boolean isExtended() {
-        return currentState.x > HEIGHT_RETRACTED_THRESHOLD;
+        return currentPosition > HEIGHT_RETRACTED_THRESHOLD;
     }
 
-    public void setTargetPosition(double inches) {
-        this.targetState = new org.firstinspires.ftc.teamcode.control.motion.State(inches);
+    public void setPosition(double inches) {
+        this.targetPosition = inches;
     }
 
     public void setLiftPower(double manualLiftPower) {
@@ -75,16 +77,15 @@ public final class Lift {
     }
 
     void readSensors() {
-        currentState = new org.firstinspires.ftc.teamcode.control.motion.State(INCHES_PER_TICK * (encoder.getPosition() - encoderOffset));
+        currentPosition = INCHES_PER_TICK * (encoder.getPosition() - encoderOffset);
         controller.setGains(pidGains);
     }
 
-    void run(boolean intakeClear) {
+    void run(boolean freeToMove) {
 
-        if (manualLiftPower != 0)
-            targetState = currentState; // replace PID target with current state if using manual control
+        if (manualLiftPower != 0) targetPosition = currentPosition; // replace PID target with current state if using manual control
 
-        controller.setTarget(intakeClear ? targetState : new org.firstinspires.ftc.teamcode.control.motion.State(0)); // set PID target to 0 (retract) if intake isn't yet out of the way
+        controller.setTarget(freeToMove ? new State(targetPosition) : ZERO_STATE); // set PID target to 0 (retract) if intake isn't yet out of the way
 
         boolean retracted = !isExtended();
 
@@ -95,15 +96,15 @@ public final class Lift {
         double output = gravityFeedforward + (
                 manualLiftPower != 0 ?                              // if manual input is being used:
                         manualLiftPower * voltageScalar :               // control with manual power (and voltage compensate)
-                        controller.calculate(currentState)  // control with PID output
+                        controller.calculate(new State(currentPosition))  // control with PID output
         );
 
         for (CachedMotorEx motor : motors) motor.set(output);
     }
 
     void printNumericalTelemetry() {
-        mTelemetry.addData("Current position (in)", currentState.x);
-        mTelemetry.addData("Target position (in)", targetState.x);
+        mTelemetry.addData("Current position (in)", currentPosition);
+        mTelemetry.addData("Target position (in)", targetPosition);
         mTelemetry.addLine();
         mTelemetry.addData("Lift error derivative (in/s)", controller.getFilteredErrorDerivative());
     }

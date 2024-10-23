@@ -43,9 +43,9 @@ public final class Robot {
 
     public void run() {
 
-//        if (intake.awaitingTransfer()) deposit.transfer(intake.sample);
+//        if (intake.awaitingTransfer()) deposit.transfer(intake.releaseSample());
 //
-//        intake.run(deposit.sample != NONE, deposit.isActive());
+//        intake.run(deposit.hasSample(), deposit.isActive());
 //        deposit.run(intake.clearOfDeposit());
     }
 
