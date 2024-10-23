@@ -128,8 +128,13 @@ public final class MainTeleOp extends LinearOpMode {
 //                if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
                 // SET HEADING:
-                double y = gamepadEx1.getRightY();
-                if (hypot(rightX, y) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(y, rightX) - FORWARD);
+                double rightY = gamepadEx1.getRightY();
+                if (hypot(rightX, rightY) >= 0.8) {
+                    double heading = -atan2(rightY, rightX) - FORWARD;
+                    robot.drivetrain.setCurrentHeading(heading);
+                    autoTurner.setTargetHeading(heading);
+                }
+
                 rightX = 0;
                 leftX = 0;
                 leftY = 0;
