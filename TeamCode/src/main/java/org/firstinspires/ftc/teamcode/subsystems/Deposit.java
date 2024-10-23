@@ -123,13 +123,13 @@ public final class Deposit {
         CLIMBING_HIGH_RUNG,
     }
 
-    enum OutputPosition {
+    public enum OutputPosition {
         FLOOR,
         LOW,
         HIGH,
     }
 
-    enum UserCommand {
+    public enum UserCommand {
         CLAW,
         CLIMB,
         RETRACT,
