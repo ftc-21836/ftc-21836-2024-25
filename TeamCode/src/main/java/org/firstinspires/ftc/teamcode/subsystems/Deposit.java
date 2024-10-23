@@ -2,20 +2,20 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.FLOOR;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.HIGH;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.LOW;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_LOW_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.CLIMBING_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.CLIMBING_LOW_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.OUTER_HOOKS_ENGAGING;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.HIGH;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.LOW;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.DropPosition.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.CLAW;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.CLIMB;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.RETRACT;
@@ -32,8 +32,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrices.HSV;
-import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.sensors.ColorSensor;
 
 @Config
@@ -135,7 +135,9 @@ public final class Deposit {
 
     public final Lift lift;
     private final SimpleServoPivot arm, claw, innerHooks, limiterBars;
+
     private final ColorSensor sampleSensor;
+    private HSV hsv = new HSV();
 
     private final CachedMotorEx outerHooks;
 
@@ -246,7 +248,12 @@ public final class Deposit {
                     break;
                 }
 
-                sample = command == CLAW ? NEUTRAL : hsvToSample(sampleSensor.getHSV());
+                if (command == CLAW) sample = NEUTRAL;
+                else {
+                    sampleSensor.update();
+                    hsv = sampleSensor.getHSV();
+                    sample = hsvToSample(hsv);
+                }
 
                 if (hasSample()) {
 
@@ -438,6 +445,10 @@ public final class Deposit {
         mTelemetry.addData("Current state", state);
         mTelemetry.addLine();
         mTelemetry.addData("Deposit", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
+    }
+
+    void printNumericalTelemetry() {
+        hsv.toTelemetry("Deposit HSV");
     }
 
 }
