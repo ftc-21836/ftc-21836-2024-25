@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
@@ -17,6 +19,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
 
@@ -27,6 +30,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.drivetrains.AutoTurner;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
@@ -55,6 +59,8 @@ public final class MainTeleOp extends LinearOpMode {
 
         // Initialize robot:
         Robot robot = new Robot(hardwareMap, autonEndPose);
+
+        AutoTurner autoTurner = new AutoTurner(hardwareMap);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -129,10 +135,10 @@ public final class MainTeleOp extends LinearOpMode {
                 leftX = 0;
                 leftY = 0;
 
-    //            if (keyPressed(1, DPAD_UP))         robot.drivetrain.setTargetHeading(0);
-    //            else if (keyPressed(1, DPAD_LEFT))  robot.drivetrain.setTargetHeading(PI * 0.5);
-    //            else if (keyPressed(1, DPAD_DOWN))  robot.drivetrain.setTargetHeading(PI);
-    //            else if (keyPressed(1, DPAD_RIGHT)) robot.drivetrain.setTargetHeading(PI * 1.5);
+                if (keyPressed(1, DPAD_UP))         autoTurner.setTargetHeading(0);
+                else if (keyPressed(1, DPAD_LEFT))  autoTurner.setTargetHeading(PI * 0.5);
+                else if (keyPressed(1, DPAD_DOWN))  autoTurner.setTargetHeading(PI);
+                else if (keyPressed(1, DPAD_RIGHT)) autoTurner.setTargetHeading(PI * 1.5);
 
             } else {
 
@@ -158,11 +164,8 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.run(
                     leftX,
                     leftY,
-                    rightX,
-                    slowModeLocked ||
-                                robot.requestingSlowMode() ||
-                                gamepadEx1.isDown(RIGHT_BUMPER) ||
-                                gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0,
+                    autoTurner.calculate(leftX, leftY, rightX, robot.drivetrain.getHeading()),
+                    slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0,
                     useFieldCentric
             );
             robot.printTelemetry();

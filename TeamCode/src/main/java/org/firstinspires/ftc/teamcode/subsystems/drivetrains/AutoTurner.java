@@ -52,7 +52,7 @@ public class AutoTurner {
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 
-    public double run(double xCommand, double yCommand, double turnCommand, double heading) {
+    public double calculate(double xCommand, double yCommand, double turnCommand, double heading) {
         headingController.setGains(pidGains);
         kDFilter.setGains(derivFilterGains);
 
