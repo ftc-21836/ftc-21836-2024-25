@@ -240,8 +240,6 @@ public final class Intake {
 
         if (state != INTAKING) setMotorPower(0);
 
-        sampleSensor.enableLight(state == INTAKING);
-
         double ANGLE_BUCKET_DOWN = state == INTAKING ?
                 ANGLE_BUCKET_INTAKING - (motorPower == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0) :
                 ANGLE_BUCKET_VERTICAL;
