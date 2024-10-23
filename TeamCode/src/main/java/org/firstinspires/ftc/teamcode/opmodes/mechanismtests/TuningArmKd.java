@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;

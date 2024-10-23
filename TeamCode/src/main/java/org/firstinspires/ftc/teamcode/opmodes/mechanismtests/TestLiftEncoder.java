@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Lift.INCHES_PER_TICK;
 
 import com.acmerobotics.dashboard.FtcDashboard;

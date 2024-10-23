@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.COLOR_SENSOR_GAIN;
 
 import com.acmerobotics.dashboard.FtcDashboard;

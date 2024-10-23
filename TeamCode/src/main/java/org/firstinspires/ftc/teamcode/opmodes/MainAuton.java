@@ -12,17 +12,16 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITI
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_PARK;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.PARTNER_WAIT;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.cycle;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRed;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRight;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.parking;
-import static java.lang.Math.PI;
+import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.ParkingLocation.CORNER;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRed;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -32,23 +31,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
 @Autonomous(preselectTeleOp = "MainTeleOp")
 public final class MainAuton extends LinearOpMode {
-
-    public static final double
-            REVERSE = PI,
-            LEFT = REVERSE,
-            FORWARD = 1.5707963267948966,
-            RIGHT = 0,
-            BACKWARD = -1.5707963267948966;
-
-    // Declare objects:
-    public static GamepadEx gamepadEx1, gamepadEx2;
-    public static MultipleTelemetry mTelemetry;
-    static Robot robot;
-    static Pose2d autonEndPose = null;
-
-    public static boolean keyPressed(int gamepad, GamepadKeys.Button button) {
-        return (gamepad == 2 ? gamepadEx2 : gamepadEx1).wasJustPressed(button);
-    }
 
     enum AutonConfig {
         EDITING_ALLIANCE,
@@ -60,19 +42,23 @@ public final class MainAuton extends LinearOpMode {
         public static final AutonConfig[] selections = values();
 
         public AutonConfig plus(int i) {
-            return selections[loopMod(ordinal() + i, selections.length)];
+            return selections[SharedVars.loopMod(ordinal() + i, selections.length)];
         }
         public String markIf(AutonConfig s) {
             return this == s ? " <" : "";
         }
     }
 
-    public static int loopMod(int a, int b) {
-        return (int) loopMod(a,(double) b);
-    }
+    enum ParkingLocation {
+        CORNER,
+        OUTER,
+        TOUCHING_RUNG;
 
-    public static double loopMod(double a, double b) {
-        return (a % b + b) % b;
+        public static final ParkingLocation[] locations = values();
+
+        public ParkingLocation plus(int i) {
+            return locations[loopMod(ordinal() + i, locations.length)];
+        }
     }
 
     @Override
@@ -82,13 +68,19 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry);
 
         // Initialize robot:
-        robot = new Robot(hardwareMap, isRed);
+        Robot robot = new Robot(hardwareMap, isRed);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
         gamepadEx2 = new GamepadEx(gamepad2);
 
         AutonConfig selection = EDITING_ALLIANCE;
+
+        ParkingLocation parking = CORNER;
+
+        boolean isRight = true, cycle = false;
+
+        double partnerWait = 0;
 
         // Get gamepad 1 button input and save alliance and side for autonomous configuration:
         while (opModeInInit() && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
@@ -114,17 +106,18 @@ public final class MainAuton extends LinearOpMode {
             }
 
             if (selection == EDITING_WAIT) {
-                if (keyPressed(1, Y)) PARTNER_WAIT += 0.5;
-                if (keyPressed(1, A) && PARTNER_WAIT > 0) PARTNER_WAIT -= 0.5;
+                if (keyPressed(1, Y)) partnerWait += 0.5;
+                if (keyPressed(1, A) && partnerWait > 0) partnerWait -= 0.5;
             }
 
-            printConfig(selection);
+            printConfig(selection, isRight, cycle, parking, partnerWait);
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
 
             mTelemetry.update();
         }
+
         robot.preload(isRight);
         robot.run();
 
@@ -140,7 +133,7 @@ public final class MainAuton extends LinearOpMode {
             detector.printTelemetry();
             mTelemetry.addLine();
             mTelemetry.addLine();
-            printConfig(selection);
+            printConfig(selection, isRight, cycle, parking, partnerWait);
             mTelemetry.update();
         }
 
@@ -162,7 +155,7 @@ public final class MainAuton extends LinearOpMode {
         }
     }
 
-    private void printConfig(AutonConfig selection) {
+    private void printConfig(AutonConfig selection, boolean isRight, boolean cycle, ParkingLocation parking, double partnerWait) {
         mTelemetry.addLine((isRed ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
         mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
@@ -171,8 +164,7 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry.addLine();
         mTelemetry.addLine("WILL " + (cycle ? "CYCLE" : "NOT CYCLE") + selection.markIf(EDITING_CYCLE));
         mTelemetry.addLine();
-        mTelemetry.addLine("Pause after spike: " + PARTNER_WAIT + selection.markIf(EDITING_WAIT));
+        mTelemetry.addLine("Pause after spike: " + partnerWait + selection.markIf(EDITING_WAIT));
         mTelemetry.addLine();
     }
-
 }

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
 import static java.lang.Math.max;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;

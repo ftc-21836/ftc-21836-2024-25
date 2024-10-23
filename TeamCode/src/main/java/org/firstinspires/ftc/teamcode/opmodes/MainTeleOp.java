@@ -6,19 +6,16 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.FORWARD;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx2;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.loopMod;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.robot;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRed;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
-import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRed;
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRight;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.FORWARD;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static java.lang.Math.atan2;
 import static java.lang.Math.hypot;
 
@@ -60,8 +57,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Initialize robot:
-        robot = new Robot(hardwareMap, isRed);
-        robot.run();
+        Robot robot = new Robot(hardwareMap, isRed);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -81,9 +77,6 @@ public final class MainTeleOp extends LinearOpMode {
                 case EDITING_ALLIANCE:
                     isRed = !isRed;
                     break;
-                case EDITING_SIDE:
-                    isRight = !isRight;
-                    break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;
                     break;
@@ -94,8 +87,6 @@ public final class MainTeleOp extends LinearOpMode {
             }
 
             mTelemetry.addLine((isRed ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-            mTelemetry.addLine();
-            mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine("Slow mode " + (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
