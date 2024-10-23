@@ -31,7 +31,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.drivetrains.AutoTurner;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
@@ -39,8 +38,7 @@ public final class MainTeleOp extends LinearOpMode {
     enum TeleOpConfig {
         EDITING_ALLIANCE,
         EDITING_SLOW_LOCK,
-        EDITING_FIELD_CENTRIC,
-        EDITING_AUTO_TURN;
+        EDITING_FIELD_CENTRIC;
 
         public static final TeleOpConfig[] selections = values();
 
@@ -59,9 +57,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Initialize robot:
-        Robot robot = new Robot(hardwareMap, autonEndPose);
-
-        AutoTurner autoTurner = new AutoTurner(hardwareMap);
+        Robot robot = new Robot(hardwareMap, autonEndPose, isRed);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -87,9 +83,6 @@ public final class MainTeleOp extends LinearOpMode {
                 case EDITING_FIELD_CENTRIC:
                     useFieldCentric = !useFieldCentric;
                     break;
-                case EDITING_AUTO_TURN:
-                    autoTurner.toggleAutoTurn();
-                    break;
             }
 
             mTelemetry.addLine((isRed ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
@@ -98,15 +91,11 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine("Slow mode " + (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();
             mTelemetry.addLine((useFieldCentric ? "Field centric" : "ROBOT CENTRIC") + " driving" + selection.markIf(EDITING_FIELD_CENTRIC));
-            mTelemetry.addLine();
-            autoTurner.printTelemetry();
 
             mTelemetry.update();
         }
 
 //        robot.intake.updateAlliance(isRed);
-
-        robot.drivetrain.setCurrentHeading(autonEndPose.heading.toDouble() - (isRed ? FORWARD : BACKWARD));
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -133,20 +122,16 @@ public final class MainTeleOp extends LinearOpMode {
 
                 // SET HEADING:
                 double rightY = gamepadEx1.getRightY();
-                if (hypot(rightX, rightY) >= 0.8) {
-                    double heading = -atan2(rightY, rightX) - FORWARD;
-                    robot.drivetrain.setCurrentHeading(heading);
-                    autoTurner.setTargetHeading(heading);
-                }
+                if (hypot(rightX, rightY) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(rightY, rightX) - FORWARD);
 
                 rightX = 0;
                 leftX = 0;
                 leftY = 0;
 
-                if (keyPressed(1, DPAD_UP))         autoTurner.setTargetHeading(0);
-                else if (keyPressed(1, DPAD_LEFT))  autoTurner.setTargetHeading(PI * 0.5);
-                else if (keyPressed(1, DPAD_DOWN))  autoTurner.setTargetHeading(PI);
-                else if (keyPressed(1, DPAD_RIGHT)) autoTurner.setTargetHeading(PI * 1.5);
+                // if (keyPressed(1, DPAD_UP))         autoTurner.setTargetHeading(0);
+                // else if (keyPressed(1, DPAD_LEFT))  autoTurner.setTargetHeading(PI * 0.5);
+                // else if (keyPressed(1, DPAD_DOWN))  autoTurner.setTargetHeading(PI);
+                // else if (keyPressed(1, DPAD_RIGHT)) autoTurner.setTargetHeading(PI * 1.5);
 
             } else {
 
@@ -172,13 +157,11 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.run(
                     leftX,
                     leftY,
-                    autoTurner.calculate(leftX, leftY, rightX, robot.drivetrain.getHeading()),
+                    rightX,
                     slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0,
                     useFieldCentric
             );
             robot.printTelemetry();
-            mTelemetry.addLine();
-            autoTurner.printNumericalTelemetry();
             mTelemetry.update();
         }
     }
