@@ -198,16 +198,13 @@ public final class Deposit {
 
                     setPosition(FLOOR);
                     state = HAS_SAMPLE;
-                    break;
 
                 } else if (command == CLAW) {
 
                     lift.setPosition(HEIGHT_INTAKING_SPECIMEN);
                     state = INTAKING_SPECIMEN;
-                    break;
-                }
 
-                if (command == CLIMB) climb();
+                } else if (command == CLIMB) climb();
                 
                 break;
 
@@ -225,10 +222,8 @@ public final class Deposit {
                     sample = null;
                     state = SCORING_SAMPLE;
                     timeSinceSampleReleased.reset();
-                    break;
-                }
 
-                if (command == CLIMB) climb();
+                } else if (command == CLIMB) climb();
 
                 break;
 
@@ -238,11 +233,8 @@ public final class Deposit {
 
                     lift.setPosition(0);
                     state = RETRACTED;
-                    break;
 
-                }
-
-                if (command == CLIMB) climb();
+                } else if (command == CLIMB) climb();
 
                 break;
 
@@ -262,11 +254,8 @@ public final class Deposit {
                     lift.setPosition(HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING);
                     setPosition(FLOOR);
                     state = HAS_SPECIMEN;
-                    break;
 
-                }
-
-                if (command == CLIMB) climb();
+                } else if (command == CLIMB) climb();
 
                 break;
 
@@ -284,11 +273,8 @@ public final class Deposit {
 
                     lift.setPosition(0);
                     state = SCORING_SPECIMEN;
-                    break;
 
-                }
-
-                if (command == CLIMB) climb();
+                } else if (command == CLIMB) climb();
 
                 break;
 
@@ -298,10 +284,8 @@ public final class Deposit {
                     claw.setActivated(false);
                     sample = null;
                     state = RETRACTED;
-                    break;
-                }
 
-                if (command == CLIMB) climb();
+                } else if (command == CLIMB) climb();
 
                 break;
 
@@ -335,7 +319,6 @@ public final class Deposit {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                     state = OUTER_HOOKS_ENGAGING;
-                    break;
                 }
 
                 break;
@@ -350,7 +333,6 @@ public final class Deposit {
                     state = ABOVE_HIGH_RUNG;
 
                     timer.reset();
-                    break;
 
                 }
 
@@ -368,7 +350,6 @@ public final class Deposit {
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
                     lift.setPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
                     state = CLIMBING_HIGH_RUNG;
-                    break;
 
                 }
 
