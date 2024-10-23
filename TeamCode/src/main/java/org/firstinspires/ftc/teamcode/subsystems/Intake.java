@@ -321,6 +321,8 @@ public final class Intake {
     }
 
     void printTelemetry() {
+        mTelemetry.addData("Current state", state);
+        mTelemetry.addLine();
         mTelemetry.addData("Bucket", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
     }
 
