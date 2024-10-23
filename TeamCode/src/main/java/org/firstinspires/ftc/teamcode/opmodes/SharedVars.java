@@ -27,7 +27,7 @@ public final class SharedVars {
 
     public static MultipleTelemetry mTelemetry;
 
-    static Pose2d autonEndPose = new Pose2d(0,0,0);
+    static Pose2d autonEndPose = new Pose2d(0,0,FORWARD);
 
     static boolean isRed = true;
 
