@@ -321,8 +321,6 @@ public final class MecanumDrive {
 
         localizer = new ThreeDeadWheelLocalizer(hardwareMap);
 
-        setCurrentHeading(0);
-
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
 
