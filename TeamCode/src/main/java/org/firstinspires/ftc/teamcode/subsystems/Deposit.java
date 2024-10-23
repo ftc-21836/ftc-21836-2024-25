@@ -382,6 +382,8 @@ public final class Deposit {
 
         command = null;
 
+        sampleSensor.enableLight(state == INTAKING_SPECIMEN);
+
         boolean climbing = state.ordinal() >= ABOVE_LOW_RUNG.ordinal();
         boolean extendArm = intakeClearOfDeposit && state != RETRACTED && !climbing;
         arm.setActivated(extendArm);
