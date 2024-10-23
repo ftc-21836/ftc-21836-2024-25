@@ -190,6 +190,8 @@ public final class Deposit {
 
     void run(boolean intakeClear) {
 
+        if (command == RETRACT) setPosition(FLOOR);
+
         switch (state) {
             case RETRACTED:
 
@@ -203,6 +205,7 @@ public final class Deposit {
                     }
 
                 } else {
+                    setPosition(FLOOR);
                     state = HAS_SAMPLE;
                     break;
                 }
@@ -258,6 +261,7 @@ public final class Deposit {
 
                     claw.setActivated(true);
                     lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING);
+                    setPosition(FLOOR);
                     state = HAS_SPECIMEN;
 
                 }
