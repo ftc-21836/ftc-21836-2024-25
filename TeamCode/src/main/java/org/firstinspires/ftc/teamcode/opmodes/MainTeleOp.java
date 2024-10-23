@@ -25,6 +25,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
 
@@ -48,6 +49,8 @@ public final class MainTeleOp extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        ElapsedTime loopTimer = new ElapsedTime();
 
         // Initialize multiple telemetry outputs:
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -158,6 +161,10 @@ public final class MainTeleOp extends LinearOpMode {
                     slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0,
                     useFieldCentric
             );
+
+            mTelemetry.addData("Loop time", loopTimer.seconds());
+            loopTimer.reset();
+            mTelemetry.addLine();
             robot.printTelemetry();
             mTelemetry.update();
         }
