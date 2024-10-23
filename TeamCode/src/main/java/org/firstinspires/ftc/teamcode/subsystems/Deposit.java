@@ -5,7 +5,6 @@ import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SAMPLE;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.AT_CHAMBER;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.CLIMBING_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.CLIMBING_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SPECIMEN;
