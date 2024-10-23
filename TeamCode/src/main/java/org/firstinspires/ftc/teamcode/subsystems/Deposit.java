@@ -4,7 +4,7 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLO
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.ABOVE_LOW_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.AT_BASKET;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.AT_CHAMBER;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.CLIMBING_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.CLIMBING_LOW_RUNG;
@@ -12,8 +12,14 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SPECIM
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.OUTER_HOOKS_ENGAGING;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SAMPLE_FALLING;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.SCORING_SPECIMEN;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.OutputPosition.HIGH;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.OutputPosition.LOW;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.OutputPosition.FLOOR;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.CLAW;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.CLIMB;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.UserCommand.RETRACT;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.NONE;
@@ -100,19 +106,33 @@ public final class Deposit {
                 NONE;
     }
 
-    public enum State {
+    enum State {
         RETRACTED,
-        AT_BASKET,
-        SAMPLE_FALLING,
+
+        HAS_SAMPLE,
+        SCORING_SAMPLE,
+
         INTAKING_SPECIMEN,
         HAS_SPECIMEN,
-        AT_CHAMBER,
         SCORING_SPECIMEN,
+
         ABOVE_LOW_RUNG,
         CLIMBING_LOW_RUNG,
         OUTER_HOOKS_ENGAGING,
         ABOVE_HIGH_RUNG,
         CLIMBING_HIGH_RUNG,
+    }
+
+    enum OutputPosition {
+        FLOOR,
+        LOW,
+        HIGH,
+    }
+
+    enum UserCommand {
+        CLAW,
+        CLIMB,
+        RETRACT,
     }
 
     public final Lift lift;
@@ -127,9 +147,11 @@ public final class Deposit {
 
     private Deposit.State state = RETRACTED;
 
-    private boolean highScorePosition, goToScoringPosition, handleSample, climb, retract;
+    private OutputPosition position = FLOOR;
 
-    private double releaseSpecimenHeight = HEIGHT_CHAMBER_HIGH + HEIGHT_OFFSET_SPECIMEN_SCORING;
+    private UserCommand command = null;
+
+    private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
@@ -174,81 +196,64 @@ public final class Deposit {
 
                 if (sample == NONE) {
 
-                    if (handleSample) {
+                    if (command == CLAW) {
 
                         lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN);
                         state = INTAKING_SPECIMEN;
                         break;
                     }
 
-                } else if (goToScoringPosition) {           // if go to scoring position, go to high or low basket
-
-                    lift.setTargetPosition(highScorePosition ?
-                            HEIGHT_BASKET_HIGH :
-                            HEIGHT_BASKET_LOW
-                    );
-
-                    state = AT_BASKET;
+                } else {
+                    state = HAS_SAMPLE;
                     break;
-
                 }
 
-                
-                if (climb) {
-
-                    innerHooks.setActivated(true);
-                    lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED);
-                    state = ABOVE_LOW_RUNG;
-                }
+                if (command == CLIMB) climb();
                 
                 break;
 
-            case AT_BASKET:
+            case HAS_SAMPLE:
+                
+                lift.setTargetPosition(
+                    position == HIGH ? HEIGHT_BASKET_HIGH :
+                    position == LOW ? HEIGHT_BASKET_LOW :
+                    0
+                );
 
-                if (retract) {
-                    lift.setTargetPosition(0);
-                    state = RETRACTED;
-                    break;
-                }
-
-                if (goToScoringPosition) {
-
-                    lift.setTargetPosition(highScorePosition ?
-                            HEIGHT_BASKET_HIGH :
-                            HEIGHT_BASKET_LOW
-                    );
-                }
-
-                if (handleSample) {
+                if (command == CLAW) {
 
                     claw.setActivated(false);
                     sample = NONE;
-                    state = SAMPLE_FALLING;
+                    state = SCORING_SAMPLE;
                     timeSinceSampleReleased.reset();
                 }
 
+                if (command == CLIMB) climb();
+
                 break;
 
-            case SAMPLE_FALLING:
+            case SCORING_SAMPLE:
 
-                if (timeSinceSampleReleased.seconds() >= TIME_DROP || retract) {
+                if (timeSinceSampleReleased.seconds() >= TIME_DROP || command == RETRACT) {
 
                     lift.setTargetPosition(0);
                     state = RETRACTED;
 
                 }
+
+                if (command == CLIMB) climb();
 
                 break;
 
             case INTAKING_SPECIMEN:
 
-                if (retract) {
+                if (command == RETRACT) {
                     lift.setTargetPosition(0);
                     state = RETRACTED;
                     break;
                 }
 
-                sample = handleSample ? NEUTRAL : hsvToSample(sampleSensor.getHSV());
+                sample = command == CLAW ? NEUTRAL : hsvToSample(sampleSensor.getHSV());
 
                 if (sample != NONE) {
 
@@ -258,39 +263,19 @@ public final class Deposit {
 
                 }
 
+                if (command == CLIMB) climb();
+
                 break;
 
             case HAS_SPECIMEN:
 
-                if (goToScoringPosition) {
+                lift.setTargetPosition(
+                    position == HIGH ? HEIGHT_CHAMBER_HIGH :
+                    position == LOW ? HEIGHT_CHAMBER_LOW :
+                    HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING
+                );
 
-                    lift.setTargetPosition(highScorePosition ?
-                            HEIGHT_CHAMBER_HIGH :
-                            HEIGHT_CHAMBER_LOW
-                    );
-
-                    state = AT_CHAMBER;
-                }
-
-                break;
-
-            case AT_CHAMBER:
-
-                if (retract) {
-                    lift.setTargetPosition(HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING);
-                    state = HAS_SPECIMEN;
-                    break;
-                }
-
-                if (goToScoringPosition) {
-
-                    lift.setTargetPosition(highScorePosition ?
-                            HEIGHT_CHAMBER_HIGH :
-                            HEIGHT_CHAMBER_LOW
-                    );
-                }
-
-                if (handleSample) {
+                if (command == CLAW) {
 
                     releaseSpecimenHeight = lift.currentState.x + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
@@ -299,27 +284,31 @@ public final class Deposit {
 
                 }
 
+                if (command == CLIMB) climb();
+
                 break;
 
             case SCORING_SPECIMEN:
 
-                if (lift.currentState.x <= releaseSpecimenHeight || handleSample) {
+                if (lift.currentState.x <= releaseSpecimenHeight || command == CLAW) {
                     claw.setActivated(false);
                     state = RETRACTED;
                 }
+
+                if (command == CLIMB) climb();
 
                 break;
 
             case ABOVE_LOW_RUNG:
 
-                if (retract) {
+                if (command == RETRACT) {
                     lift.setTargetPosition(0);
                     state = RETRACTED;
                     innerHooks.setActivated(false);
                     break;
                 }
 
-                if (climb) {
+                if (command == CLIMB) {
 
                     lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
                     state = CLIMBING_LOW_RUNG;
@@ -329,13 +318,13 @@ public final class Deposit {
 
             case CLIMBING_LOW_RUNG:
 
-                if (retract) {
+                if (command == RETRACT) {
                     lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED);
                     state = ABOVE_LOW_RUNG;
                     break;
                 }
 
-                if (climb) {
+                if (command == CLIMB) {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                     state = OUTER_HOOKS_ENGAGING;
@@ -345,7 +334,7 @@ public final class Deposit {
 
             case OUTER_HOOKS_ENGAGING:
 
-                if (climb) {
+                if (command == CLIMB) {
 
                     outerHooks.set(0);
 
@@ -365,7 +354,7 @@ public final class Deposit {
                         timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
                 );
 
-                if (climb) {
+                if (command == CLIMB) {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
                     lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
@@ -377,13 +366,13 @@ public final class Deposit {
 
             case CLIMBING_HIGH_RUNG:
 
-                if (retract) {
+                if (command == RETRACT) {
                     lift.setTargetPosition(HEIGHT_RUNG_HIGH_RAISED);
                     state = ABOVE_HIGH_RUNG;
                     break;
                 }
 
-                if (climb) {
+                if (command == CLIMB) {
 
                     if (outerHooks.get() != 0) outerHooks.set(0);
                     else limiterBars.setActivated(true);
@@ -392,7 +381,7 @@ public final class Deposit {
                 break;
         }
 
-        goToScoringPosition = handleSample = climb = retract = false;
+        command = null;
 
         boolean climbing = state.ordinal() >= ABOVE_LOW_RUNG.ordinal();
         boolean extendArm = intakeClear && state != RETRACTED && !climbing;
@@ -422,6 +411,12 @@ public final class Deposit {
         if (arm.isActivated()) timeSinceArmExtended.reset();
     }
 
+    private void climb() {
+        innerHooks.setActivated(true);
+        lift.setTargetPosition(HEIGHT_RUNG_LOW_RAISED);
+        state = ABOVE_LOW_RUNG;
+    }
+
     boolean isActive() {
         return state != RETRACTED || lift.isExtended() || timeSinceArmExtended.seconds() <= TIME_ARM_RETRACTION;
     }
@@ -430,21 +425,12 @@ public final class Deposit {
         return state != RETRACTED && state != HAS_SPECIMEN;
     }
 
-    public void goToScoringPosition(boolean highScorePosition) {
-        goToScoringPosition = true;
-        this.highScorePosition = highScorePosition;
+    public void setCommand(UserCommand command) {
+        this.command = command;
     }
 
-    public void handleSample() {
-        handleSample = true;
-    }
-
-    public void retract() {
-        retract = true;
-    }
-    
-    public void climb() {
-        climb = true;
+    public void setPosition(OutputPosition position) {
+        this.position = position;
     }
 
     public void transfer(Sample sample) {
