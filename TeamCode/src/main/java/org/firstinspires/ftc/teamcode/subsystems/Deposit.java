@@ -55,7 +55,6 @@ public final class Deposit {
             COLOR_SENSOR_GAIN = 1,
             SPEED_OUTER_HOOKS_EXTENDING = 0.5,
             SPEED_OUTER_HOOKS_RETRACTING = -.1,
-            HEIGHT_RETRACTED = 0,
             HEIGHT_INTAKING_SPECIMEN = 1,
             HEIGHT_OFFSET_POST_INTAKING = 1,
             HEIGHT_BASKET_LOW = 1,
@@ -207,7 +206,7 @@ public final class Deposit {
             case AT_BASKET:
 
                 if (retract) {
-                    lift.setTargetPosition(HEIGHT_RETRACTED);
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
                     break;
                 }
@@ -234,7 +233,7 @@ public final class Deposit {
 
                 if (timeSinceSampleReleased.seconds() >= TIME_DROP || retract) {
 
-                    lift.setTargetPosition(HEIGHT_RETRACTED);
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
 
                 }
@@ -244,7 +243,7 @@ public final class Deposit {
             case INTAKING_SPECIMEN:
 
                 if (retract) {
-                    lift.setTargetPosition(HEIGHT_RETRACTED);
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
                     break;
                 }
@@ -295,7 +294,7 @@ public final class Deposit {
 
                     releaseSpecimenHeight = lift.currentState.x + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
-                    lift.setTargetPosition(HEIGHT_RETRACTED);
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = SCORING_SPECIMEN;
 
                 }
@@ -314,7 +313,7 @@ public final class Deposit {
             case ABOVE_LOW_RUNG:
 
                 if (retract) {
-                    lift.setTargetPosition(HEIGHT_RETRACTED);
+                    lift.setTargetPosition(Lift.HEIGHT_RETRACTED);
                     state = RETRACTED;
                     innerHooks.setActivated(false);
                     break;
