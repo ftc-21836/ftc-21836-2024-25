@@ -191,8 +191,6 @@ public final class Deposit {
 
     void run(boolean intakeClearOfDeposit) {
 
-        if (command == RETRACT) setPosition(FLOOR);
-
         switch (state) {
             case RETRACTED:
 
@@ -211,6 +209,8 @@ public final class Deposit {
                 break;
 
             case HAS_SAMPLE:
+
+                if (command == RETRACT) setPosition(FLOOR);
                 
                 lift.setPosition(
                     position == HIGH ? HEIGHT_BASKET_HIGH :
@@ -267,6 +267,8 @@ public final class Deposit {
                 break;
 
             case HAS_SPECIMEN:
+
+                if (command == RETRACT) setPosition(FLOOR);
 
                 lift.setPosition(
                     position == HIGH ? HEIGHT_CHAMBER_HIGH :
