@@ -86,6 +86,8 @@ public final class Climber {
     public void cancelClimb() {
         switch (state) {
 
+            case PULLING_HIGH_RUNG:
+                limiterBars.setActivated(false);
             case RAISING_ABOVE_LOW_RUNG:
 
                 innerHooks.setActivated(false);
