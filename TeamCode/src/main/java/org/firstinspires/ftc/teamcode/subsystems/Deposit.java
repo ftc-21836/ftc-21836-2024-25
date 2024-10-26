@@ -123,6 +123,12 @@ public final class Deposit {
 
     void run(boolean intakeClearOfDeposit, boolean climbing) {
 
+        // release sample when climbing begins
+        if (climbing && state != RETRACTED) {
+            releaseSample();
+            state = RETRACTED;      // RETRACTED state means the following state machine is skipped
+        }
+
         switch (state) {
 
             case HAS_SAMPLE:
@@ -157,9 +163,10 @@ public final class Deposit {
                 if (retracting && belowReleaseHeight) triggerClaw();
 
                 break;
+
         }
 
-        arm.setActivated(intakeClearOfDeposit && state != RETRACTED && !climbing);
+        arm.setActivated(intakeClearOfDeposit && state != RETRACTED);
 
         arm.updateAngles(
                 ANGLE_ARM_RETRACTED,
@@ -235,8 +242,7 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
-                claw.setActivated(false);
-                sample = null;
+                releaseSample();
                 timeSinceSampleReleased.reset();
 
                 break;
@@ -257,13 +263,17 @@ public final class Deposit {
                     releaseSpecimenHeight = lift.currentPosition + HEIGHT_OFFSET_SPECIMEN_SCORING;
                     lift.setPosition(0);
                 } else {
-                    claw.setActivated(false);
-                    sample = null;
+                    releaseSample();
                     state = RETRACTED;
                 }
 
                 break;
         }
+    }
+
+    private void releaseSample() {
+        claw.setActivated(false);
+        sample = null;
     }
 
     boolean hasSample() {
