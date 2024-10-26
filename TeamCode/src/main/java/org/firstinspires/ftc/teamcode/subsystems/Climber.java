@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
-import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.ABOVE_HIGH_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.ABOVE_LOW_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.CLIMBING_HIGH_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.CLIMBING_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.INACTIVE;
-import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.OUTER_HOOKS_ENGAGING;
+import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_HIGH_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_LOW_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.RAISING_ABOVE_HIGH_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.RAISING_ABOVE_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 
@@ -26,6 +25,7 @@ public final class Climber {
             ANGLE_HOOKS_EXTENDED = 90,
             ANGLE_BARS_RETRACTED = 0,
             ANGLE_BARS_EXTENDED = 90,
+            TIME_CLIMB_LOW_RUNG = 4,
             TIME_OUTER_HOOKS_EXTENSION = 0.5,
             TIME_OUTER_HOOKS_RETRACTION = 0.5,
             TIME_INNER_HOOKS_DISENGAGING = 0.5,
@@ -48,11 +48,10 @@ public final class Climber {
 
     enum State {
         INACTIVE,
-        ABOVE_LOW_RUNG,
-        CLIMBING_LOW_RUNG,
-        OUTER_HOOKS_ENGAGING,
-        ABOVE_HIGH_RUNG,
-        CLIMBING_HIGH_RUNG,
+        RAISING_ABOVE_LOW_RUNG,
+        PULLING_LOW_RUNG,
+        RAISING_ABOVE_HIGH_RUNG,
+        PULLING_HIGH_RUNG,
     }
 
     boolean isActive() {
@@ -83,62 +82,110 @@ public final class Climber {
         outerHooks.setZeroPowerBehavior(FLOAT);
     }
 
+    public void retract() {
+        switch (state) {
+
+            case RAISING_ABOVE_LOW_RUNG:
+
+                innerHooks.setActivated(false);
+                lift.setPosition(0);
+                state = INACTIVE;
+
+                break;
+
+            case PULLING_LOW_RUNG:
+
+                state = INACTIVE;
+                climb();
+
+                break;
+        }
+    }
+
     public void climb() {
+
+        // THESE ALL TRIGGER ONCE WHEN CLIMB BUTTON PRESSED
+        // climb button has different behavior for each state:
+
         switch (state) {
             case INACTIVE:
 
                 innerHooks.setActivated(true);
                 lift.setPosition(HEIGHT_RUNG_LOW_RAISED);
-                state = ABOVE_LOW_RUNG;
+                state = RAISING_ABOVE_LOW_RUNG;
 
                 break;
 
-            case ABOVE_LOW_RUNG:
+            case RAISING_ABOVE_LOW_RUNG:
 
                 lift.setPosition(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
-                state = CLIMBING_LOW_RUNG;
-
-                break;
-
-            case CLIMBING_LOW_RUNG:
-
-                outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
-                state = OUTER_HOOKS_ENGAGING;
-
-                break;
-
-            case OUTER_HOOKS_ENGAGING:
-
-                outerHooks.set(0);
-                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED);
-                state = ABOVE_HIGH_RUNG;
+                state = PULLING_LOW_RUNG;
 
                 timer.reset();
 
                 break;
 
-            case ABOVE_HIGH_RUNG:
+            case PULLING_LOW_RUNG:
 
-                outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
-                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
-                state = CLIMBING_HIGH_RUNG;
+                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED);
+                state = RAISING_ABOVE_HIGH_RUNG;
+
+                timer.reset();
 
                 break;
 
-            case CLIMBING_HIGH_RUNG:
+            case RAISING_ABOVE_HIGH_RUNG:
 
-                if (outerHooks.get() != 0) outerHooks.set(0);
-                else limiterBars.setActivated(true);
+                outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
+                timer.reset();
+                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
+                state = PULLING_HIGH_RUNG;
+
+                break;
+
+            case PULLING_HIGH_RUNG:
+
+                limiterBars.toggle();
+
                 break;
         }
     }
 
     void run() {
 
-        if (state == ABOVE_HIGH_RUNG) innerHooks.setActivated(
-                timer.seconds() < TIME_INNER_HOOKS_DISENGAGING ||
-                        timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
-        );
+        switch (state) {
+
+            case PULLING_LOW_RUNG:
+
+                if (outerHooks.get() == 0) {
+
+                    if (timer.seconds() >= TIME_CLIMB_LOW_RUNG) {
+                        outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
+                        timer.reset();
+                    }
+
+                } else if (timer.seconds() >= TIME_OUTER_HOOKS_EXTENSION) {
+                    outerHooks.set(0);
+                }
+
+                break;
+
+            case RAISING_ABOVE_HIGH_RUNG:
+
+                innerHooks.setActivated(
+                        timer.seconds() < TIME_INNER_HOOKS_DISENGAGING ||
+                                timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
+                );
+                break;
+
+            case PULLING_HIGH_RUNG:
+
+                if (timer.seconds() >= TIME_OUTER_HOOKS_RETRACTION) {
+                    outerHooks.set(0);
+                }
+
+                break;
+        }
 
         innerHooks.updateAngles(ANGLE_HOOKS_RETRACTED, ANGLE_HOOKS_EXTENDED);
         limiterBars.updateAngles(ANGLE_BARS_RETRACTED, ANGLE_BARS_EXTENDED);
