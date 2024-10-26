@@ -105,7 +105,7 @@ public final class Intake {
 
     private final CachedMotorEx motor;
 
-    private final ColorSensor sampleSensor;
+    private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
     private Sample sample, badSample;
 
@@ -160,7 +160,7 @@ public final class Intake {
         motor.setZeroPowerBehavior(FLOAT);
         motor.setInverted(true);
 
-        sampleSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
+        colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
@@ -186,9 +186,11 @@ public final class Intake {
 
             case INTAKING:
 
-                sampleSensor.update();
-                hsv = sampleSensor.getHSV();
-                sample = hsvToSample(hsv);
+                if (!hasSample()) {
+                    colorSensor.update();
+                    hsv = colorSensor.getHSV();
+                    sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
+                }
 
                 if (sample == badSample) {
                     latch.setActivated(true);

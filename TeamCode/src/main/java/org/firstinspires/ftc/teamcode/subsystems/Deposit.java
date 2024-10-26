@@ -119,7 +119,7 @@ public final class Deposit {
                 getReversedServo(getGoBildaServo(hardwareMap, "claw"))
         );
 
-        sampleSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);
+        colorSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);
     }
 
     void run(boolean intakeClearOfDeposit, boolean climbing) {
@@ -138,9 +138,9 @@ public final class Deposit {
             case INTAKING_SPECIMEN:
 
                 if (!hasSample()) {
-                    sampleSensor.update();
-                    hsv = sampleSensor.getHSV();
-                    sample = hsvToSample(hsv);
+                    colorSensor.update();
+                    hsv = colorSensor.getHSV();
+                    sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
                 }
 
                 if (hasSample()) triggerClaw();
