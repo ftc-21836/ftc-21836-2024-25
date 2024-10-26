@@ -92,7 +92,7 @@ public final class Deposit {
     public final Lift lift;
     private final SimpleServoPivot arm, claw;
 
-    private final ColorSensor sampleSensor;
+    private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
 
     private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();

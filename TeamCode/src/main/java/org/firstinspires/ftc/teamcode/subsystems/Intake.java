@@ -215,7 +215,9 @@ public final class Intake {
                 if (timer.seconds() >= TIME_DROP) {
                     state = INTAKING;
                     bucket.setActivated(true);
-                } else break;
+                }
+
+                break;
 
             case EXTENDO_RETRACTING:
 
