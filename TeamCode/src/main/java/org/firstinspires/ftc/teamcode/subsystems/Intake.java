@@ -117,7 +117,6 @@ public final class Intake {
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
-    private boolean isIntaking = false;
     private double motorPower, extendedLength, extendedAngle;
 
     enum State {
@@ -175,14 +174,8 @@ public final class Intake {
 
             case RETRACTED:
 
-                if (isIntaking) {
-                    bucket.setActivated(true);
-                    state = BUCKET_RAISING;
-                    timer.reset();
-                } else {
-                    bucket.setActivated(depositIsActive || (depositHasSample && hasSample()));
-                    break;
-                }
+                bucket.setActivated(depositIsActive || (depositHasSample && hasSample()));
+                break;
 
             case BUCKET_RAISING:
 
@@ -203,13 +196,7 @@ public final class Intake {
                     state = BUCKET_PIVOTING;
                     timer.reset();
                 } else {
-                    if (hasSample() || !isIntaking) {
-                        if (hasSample()) latch.setActivated(true);
-                        state = EXTENDO_RETRACTING;
-                        extendo.setActivated(false);
-                        resetExtendedLength();
-                        timer.reset();
-                    }
+                    if (hasSample()) setExtended(false);
                     break;
                 }
 
@@ -230,10 +217,8 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                if (extendoSensor.isPressed()) {
-                    state = RETRACTED;
-                    isIntaking = false;
-                } else if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
+                if (extendoSensor.isPressed()) state = RETRACTED;
+                else if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
         }
 
         if (isRetracted()) timeSinceBucketRetracted.reset();
@@ -300,16 +285,35 @@ public final class Intake {
     }
 
     public void setMotorPower(double motorPower) {
-        if (motorPower != 0) isIntaking = true;
+        if (motorPower != 0) setExtended(true);
         this.motorPower = motorPower;
     }
 
-    public void setExtended(boolean isIntaking) {
-        this.isIntaking = isIntaking;
+    public void setExtended(boolean extend) {
+
+        if (state == RETRACTED) {
+
+            if (!extend) return;
+
+            bucket.setActivated(true);
+            state = BUCKET_RAISING;
+            timer.reset();
+
+        } else if (state == INTAKING) {
+
+            if (extend) return;
+
+            if (hasSample()) latch.setActivated(true);
+            state = EXTENDO_RETRACTING;
+            extendo.setActivated(false);
+            resetExtendedLength();
+            timer.reset();
+        }
+
     }
 
     public void toggle() {
-        setExtended(!isIntaking);
+        setExtended(state == RETRACTED);
     }
 
     static double extensionToAngle(double millimeters) {
