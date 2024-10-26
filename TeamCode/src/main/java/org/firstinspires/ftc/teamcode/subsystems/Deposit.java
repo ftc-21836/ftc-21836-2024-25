@@ -78,11 +78,8 @@ public final class Deposit {
 
     enum State {
         RETRACTED,
-
         HAS_SAMPLE,
-
         INTAKING_SPECIMEN,
-
         HAS_SPECIMEN,
     }
 
@@ -98,7 +95,7 @@ public final class Deposit {
     private final ColorSensor sampleSensor;
     private HSV hsv = new HSV();
 
-    private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime(), timer = new ElapsedTime();
+    private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();
 
     private Sample sample;
 
