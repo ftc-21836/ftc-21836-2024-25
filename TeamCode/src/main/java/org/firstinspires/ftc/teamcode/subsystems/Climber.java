@@ -187,7 +187,7 @@ public final class Climber {
                     outerHooks.set(0);
                 }
 
-                if (lift.currentPosition >= HEIGHT_TO_ACTIVATE_LIMITER_BAR) {
+                if (lift.currentPosition <= HEIGHT_TO_ACTIVATE_LIMITER_BAR) {
                     limiterBars.setActivated(true);
                 }
 
