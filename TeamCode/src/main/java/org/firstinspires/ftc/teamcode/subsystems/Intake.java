@@ -295,17 +295,17 @@ public final class Intake {
 
     public void setExtended(boolean extend) {
 
-        if (state == RETRACTED) {
+        if (extend) {
 
-            if (!extend) return;
+            if (state == RETRACTED) {
 
-            bucket.setActivated(true);
-            state = BUCKET_RAISING;
-            timer.reset();
+                bucket.setActivated(true);
+                state = BUCKET_RAISING;
+                timer.reset();
+
+            }
 
         } else if (state == INTAKING) {
-
-            if (extend) return;
 
             if (hasSample()) latch.setActivated(true);
             state = EXTENDO_RETRACTING;
