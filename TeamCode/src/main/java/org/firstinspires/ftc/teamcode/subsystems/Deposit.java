@@ -70,10 +70,9 @@ public final class Deposit {
             );
 
     public Sample hsvToSample(HSV hsv) {
-        return
-                hsv.between(minRed, maxRed) ? RED :
-                hsv.between(minBlue, maxBlue) ? BLUE :
-                null;
+        if (hsv.between(minRed, maxRed)) return RED;
+        if (hsv.between(minBlue, maxBlue)) return BLUE;
+        return null;
     }
 
     enum State {
