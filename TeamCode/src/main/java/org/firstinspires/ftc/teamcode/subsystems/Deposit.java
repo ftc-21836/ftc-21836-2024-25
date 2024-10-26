@@ -139,12 +139,14 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
+                // check color sensor if needed
                 if (!hasSample()) {
                     colorSensor.update();
                     hsv = colorSensor.getHSV();
                     sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
                 }
 
+                // grab specimen if present
                 if (hasSample()) triggerClaw();
 
                 break;
