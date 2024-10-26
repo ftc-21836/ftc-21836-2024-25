@@ -196,7 +196,7 @@ public final class Deposit {
                 if (position == FLOOR) {
                     state = RETRACTED;
                     setPosition(FLOOR);
-                    break;
+                    return;
                 }
 
             case HAS_SPECIMEN:
