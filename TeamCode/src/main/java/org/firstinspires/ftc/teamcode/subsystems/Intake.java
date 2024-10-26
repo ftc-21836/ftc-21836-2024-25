@@ -117,7 +117,7 @@ public final class Intake {
 
     private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
-    private double motorPower, extendedLength, extendedAngle;
+    private double extendedLength, extendedAngle;
 
     enum State {
         RETRACTED,
@@ -222,15 +222,13 @@ public final class Intake {
             case EXTENDO_RETRACTING:
 
                 if (extendoSensor.isPressed()) state = RETRACTED;
-                else if (timer.seconds() <= TIME_REVERSING) setMotorPower(SPEED_REVERSING);
+                else if (timer.seconds() <= TIME_REVERSING) motor.set(SPEED_REVERSING);
         }
 
         if (isRetracted()) timeSinceBucketRetracted.reset();
 
-        if (state != INTAKING) setMotorPower(0);
-
         double ANGLE_BUCKET_DOWN = state == INTAKING ?
-                ANGLE_BUCKET_INTAKING - (motorPower == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0) :
+                ANGLE_BUCKET_INTAKING - (motor.get() == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0) :
                 ANGLE_BUCKET_VERTICAL;
 
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_DOWN);
@@ -244,8 +242,6 @@ public final class Intake {
         bucket.run();
         latch.run();
         extendo.run();
-
-        motor.set(motorPower);
     }
 
     private boolean hasSample() {
@@ -290,7 +286,7 @@ public final class Intake {
 
     public void setMotorPower(double motorPower) {
         if (motorPower != 0) setExtended(true);
-        this.motorPower = motorPower;
+        motor.set(state == INTAKING ? motorPower : 0);
     }
 
     public void setExtended(boolean extend) {
