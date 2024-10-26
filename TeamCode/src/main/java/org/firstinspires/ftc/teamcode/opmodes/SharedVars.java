@@ -27,6 +27,12 @@ public final class SharedVars {
 
     public static MultipleTelemetry mTelemetry;
 
+    public static void divider() {
+        mTelemetry.addLine();
+        mTelemetry.addLine("------------------------------------------");
+        mTelemetry.addLine();
+    }
+
     static Pose2d autonEndPose = new Pose2d(0,0,FORWARD);
 
     static boolean isRedAlliance = true;

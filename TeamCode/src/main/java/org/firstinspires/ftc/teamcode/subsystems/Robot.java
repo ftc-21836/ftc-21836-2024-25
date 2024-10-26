@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -62,11 +60,5 @@ public final class Robot {
 //        deposit.printTelemetry();
 //        divider();
 //        climber.printTelemetry();
-    }
-
-    private void divider() {
-        mTelemetry.addLine();
-        mTelemetry.addLine("------------------------------");
-        mTelemetry.addLine();
     }
 }
