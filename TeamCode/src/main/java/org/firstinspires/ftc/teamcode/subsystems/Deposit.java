@@ -189,16 +189,23 @@ public final class Deposit {
 
     public void setPosition(Position position) {
 
-        double high, low, floor, offset = HEIGHT_OFFSET_POST_INTAKING;
-
         switch (state) {
 
-            case INTAKING_SPECIMEN: offset = 0;
+            case INTAKING_SPECIMEN:
+
+                if (position == FLOOR) {
+                    state = RETRACTED;
+                    setPosition(FLOOR);
+                    break;
+                }
+
             case HAS_SPECIMEN:
 
-                high = HEIGHT_CHAMBER_HIGH;
-                low = HEIGHT_CHAMBER_LOW;
-                floor = HEIGHT_INTAKING_SPECIMEN + offset;
+                lift.setPosition(
+                        position == HIGH ? HEIGHT_CHAMBER_HIGH :
+                        position == LOW ? HEIGHT_CHAMBER_LOW :
+                        HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING
+                );
 
                 break;
 
@@ -206,18 +213,15 @@ public final class Deposit {
             case HAS_SAMPLE:
             default:
 
-                high = HEIGHT_BASKET_HIGH;
-                low = HEIGHT_BASKET_LOW;
-                floor = 0;
+                lift.setPosition(
+                        position == HIGH ? HEIGHT_BASKET_HIGH :
+                        position == LOW ? HEIGHT_BASKET_LOW :
+                        0
+                );
 
                 break;
         }
 
-        lift.setPosition(
-                position == HIGH ? high :
-                position == LOW ? low :
-                floor
-        );
     }
 
     public void triggerClaw() {
@@ -225,7 +229,7 @@ public final class Deposit {
             case RETRACTED:
 
                 state = INTAKING_SPECIMEN;
-                setPosition(FLOOR);
+                lift.setPosition(HEIGHT_INTAKING_SPECIMEN);
 
                 break;
 
