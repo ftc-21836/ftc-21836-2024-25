@@ -26,16 +26,12 @@ public final class Climber {
             ANGLE_HOOKS_EXTENDED = 90,
             ANGLE_BARS_RETRACTED = 0,
             ANGLE_BARS_EXTENDED = 90,
-
             TIME_OUTER_HOOKS_EXTENSION = 0.5,
             TIME_OUTER_HOOKS_RETRACTION = 0.5,
             TIME_INNER_HOOKS_DISENGAGING = 0.5,
-
             DURATION_INNER_HOOKS_RETRACTED = 2,
-
             SPEED_OUTER_HOOKS_EXTENDING = 0.5,
             SPEED_OUTER_HOOKS_RETRACTING = -.1,
-
             HEIGHT_RUNG_LOW_RAISED = 1,
             HEIGHT_RUNG_LOW_CLIMB_OFFSET = -1,
             HEIGHT_RUNG_HIGH_RAISED = 1,
@@ -45,9 +41,9 @@ public final class Climber {
     private final SimpleServoPivot innerHooks, limiterBars;
 
     private final CachedMotorEx outerHooks;
-    
+
     private State state = INACTIVE;
-    
+
     private final ElapsedTime timer = new ElapsedTime();
 
     enum State {
@@ -63,9 +59,11 @@ public final class Climber {
         return state != INACTIVE;
     }
 
-    double liftPosition = 0;
+    private final Lift lift;
 
-    Climber(HardwareMap hardwareMap) {
+    Climber(HardwareMap hardwareMap, Lift lift) {
+
+        this.lift = lift;
 
         innerHooks = new SimpleServoPivot(
                 ANGLE_HOOKS_RETRACTED,
@@ -90,14 +88,14 @@ public final class Climber {
             case INACTIVE:
 
                 innerHooks.setActivated(true);
-                liftPosition = (HEIGHT_RUNG_LOW_RAISED);
+                lift.setPosition(HEIGHT_RUNG_LOW_RAISED);
                 state = ABOVE_LOW_RUNG;
 
                 break;
 
             case ABOVE_LOW_RUNG:
 
-                liftPosition = (HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
+                lift.setPosition(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
                 state = CLIMBING_LOW_RUNG;
 
                 break;
@@ -109,11 +107,10 @@ public final class Climber {
 
                 break;
 
-
             case OUTER_HOOKS_ENGAGING:
 
                 outerHooks.set(0);
-                liftPosition = (HEIGHT_RUNG_HIGH_RAISED);
+                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED);
                 state = ABOVE_HIGH_RUNG;
 
                 timer.reset();
@@ -123,7 +120,7 @@ public final class Climber {
             case ABOVE_HIGH_RUNG:
 
                 outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
-                liftPosition = (HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
+                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
                 state = CLIMBING_HIGH_RUNG;
 
                 break;
@@ -140,7 +137,7 @@ public final class Climber {
 
         if (state == ABOVE_HIGH_RUNG) innerHooks.setActivated(
                 timer.seconds() < TIME_INNER_HOOKS_DISENGAGING ||
-                timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
+                        timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
         );
 
         innerHooks.updateAngles(ANGLE_HOOKS_RETRACTED, ANGLE_HOOKS_EXTENDED);
