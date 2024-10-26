@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.ABOVE_HIGH_RUNG;
+import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.ABOVE_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.CLIMBING_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.CLIMBING_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.INACTIVE;
@@ -86,6 +87,14 @@ public final class Climber {
 
     public void climb() {
         switch (state) {
+            case INACTIVE:
+
+                innerHooks.setActivated(true);
+                liftPosition = (HEIGHT_RUNG_LOW_RAISED);
+                state = ABOVE_LOW_RUNG;
+
+                break;
+
             case ABOVE_LOW_RUNG:
 
                 liftPosition = (HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
@@ -137,5 +146,7 @@ public final class Climber {
         innerHooks.updateAngles(ANGLE_HOOKS_RETRACTED, ANGLE_HOOKS_EXTENDED);
         limiterBars.updateAngles(ANGLE_BARS_RETRACTED, ANGLE_BARS_EXTENDED);
 
+        innerHooks.run();
+        limiterBars.run();
     }
 }
