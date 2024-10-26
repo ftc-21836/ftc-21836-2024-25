@@ -128,7 +128,9 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
-                if (!claw.isActivated() && timeSinceSampleReleased.seconds() >= TIME_DROP) {
+                boolean sampleDropped = !claw.isActivated();
+                boolean sampleDoneFalling = timeSinceSampleReleased.seconds() >= TIME_DROP;
+                if (sampleDropped && sampleDoneFalling) {
                     state = RETRACTED;
                     setPosition(FLOOR);
                 }
@@ -149,9 +151,9 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                if (lift.targetPosition == 0 && lift.currentPosition <= releaseSpecimenHeight) {
-                    triggerClaw();
-                }
+                boolean retracting = lift.targetPosition == 0;
+                boolean belowReleaseHeight = lift.currentPosition <= releaseSpecimenHeight;
+                if (retracting && belowReleaseHeight) triggerClaw();
 
                 break;
         }
