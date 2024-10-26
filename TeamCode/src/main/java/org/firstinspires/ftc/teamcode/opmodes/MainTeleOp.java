@@ -138,18 +138,22 @@ public final class MainTeleOp extends LinearOpMode {
 //                robot.intake.setMotorPower(
 //                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
 //                );
-//
-//                if (keyPressed(1, DPAD_UP))         robot.deposit.setPosition(HIGH);
-//                else if (keyPressed(1, DPAD_LEFT))  robot.deposit.setPosition(LOW);
-//                else if (keyPressed(1, DPAD_DOWN)) {
-//                    if (robot.climber.isActive()) robot.climber.cancelClimb();
-//                    else robot.deposit.setPosition(FLOOR);
-//                }
-//                else if (keyPressed(1, DPAD_RIGHT)) robot.deposit.transfer(Sample.NEUTRAL);
-//
-//                if (keyPressed(1, X))               robot.intake.toggle();
+
 //                if (keyPressed(1, Y))               robot.climber.climb();
-//                if (keyPressed(1, B))               robot.deposit.triggerClaw();
+//
+//                if (robot.climber.isActive()) {
+//
+//                    if (keyPressed(1, DPAD_DOWN)) robot.climber.cancelClimb();
+//
+//                } else {
+//                    if (keyPressed(1, DPAD_UP)) robot.deposit.setPosition(HIGH);
+//                    else if (keyPressed(1, DPAD_LEFT)) robot.deposit.setPosition(LOW);
+//                    else if (keyPressed(1, DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
+//                    else if (keyPressed(1, DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
+//
+//                    if (keyPressed(1, X))               robot.intake.toggle();
+//                    if (keyPressed(1, B))               robot.deposit.triggerClaw();
+//                }
 
             }
 
