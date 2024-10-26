@@ -55,7 +55,7 @@ public final class Climber {
         PULLING_HIGH_RUNG,
     }
 
-    boolean isActive() {
+    public boolean isActive() {
         return state != INACTIVE;
     }
 
@@ -83,7 +83,7 @@ public final class Climber {
         outerHooks.setZeroPowerBehavior(FLOAT);
     }
 
-    public void retract() {
+    public void cancelClimb() {
         switch (state) {
 
             case RAISING_ABOVE_LOW_RUNG:
