@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.INACTIVE;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_LOW_RUNG;
@@ -153,18 +154,20 @@ public final class Climber {
 
     void run() {
 
+        double seconds = timer.seconds();
+
         switch (state) {
 
             case PULLING_LOW_RUNG:
 
                 if (outerHooks.get() == 0) {
 
-                    if (timer.seconds() >= TIME_CLIMB_LOW_RUNG) {
+                    if (seconds >= TIME_CLIMB_LOW_RUNG) {
                         outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                         timer.reset();
                     }
 
-                } else if (timer.seconds() >= TIME_OUTER_HOOKS_EXTENSION) {
+                } else if (seconds >= TIME_OUTER_HOOKS_EXTENSION) {
                     outerHooks.set(0);
                 }
 
@@ -173,15 +176,19 @@ public final class Climber {
             case RAISING_ABOVE_HIGH_RUNG:
 
                 innerHooks.setActivated(
-                        timer.seconds() < TIME_INNER_HOOKS_DISENGAGING ||
-                                timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
+                        seconds < TIME_INNER_HOOKS_DISENGAGING ||
+                                seconds > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
                 );
                 break;
 
             case PULLING_HIGH_RUNG:
 
-                if (timer.seconds() >= TIME_OUTER_HOOKS_RETRACTION) {
+                if (seconds >= TIME_OUTER_HOOKS_RETRACTION) {
                     outerHooks.set(0);
+                }
+
+                if (lift.currentPosition >= HEIGHT_TO_ACTIVATE_LIMITER_BAR) {
+                    limiterBars.setActivated(true);
                 }
 
                 break;
@@ -192,5 +199,9 @@ public final class Climber {
 
         innerHooks.run();
         limiterBars.run();
+    }
+
+    void printTelemetry() {
+        mTelemetry.addData("Climber state", state);
     }
 }

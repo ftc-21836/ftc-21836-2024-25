@@ -103,8 +103,8 @@ public final class Lift {
     }
 
     void printNumericalTelemetry() {
-        mTelemetry.addData("Current position (in)", currentPosition);
-        mTelemetry.addData("Target position (in)", targetPosition);
+        mTelemetry.addData("Lift position (in)", currentPosition);
+        mTelemetry.addData("Lift target (in)", targetPosition);
         mTelemetry.addLine();
         mTelemetry.addData("Lift error derivative (in/s)", controller.getFilteredErrorDerivative());
     }

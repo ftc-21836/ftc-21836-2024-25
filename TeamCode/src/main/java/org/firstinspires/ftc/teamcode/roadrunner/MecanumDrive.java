@@ -93,8 +93,8 @@ public final class MecanumDrive {
     /**
      * Field-centric driving using dead wheels
      *
-     * @param xCommand strafing input
-     * @param yCommand forward input
+     * @param xCommand    strafing input
+     * @param yCommand    forward input
      * @param turnCommand turning input
      */
     public void run(double xCommand, double yCommand, double turnCommand, boolean useSlowMode, boolean useFieldCentric) {
@@ -128,7 +128,7 @@ public final class MecanumDrive {
         ));
     }
 
-    public void printNumericalTelemetry() {
+    public void printTelemetry() {
         double heading = getHeading();
         mTelemetry.addData("Current heading (radians)", heading);
         mTelemetry.addData("Current heading (degrees)", toDegrees(heading));

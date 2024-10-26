@@ -233,7 +233,7 @@ public final class Intake {
                 ANGLE_BUCKET_INTAKING - (motorPower == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0) :
                 ANGLE_BUCKET_VERTICAL;
 
-        bucket.updateAngles(ANGLE_BUCKET_RETRACTED,ANGLE_BUCKET_DOWN);
+        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_DOWN);
 
         double ANGLE_LATCH_UNLOCKED = state == INTAKING ? ANGLE_LATCH_INTAKING : ANGLE_LATCH_TRANSFERRING;
 
@@ -329,12 +329,10 @@ public final class Intake {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("Current state", state);
+        mTelemetry.addData("Intake state", state);
         mTelemetry.addLine();
         mTelemetry.addData("Bucket", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
-    }
-
-    void printNumericalTelemetry() {
+        mTelemetry.addLine();
         hsv.toTelemetry("Bucket HSV");
-    } 
+    }
 }

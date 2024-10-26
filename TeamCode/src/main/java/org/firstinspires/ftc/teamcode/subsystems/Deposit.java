@@ -287,12 +287,10 @@ public final class Deposit {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("Current state", state);
+        mTelemetry.addData("Deposit state", state);
         mTelemetry.addLine();
         mTelemetry.addData("Deposit", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
-    }
-
-    void printNumericalTelemetry() {
+        mTelemetry.addLine();
         hsv.toTelemetry("Deposit HSV");
     }
 

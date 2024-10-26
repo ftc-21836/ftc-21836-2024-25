@@ -55,17 +55,18 @@ public final class Robot {
     }
 
     public void printTelemetry() {
-//        deposit.printTelemetry();
-        mTelemetry.addLine();
-        mTelemetry.addLine();
+        drivetrain.printTelemetry();
+//        divider();
 //        intake.printTelemetry();
+//        divider();
+//        deposit.printTelemetry();
+//        divider();
+//        climber.printTelemetry();
+    }
+
+    private void divider() {
         mTelemetry.addLine();
+        mTelemetry.addLine("------------------------------");
         mTelemetry.addLine();
-        mTelemetry.addLine();
-        drivetrain.printNumericalTelemetry();
-        mTelemetry.addLine();
-//        deposit.lift.printNumericalTelemetry();
-        mTelemetry.addLine();
-//        intake.printNumericalTelemetry();
     }
 }
