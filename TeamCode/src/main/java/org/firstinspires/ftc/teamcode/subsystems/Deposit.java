@@ -132,7 +132,8 @@ public final class Deposit {
             case HAS_SAMPLE:
 
                 if (!claw.isActivated() && timeSinceSampleReleased.seconds() >= TIME_DROP) {
-                    retract();
+                    state = RETRACTED;
+                    setPosition(FLOOR);
                 }
 
                 break;
@@ -259,11 +260,6 @@ public final class Deposit {
 
                 break;
         }
-    }
-
-    public void retract() {
-        if (state != HAS_SPECIMEN) state = RETRACTED;
-        setPosition(FLOOR);
     }
 
     boolean hasSample() {
