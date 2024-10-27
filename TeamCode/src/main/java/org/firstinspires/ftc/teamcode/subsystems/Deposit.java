@@ -158,8 +158,8 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                boolean retracting = lift.targetPosition == 0;
-                boolean belowReleaseHeight = lift.currentPosition <= releaseSpecimenHeight;
+                boolean retracting = lift.getTarget() == 0;
+                boolean belowReleaseHeight = lift.getPosition() <= releaseSpecimenHeight;
                 if (retracting && belowReleaseHeight) triggerClaw();
 
                 break;
@@ -208,7 +208,7 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                lift.setPosition(
+                lift.setTarget(
                         position == HIGH ? HEIGHT_CHAMBER_HIGH :
                         position == LOW ? HEIGHT_CHAMBER_LOW :
                         HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING
@@ -220,7 +220,7 @@ public final class Deposit {
             case HAS_SAMPLE:
             default:
 
-                lift.setPosition(
+                lift.setTarget(
                         position == HIGH ? HEIGHT_BASKET_HIGH :
                         position == LOW ? HEIGHT_BASKET_LOW :
                         0
@@ -236,7 +236,7 @@ public final class Deposit {
             case RETRACTED:
 
                 state = INTAKING_SPECIMEN;
-                lift.setPosition(HEIGHT_INTAKING_SPECIMEN);
+                lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
 
                 break;
 
@@ -259,9 +259,9 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                if (lift.targetPosition != 0) {
-                    releaseSpecimenHeight = lift.currentPosition + HEIGHT_OFFSET_SPECIMEN_SCORING;
-                    lift.setPosition(0);
+                if (lift.getTarget() != 0) {
+                    releaseSpecimenHeight = lift.getPosition() + HEIGHT_OFFSET_SPECIMEN_SCORING;
+                    lift.setTarget(0);
                 } else {
                     releaseSample();
                     state = RETRACTED;

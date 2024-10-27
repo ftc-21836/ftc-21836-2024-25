@@ -33,12 +33,11 @@ public final class Lift {
     // Motors and variables to manage their readings:
     private final CachedMotorEx[] motors;
     private final Motor.Encoder encoder;
-    double currentPosition, targetPosition;
     private final PIDController controller = new PIDController();
 
     private final State ZERO_STATE = new State();
 
-    private double manualLiftPower;
+    private double position, target, manualLiftPower;
 
     // Battery voltage sensor and variable to track its readings:
     private final VoltageSensor batteryVoltageSensor;
@@ -60,15 +59,11 @@ public final class Lift {
     public void reset() {
         controller.reset();
         encoder.reset();
-        targetPosition = currentPosition = 0;
+        setTarget(position = 0);
     }
 
     boolean isExtended() {
-        return currentPosition > HEIGHT_RETRACTED_THRESHOLD;
-    }
-
-    public void setPosition(double inches) {
-        this.targetPosition = inches;
+        return getPosition() > HEIGHT_RETRACTED_THRESHOLD;
     }
 
     public void setLiftPower(double manualLiftPower) {
@@ -76,15 +71,15 @@ public final class Lift {
     }
 
     void readSensors() {
-        currentPosition = INCHES_PER_TICK * encoder.getPosition();
+        position = INCHES_PER_TICK * encoder.getPosition();
         controller.setGains(pidGains);
     }
 
     void run(boolean freeToMove) {
 
-        if (manualLiftPower != 0) targetPosition = currentPosition; // replace PID target with current state if using manual control
+        if (manualLiftPower != 0) setTarget(getPosition()); // replace PID target with current state if using manual control
 
-        controller.setTarget(freeToMove ? new State(targetPosition) : ZERO_STATE); // set PID target to 0 (retract) if intake isn't yet out of the way
+        controller.setTarget(freeToMove ? new State(getTarget()) : ZERO_STATE); // set PID target to 0 (retract) if intake isn't yet out of the way
 
         boolean retracted = !isExtended();
 
@@ -95,16 +90,29 @@ public final class Lift {
         double output = gravityFeedforward + (
                 manualLiftPower != 0 ?                              // if manual input is being used:
                         manualLiftPower * voltageScalar :               // control with manual power (and voltage compensate)
-                        controller.calculate(new State(currentPosition))  // control with PID output
+                        controller.calculate(new State(getPosition()))  // control with PID output
         );
 
         for (CachedMotorEx motor : motors) motor.set(output);
     }
 
     void printNumericalTelemetry() {
-        mTelemetry.addData("Lift position (in)", currentPosition);
-        mTelemetry.addData("Lift target (in)", targetPosition);
+        mTelemetry.addData("Lift position (in)", getPosition());
+        mTelemetry.addData("Lift target (in)", getTarget());
         mTelemetry.addLine();
         mTelemetry.addData("Lift error derivative (in/s)", controller.getFilteredErrorDerivative());
     }
+
+    double getPosition() {
+        return position;
+    }
+
+    double getTarget() {
+        return target;
+    }
+
+    public void setTarget(double inches) {
+        target = inches;
+    }
+
 }

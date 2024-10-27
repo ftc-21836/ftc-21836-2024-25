@@ -91,7 +91,7 @@ public final class Climber {
             case RAISING_ABOVE_LOW_RUNG:
 
                 innerHooks.setActivated(false);
-                lift.setPosition(0);
+                lift.setTarget(0);
                 state = INACTIVE;
 
                 break;
@@ -114,14 +114,14 @@ public final class Climber {
             case INACTIVE:
 
                 innerHooks.setActivated(true);
-                lift.setPosition(HEIGHT_RUNG_LOW_RAISED);
+                lift.setTarget(HEIGHT_RUNG_LOW_RAISED);
                 state = RAISING_ABOVE_LOW_RUNG;
 
                 break;
 
             case RAISING_ABOVE_LOW_RUNG:
 
-                lift.setPosition(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
+                lift.setTarget(HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET);
                 state = PULLING_LOW_RUNG;
 
                 timer.reset();
@@ -130,7 +130,7 @@ public final class Climber {
 
             case PULLING_LOW_RUNG:
 
-                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED);
+                lift.setTarget(HEIGHT_RUNG_HIGH_RAISED);
                 state = RAISING_ABOVE_HIGH_RUNG;
 
                 timer.reset();
@@ -141,7 +141,7 @@ public final class Climber {
 
                 outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
                 timer.reset();
-                lift.setPosition(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
+                lift.setTarget(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
                 state = PULLING_HIGH_RUNG;
 
                 break;
@@ -189,7 +189,7 @@ public final class Climber {
                     outerHooks.set(0);
                 }
 
-                if (!limiterBars.isActivated() && lift.currentPosition <= HEIGHT_TO_ACTIVATE_LIMITER_BAR) {
+                if (!limiterBars.isActivated() && lift.getPosition() <= HEIGHT_TO_ACTIVATE_LIMITER_BAR) {
                     limiterBars.setActivated(true);
                 }
 
