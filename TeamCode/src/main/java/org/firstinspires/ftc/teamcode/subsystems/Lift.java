@@ -39,7 +39,6 @@ public final class Lift {
     private final State ZERO_STATE = new State();
 
     private double manualLiftPower;
-    private int encoderOffset;
 
     // Battery voltage sensor and variable to track its readings:
     private final VoltageSensor batteryVoltageSensor;
@@ -60,7 +59,7 @@ public final class Lift {
 
     public void reset() {
         controller.reset();
-        encoderOffset = encoder.getPosition();
+        encoder.reset();
         targetPosition = currentPosition = 0;
     }
 
@@ -77,7 +76,7 @@ public final class Lift {
     }
 
     void readSensors() {
-        currentPosition = INCHES_PER_TICK * (encoder.getPosition() - encoderOffset);
+        currentPosition = INCHES_PER_TICK * encoder.getPosition();
         controller.setGains(pidGains);
     }
 
