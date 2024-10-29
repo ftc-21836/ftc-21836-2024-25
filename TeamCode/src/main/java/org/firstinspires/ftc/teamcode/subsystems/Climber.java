@@ -156,20 +156,18 @@ public final class Climber {
 
     void run() {
 
-        double seconds = timer.seconds();
-
         switch (state) {
 
             case PULLING_LOW_RUNG:
 
                 if (outerHooks.get() == 0) {
 
-                    if (seconds >= TIME_CLIMB_LOW_RUNG) {
+                    if (timer.seconds() >= TIME_CLIMB_LOW_RUNG) {
                         outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                         timer.reset();
                     }
 
-                } else if (seconds >= TIME_OUTER_HOOKS_EXTENSION) {
+                } else if (timer.seconds() >= TIME_OUTER_HOOKS_EXTENSION) {
                     outerHooks.set(0);
                 }
 
@@ -178,14 +176,14 @@ public final class Climber {
             case RAISING_ABOVE_HIGH_RUNG:
 
                 innerHooks.setActivated(
-                        seconds < TIME_INNER_HOOKS_DISENGAGING ||
-                                seconds > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
+                        timer.seconds() < TIME_INNER_HOOKS_DISENGAGING ||
+                                timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
                 );
                 break;
 
             case PULLING_HIGH_RUNG:
 
-                if (outerHooks.get() != 0 && seconds >= TIME_OUTER_HOOKS_RETRACTION) {
+                if (outerHooks.get() != 0 && timer.seconds() >= TIME_OUTER_HOOKS_RETRACTION) {
                     outerHooks.set(0);
                 }
 
