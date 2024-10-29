@@ -25,8 +25,9 @@ public final class PinpointLocalizer implements Localizer {
     public static double X_POD_OFFSET = -12000; // y position of the forward (x) encoder (in tick units)
     public static double Y_POD_OFFSET = -3268.070848297075; // x position of the perpendicular (y) encoder (in tick units)
 
-    public static GoBildaPinpointDriver.EncoderDirection X_POD_DIRECTION = REVERSED;
-    public static GoBildaPinpointDriver.EncoderDirection Y_POD_DIRECTION = REVERSED;
+    public static GoBildaPinpointDriver.EncoderDirection
+            X_POD_DIRECTION = REVERSED,
+            Y_POD_DIRECTION = REVERSED;
 
     private static final DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
     private static final AngleUnit ANGLE_UNIT = AngleUnit.RADIANS;
