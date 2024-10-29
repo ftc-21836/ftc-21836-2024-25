@@ -51,7 +51,6 @@ public final class PinpointLocalizer implements Localizer {
         if (trackHeadingOnly) pinpoint.update(ONLY_UPDATE_HEADING);
         else pinpoint.update();
 
-        Pose2D position = pinpoint.getPosition();
         Pose2D velocity = pinpoint.getVelocity();
 
         return new Twist2dDual<>(
