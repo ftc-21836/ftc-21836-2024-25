@@ -193,7 +193,7 @@ public final class MecanumDrive {
 
     public final LazyImu lazyImu;
 
-    public final Localizer localizer;
+    public final PinpointLocalizer localizer;
     public Pose2d pose;
 
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
@@ -319,7 +319,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new ThreeDeadWheelLocalizer(hardwareMap);
+        localizer = new PinpointLocalizer(hardwareMap, pose);
 
         setCurrentHeading(0);
 
@@ -526,7 +526,8 @@ public final class MecanumDrive {
 
     public PoseVelocity2d updatePoseEstimate() {
         Twist2dDual<Time> twist = localizer.update();
-        pose = pose.plus(twist.value());
+        pose = localizer.getPosition();
+//                pose.plus(twist.value());
 
         poseHistory.add(pose);
         while (poseHistory.size() > 100) {
