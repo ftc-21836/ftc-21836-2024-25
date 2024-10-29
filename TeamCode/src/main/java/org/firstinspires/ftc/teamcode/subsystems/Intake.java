@@ -170,6 +170,8 @@ public final class Intake {
 
     void run(boolean depositHasSample, boolean depositIsActive) {
 
+        double seconds = timer.seconds();
+        
         switch (state) {
 
             case RETRACTED:
@@ -179,7 +181,7 @@ public final class Intake {
 
             case BUCKET_RAISING:
 
-                if (timer.seconds() >= TIME_BUCKET_RAISE_TO_EXTEND) {
+                if (seconds >= TIME_BUCKET_RAISE_TO_EXTEND) {
                     extendo.setActivated(true);
                     state = INTAKING;
                 } else break;
@@ -204,7 +206,7 @@ public final class Intake {
 
             case BUCKET_PIVOTING:
 
-                if (timer.seconds() >= TIME_BUCKET_PIVOT) {
+                if (seconds >= TIME_BUCKET_PIVOT) {
                     releaseSample();
                     state = DROPPING_BAD_SAMPLE;
                     timer.reset();
@@ -212,7 +214,7 @@ public final class Intake {
 
             case DROPPING_BAD_SAMPLE:
 
-                if (timer.seconds() >= TIME_DROP) {
+                if (seconds >= TIME_DROP) {
                     state = INTAKING;
                     bucket.setActivated(true);
                 }
@@ -222,7 +224,7 @@ public final class Intake {
             case EXTENDO_RETRACTING:
 
                 if (extendoSensor.isPressed()) state = RETRACTED;
-                else if (timer.seconds() <= TIME_REVERSING) motor.set(SPEED_REVERSING);
+                else if (seconds <= TIME_REVERSING) motor.set(SPEED_REVERSING);
         }
 
         if (isRetracted()) timeSinceBucketRetracted.reset();
