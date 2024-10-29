@@ -95,4 +95,11 @@ public final class PinpointLocalizer implements Localizer {
     public void trackHeadingOnly(boolean trackHeadingOnly) {
         this.trackHeadingOnly = trackHeadingOnly;
     }
+
+    public int rawEncoderX() {
+        return pinpoint.getEncoderX();
+    }
+    public int rawEncoderY() {
+        return pinpoint.getEncoderY();
+    }
 }
