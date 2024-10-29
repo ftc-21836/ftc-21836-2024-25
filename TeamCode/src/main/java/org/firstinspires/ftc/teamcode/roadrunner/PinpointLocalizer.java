@@ -82,7 +82,7 @@ public final class PinpointLocalizer implements Localizer {
         );
     }
 
-    private void setPosition(Pose2d pose) {
+    public void setPosition(Pose2d pose) {
         pinpoint.setPosition(new Pose2D(
                 DISTANCE_UNIT,
                 pose.position.x,
