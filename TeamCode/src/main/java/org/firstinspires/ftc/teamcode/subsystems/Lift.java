@@ -81,11 +81,9 @@ public final class Lift {
 
         controller.setTarget(freeToMove ? new State(getTarget()) : ZERO_STATE); // set PID target to 0 (retract) if intake isn't yet out of the way
 
-        boolean retracted = !isExtended();
-
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
-        double gravityFeedforward = retracted ? 0 : kG * voltageScalar;
+        double gravityFeedforward = isExtended() ? kG * voltageScalar : 0;
 
         double output = gravityFeedforward + (
                 manualLiftPower != 0 ?                              // if manual input is being used:
