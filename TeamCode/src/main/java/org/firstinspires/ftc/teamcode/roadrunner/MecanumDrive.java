@@ -130,8 +130,12 @@ public final class MecanumDrive {
 
     public void printTelemetry() {
         double heading = getHeading();
-        mTelemetry.addData("Current heading (radians)", heading);
-        mTelemetry.addData("Current heading (degrees)", toDegrees(heading));
+        mTelemetry.addLine("DRIVETRAIN:");
+        mTelemetry.addLine();
+        mTelemetry.addData("X", pose.position.x);
+        mTelemetry.addData("Y", pose.position.y);
+        mTelemetry.addData("Heading (rad)", heading);
+        mTelemetry.addData("Heading (deg)", toDegrees(heading));
     }
 
     public static class Params {

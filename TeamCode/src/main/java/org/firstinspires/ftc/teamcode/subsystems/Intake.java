@@ -325,10 +325,12 @@ public final class Intake {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("Intake state", state);
+        mTelemetry.addLine("INTAKE:");
         mTelemetry.addLine();
-        mTelemetry.addData("Bucket", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
+        mTelemetry.addData("State", state);
         mTelemetry.addLine();
-        hsv.toTelemetry("Bucket HSV");
+        mTelemetry.addLine(hasSample() ? "Contains " + sample.name() + " sample" : "Empty");
+        mTelemetry.addLine();
+        hsv.toTelemetry("Bucket");
     }
 }

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.divider;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.HIGH;
@@ -287,11 +288,15 @@ public final class Deposit {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("Deposit state", state);
+        mTelemetry.addLine("DEPOSIT:");
         mTelemetry.addLine();
-        mTelemetry.addData("Deposit", hasSample() ? "contains a " + sample.name() + " sample" : "empty");
+        mTelemetry.addData("State", state);
         mTelemetry.addLine();
-        hsv.toTelemetry("Deposit HSV");
+        mTelemetry.addLine(hasSample() ? "Contains " + sample.name() + " sample" : "Empty");
+        mTelemetry.addLine();
+        hsv.toTelemetry("Claw");
+        divider();
+        lift.printTelemetry();
     }
 
 }

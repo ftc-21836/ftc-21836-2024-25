@@ -94,11 +94,12 @@ public final class Lift {
         for (CachedMotorEx motor : motors) motor.set(output);
     }
 
-    void printNumericalTelemetry() {
-        mTelemetry.addData("Lift position (in)", getPosition());
-        mTelemetry.addData("Lift target (in)", getTarget());
+    void printTelemetry() {
+        mTelemetry.addLine("LIFT:");
         mTelemetry.addLine();
-        mTelemetry.addData("Lift error derivative (in/s)", controller.getFilteredErrorDerivative());
+        mTelemetry.addData("Position (in)", getPosition());
+        mTelemetry.addData("Target (in)", getTarget());
+        mTelemetry.addData("Error derivative (in/s)", controller.getFilteredErrorDerivative());
     }
 
     double getPosition() {
