@@ -15,11 +15,11 @@ public final class CachedSimpleServo extends SimpleServo {
         super(hw, servoName, minDegree, maxDegree);
     }
 
-    private double lastPosition = 0;
+    private double lastDegrees = 0;
 
-    public void turnToAngle(double position) {
-        if (position == lastPosition) return;
+    public void turnToAngle(double degrees) {
+        if (degrees == lastDegrees) return;
 
-        super.turnToAngle(lastPosition = position);
+        super.turnToAngle(lastDegrees = degrees);
     }
 }
