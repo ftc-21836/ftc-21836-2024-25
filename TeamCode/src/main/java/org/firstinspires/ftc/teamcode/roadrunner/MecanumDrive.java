@@ -83,7 +83,7 @@ public final class MecanumDrive {
         /* Counter-rotate x and y by robot heading for field centric driving
         *
         * setDrivePower(double) assumes the entered x and y are in the robot coordinate frame
-        * Entering x and y in field frame (left) is then interpreted as rotated π/2 clockwise (+π/2)
+        * Entering x and y in field frame (left) is then interpreted as rotated π/2 counterclockwise (+π/2)
         *
         * |---------------|               |---------------|
         * |       Y+      |               |       X+      |
@@ -93,7 +93,7 @@ public final class MecanumDrive {
         * |---------------|               |---------------|
         * Control stick/field frame        Robot frame
         *
-        * We counteract this by rotating the input x and y from field frame π/2 counterclockwise (-π/2)
+        * We counteract this by rotating the input x and y from field frame π/2 clockwise (-π/2)
         *
         * |---------------|               |---------------|             |---------------|
         * |       Y+      |               |               |             |       Y+      |
