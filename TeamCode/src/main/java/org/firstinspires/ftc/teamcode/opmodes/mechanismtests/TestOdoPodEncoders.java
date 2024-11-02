@@ -4,14 +4,13 @@ import static org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDrive
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.X_POD_DIRECTION;
 import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.Y_POD_DIRECTION;
-import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.opmodes.SharedVars;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 
@@ -24,10 +23,8 @@ public final class TestOdoPodEncoders extends LinearOpMode {
         BulkReader bulkReader = new BulkReader(hardwareMap);
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        PinpointLocalizer localizer = new PinpointLocalizer(
-                hardwareMap,
-                new Pose2d(0, 0, PI/2)
-        );
+        PinpointLocalizer localizer = new PinpointLocalizer(hardwareMap);
+        localizer.setPosition(SharedVars.pose);
 
         int xReversed = X_POD_DIRECTION == REVERSED ? -1 : 1;
         int yReversed = Y_POD_DIRECTION == REVERSED ? -1 : 1;

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
-import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -70,25 +69,7 @@ import java.util.List;
 @Config
 public final class MecanumDrive {
 
-    private double headingOffset;
     public static double SLOW_FACTOR = 0.3;
-
-    /**
-     * Set internal heading of the robot to correct field-centric direction
-     *
-     * @param angle Angle of the robot in radians, 0 facing forward and increases counter-clockwise
-     */
-    public void setCurrentHeading(double angle) {
-        headingOffset = normalizeRadians(getRawHeading() - angle);
-    }
-
-    public double getHeading() {
-        return normalizeRadians(getRawHeading() - headingOffset);
-    }
-
-    private double getRawHeading() {
-        return pose.heading.toDouble();
-    }
 
     /**
      * Field-centric driving using dead wheels
@@ -99,18 +80,30 @@ public final class MecanumDrive {
      */
     public void run(double xCommand, double yCommand, double turnCommand, boolean useSlowMode, boolean useFieldCentric) {
 
-        if (useFieldCentric) {
-            // counter-rotate translation vector by current heading
-            double
-                    theta = -getHeading(),
-                    cos = cos(theta),
-                    sin = sin(theta),
-                    x = xCommand,
-                    y = yCommand;
+        /* Counter-rotate x and y by robot heading for field centric driving
+        *
+        * This operation also converts x and y from field to robot reference frame
+        * When robot is facing forward (0.5 * PI radians), the following rotation is performed:
+        *
+        * |---------------|               |---------------|
+        * |       y+      |               |       X+      |
+        * |       ----X+--|     --->      |--Y+----       |
+        * |               |               |               |
+        * |               |               |               |
+        * |---------------|               |---------------|
+        *
+        * Using a constant 0.5 * PI radians produces robot-centric behavior, as the robot always
+        * thinks it is facing forward
+        * */
+        double
+                heading = useFieldCentric ? pose.heading.toDouble() : 0.5 * PI,
+                cos = cos(-heading),
+                sin = sin(-heading),
+                x = xCommand,
+                y = yCommand;
 
-            xCommand = x * cos - y * sin;
-            yCommand = y * cos + x * sin;
-        }
+        xCommand = x * cos - y * sin;
+        yCommand = y * cos + x * sin;
 
         if (useSlowMode) {
             yCommand *= SLOW_FACTOR;
@@ -121,15 +114,15 @@ public final class MecanumDrive {
         // run motors
         setDrivePowers(new PoseVelocity2d(
                 new Vector2d(
-                        yCommand,
-                        -xCommand
+                        xCommand,
+                        yCommand
                 ),
                 -turnCommand
         ));
     }
 
     public void printTelemetry() {
-        double heading = getHeading();
+        double heading = pose.heading.toDouble();
         mTelemetry.addLine("DRIVETRAIN:");
         mTelemetry.addLine();
         mTelemetry.addData("X", pose.position.x);
@@ -292,7 +285,6 @@ public final class MecanumDrive {
     }
 
     public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
-        this.pose = pose;
 
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
@@ -323,7 +315,8 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new PinpointLocalizer(hardwareMap, pose);
+        localizer = new PinpointLocalizer(hardwareMap);
+        localizer.setPosition(this.pose = pose);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }

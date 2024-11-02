@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
+import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
+import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.INCH;
 import static org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver.EncoderDirection.REVERSED;
 import static org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING;
 import static java.lang.Math.PI;
@@ -12,8 +14,6 @@ import com.acmerobotics.roadrunner.Twist2dDual;
 import com.acmerobotics.roadrunner.Vector2dDual;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver;
 
@@ -29,13 +29,10 @@ public final class PinpointLocalizer implements Localizer {
             X_POD_DIRECTION = REVERSED,
             Y_POD_DIRECTION = REVERSED;
 
-    private static final DistanceUnit DISTANCE_UNIT = DistanceUnit.INCH;
-    private static final AngleUnit ANGLE_UNIT = AngleUnit.RADIANS;
-
     private final GoBildaPinpointDriver pinpoint;
     private boolean trackHeadingOnly = false;
 
-    public PinpointLocalizer(HardwareMap hardwareMap, Pose2d startPose) {
+    public PinpointLocalizer(HardwareMap hardwareMap) {
 
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
 
@@ -43,8 +40,6 @@ public final class PinpointLocalizer implements Localizer {
         pinpoint.setEncoderResolution(TICKS_PER_MM);
         pinpoint.setEncoderDirections(X_POD_DIRECTION, Y_POD_DIRECTION);
         pinpoint.resetPosAndIMU();
-
-        setPosition(startPose);
     }
 
     public Twist2dDual<Time> update() {
@@ -58,16 +53,16 @@ public final class PinpointLocalizer implements Localizer {
                 new Vector2dDual<>(
                         new DualNum<Time>(new double[] {
                                 0,
-                                velocity.getX(DISTANCE_UNIT),
+                                velocity.getX(INCH),
                         }),
                         new DualNum<Time>(new double[] {
                                 0,
-                                velocity.getY(DISTANCE_UNIT),
+                                velocity.getY(INCH),
                         })
                 ),
                 new DualNum<>(new double[] {
                         0,
-                        velocity.getHeading(ANGLE_UNIT)
+                        velocity.getHeading(RADIANS)
                 })
         );
     }
@@ -77,18 +72,18 @@ public final class PinpointLocalizer implements Localizer {
         Pose2D position = pinpoint.getPosition();
 
         return new Pose2d(
-                position.getX(DISTANCE_UNIT),
-                position.getY(DISTANCE_UNIT),
-                position.getHeading(ANGLE_UNIT)
+                position.getX(INCH),
+                position.getY(INCH),
+                position.getHeading(RADIANS)
         );
     }
 
     public void setPosition(Pose2d pose) {
         pinpoint.setPosition(new Pose2D(
-                DISTANCE_UNIT,
+                INCH,
                 pose.position.x,
                 pose.position.y,
-                ANGLE_UNIT,
+                RADIANS,
                 pose.heading.toDouble()
         ));
     }
@@ -102,5 +97,8 @@ public final class PinpointLocalizer implements Localizer {
     }
     public int rawEncoderY() {
         return pinpoint.getEncoderY();
+    }
+    public void setHeading(double radians) {
+        pinpoint.setHeading(radians);
     }
 }

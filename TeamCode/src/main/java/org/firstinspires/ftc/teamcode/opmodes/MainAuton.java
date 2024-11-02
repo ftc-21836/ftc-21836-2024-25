@@ -13,16 +13,15 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITI
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.ParkingLocation.CORNER;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.autonEndPose;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.pose;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.acmerobotics.roadrunner.Pose2d;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -70,7 +69,7 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry);
 
         // Initialize robot:
-        Robot robot = new Robot(hardwareMap, new Pose2d(0, 0, 0));
+        Robot robot = new Robot(hardwareMap, pose);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -148,7 +147,7 @@ public final class MainAuton extends LinearOpMode {
         while (opModeIsActive()) {
             // Manually clear old sensor data from the last loop:
             robot.readSensors();
-            autonEndPose = robot.drivetrain.pose;
+            pose = robot.drivetrain.pose;
 
             robot.run();
 

@@ -6,20 +6,18 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.autonEndPose;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.divider;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.FORWARD;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.pose;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.divider;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static java.lang.Math.atan2;
-import static java.lang.Math.hypot;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -57,8 +55,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         // Initialize robot:
-        Robot robot = new Robot(hardwareMap, autonEndPose);
-        robot.drivetrain.setCurrentHeading(autonEndPose.heading.toDouble() - FORWARD);
+        Robot robot = new Robot(hardwareMap, pose);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
@@ -123,7 +120,10 @@ public final class MainTeleOp extends LinearOpMode {
 
                 // SET HEADING:
                 double rightY = gamepadEx1.getRightY();
-                if (hypot(rightX, rightY) >= 0.8) robot.drivetrain.setCurrentHeading(-atan2(rightY, rightX) - FORWARD);
+                if (rightX*rightX + rightY*rightY >= 0.64) {
+                    double radians = -atan2(rightY, rightX);
+                    robot.drivetrain.localizer.setHeading(radians);
+                }
 
                 rightX = 0;
                 leftX = 0;
