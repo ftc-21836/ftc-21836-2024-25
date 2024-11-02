@@ -73,11 +73,13 @@ public final class MecanumDrive {
     public static double SLOW_FACTOR = 0.3;
 
     /**
-     * Field-centric driving using dead wheels
+     * Drive robot with control stick inputs
      *
-     * @param xCommand    strafing input
-     * @param yCommand    forward input
-     * @param turnCommand turning input
+     * @param xCommand    positive = strafing right
+     * @param yCommand    positive = forward
+     * @param turnCommand positive = clockwise
+     * @param useSlowMode drives robot at {@link #SLOW_FACTOR} of full speed
+     * @param useFieldCentric drives robot relative to field frame; π/2 heading = facing forward
      */
     public void run(double xCommand, double yCommand, double turnCommand, boolean useSlowMode, boolean useFieldCentric) {
 
