@@ -12,11 +12,10 @@ import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 public final class SharedVars {
 
     public static final double
-            REVERSE = PI,
-            LEFT = REVERSE,
-            FORWARD = 1.5707963267948966,
+            LEFT = PI,
+            FORWARD = 0.5 * PI,
             RIGHT = 0,
-            BACKWARD = -1.5707963267948966;
+            BACKWARD = -FORWARD;
 
     // Declare objects:
     public static GamepadEx gamepadEx1, gamepadEx2;

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.FORWARD;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -114,7 +115,7 @@ public final class MecanumDrive {
         * as the robot thinks it is always facing forward
         * */
         double
-                heading = useFieldCentric ? pose.heading.toDouble() : 0.5 * PI,
+                heading = useFieldCentric ? pose.heading.toDouble() : FORWARD,
                 cos = cos(-heading),
                 sin = sin(-heading),
                 x = xCommand,
