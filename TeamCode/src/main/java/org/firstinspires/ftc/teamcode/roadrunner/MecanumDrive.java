@@ -93,6 +93,7 @@ public final class MecanumDrive {
         * |---------------|               |---------------|
         * Control stick/field frame        Robot frame
         *
+        * This would cause a forward command (Y=1) to drive the drivetrain left
         * We counteract this by rotating the input x and y from field frame π/2 clockwise (-π/2)
         *
         * |---------------|               |---------------|             |---------------|
