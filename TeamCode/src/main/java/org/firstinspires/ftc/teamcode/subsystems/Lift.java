@@ -110,7 +110,7 @@ public final class Lift {
         return target;
     }
 
-    public void setTarget(double inches) {
+    void setTarget(double inches) {
         target = inches;
     }
 
