@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.control.motion;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
 import static java.lang.Math.abs;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
 
 import com.acmerobotics.dashboard.config.Config;
 
@@ -38,41 +36,27 @@ public final class PIDDriver {
 
     public DriverOutput driveTo(EditablePose current, EditablePose target) {
 
-        double currentX = current.x;
-        double currentY = current.y;
-        double currentHeading = current.heading;
-
-        double targetX = target.x;
-        double targetY = target.y;
-        double targetHeading = target.heading;
-
-        double xError = targetX - currentX;
-        double yError = targetY - currentY;
-        double headingError = normalizeRadians(targetHeading - currentHeading);
+        double xError = target.x - current.x;
+        double yError = target.y - current.y;
+        double headingError = normalizeRadians(target.heading - current.heading);
 
         xController.setGains(xyGains);
         yController.setGains(xyGains);
         rotController.setGains(rotGains);
 
-        xController.setTarget(new State(targetX));
-        yController.setTarget(new State(targetY*1));
-        rotController.setTarget(new State(headingError + currentHeading));
+        xController.setTarget(new State(target.x));
+        yController.setTarget(new State(target.y *1));
+        rotController.setTarget(new State(headingError + current.heading));
 
-        double x = xController.calculate(new State(currentX));
-        double y = yController.calculate(new State(currentY*1));
-        double rot = rotController.calculate(new State(currentHeading));
-
-        double theta = -currentHeading;
-        double cos = cos(theta);
-        double sin = sin(theta);
-        double x2 = x * cos - y * sin;
-        double y2 = y * cos + x * sin;
+        double x = xController.calculate(new State(current.x));
+        double y = yController.calculate(new State(current.y *1));
+        double rot = rotController.calculate(new State(current.heading));
 
         DriverOutput output = new DriverOutput();
 
         output.drivePower = new EditablePose(
-                x2,
-                y2 * STRAFE_MULTIPLIER,
+                x,
+                y * STRAFE_MULTIPLIER,
                 rot
         );
 
