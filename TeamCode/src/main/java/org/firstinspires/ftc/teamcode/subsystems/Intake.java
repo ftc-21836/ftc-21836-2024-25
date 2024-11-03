@@ -62,34 +62,34 @@ public final class Intake {
      */
     public static HSV
             minRed = new HSV(
-                    205,
-                    0.55,
-                    0.01
+                    0,
+                    0,
+                    0
             ),
             maxRed = new HSV(
-                    225,
-                    1,
-                    0.35
+                    0,
+                    0,
+                    0
             ),
             minYellow = new HSV(
-                    90,
-                    0.4,
-                    0.01
+                    0,
+                    0,
+                    0
             ),
             maxYellow = new HSV(
-                    125,
-                    1,
-                    0.15
+                    0,
+                    0,
+                    0
             ),
             minBlue = new HSV(
-                    130,
-                    0.5,
-                    0.01
+                    0,
+                    0,
+                    0
             ),
             maxBlue = new HSV(
-                    160,
-                    1,
-                    0.2
+                    0,
+                    0,
+                    0
             );
 
     /**
