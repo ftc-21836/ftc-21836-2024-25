@@ -160,16 +160,10 @@ public final class Climber {
 
             case PULLING_LOW_RUNG:
 
-                if (outerHooks.get() == 0) {
+                boolean extendPeriod =  timer.seconds() >= TIME_CLIMB_LOW_RUNG &&
+                                        timer.seconds() <= TIME_CLIMB_LOW_RUNG + TIME_OUTER_HOOKS_EXTENSION;
 
-                    if (timer.seconds() >= TIME_CLIMB_LOW_RUNG) {
-                        outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
-                        timer.reset();
-                    }
-
-                } else if (timer.seconds() >= TIME_OUTER_HOOKS_EXTENSION) {
-                    outerHooks.set(0);
-                }
+                outerHooks.set(extendPeriod ? SPEED_OUTER_HOOKS_EXTENDING : 0);
 
                 break;
 
