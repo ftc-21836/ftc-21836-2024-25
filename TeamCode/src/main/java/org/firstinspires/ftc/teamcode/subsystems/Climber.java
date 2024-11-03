@@ -170,8 +170,8 @@ public final class Climber {
             case RAISING_ABOVE_HIGH_RUNG:
 
                 innerHooks.setActivated(
-                        timer.seconds() < TIME_INNER_HOOKS_DISENGAGING ||
-                                timer.seconds() > TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
+                        timer.seconds() <= TIME_INNER_HOOKS_DISENGAGING ||
+                        timer.seconds() >= TIME_INNER_HOOKS_DISENGAGING + DURATION_INNER_HOOKS_RETRACTED
                 );
                 break;
 
