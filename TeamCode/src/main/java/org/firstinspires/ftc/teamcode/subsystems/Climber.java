@@ -177,13 +177,9 @@ public final class Climber {
 
             case PULLING_HIGH_RUNG:
 
-                if (outerHooks.get() != 0 && timer.seconds() >= TIME_OUTER_HOOKS_RETRACTION) {
-                    outerHooks.set(0);
-                }
+                if (timer.seconds() >= TIME_OUTER_HOOKS_RETRACTION) outerHooks.set(0);
 
-                if (!limiterBars.isActivated() && lift.getPosition() <= HEIGHT_TO_ACTIVATE_LIMITER_BAR) {
-                    limiterBars.setActivated(true);
-                }
+                if (lift.getPosition() <= HEIGHT_TO_ACTIVATE_LIMITER_BAR) limiterBars.setActivated(true);
 
                 break;
         }
