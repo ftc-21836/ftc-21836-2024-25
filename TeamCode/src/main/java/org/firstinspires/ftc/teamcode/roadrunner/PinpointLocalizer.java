@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.roadrunner;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.RADIANS;
 import static org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit.INCH;
+import static org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver.EncoderDirection.FORWARD;
 import static org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver.EncoderDirection.REVERSED;
 import static org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING;
 import static java.lang.Math.PI;
@@ -27,7 +28,7 @@ public final class PinpointLocalizer implements Localizer {
 
     public static GoBildaPinpointDriver.EncoderDirection
             X_POD_DIRECTION = REVERSED,
-            Y_POD_DIRECTION = REVERSED;
+            Y_POD_DIRECTION = FORWARD;
 
     private final GoBildaPinpointDriver pinpoint;
     private boolean trackHeadingOnly = false;
