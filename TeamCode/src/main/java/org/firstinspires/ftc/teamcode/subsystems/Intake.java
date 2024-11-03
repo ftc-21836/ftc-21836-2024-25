@@ -186,11 +186,9 @@ public final class Intake {
 
             case INTAKING:
 
-                if (!hasSample()) {
-                    colorSensor.update();
-                    hsv = colorSensor.getHSV();
-                    sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
-                }
+                colorSensor.update();
+                hsv = colorSensor.getHSV();
+                sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
 
 //                if (sample == badSample) {
 //                    latch.setActivated(true);
