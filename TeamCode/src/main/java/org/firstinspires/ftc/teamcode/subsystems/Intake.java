@@ -152,8 +152,8 @@ public final class Intake {
         extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
                 extendedAngle,
-                getGoBildaServo(hardwareMap, "extendo right"),
-                getReversedServo(getGoBildaServo(hardwareMap, "extendo left"))
+                getReversedServo(getGoBildaServo(hardwareMap, "extendo right")),
+                getGoBildaServo(hardwareMap, "extendo left")
         );
 
         motor = new CachedMotorEx(hardwareMap, "intake", RPM_1620);
