@@ -192,15 +192,15 @@ public final class Intake {
                     sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
                 }
 
-                if (sample == badSample) {
-                    latch.setActivated(true);
-                    bucket.setActivated(false);
-                    state = BUCKET_PIVOTING;
-                    timer.reset();
-                } else {
-                    if (hasSample()) setExtended(false);
-                    break;
-                }
+//                if (sample == badSample) {
+//                    latch.setActivated(true);
+//                    bucket.setActivated(false);
+//                    state = BUCKET_PIVOTING;
+//                    timer.reset();
+//                } else {
+//                    if (hasSample()) setExtended(false);
+//                    break;
+//                }
 
             case BUCKET_PIVOTING:
 
@@ -325,12 +325,8 @@ public final class Intake {
     }
 
     void printTelemetry() {
-        mTelemetry.addLine("INTAKE:");
-        mTelemetry.addLine();
-        mTelemetry.addData("State", state);
-        mTelemetry.addLine();
+        mTelemetry.addLine("INTAKE: " + state);
         mTelemetry.addLine(hasSample() ? "Contains " + sample.name() + " sample" : "Empty");
-        mTelemetry.addLine();
         hsv.toTelemetry("Bucket");
     }
 }

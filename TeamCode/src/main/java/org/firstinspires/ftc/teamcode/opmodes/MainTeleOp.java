@@ -5,6 +5,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
@@ -27,6 +28,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
+import org.firstinspires.ftc.teamcode.subsystems.Sample;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
@@ -96,7 +98,7 @@ public final class MainTeleOp extends LinearOpMode {
 
         robot.drivetrain.localizer.setPosition(pose);
 
-//        robot.intake.setAlliance(isRedAlliance);
+        robot.intake.setAlliance(false);
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -114,10 +116,10 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (overrideMode) {
 
-//                robot.intake.offsetExtension(
-//                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-//                );
-//
+                robot.intake.offsetExtension(
+                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+                );
+
 //                robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
 //                if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
@@ -139,9 +141,9 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-//                robot.intake.setMotorPower(
-//                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-//                );
+                robot.intake.setMotorPower(
+                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+                );
 
 //                if (keyPressed(1, Y))               robot.climber.climb();
 //
@@ -155,7 +157,7 @@ public final class MainTeleOp extends LinearOpMode {
 //                    else if (keyPressed(1, DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
 //                    else if (keyPressed(1, DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
 //
-//                    if (keyPressed(1, X))               robot.intake.toggle();
+                    if (keyPressed(1, X))               robot.intake.toggle();
 //                    if (keyPressed(1, B))               robot.deposit.triggerClaw();
 //                }
 

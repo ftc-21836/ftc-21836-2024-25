@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.divider;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 public final class Robot {
 
     public final MecanumDrive drivetrain;
-//    public final Intake intake;
+    public final Intake intake;
 //    public final Deposit deposit;
 
     private final BulkReader bulkReader;
@@ -20,7 +22,7 @@ public final class Robot {
 
         drivetrain = new MecanumDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
-//        intake = new Intake(hardwareMap);
+        intake = new Intake(hardwareMap);
 //        deposit = new Deposit(hardwareMap);
     }
 
@@ -43,7 +45,7 @@ public final class Robot {
 
 //        if (intake.awaitingTransfer()) deposit.transfer(intake.releaseSample());
 //
-//        intake.run(deposit.hasSample(), deposit.isActive());
+        intake.run(false, false);
 //        deposit.run(intake.clearOfDeposit());
     }
 
@@ -54,8 +56,8 @@ public final class Robot {
 
     public void printTelemetry() {
         drivetrain.printTelemetry();
-//        divider();
-//        intake.printTelemetry();
+        divider();
+        intake.printTelemetry();
 //        divider();
 //        deposit.printTelemetry();
 //        divider();
