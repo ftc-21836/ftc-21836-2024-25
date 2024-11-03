@@ -56,6 +56,7 @@ public final class MainTeleOp extends LinearOpMode {
 
         // Initialize robot:
         Robot robot = new Robot(hardwareMap, pose);
+        robot.drivetrain.localizer.trackHeadingOnly(true);
 
         // Initialize gamepads:
         gamepadEx1 = new GamepadEx(gamepad1);
