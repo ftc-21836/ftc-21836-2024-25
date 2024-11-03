@@ -32,7 +32,6 @@ public final class Lift {
 
     // Motors and variables to manage their readings:
     private final CachedMotorEx[] motors;
-    private final Motor.Encoder encoder;
     private final PIDController controller = new PIDController();
 
     private final State ZERO_STATE = new State();
@@ -51,14 +50,15 @@ public final class Lift {
         motors[1].setInverted(true);
         for (CachedMotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
 
-        encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
+        motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
+        motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
 
         reset();
     }
 
     public void reset() {
         controller.reset();
-        encoder.reset();
+        for (CachedMotorEx motor : motors) motor.encoder.reset();
         setTarget(position = 0);
     }
 
@@ -71,7 +71,7 @@ public final class Lift {
     }
 
     void readSensors() {
-        position = INCHES_PER_TICK * encoder.getPosition();
+        position = INCHES_PER_TICK * 0.5 * (motors[0].encoder.getPosition() + motors[1].encoder.getPosition());
         controller.setGains(pidGains);
     }
 
