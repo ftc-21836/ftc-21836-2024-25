@@ -39,6 +39,7 @@ public final class Deposit {
             COLOR_SENSOR_GAIN = 1,
             HEIGHT_INTAKING_SPECIMEN = 1,
             HEIGHT_OFFSET_POST_INTAKING = 1,
+            HEIGHT_OBSERVATION_ZONE = 1,
             HEIGHT_BASKET_LOW = 1,
             HEIGHT_BASKET_HIGH = 1,
             HEIGHT_CHAMBER_LOW = 1,
@@ -218,8 +219,14 @@ public final class Deposit {
 
                 break;
 
-            case RETRACTED:
             case HAS_SAMPLE:
+
+                if (position == FLOOR) {
+                    lift.setTarget(HEIGHT_OBSERVATION_ZONE);
+                    break;
+                }
+
+            case RETRACTED:
             default:
 
                 lift.setTarget(
@@ -286,6 +293,7 @@ public final class Deposit {
         this.sample = sample;
         claw.setActivated(true);
         state = HAS_SAMPLE;
+        setPosition(FLOOR);
     }
 
     void printTelemetry() {
