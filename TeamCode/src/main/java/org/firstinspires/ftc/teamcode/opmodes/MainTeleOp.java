@@ -98,7 +98,7 @@ public final class MainTeleOp extends LinearOpMode {
 
         robot.drivetrain.localizer.setPosition(pose);
 
-        robot.intake.setAlliance(false);
+        robot.intake.setAlliance(isRedAlliance);
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
