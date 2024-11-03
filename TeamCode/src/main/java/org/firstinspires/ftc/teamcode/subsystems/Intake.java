@@ -197,7 +197,7 @@ public final class Intake {
 //                    timer.reset();
 //                } else {
 //                    if (hasSample()) setExtended(false);
-//                    break;
+                    break;
 //                }
 
             case BUCKET_PIVOTING:
