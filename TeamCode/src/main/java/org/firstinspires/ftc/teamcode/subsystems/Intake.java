@@ -139,8 +139,8 @@ public final class Intake {
         bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
                 ANGLE_BUCKET_VERTICAL,
-                getAxonServo(hardwareMap, "bucket right"),
-                getReversedServo(getAxonServo(hardwareMap, "bucket left"))
+                getReversedServo(getAxonServo(hardwareMap, "bucket right")),
+                getAxonServo(hardwareMap, "bucket left")
         );
 
         latch = new SimpleServoPivot(
