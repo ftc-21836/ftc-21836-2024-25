@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
@@ -52,6 +53,8 @@ public final class Lift {
 
         motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
+
+        motors[1].encoder.setDirection(REVERSE);
 
         reset();
     }
