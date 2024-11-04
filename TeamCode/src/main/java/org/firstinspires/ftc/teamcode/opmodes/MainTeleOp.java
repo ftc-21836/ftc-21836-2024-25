@@ -112,9 +112,8 @@ public final class MainTeleOp extends LinearOpMode {
             double rightX = gamepadEx1.getRightX();
             double leftX = gamepadEx1.getLeftX();
             double leftY = gamepadEx1.getLeftY();
-            boolean overrideMode = gamepadEx1.isDown(LEFT_BUMPER);
 
-            if (overrideMode) {
+            if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
                 robot.intake.offsetExtension(
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
