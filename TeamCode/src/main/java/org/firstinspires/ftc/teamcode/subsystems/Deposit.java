@@ -127,7 +127,7 @@ public final class Deposit {
 
         // release sample when climbing begins
         if (climbing && state != RETRACTED) {
-            releaseSample();
+            sample = null;
             state = RETRACTED;      // RETRACTED state means the following state machine is skipped
         }
 
@@ -147,11 +147,9 @@ public final class Deposit {
             case INTAKING_SPECIMEN:
 
                 // check color sensor if needed
-                if (!hasSample()) {
-                    colorSensor.update();
-                    hsv = colorSensor.getHSV();
-                    sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
-                }
+                colorSensor.update();
+                hsv = colorSensor.getHSV();
+                sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
 
                 // grab specimen if present
                 if (hasSample()) triggerClaw();
@@ -253,7 +251,7 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
-                releaseSample();
+                sample = null;
                 timeSinceSampleReleased.reset();
 
                 break;
@@ -273,16 +271,12 @@ public final class Deposit {
                     releaseSpecimenHeight = lift.getPosition() + HEIGHT_OFFSET_SPECIMEN_SCORING;
                     lift.setTarget(0);
                 } else {
-                    releaseSample();
+                    sample = null;
                     state = RETRACTED;
                 }
 
                 break;
         }
-    }
-
-    private void releaseSample() {
-        sample = null;
     }
 
     boolean hasSample() {
