@@ -324,6 +324,6 @@ public final class Intake {
     void printTelemetry() {
         mTelemetry.addLine("INTAKE: " + state);
         mTelemetry.addLine(hasSample() ? "Contains " + sample.name() + " sample" : "Empty");
-        hsv.toTelemetry("Bucket");
+        hsv.toTelemetry();
     }
 }

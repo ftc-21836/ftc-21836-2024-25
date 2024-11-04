@@ -296,7 +296,7 @@ public final class Deposit {
         mTelemetry.addLine();
         mTelemetry.addLine(hasSample() ? "Contains " + sample.name() + " sample" : "Empty");
         mTelemetry.addLine();
-        hsv.toTelemetry("Claw");
+        hsv.toTelemetry();
         divider();
         lift.printTelemetry();
     }

@@ -28,8 +28,7 @@ constructor(
         return hueInRange && saturationInRange && valueInRange
     }
 
-    fun toTelemetry(title: String) {
-        mTelemetry.addLine("$title:")
+    fun toTelemetry() {
         mTelemetry.addData("Hue", hue)
         mTelemetry.addData("Saturation", saturation)
         mTelemetry.addData("Value", value)

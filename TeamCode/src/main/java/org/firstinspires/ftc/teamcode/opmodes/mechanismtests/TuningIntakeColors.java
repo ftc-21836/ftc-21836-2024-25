@@ -36,9 +36,9 @@ public final class TuningIntakeColors extends LinearOpMode {
 
             HSV top = topSensor.getHSV(), bottom = bottomSensor.getHSV();
 
-            top.toTelemetry("Top HSV");
+            top.toTelemetry();
             mTelemetry.addLine();
-            bottom.toTelemetry("Bottom HSV");
+            bottom.toTelemetry();
             mTelemetry.update();
         }
     }
