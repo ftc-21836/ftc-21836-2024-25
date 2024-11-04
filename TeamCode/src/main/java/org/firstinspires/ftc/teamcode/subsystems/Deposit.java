@@ -170,6 +170,8 @@ public final class Deposit {
 
         arm.setActivated(intakeClearOfDeposit && state != RETRACTED);
 
+        claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
+
         arm.updateAngles(
                 ANGLE_ARM_RETRACTED,
                 state == INTAKING_SPECIMEN || state == HAS_SPECIMEN ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
@@ -260,7 +262,6 @@ public final class Deposit {
 
                 if (!hasSample()) sample = NEUTRAL;
 
-                claw.setActivated(true);
                 state = HAS_SPECIMEN;
                 setPosition(FLOOR);
 
@@ -281,7 +282,6 @@ public final class Deposit {
     }
 
     private void releaseSample() {
-        claw.setActivated(false);
         sample = null;
     }
 
@@ -291,7 +291,6 @@ public final class Deposit {
 
     public void transfer(Sample sample) {
         this.sample = sample;
-        claw.setActivated(true);
         state = HAS_SAMPLE;
         setPosition(FLOOR);
     }
