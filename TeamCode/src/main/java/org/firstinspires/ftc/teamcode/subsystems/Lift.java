@@ -6,7 +6,6 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLO
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -98,7 +97,7 @@ public final class Lift {
     }
 
     void printTelemetry() {
-        mTelemetry.addLine("LIFT:");
+        mTelemetry.addLine("LIFT: " + (isExtended() ? "EXTENDED" : "RETRACTED"));
         mTelemetry.addLine();
         mTelemetry.addData("Position (in)", getPosition());
         mTelemetry.addData("Target (in)", getTarget());

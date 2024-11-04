@@ -192,6 +192,6 @@ public final class Climber {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("Climber state", state);
+        mTelemetry.addData("CLIMBER: ", state);
     }
 }

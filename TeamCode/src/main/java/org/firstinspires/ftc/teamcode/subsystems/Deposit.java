@@ -290,12 +290,9 @@ public final class Deposit {
     }
 
     void printTelemetry() {
-        mTelemetry.addLine("DEPOSIT:");
+        mTelemetry.addLine("DEPOSIT: " + state.name());
         mTelemetry.addLine();
-        mTelemetry.addData("State", state);
-        mTelemetry.addLine();
-        mTelemetry.addLine(hasSample() ? "Contains " + sample.name() + " sample" : "Empty");
-        mTelemetry.addLine();
+        mTelemetry.addLine(hasSample() ? sample.name() + " sample" : "Empty");
         hsv.toTelemetry();
         divider();
         lift.printTelemetry();
