@@ -191,7 +191,6 @@ public final class Intake {
                 sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
 
 //                if (sample == badSample) {
-//                    latch.setActivated(true);
 //                    bucket.setActivated(false);
 //                    state = BUCKET_PIVOTING;
 //                    timer.reset();
@@ -233,6 +232,8 @@ public final class Intake {
 
         double ANGLE_LATCH_UNLOCKED = state == INTAKING ? ANGLE_LATCH_INTAKING : ANGLE_LATCH_TRANSFERRING;
 
+        latch.setActivated(hasSample());    // latch activates when sample present, otherwise deactivates
+
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
 
         extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, extendedAngle);
@@ -261,7 +262,6 @@ public final class Intake {
     Sample releaseSample() {
         Sample releasedSample = sample;
         sample = null;
-        latch.setActivated(false);
         return releasedSample;
     }
 
@@ -301,7 +301,6 @@ public final class Intake {
 
         } else if (state == INTAKING) {
 
-            if (hasSample()) latch.setActivated(true);
             state = EXTENDO_RETRACTING;
             extendo.setActivated(false);
             resetExtendedLength();
