@@ -36,9 +36,9 @@ public final class Deposit {
             ANGLE_CLAW_CLOSED = 29,
 
             TIME_DROP = 0.5,
-            TIME_ARM_RETRACTION = 0.5,
-            TIME_POST_TRANSFER = 1,
-            TIME_GRAB = 1,
+            TIME_ARM_RETRACTION = 0.25,
+            TIME_POST_TRANSFER = 0.25,
+            TIME_GRAB = 0.25,
 
             COLOR_SENSOR_GAIN = 1,
 
