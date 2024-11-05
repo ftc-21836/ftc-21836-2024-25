@@ -41,6 +41,7 @@ public final class Intake {
             DISTANCE_EXTENDO_RETRACTED = 0,
             DISTANCE_EXTENDO_EXTENDED_MIN = 25.19855,
             DISTANCE_EXTENDO_EXTENDED_MAX = 410,
+            DISTANCE_DUMPING_MIN = 200,
 
             ANGLE_EXTENDO_RETRACTED = 16,
             ANGLE_EXTENDO_EXTENDED_MAX = 70,
@@ -198,9 +199,13 @@ public final class Intake {
                 sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
 
                 if (sample == badSample) {
+
+                    if (extendedLength < DISTANCE_DUMPING_MIN) break;
+                    
                     bucket.setActivated(false);
                     state = BUCKET_PIVOTING;
                     timer.reset();
+
                 } else {
                     if (hasSample() && motor.get() == 0) setExtended(false);
                     break;
