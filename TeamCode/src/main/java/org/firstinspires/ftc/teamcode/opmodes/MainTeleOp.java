@@ -8,6 +8,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
@@ -126,6 +127,8 @@ public final class MainTeleOp extends LinearOpMode {
 
                 robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON)) robot.deposit.lift.reset();
+
+                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON)) robot.drivetrain.localizer.reset();
 
                 // SET HEADING:
                 double rightY = gamepadEx1.getRightY();

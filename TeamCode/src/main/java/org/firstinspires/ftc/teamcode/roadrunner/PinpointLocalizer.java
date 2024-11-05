@@ -40,6 +40,11 @@ public final class PinpointLocalizer implements Localizer {
         pinpoint.setOffsets(X_POD_OFFSET, Y_POD_OFFSET);
         pinpoint.setEncoderResolution(TICKS_PER_MM);
         pinpoint.setEncoderDirections(X_POD_DIRECTION, Y_POD_DIRECTION);
+
+        reset();
+    }
+
+    public void reset() {
         pinpoint.resetPosAndIMU();
     }
 
