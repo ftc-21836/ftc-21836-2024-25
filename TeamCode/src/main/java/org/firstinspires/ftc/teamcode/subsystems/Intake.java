@@ -202,7 +202,7 @@ public final class Intake {
                     state = BUCKET_PIVOTING;
                     timer.reset();
                 } else {
-                    if (hasSample()) setExtended(false);
+                    if (hasSample() && motor.get() == 0) setExtended(false);
                     break;
                 }
 
@@ -242,7 +242,7 @@ public final class Intake {
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
         extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
 
-        latch.setActivated(hasSample());    // latch activates when sample present, otherwise deactivates
+        latch.setActivated(hasSample() && motor.get() == 0);    // latch activates when sample present, otherwise deactivates
 
         bucket.run();
         latch.run();
