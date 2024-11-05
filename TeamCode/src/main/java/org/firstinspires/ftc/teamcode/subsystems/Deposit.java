@@ -47,28 +47,28 @@ public final class Deposit {
             HEIGHT_OFFSET_SPECIMEN_SCORING = -1;
 
     /**
-     * HSV value bound for sample grabbing
+     * HSV value bound for specimen detection
      */
     public static HSV
             minRed = new HSV(
-                    205,
-                    0.55,
-                    0.01
+                    0,
+                    0.5,
+                    0
             ),
             maxRed = new HSV(
-                    225,
-                    1,
-                    0.35
+                    30,
+                    0.75,
+                    0.06
             ),
             minBlue = new HSV(
-                    130,
-                    0.5,
-                    0.01
+                    215,
+                    0.6,
+                    0
             ),
             maxBlue = new HSV(
-                    160,
-                    1,
-                    0.2
+                    230,
+                    0.9,
+                    0.1
             );
 
     public Sample hsvToSample(HSV hsv) {

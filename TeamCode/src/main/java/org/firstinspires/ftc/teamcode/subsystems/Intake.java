@@ -58,7 +58,7 @@ public final class Intake {
             COLOR_SENSOR_GAIN = 1;
 
     /**
-     * HSV value bound for intake pixel detection
+     * HSV value bound for intake bucket sample detection
      */
     public static HSV
             minRed = new HSV(
