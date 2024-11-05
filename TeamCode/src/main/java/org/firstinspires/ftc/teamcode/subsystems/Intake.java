@@ -258,7 +258,7 @@ public final class Intake {
         return bucketSensor.isPressed() && extendoSensor.isPressed();
     }
 
-    Sample releaseSample() {
+    Sample transfer() {
         Sample releasedSample = sample;
         sample = null;
         return releasedSample;
