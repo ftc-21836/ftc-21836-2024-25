@@ -10,14 +10,11 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.pose;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.divider;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.pose;
 import static java.lang.Math.atan2;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -28,7 +25,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.Robot;
-import org.firstinspires.ftc.teamcode.subsystems.Sample;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
@@ -61,8 +57,8 @@ public final class MainTeleOp extends LinearOpMode {
         robot.drivetrain.localizer.trackHeadingOnly(true);
 
         // Initialize gamepads:
-        gamepadEx1 = new GamepadEx(gamepad1);
-        gamepadEx2 = new GamepadEx(gamepad2);
+        GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
+        GamepadEx gamepadEx2 = new GamepadEx(gamepad2);
 
         TeleOpConfig selection = EDITING_ALLIANCE;
 
@@ -71,10 +67,10 @@ public final class MainTeleOp extends LinearOpMode {
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
-            if (keyPressed(1, DPAD_UP))   selection = selection.plus(-1);
-            if (keyPressed(1, DPAD_DOWN)) selection = selection.plus(1);
+            if (gamepadEx1.wasJustPressed(DPAD_UP))   selection = selection.plus(-1);
+            if (gamepadEx1.wasJustPressed(DPAD_DOWN)) selection = selection.plus(1);
 
-            if (keyPressed(1, X)) switch (selection) {
+            if (gamepadEx1.wasJustPressed(X)) switch (selection) {
                 case EDITING_ALLIANCE:
                     isRedAlliance = !isRedAlliance;
                     break;
@@ -120,7 +116,7 @@ public final class MainTeleOp extends LinearOpMode {
                 );
 
 //                robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
-//                if (keyPressed(1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+//                if (keyPressed(gamepadEx1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
                 // SET HEADING:
                 double rightY = gamepadEx1.getRightY();
@@ -133,31 +129,31 @@ public final class MainTeleOp extends LinearOpMode {
                 leftX = 0;
                 leftY = 0;
 
-                // if (keyPressed(1, DPAD_UP))         autoTurner.setTargetHeading(0);
-                // else if (keyPressed(1, DPAD_LEFT))  autoTurner.setTargetHeading(PI * 0.5);
-                // else if (keyPressed(1, DPAD_DOWN))  autoTurner.setTargetHeading(PI);
-                // else if (keyPressed(1, DPAD_RIGHT)) autoTurner.setTargetHeading(PI * 1.5);
+                // if (keyPressed(gamepadEx1, DPAD_UP))         autoTurner.setTargetHeading(0);
+                // else if (keyPressed(gamepadEx1, DPAD_LEFT))  autoTurner.setTargetHeading(PI * 0.5);
+                // else if (keyPressed(gamepadEx1, DPAD_DOWN))  autoTurner.setTargetHeading(PI);
+                // else if (keyPressed(gamepadEx1, DPAD_RIGHT)) autoTurner.setTargetHeading(PI * 1.5);
 
             } else {
 
                 robot.intake.setMotorPower(
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
                 );
-                
-                if (keyPressed(1, X))               robot.intake.toggle();
-//                if (keyPressed(1, Y))               robot.climber.climb();
+
+                if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
+//                if (keyPressed(gamepadEx1, Y))               robot.climber.climb();
 //
 //                if (robot.climber.isActive()) {
 //
-//                    if (keyPressed(1, DPAD_DOWN)) robot.climber.cancelClimb();
+//                    if (keyPressed(gamepadEx1, DPAD_DOWN)) robot.climber.cancelClimb();
 //
 //                } else {
-//                    if (keyPressed(1, DPAD_UP)) robot.deposit.setPosition(HIGH);
-//                    else if (keyPressed(1, DPAD_LEFT)) robot.deposit.setPosition(LOW);
-//                    else if (keyPressed(1, DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
-//                    else if (keyPressed(1, DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
+//                    if (keyPressed(gamepadEx1, DPAD_UP)) robot.deposit.setPosition(HIGH);
+//                    else if (keyPressed(gamepadEx1, DPAD_LEFT)) robot.deposit.setPosition(LOW);
+//                    else if (keyPressed(gamepadEx1, DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
+//                    else if (keyPressed(gamepadEx1, DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
 //
-//                    if (keyPressed(1, B))               robot.deposit.triggerClaw();
+//                    if (keyPressed(gamepadEx1, B))               robot.deposit.triggerClaw();
 //                }
 
             }

@@ -5,8 +5,6 @@ import static java.lang.Math.PI;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 
 @Config
 public final class SharedVars {
@@ -16,13 +14,6 @@ public final class SharedVars {
             FORWARD = 0.5 * PI,
             RIGHT = 0,
             BACKWARD = -FORWARD;
-
-    // Declare objects:
-    public static GamepadEx gamepadEx1, gamepadEx2;
-
-    public static boolean keyPressed(int gamepad, GamepadKeys.Button button) {
-        return (gamepad == 2 ? gamepadEx2 : gamepadEx1).wasJustPressed(button);
-    }
 
     public static MultipleTelemetry mTelemetry;
 

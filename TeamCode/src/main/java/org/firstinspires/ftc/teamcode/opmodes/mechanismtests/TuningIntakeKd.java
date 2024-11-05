@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_BUCKET_RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_BUCKET_INTAKING;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_BUCKET_RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 
@@ -33,7 +31,7 @@ public final class TuningIntakeKd extends LinearOpMode {
         );
 
         // Initialize gamepads:
-        gamepadEx1 = new GamepadEx(gamepad1);
+        GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
         waitForStart();
 
@@ -47,7 +45,7 @@ public final class TuningIntakeKd extends LinearOpMode {
                 ANGLE_BUCKET_INTAKING
             );
 
-            if (keyPressed(1, X)) pivot.toggle();
+            if (gamepadEx1.wasJustPressed(X)) pivot.toggle();
 
             pivot.run();
         }

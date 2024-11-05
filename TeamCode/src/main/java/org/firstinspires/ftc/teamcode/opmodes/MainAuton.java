@@ -13,10 +13,7 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITI
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.ParkingLocation.CORNER;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.gamepadEx2;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.keyPressed;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.pose;
@@ -72,8 +69,8 @@ public final class MainAuton extends LinearOpMode {
         Robot robot = new Robot(hardwareMap, pose);
 
         // Initialize gamepads:
-        gamepadEx1 = new GamepadEx(gamepad1);
-        gamepadEx2 = new GamepadEx(gamepad2);
+        GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
+        GamepadEx gamepadEx2 = new GamepadEx(gamepad2);
 
         AutonConfig selection = EDITING_ALLIANCE;
 
@@ -87,10 +84,10 @@ public final class MainAuton extends LinearOpMode {
         while (opModeInInit() && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
             gamepadEx1.readButtons();
 
-            if (keyPressed(1, DPAD_UP))   selection = selection.plus(-1);
-            if (keyPressed(1, DPAD_DOWN)) selection = selection.plus(1);
+            if (gamepadEx1.wasJustPressed(DPAD_UP))   selection = selection.plus(-1);
+            if (gamepadEx1.wasJustPressed(DPAD_DOWN)) selection = selection.plus(1);
 
-            if (keyPressed(1, X)) switch (selection) {
+            if (gamepadEx1.wasJustPressed(X)) switch (selection) {
                 case EDITING_ALLIANCE:
                     isRedAlliance = !isRedAlliance;
                     break;
@@ -107,8 +104,8 @@ public final class MainAuton extends LinearOpMode {
             }
 
             if (selection == EDITING_WAIT) {
-                if (keyPressed(1, Y)) partnerWait += 0.5;
-                if (keyPressed(1, A) && partnerWait > 0) partnerWait -= 0.5;
+                if (gamepadEx1.wasJustPressed(Y)) partnerWait += 0.5;
+                if (gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait -= 0.5;
             }
 
             printConfig(selection, isRight, cycle, parking, partnerWait);
