@@ -234,7 +234,7 @@ public final class Intake {
 
         double ANGLE_BUCKET_DOWN = state == RETRACTED ?
                 ANGLE_BUCKET_VERTICAL :
-                ANGLE_BUCKET_INTAKING - (motor.get() == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0);
+                ANGLE_BUCKET_INTAKING - (motor.get() != 0 && state == INTAKING ? 0 : ANGLE_BUCKET_FLOOR_CLEARANCE);
 
         double ANGLE_LATCH_UNLOCKED = state == INTAKING ? ANGLE_LATCH_INTAKING : ANGLE_LATCH_TRANSFERRING;
 
