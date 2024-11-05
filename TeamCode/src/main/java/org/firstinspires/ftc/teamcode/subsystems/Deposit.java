@@ -183,7 +183,7 @@ public final class Deposit {
 
         arm.updateAngles(
                 ANGLE_ARM_RETRACTED,
-                state == INTAKING_SPECIMEN || state == HAS_SPECIMEN ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
+                handlingSpecimen() ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
         );
 
         claw.updateAngles(
@@ -200,6 +200,10 @@ public final class Deposit {
         lift.run(intakeClearOfDeposit);
 
         if (arm.isActivated()) timeSinceArmExtended.reset();
+    }
+
+    private boolean handlingSpecimen() {
+        return state == INTAKING_SPECIMEN || state == HAS_SPECIMEN;
     }
 
     boolean isActive() {
@@ -302,7 +306,7 @@ public final class Deposit {
     void printTelemetry() {
         mTelemetry.addLine("DEPOSIT: " + state);
         mTelemetry.addLine();
-        mTelemetry.addLine(hasSample() ? sample + " sample" : "Empty");
+        mTelemetry.addLine(hasSample() ? sample + (handlingSpecimen() ? " specimen" : " sample") : "Empty");
         hsv.toTelemetry();
         divider();
         lift.printTelemetry();
