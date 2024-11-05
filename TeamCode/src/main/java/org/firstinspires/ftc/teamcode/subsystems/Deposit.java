@@ -58,9 +58,9 @@ public final class Deposit {
      */
     public static HSV
             minRed = new HSV(
-                    0,
+                    15,
                     0.5,
-                    0
+                    0.009
             ),
             maxRed = new HSV(
                     30,
@@ -70,7 +70,7 @@ public final class Deposit {
             minBlue = new HSV(
                     215,
                     0.6,
-                    0
+                    0.01
             ),
             maxBlue = new HSV(
                     230,
