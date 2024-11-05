@@ -41,6 +41,7 @@ public final class Intake {
             DISTANCE_EXTENDO_RETRACTED = 0,
             DISTANCE_EXTENDO_EXTENDED_MIN = 25.19855,
             DISTANCE_EXTENDO_EXTENDED_MAX = 410,
+            DISTANCE_DUMPING_MIN = 200,
 
             ANGLE_EXTENDO_RETRACTED = 16,
             ANGLE_EXTENDO_EXTENDED_MAX = 70,
@@ -198,11 +199,15 @@ public final class Intake {
                 sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
 
                 if (sample == badSample) {
+
+                    if (extendedLength < DISTANCE_DUMPING_MIN) break;
+                    
                     bucket.setActivated(false);
                     state = BUCKET_PIVOTING;
                     timer.reset();
+
                 } else {
-                    if (hasSample()) setExtended(false);
+                    if (hasSample() && motor.get() == 0) setExtended(false);
                     break;
                 }
 
@@ -242,11 +247,15 @@ public final class Intake {
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
         extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
 
-        latch.setActivated(hasSample());    // latch activates when sample present, otherwise deactivates
+        latch.setActivated(hasSample() && motor.get() == 0);    // latch activates when sample present, otherwise deactivates
 
         bucket.run();
         latch.run();
         extendo.run();
+    }
+
+    public void dumpSample() {
+        if (state == INTAKING && sample != null) sample = badSample;
     }
 
     private boolean hasSample() {
