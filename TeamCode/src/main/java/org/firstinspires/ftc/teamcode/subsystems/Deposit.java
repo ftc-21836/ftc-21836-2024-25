@@ -135,9 +135,7 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
-                boolean sampleDropped = !claw.isActivated();
-                boolean sampleDoneFalling = timeSinceSampleReleased.seconds() >= TIME_DROP;
-                if (sampleDropped && sampleDoneFalling) {
+                if (!claw.isActivated() && timeSinceSampleReleased.seconds() >= TIME_DROP) {
                     state = RETRACTED;
                     setPosition(FLOOR);
                 }
