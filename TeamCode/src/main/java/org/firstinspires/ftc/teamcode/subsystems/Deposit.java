@@ -115,7 +115,7 @@ public final class Deposit {
         );
 
         claw = new SimpleServoPivot(
-                ANGLE_CLAW_OPEN,
+                ANGLE_CLAW_TRANSFER,
                 ANGLE_CLAW_CLOSED,
                 getReversedServo(getGoBildaServo(hardwareMap, "claw"))
         );
