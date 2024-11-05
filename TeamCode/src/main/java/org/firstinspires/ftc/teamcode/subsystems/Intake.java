@@ -42,8 +42,8 @@ public final class Intake {
             DISTANCE_EXTENDO_EXTENDED_MIN = 25.19855,
             DISTANCE_EXTENDO_EXTENDED_MAX = 410,
 
-            ANGLE_EXTENDO_RETRACTED = extensionToAngle(DISTANCE_EXTENDO_RETRACTED),
-            ANGLE_EXTENDO_EXTENDED_MAX = extensionToAngle(DISTANCE_EXTENDO_EXTENDED_MAX),
+            ANGLE_EXTENDO_RETRACTED = 16,
+            ANGLE_EXTENDO_EXTENDED_MAX = 70,
 
             ANGLE_BUCKET_RETRACTED = 11.55,
             ANGLE_BUCKET_INTAKING = 209.1,
@@ -238,7 +238,7 @@ public final class Intake {
 
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_DOWN);
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
-        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, extendedAngle);
+        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
 
         latch.setActivated(hasSample());    // latch activates when sample present, otherwise deactivates
 
