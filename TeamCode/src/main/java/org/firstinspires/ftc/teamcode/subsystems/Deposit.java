@@ -159,9 +159,7 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                boolean retracting = lift.getTarget() == 0;
-                boolean belowReleaseHeight = lift.getPosition() <= releaseSpecimenHeight;
-                if (retracting && belowReleaseHeight) triggerClaw();
+                if (lift.getTarget() == 0 && lift.getPosition() <= releaseSpecimenHeight) triggerClaw();
 
                 break;
 
