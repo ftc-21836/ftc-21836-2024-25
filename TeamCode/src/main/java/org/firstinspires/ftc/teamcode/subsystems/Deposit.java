@@ -51,7 +51,7 @@ public final class Deposit {
             HEIGHT_BASKET_HIGH = 32,
             HEIGHT_CHAMBER_LOW = 20,
             HEIGHT_CHAMBER_HIGH = 32,
-            HEIGHT_OFFSET_SPECIMEN_SCORING = -7;
+            HEIGHT_OFFSET_SPECIMEN_SCORING = -10;
 
     /**
      * HSV value bound for specimen detection
