@@ -201,7 +201,7 @@ public final class Intake {
             case BUCKET_PIVOTING:
 
                 if (timer.seconds() >= TIME_BUCKET_PIVOT) {
-                    releaseSample();
+                    sample = null;
                     state = DROPPING_BAD_SAMPLE;
                     timer.reset();
                 } else break;
