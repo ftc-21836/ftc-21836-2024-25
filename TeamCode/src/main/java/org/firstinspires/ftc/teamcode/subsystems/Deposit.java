@@ -28,13 +28,13 @@ public final class Deposit {
 
     public static double
             ANGLE_ARM_RETRACTED = 10,
-            ANGLE_ARM_SPECIMEN = 100, // wall pickup and chambers
-            ANGLE_ARM_SAMPLE = 130, // dropping in observation zone and baskets
-            ANGLE_CLAW_OPEN = 13,
-            ANGLE_CLAW_TRANSFER = 30,
-            ANGLE_CLAW_CLOSED = 60,
+            ANGLE_ARM_SPECIMEN = 101, // wall pickup and chambers
+            ANGLE_ARM_SAMPLE = 151, // dropping in observation zone and baskets
+            ANGLE_CLAW_OPEN = 80,
+            ANGLE_CLAW_TRANSFER = 45,
+            ANGLE_CLAW_CLOSED = 29,
             TIME_DROP = 1,
-            TIME_ARM_RETRACTION = 1,
+            TIME_ARM_RETRACTION = 0.5,
             COLOR_SENSOR_GAIN = 1,
             HEIGHT_INTAKING_SPECIMEN = 1,
             HEIGHT_OFFSET_POST_INTAKING = 1,
@@ -171,7 +171,7 @@ public final class Deposit {
         );
 
         claw.updateAngles(
-                state == RETRACTED ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
+                state == RETRACTED || !intakeClearOfDeposit ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
                 ANGLE_CLAW_CLOSED
         );
 

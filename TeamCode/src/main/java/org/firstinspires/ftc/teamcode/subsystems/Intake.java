@@ -57,7 +57,7 @@ public final class Intake {
             TIME_BUCKET_PIVOT = 0.5,
             TIME_DROP = 0.5,
             TIME_BUCKET_RAISE_TO_EXTEND = 0.15,
-            TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 0.15,
+            TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 0.5,
             TIME_REVERSING = 0.175,
 
             SPEED_REVERSING = -0.6,

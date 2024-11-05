@@ -53,7 +53,7 @@ public final class Lift {
         motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
 
-        motors[1].encoder.setDirection(REVERSE);
+//        motors[1].encoder.setDirection(REVERSE);
 
         reset();
     }
