@@ -282,6 +282,7 @@ public final class Deposit {
     }
 
     public void transfer(Sample sample) {
+        if (sample == null || hasSample()) return;
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(FLOOR);
