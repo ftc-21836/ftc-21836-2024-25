@@ -28,7 +28,7 @@ public final class Deposit {
 
     public static double
             ANGLE_ARM_RETRACTED = 10,
-            ANGLE_ARM_SPECIMEN = 101, // wall pickup and chambers
+            ANGLE_ARM_SPECIMEN = 110, // wall pickup and chambers
             ANGLE_ARM_SAMPLE = 151, // dropping in observation zone and baskets
 
             ANGLE_CLAW_OPEN = 80,
@@ -49,7 +49,7 @@ public final class Deposit {
             HEIGHT_BASKET_HIGH = 32,
             HEIGHT_CHAMBER_LOW = 20,
             HEIGHT_CHAMBER_HIGH = 32,
-            HEIGHT_OFFSET_SPECIMEN_SCORING = -1;
+            HEIGHT_OFFSET_SPECIMEN_SCORING = -7;
 
     /**
      * HSV value bound for specimen detection
