@@ -320,9 +320,9 @@ public final class Intake {
     }
 
     void printTelemetry() {
-        mTelemetry.addLine("INTAKE: " + state.name());
+        mTelemetry.addLine("INTAKE: " + state);
         mTelemetry.addLine();
-        mTelemetry.addLine(hasSample() ? sample.name() + " sample" : "Empty");
+        mTelemetry.addLine(hasSample() ? sample + " sample" : "Empty");
         hsv.toTelemetry();
     }
 }
