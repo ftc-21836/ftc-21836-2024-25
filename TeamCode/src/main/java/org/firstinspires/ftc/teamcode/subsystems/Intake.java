@@ -59,6 +59,7 @@ public final class Intake {
             TIME_BUCKET_RAISE_TO_EXTEND = 0.15,
             TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 0.5,
             TIME_REVERSING = 0.175,
+            TIME_PRE_TRANSFER = 1,
 
             SPEED_REVERSING = -0.6,
             COLOR_SENSOR_GAIN = 1;
@@ -121,7 +122,7 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
-    private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketExtended = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
 
     private double extendedLength, extendedAngle;
 
@@ -228,7 +229,8 @@ public final class Intake {
                 else if (timer.seconds() <= TIME_REVERSING) motor.set(SPEED_REVERSING);
         }
 
-        if (isRetracted()) timeSinceBucketRetracted.reset();
+        if (bucketSensor.isPressed()) timeSinceBucketExtended.reset();
+        else timeSinceBucketRetracted.reset();
 
         double ANGLE_BUCKET_DOWN = state == RETRACTED ?
                 ANGLE_BUCKET_VERTICAL :
@@ -252,15 +254,11 @@ public final class Intake {
     }
 
     boolean clearOfDeposit() {
-        return timeSinceBucketRetracted.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
+        return timeSinceBucketExtended.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
     }
 
     boolean awaitingTransfer() {
-        return hasSample() && isRetracted();
-    }
-
-    private boolean isRetracted() {
-        return bucketSensor.isPressed() && extendoSensor.isPressed();
+        return hasSample() && bucketSensor.isPressed() && timeSinceBucketRetracted.seconds() >= TIME_PRE_TRANSFER;
     }
 
     Sample transfer() {

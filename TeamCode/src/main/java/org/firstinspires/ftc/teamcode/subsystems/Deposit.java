@@ -30,19 +30,24 @@ public final class Deposit {
             ANGLE_ARM_RETRACTED = 10,
             ANGLE_ARM_SPECIMEN = 101, // wall pickup and chambers
             ANGLE_ARM_SAMPLE = 151, // dropping in observation zone and baskets
+
             ANGLE_CLAW_OPEN = 80,
             ANGLE_CLAW_TRANSFER = 45,
             ANGLE_CLAW_CLOSED = 29,
-            TIME_DROP = 1,
+
+            TIME_DROP = 0.5,
             TIME_ARM_RETRACTION = 0.5,
+            TIME_POST_TRANSFER = 1,
+
             COLOR_SENSOR_GAIN = 1,
+
             HEIGHT_INTAKING_SPECIMEN = 1,
-            HEIGHT_OFFSET_POST_INTAKING = 1,
+            HEIGHT_OFFSET_POST_INTAKING = 4,
             HEIGHT_OBSERVATION_ZONE = 1,
-            HEIGHT_BASKET_LOW = 1,
-            HEIGHT_BASKET_HIGH = 1,
-            HEIGHT_CHAMBER_LOW = 1,
-            HEIGHT_CHAMBER_HIGH = 1,
+            HEIGHT_BASKET_LOW = 20,
+            HEIGHT_BASKET_HIGH = 32,
+            HEIGHT_CHAMBER_LOW = 20,
+            HEIGHT_CHAMBER_HIGH = 32,
             HEIGHT_OFFSET_SPECIMEN_SCORING = -1;
 
     /**
@@ -95,7 +100,10 @@ public final class Deposit {
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
 
-    private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();
+    private final ElapsedTime
+            timeSinceSampleReleased = new ElapsedTime(),
+            timeSinceArmExtended = new ElapsedTime(),
+            timeSinceTransfer = new ElapsedTime();
 
     private Sample sample, specimenColor;
 
@@ -136,15 +144,6 @@ public final class Deposit {
 
         switch (state) {
 
-            case HAS_SAMPLE:
-
-                if (!hasSample() && timeSinceSampleReleased.seconds() >= TIME_DROP) {
-                    state = RETRACTED;
-                    setPosition(FLOOR);
-                }
-
-                break;
-
             case INTAKING_SPECIMEN:
 
                 // check color sensor if needed
@@ -153,13 +152,20 @@ public final class Deposit {
                 sample = hsvToSample(hsv);      // if color sensor found specimen, hasSample() returns true
 
                 // raise specimen if color sensor found one
-//                if (hasSample()) triggerClaw();
+                if (hasSample()) triggerClaw();
 
                 break;
 
             case HAS_SPECIMEN:
 
                 if (lift.getTarget() == 0 && lift.getPosition() <= releaseSpecimenHeight) triggerClaw();
+
+            case HAS_SAMPLE:
+
+                if (!hasSample() && timeSinceSampleReleased.seconds() >= TIME_DROP) {
+                    state = RETRACTED;
+                    setPosition(FLOOR);
+                }
 
                 break;
 
@@ -175,7 +181,7 @@ public final class Deposit {
                 ANGLE_CLAW_CLOSED
         );
 
-        arm.setActivated(intakeClearOfDeposit && state != RETRACTED);
+        arm.setActivated(intakeClearOfDeposit && state != RETRACTED && timeSinceTransfer.seconds() >= TIME_POST_TRANSFER);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
 
         arm.run();
@@ -270,7 +276,7 @@ public final class Deposit {
                     lift.setTarget(0);
                 } else {
                     sample = null;
-                    state = RETRACTED;
+                    timeSinceSampleReleased.reset();
                 }
 
                 break;
@@ -286,6 +292,8 @@ public final class Deposit {
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(FLOOR);
+
+        timeSinceTransfer.reset();
     }
 
     void printTelemetry() {
