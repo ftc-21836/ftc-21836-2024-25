@@ -18,8 +18,8 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.Cached
 public final class Lift {
 
     public static PIDGains pidGains = new PIDGains(
-            0,
-            0,
+            0.3,
+            0.2,
             0,
             0.2
     );
