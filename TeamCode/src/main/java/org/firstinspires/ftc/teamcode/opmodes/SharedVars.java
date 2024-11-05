@@ -27,11 +27,11 @@ public final class SharedVars {
 
     static boolean isRedAlliance = true;
 
-    public static int loopMod(int a, int b) {
-        return (int) loopMod(a,(double) b);
+    public static int loopMod(int x, int max) {
+        return (int) loopMod(x,(double) max);
     }
 
-    public static double loopMod(double a, double b) {
-        return (a % b + b) % b;
+    public static double loopMod(double x, double max) {
+        return (x % max + max) % max;
     }
 }
