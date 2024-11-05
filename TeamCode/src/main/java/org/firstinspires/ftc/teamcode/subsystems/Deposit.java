@@ -203,7 +203,7 @@ public final class Deposit {
     }
 
     boolean isActive() {
-        return state != RETRACTED || lift.isExtended() || timeSinceArmExtended.seconds() <= TIME_ARM_RETRACTION;
+        return state != RETRACTED || lift.getTarget() != 0 || lift.isExtended() || timeSinceArmExtended.seconds() <= TIME_ARM_RETRACTION;
     }
 
     boolean requestSlowMode() {
