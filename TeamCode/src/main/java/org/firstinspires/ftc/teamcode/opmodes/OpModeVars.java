@@ -13,7 +13,7 @@ public final class OpModeVars {
 
     public static void divider() {
         mTelemetry.addLine();
-        mTelemetry.addLine("------------------------------------------------------------------------------------");
+        mTelemetry.addLine("--------------------------------------------------------------------------");
         mTelemetry.addLine();
     }
 
