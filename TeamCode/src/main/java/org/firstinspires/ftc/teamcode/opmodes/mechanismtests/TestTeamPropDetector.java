@@ -22,7 +22,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -41,8 +41,8 @@ public final class TestTeamPropDetector extends LinearOpMode {
 
         while (opModeInInit()) {
 
-            if (gamepad1.x) detector.pipeline.isRed = false;
-            if (gamepad1.b) detector.pipeline.isRed = true;
+            if (gamepad1.x) detector.pipeline.isRedAlliance = false;
+            if (gamepad1.b) detector.pipeline.isRedAlliance = true;
 
             detector.printTelemetry();
             mTelemetry.update();

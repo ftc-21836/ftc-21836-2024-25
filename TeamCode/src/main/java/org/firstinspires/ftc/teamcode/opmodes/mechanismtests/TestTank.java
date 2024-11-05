@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
 import static java.lang.Math.max;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -19,7 +18,7 @@ public final class TestTank extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         // Initialize gamepads:
-        gamepadEx1 = new GamepadEx(gamepad1);
+        GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         BulkReader bulkReader = new BulkReader(hardwareMap);
 
         CachedMotorEx[] motors = {

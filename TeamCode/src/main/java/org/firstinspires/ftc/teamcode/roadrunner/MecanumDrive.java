@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
-import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -70,47 +69,61 @@ import java.util.List;
 @Config
 public final class MecanumDrive {
 
-    private double headingOffset;
     public static double SLOW_FACTOR = 0.3;
 
     /**
-     * Set internal heading of the robot to correct field-centric direction
+     * Drive robot with control stick inputs
      *
-     * @param angle Angle of the robot in radians, 0 facing forward and increases counter-clockwise
-     */
-    public void setCurrentHeading(double angle) {
-        headingOffset = normalizeRadians(getRawHeading() - angle);
-    }
-
-    public double getHeading() {
-        return normalizeRadians(getRawHeading() - headingOffset);
-    }
-
-    private double getRawHeading() {
-        return pose.heading.toDouble();
-    }
-
-    /**
-     * Field-centric driving using dead wheels
-     *
-     * @param xCommand strafing input
-     * @param yCommand forward input
-     * @param turnCommand turning input
+     * @param xCommand    positive = strafing right
+     * @param yCommand    positive = forward
+     * @param turnCommand positive = clockwise
+     * @param useSlowMode drives robot at {@link #SLOW_FACTOR} of full speed
+     * @param useFieldCentric drives robot relative to field frame; π/2 heading = facing forward
      */
     public void run(double xCommand, double yCommand, double turnCommand, boolean useSlowMode, boolean useFieldCentric) {
 
-        if (useFieldCentric) {
-            // counter-rotate translation vector by current heading
-            double
-                    theta = -getHeading(),
-                    cos = cos(theta),
-                    sin = sin(theta),
-                    x = xCommand,
-                    y = yCommand;
+        /* Counter-rotate x and y by robot heading for field centric driving
+        *
+        * setDrivePower(double) assumes the entered x and y are in the robot coordinate frame
+        * Entering x and y in field frame (left) is then interpreted as rotated π/2 counterclockwise (+π/2)
+        *
+        * |---------------|               |---------------|
+        * |       Y+      |               |       X+      |
+        * |       ----X+--|     ---->     |--Y+----       |
+        * |               |               |               |
+        * |               |               |               |
+        * |---------------|               |---------------|
+        * Control stick/field frame        Robot frame
+        *
+        * This would cause a forward command (Y=1) to drive the drivetrain left
+        * We counteract this by rotating the input x and y from field frame π/2 clockwise (-π/2)
+        *
+        * |---------------|               |---------------|             |---------------|
+        * |       Y+      |               |               |             |       Y+      |
+        * |       ----X+--|     ---->     |       ----Y+--|     ---->   |       ----X+--|
+        * |               |               |       |       |             |               |
+        * |               |               |       X+      |             |               |
+        * |---------------|               |---------------|             |---------------|
+        * Control stick/field frame             Rotated                    Robot frame
+        *
+        *      ^ Same---------------------------------------------------------Same ^
+        *
+        * Using the robot angle in field frame directly as the rotation angle produces field-centric
+        * behavior-- this works as π/2 is the angle for facing forward in field frame
+        *
+        * Robot-relative:
+        * Using a constant π/2 radians as the robot's heading produces robot-centric behavior,
+        * as the robot thinks it is always facing forward
+        * */
+        double
+                heading = useFieldCentric ? pose.heading.toDouble() : 0.5 * PI,
+                cos = cos(-heading),
+                sin = sin(-heading),
+                x = xCommand,
+                y = yCommand;
 
-            xCommand = x * cos - y * sin;
-            yCommand = y * cos + x * sin;
-        }
+        xCommand = x * cos - y * sin;
+        yCommand = y * cos + x * sin;
 
         if (useSlowMode) {
             yCommand *= SLOW_FACTOR;
@@ -121,17 +134,21 @@ public final class MecanumDrive {
         // run motors
         setDrivePowers(new PoseVelocity2d(
                 new Vector2d(
-                        yCommand,
-                        -xCommand
+                        xCommand,
+                        yCommand
                 ),
                 -turnCommand
         ));
     }
 
-    public void printNumericalTelemetry() {
-        double heading = getHeading();
-        mTelemetry.addData("Current heading (radians)", heading);
-        mTelemetry.addData("Current heading (degrees)", toDegrees(heading));
+    public void printTelemetry() {
+        double heading = pose.heading.toDouble();
+        mTelemetry.addLine("DRIVETRAIN:");
+        mTelemetry.addLine();
+        mTelemetry.addData("X", pose.position.x);
+        mTelemetry.addData("Y", pose.position.y);
+        mTelemetry.addData("Heading (rad)", heading);
+        mTelemetry.addData("Heading (deg)", toDegrees(heading));
     }
 
     public static class Params {
@@ -193,7 +210,7 @@ public final class MecanumDrive {
 
     public final LazyImu lazyImu;
 
-    public final Localizer localizer;
+    public final PinpointLocalizer localizer;
     public Pose2d pose;
 
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
@@ -288,7 +305,6 @@ public final class MecanumDrive {
     }
 
     public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
-        this.pose = pose;
 
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
@@ -319,9 +335,10 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new ThreeDeadWheelLocalizer(hardwareMap);
-
-        setCurrentHeading(0);
+        localizer = new PinpointLocalizer(hardwareMap);
+//        localizer.setPosition(
+                this.pose = pose;
+//        );
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
@@ -526,7 +543,8 @@ public final class MecanumDrive {
 
     public PoseVelocity2d updatePoseEstimate() {
         Twist2dDual<Time> twist = localizer.update();
-        pose = pose.plus(twist.value());
+        pose = localizer.getPosition();
+//                pose.plus(twist.value());
 
         poseHistory.add(pose);
         while (poseHistory.size() > 100) {

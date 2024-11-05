@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
@@ -33,7 +31,7 @@ public final class TuningArmKd extends LinearOpMode {
         );
 
         // Initialize gamepads:
-        gamepadEx1 = new GamepadEx(gamepad1);
+        GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
         waitForStart();
 
@@ -44,7 +42,7 @@ public final class TuningArmKd extends LinearOpMode {
 
             pivot.updateAngles(ANGLE_ARM_RETRACTED, ANGLE_ARM_SAMPLE);
 
-            if (keyPressed(1, X)) pivot.toggle();
+            if (gamepadEx1.wasJustPressed(X)) pivot.toggle();
 
             pivot.run();
         }

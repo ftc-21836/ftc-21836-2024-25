@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems.drivetrains;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
 import org.firstinspires.ftc.teamcode.control.filters.FIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.LowPassGains;
 import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
-import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.motion.State;
 
 @Config
@@ -53,17 +52,14 @@ public class AutoTurner {
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
     }
 
-    public EditablePose run(double xCommand, double yCommand, double turnCommand, double heading) {
+    public double calculate(double xCommand, double yCommand, double turnCommand, double heading) {
         headingController.setGains(pidGains);
         kDFilter.setGains(derivFilterGains);
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         boolean useManualInput = turnCommand != 0.0;
 
-        if (useManualInput || !useAutoTurn) {
-            turnCommand *= voltageScalar;
-            turnSettlingTimer.reset();
-        }
+        if (useManualInput || !useAutoTurn) turnSettlingTimer.reset();
 
         boolean xStopped = lastXCommand != 0 && xCommand == 0;
         boolean yStopped = lastYCommand != 0 && yCommand == 0;
@@ -81,7 +77,7 @@ public class AutoTurner {
 
         lastXCommand = xCommand;
         lastYCommand = yCommand;
-        return new EditablePose(xCommand, yCommand, turnCommand / voltageScalar);
+        return turnCommand;
     }
 
 
@@ -94,16 +90,12 @@ public class AutoTurner {
         targetHeading = normalizeRadians(angle);
     }
 
-    public void setCurrentHeading(double angle) {
-        setTargetHeading(angle);
-    }
-
     public void toggleAutoTurn() {
         useAutoTurn = !useAutoTurn;
     }
 
     public void printTelemetry() {
-        mTelemetry.addData("Auto turn is", useAutoTurn ? "active" : "inactive");
+        mTelemetry.addData("Auto turn ", useAutoTurn ? "active" : "INACTIVE");
     }
 
     public void printNumericalTelemetry() {

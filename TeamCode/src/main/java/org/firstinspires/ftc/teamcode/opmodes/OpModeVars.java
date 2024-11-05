@@ -1,46 +1,31 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.ParkingLocation.CORNER;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.FORWARD;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.loopMod;
+import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.config.Config;
-
-import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
 
 @Config
 public final class OpModeVars {
 
-    enum ParkingLocation {
-        CORNER,
-        OUTER,
-        TOUCHING_RUNG;
+    public static MultipleTelemetry mTelemetry;
 
-        public static final ParkingLocation[] locations = values();
-
-        public ParkingLocation plus(int i) {
-            return locations[loopMod(ordinal() + i, locations.length)];
-        }
+    public static void divider() {
+        mTelemetry.addLine();
+        mTelemetry.addLine("--------------------------------------------------------------------------");
+        mTelemetry.addLine();
     }
 
-    static boolean
-            isRed = true,
-            isRight = true,
-            cycle = false;
+    static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
 
-    static ParkingLocation parking = CORNER;
+    static boolean isRedAlliance = true;
 
-    public static double
-            PARTNER_WAIT = 1,
-            SIZE_WINDOW = 720,
-            LENGTH_ROBOT = 17.3984665354,
-            WIDTH_ROBOT = 16.4220472441,
-            SIZE_HALF_FIELD = 70.5,
-            SIZE_TILE = 23.625,
-            X_START_LEFT = SIZE_TILE * -1.5,
-            X_START_RIGHT = SIZE_TILE * 0.5,
-            Y_START = -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5;
+    public static int loopMod(int x, int max) {
+        return (int) loopMod(x,(double) max);
+    }
 
-    public static EditablePose
-            startPose = new EditablePose(X_START_RIGHT, Y_START, FORWARD);
+    public static double loopMod(double x, double max) {
+        return (x % max + max) % max;
+    }
 }

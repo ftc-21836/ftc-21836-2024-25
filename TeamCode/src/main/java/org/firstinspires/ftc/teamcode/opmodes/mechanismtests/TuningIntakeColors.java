@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.COLOR_SENSOR_GAIN;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -36,9 +36,9 @@ public final class TuningIntakeColors extends LinearOpMode {
 
             HSV top = topSensor.getHSV(), bottom = bottomSensor.getHSV();
 
-            top.toTelemetry("Top HSV");
+            top.toTelemetry();
             mTelemetry.addLine();
-            bottom.toTelemetry("Bottom HSV");
+            bottom.toTelemetry();
             mTelemetry.update();
         }
     }

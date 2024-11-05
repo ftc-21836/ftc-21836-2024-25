@@ -59,24 +59,24 @@ public final class TuningOpModes {
 
                 List<Encoder> leftEncs = new ArrayList<>(), rightEncs = new ArrayList<>();
                 List<Encoder> parEncs = new ArrayList<>(), perpEncs = new ArrayList<>();
-                if (md.localizer instanceof MecanumDrive.DriveLocalizer) {
-                    MecanumDrive.DriveLocalizer dl = (MecanumDrive.DriveLocalizer) md.localizer;
-                    leftEncs.add(dl.leftFront);
-                    leftEncs.add(dl.leftBack);
-                    rightEncs.add(dl.rightFront);
-                    rightEncs.add(dl.rightBack);
-                } else if (md.localizer instanceof ThreeDeadWheelLocalizer) {
-                    ThreeDeadWheelLocalizer dl = (ThreeDeadWheelLocalizer) md.localizer;
-                    parEncs.add(dl.par0);
-                    parEncs.add(dl.par1);
-                    perpEncs.add(dl.perp);
-                } else if (md.localizer instanceof TwoDeadWheelLocalizer) {
-                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) md.localizer;
-                    parEncs.add(dl.par);
-                    perpEncs.add(dl.perp);
-                } else {
-                    throw new RuntimeException("unknown localizer: " + md.localizer.getClass().getName());
-                }
+//                if (md.localizer instanceof MecanumDrive.DriveLocalizer) {
+//                    MecanumDrive.DriveLocalizer dl = (MecanumDrive.DriveLocalizer) md.localizer;
+//                    leftEncs.add(dl.leftFront);
+//                    leftEncs.add(dl.leftBack);
+//                    rightEncs.add(dl.rightFront);
+//                    rightEncs.add(dl.rightBack);
+//                } else if (md.localizer instanceof ThreeDeadWheelLocalizer) {
+//                    ThreeDeadWheelLocalizer dl = (ThreeDeadWheelLocalizer) md.localizer;
+//                    parEncs.add(dl.par0);
+//                    parEncs.add(dl.par1);
+//                    perpEncs.add(dl.perp);
+//                } else if (md.localizer instanceof TwoDeadWheelLocalizer) {
+//                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) md.localizer;
+//                    parEncs.add(dl.par);
+//                    perpEncs.add(dl.perp);
+//                } else {
+//                    throw new RuntimeException("unknown localizer: " + md.localizer.getClass().getName());
+//                }
 
                 return new DriveView(
                     DriveType.MECANUM,
@@ -160,9 +160,9 @@ public final class TuningOpModes {
         manager.register(metaForClass(MecanumMotorDirectionDebugger.class), new MecanumMotorDirectionDebugger(dvf));
         manager.register(metaForClass(DeadWheelDirectionDebugger.class), new DeadWheelDirectionDebugger(dvf));
 
-        manager.register(metaForClass(ManualFeedbackTuner.class), ManualFeedbackTuner.class);
-        manager.register(metaForClass(SplineTest.class), SplineTest.class);
-        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
+//        manager.register(metaForClass(ManualFeedbackTuner.class), ManualFeedbackTuner.class);
+//        manager.register(metaForClass(SplineTest.class), SplineTest.class);
+//        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
 
         FtcDashboard.getInstance().withConfigRoot(configRoot -> {
             for (Class<?> c : Arrays.asList(

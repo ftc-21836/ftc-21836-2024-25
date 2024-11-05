@@ -4,8 +4,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.gamepadEx1;
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.keyPressed;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.LEDIndicator.State.AMBER;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.LEDIndicator.State.GREEN;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.LEDIndicator.State.OFF;
@@ -26,7 +24,7 @@ public final class TestIndicators extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         // Initialize gamepads:
-        gamepadEx1 = new GamepadEx(gamepad1);
+        GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         BulkReader bulkReader = new BulkReader(hardwareMap);
 
         LEDIndicator[] indicators = {
@@ -42,16 +40,16 @@ public final class TestIndicators extends LinearOpMode {
 
             gamepadEx1.readButtons();
 
-            if (keyPressed(1, B)) {
+            if (gamepadEx1.wasJustPressed(B)) {
                 for (LEDIndicator indicator : indicators) indicator.setState(RED);
             }
-            if (keyPressed(1, A)) {
+            if (gamepadEx1.wasJustPressed(A)) {
                 for (LEDIndicator indicator : indicators) indicator.setState(GREEN);
             }
-            if (keyPressed(1, X)) {
+            if (gamepadEx1.wasJustPressed(X)) {
                 for (LEDIndicator indicator : indicators) indicator.setState(OFF);
             }
-            if (keyPressed(1, Y)) {
+            if (gamepadEx1.wasJustPressed(Y)) {
                 for (LEDIndicator indicator : indicators) indicator.setState(AMBER);
             }
         }

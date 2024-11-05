@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.divider;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -13,17 +13,17 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 public final class Robot {
 
     public final MecanumDrive drivetrain;
-//    public final Intake intake;
-//    public final Deposit deposit;
+    public final Intake intake;
+    public final Deposit deposit;
 
     private final BulkReader bulkReader;
 
-    public Robot(HardwareMap hardwareMap, boolean isRed) {
+    public Robot(HardwareMap hardwareMap, Pose2d startPose) {
 
-        drivetrain = new MecanumDrive(hardwareMap, new Pose2d(0,0,0));
+        drivetrain = new MecanumDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
-//        intake = new Intake(hardwareMap, isRed);
-//        deposit = new Deposit(hardwareMap);
+        intake = new Intake(hardwareMap);
+        deposit = new Deposit(hardwareMap);
     }
 
     public void preload(boolean backdropSide) {
@@ -38,15 +38,15 @@ public final class Robot {
     public void readSensors() {
         bulkReader.bulkRead();
         drivetrain.updatePoseEstimate();
-//        deposit.lift.readSensors();
+        deposit.lift.readSensors();
     }
 
     public void run() {
 
-//        if (intake.awaitingTransfer()) deposit.transfer(intake.sample);
-//
-//        intake.run(deposit.sample != NONE, deposit.isActive());
-//        deposit.run(intake.clearOfDeposit());
+        if (intake.awaitingTransfer()) deposit.transfer(intake.transfer());
+
+        intake.run(deposit.hasSample(), deposit.isActive());
+        deposit.run(intake.clearOfDeposit(), false);
     }
 
     public boolean requestingSlowMode() {
@@ -55,17 +55,12 @@ public final class Robot {
     }
 
     public void printTelemetry() {
-//        deposit.printTelemetry();
-        mTelemetry.addLine();
-        mTelemetry.addLine();
-//        intake.printTelemetry();
-        mTelemetry.addLine();
-        mTelemetry.addLine();
-        mTelemetry.addLine();
-        drivetrain.printNumericalTelemetry();
-        mTelemetry.addLine();
-//        deposit.lift.printNumericalTelemetry();
-        mTelemetry.addLine();
-//        intake.printNumericalTelemetry();
+        drivetrain.printTelemetry();
+        divider();
+        intake.printTelemetry();
+        divider();
+        deposit.printTelemetry();
+//        divider();
+//        climber.printTelemetry();
     }
 }
