@@ -17,7 +17,7 @@ public final class OpModeVars {
         mTelemetry.addLine();
     }
 
-    public static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
+    static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
 
     static boolean isRedAlliance = true;
 
