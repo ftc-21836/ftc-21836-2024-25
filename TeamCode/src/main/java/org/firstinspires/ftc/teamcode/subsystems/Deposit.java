@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.FLOOR;
@@ -9,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SAMPLE
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystems.Lift.HEIGHT_MAX;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
@@ -270,7 +272,7 @@ public final class Deposit {
             case HAS_SPECIMEN:
 
                 if (lift.getTarget() != 0) {
-                    releaseSpecimenHeight = lift.getPosition() + HEIGHT_OFFSET_SPECIMEN_SCORING;
+                    releaseSpecimenHeight = clip(lift.getPosition() + HEIGHT_OFFSET_SPECIMEN_SCORING, 0, HEIGHT_MAX);
                     lift.setTarget(0);
                     break;
                 }

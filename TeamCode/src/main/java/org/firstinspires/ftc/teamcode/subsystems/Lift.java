@@ -28,6 +28,7 @@ public final class Lift {
             kG = 0.15,
             INCHES_PER_TICK = 0.0088581424,
             HEIGHT_RETRACTED_THRESHOLD = 0.5,
+            HEIGHT_MAX = 32,
             MAX_VOLTAGE = 13;
 
     // Motors and variables to manage their readings:
