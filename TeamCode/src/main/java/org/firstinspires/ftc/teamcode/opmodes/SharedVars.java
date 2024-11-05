@@ -28,7 +28,7 @@ public final class SharedVars {
 
     public static void divider() {
         mTelemetry.addLine();
-        mTelemetry.addLine("------------------------------------------");
+        mTelemetry.addLine("------------------------------------------------------------------------------------");
         mTelemetry.addLine();
     }
 
