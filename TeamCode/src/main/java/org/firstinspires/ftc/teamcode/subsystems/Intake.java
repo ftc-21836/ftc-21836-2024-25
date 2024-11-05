@@ -35,25 +35,31 @@ public final class Intake {
 
     public static double
             SPEED_MULTIPLIER_EXTENDO = 0.1,
+
             DISTANCE_EXTENDO_ARMS_RETRACTED = 67.4,
             DISTANCE_EXTENDO_LINKAGE_ARM = 240,
             DISTANCE_EXTENDO_RETRACTED = 0,
             DISTANCE_EXTENDO_EXTENDED_MIN = 25.19855,
             DISTANCE_EXTENDO_EXTENDED_MAX = 410,
+
             ANGLE_EXTENDO_RETRACTED = extensionToAngle(DISTANCE_EXTENDO_RETRACTED),
             ANGLE_EXTENDO_EXTENDED_MAX = extensionToAngle(DISTANCE_EXTENDO_EXTENDED_MAX),
-            ANGLE_BUCKET_RETRACTED = 9,
-            ANGLE_BUCKET_INTAKING = 211,
+
+            ANGLE_BUCKET_RETRACTED = 11.55,
+            ANGLE_BUCKET_INTAKING = 209.1,
             ANGLE_BUCKET_FLOOR_CLEARANCE = 60,
             ANGLE_BUCKET_VERTICAL = 90,
-            ANGLE_LATCH_TRANSFERRING = 0,
+
+            ANGLE_LATCH_TRANSFERRING = 20,
             ANGLE_LATCH_INTAKING = 105,
-            ANGLE_LATCH_LOCKED = 159,
-            TIME_BUCKET_PIVOT = 1,
-            TIME_DROP = 1,
-            TIME_BUCKET_RAISE_TO_EXTEND = 1,
-            TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 1,
+            ANGLE_LATCH_LOCKED = 152,
+
+            TIME_BUCKET_PIVOT = 0.5,
+            TIME_DROP = 0.5,
+            TIME_BUCKET_RAISE_TO_EXTEND = 0.15,
+            TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 0.15,
             TIME_REVERSING = 0.175,
+
             SPEED_REVERSING = -0.6,
             COLOR_SENSOR_GAIN = 1;
 
