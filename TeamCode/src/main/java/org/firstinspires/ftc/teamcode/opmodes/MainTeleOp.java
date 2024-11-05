@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
@@ -153,6 +154,7 @@ public final class MainTeleOp extends LinearOpMode {
                 );
 
                 if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
+                if (gamepadEx1.wasJustPressed(A))               robot.intake.dumpSample();
 //                if (keyPressed(gamepadEx1, Y))               robot.climber.climb();
 //
 //                if (robot.climber.isActive()) {

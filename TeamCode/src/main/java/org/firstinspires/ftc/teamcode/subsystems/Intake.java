@@ -254,6 +254,10 @@ public final class Intake {
         extendo.run();
     }
 
+    public void dumpSample() {
+        if (state == INTAKING && sample != null) sample = badSample;
+    }
+
     private boolean hasSample() {
         return sample != null;
     }
