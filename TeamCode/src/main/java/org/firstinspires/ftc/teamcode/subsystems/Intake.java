@@ -4,6 +4,7 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_PIVOTING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.BUCKET_RAISING;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.DROPPING_BAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.EXTENDO_RETRACTING;
@@ -189,14 +190,14 @@ public final class Intake {
                 hsv = colorSensor.getHSV();
                 sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
 
-//                if (sample == badSample) {
-//                    bucket.setActivated(false);
-//                    state = BUCKET_PIVOTING;
-//                    timer.reset();
-//                } else {
-//                    if (hasSample()) setExtended(false);
+                if (sample == badSample) {
+                    bucket.setActivated(false);
+                    state = BUCKET_PIVOTING;
+                    timer.reset();
+                } else {
+                    if (hasSample()) setExtended(false);
                     break;
-//                }
+                }
 
             case BUCKET_PIVOTING:
 
