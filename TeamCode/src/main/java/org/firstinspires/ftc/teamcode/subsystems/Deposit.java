@@ -10,7 +10,6 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SPECIM
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
@@ -98,11 +97,15 @@ public final class Deposit {
 
     private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();
 
-    private Sample sample;
+    private Sample sample, badSample;
 
     private Deposit.State state = RETRACTED;
 
     private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORING;
+
+    public void setAlliance(boolean redAlliance) {
+        badSample = redAlliance ? BLUE : RED;
+    }
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
@@ -256,7 +259,7 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                if (!hasSample()) sample = NEUTRAL;
+                if (!hasSample()) sample = badSample == RED ? BLUE : RED;
 
                 state = HAS_SPECIMEN;
                 setPosition(FLOOR);
