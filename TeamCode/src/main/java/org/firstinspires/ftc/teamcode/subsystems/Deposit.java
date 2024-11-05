@@ -38,6 +38,7 @@ public final class Deposit {
             TIME_DROP = 0.5,
             TIME_ARM_RETRACTION = 0.5,
             TIME_POST_TRANSFER = 1,
+            TIME_GRAB = 1,
 
             COLOR_SENSOR_GAIN = 1,
 
@@ -103,7 +104,8 @@ public final class Deposit {
     private final ElapsedTime
             timeSinceSampleReleased = new ElapsedTime(),
             timeSinceArmExtended = new ElapsedTime(),
-            timeSinceTransfer = new ElapsedTime();
+            timeSinceTransfer = new ElapsedTime(),
+            timeSinceSpecimenGrabbed = new ElapsedTime();
 
     private Sample sample, specimenColor;
 
@@ -146,19 +148,25 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                // check color sensor if needed
-                colorSensor.update();
-                hsv = colorSensor.getHSV();
-                sample = hsvToSample(hsv);      // if color sensor found specimen, hasSample() returns true
+                if (!hasSample()) {
 
-                // raise specimen if color sensor found one
-                if (hasSample()) triggerClaw();
+                    // check color sensor if needed
+                    colorSensor.update();
+                    hsv = colorSensor.getHSV();
+                    sample = hsvToSample(hsv);      // if color sensor found specimen, hasSample() returns true
+
+                    timeSinceSpecimenGrabbed.reset();
+
+                } else if (timeSinceSpecimenGrabbed.seconds() >= TIME_GRAB) {
+                    state = HAS_SPECIMEN;
+                    setPosition(FLOOR);
+                }
 
                 break;
 
             case HAS_SPECIMEN:
 
-                if (lift.getTarget() == 0 && lift.getPosition() <= releaseSpecimenHeight) triggerClaw();
+                if (hasSample() && lift.getTarget() == 0 && lift.getPosition() <= releaseSpecimenHeight) triggerClaw();
 
             case HAS_SAMPLE:
 
@@ -253,19 +261,9 @@ public final class Deposit {
 
                 break;
 
-            case HAS_SAMPLE:
-
-                sample = null;
-                timeSinceSampleReleased.reset();
-
-                break;
-
             case INTAKING_SPECIMEN:
 
                 if (!hasSample()) sample = specimenColor;
-
-                state = HAS_SPECIMEN;
-                setPosition(FLOOR);
 
                 break;
 
@@ -274,10 +272,13 @@ public final class Deposit {
                 if (lift.getTarget() != 0) {
                     releaseSpecimenHeight = lift.getPosition() + HEIGHT_OFFSET_SPECIMEN_SCORING;
                     lift.setTarget(0);
-                } else {
-                    sample = null;
-                    timeSinceSampleReleased.reset();
+                    break;
                 }
+
+            case HAS_SAMPLE:
+
+                sample = null;
+                timeSinceSampleReleased.reset();
 
                 break;
         }
