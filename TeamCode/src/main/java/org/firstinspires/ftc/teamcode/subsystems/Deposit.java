@@ -128,6 +128,19 @@ public final class Deposit {
 
     void run(boolean intakeClearOfDeposit, boolean climbing) {
 
+        arm.updateAngles(
+                ANGLE_ARM_RETRACTED,
+                state == INTAKING_SPECIMEN || state == HAS_SPECIMEN ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
+        );
+
+        claw.updateAngles(
+                state == RETRACTED ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
+                ANGLE_CLAW_CLOSED
+        );
+
+        arm.setActivated(intakeClearOfDeposit && state != RETRACTED);
+        claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
+
         // release sample when climbing begins
         if (climbing && state != RETRACTED) {
             sample = null;
@@ -164,20 +177,6 @@ public final class Deposit {
                 break;
 
         }
-
-        arm.setActivated(intakeClearOfDeposit && state != RETRACTED);
-
-        claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
-
-        arm.updateAngles(
-                ANGLE_ARM_RETRACTED,
-                state == INTAKING_SPECIMEN || state == HAS_SPECIMEN ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
-        );
-
-        claw.updateAngles(
-                state == RETRACTED ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
-                ANGLE_CLAW_CLOSED
-        );
 
         arm.run();
         claw.run();
