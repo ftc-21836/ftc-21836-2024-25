@@ -228,15 +228,13 @@ public final class Intake {
                 ANGLE_BUCKET_INTAKING - (motor.get() == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE : 0) :
                 ANGLE_BUCKET_VERTICAL;
 
-        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_DOWN);
-
         double ANGLE_LATCH_UNLOCKED = state == INTAKING ? ANGLE_LATCH_INTAKING : ANGLE_LATCH_TRANSFERRING;
 
-        latch.setActivated(hasSample());    // latch activates when sample present, otherwise deactivates
-
+        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_DOWN);
         latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
-
         extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, extendedAngle);
+
+        latch.setActivated(hasSample());    // latch activates when sample present, otherwise deactivates
 
         bucket.run();
         latch.run();
