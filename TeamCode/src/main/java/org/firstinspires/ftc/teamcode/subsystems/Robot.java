@@ -14,7 +14,7 @@ public final class Robot {
 
     public final MecanumDrive drivetrain;
     public final Intake intake;
-//    public final Deposit deposit;
+    public final Deposit deposit;
 
     private final BulkReader bulkReader;
 
@@ -23,7 +23,7 @@ public final class Robot {
         drivetrain = new MecanumDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
         intake = new Intake(hardwareMap);
-//        deposit = new Deposit(hardwareMap);
+        deposit = new Deposit(hardwareMap);
     }
 
     public void preload(boolean backdropSide) {
@@ -38,15 +38,15 @@ public final class Robot {
     public void readSensors() {
         bulkReader.bulkRead();
         drivetrain.updatePoseEstimate();
-//        deposit.lift.readSensors();
+        deposit.lift.readSensors();
     }
 
     public void run() {
 
-//        if (intake.awaitingTransfer()) deposit.transfer(intake.releaseSample());
-//
-        intake.run(false, false);
-//        deposit.run(intake.clearOfDeposit());
+        if (intake.awaitingTransfer()) deposit.transfer(intake.transfer());
+
+        intake.run(deposit.hasSample(), deposit.isActive());
+        deposit.run(intake.clearOfDeposit(), false);
     }
 
     public boolean requestingSlowMode() {
@@ -58,8 +58,8 @@ public final class Robot {
         drivetrain.printTelemetry();
         divider();
         intake.printTelemetry();
-//        divider();
-//        deposit.printTelemetry();
+        divider();
+        deposit.printTelemetry();
 //        divider();
 //        climber.printTelemetry();
     }

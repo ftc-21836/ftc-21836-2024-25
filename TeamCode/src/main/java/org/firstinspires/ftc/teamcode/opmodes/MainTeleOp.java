@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
@@ -15,6 +19,10 @@ import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.pose;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.FLOOR;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.HIGH;
+import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.LOW;
+import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
 import static java.lang.Math.atan2;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -95,6 +103,7 @@ public final class MainTeleOp extends LinearOpMode {
         robot.drivetrain.localizer.setPosition(pose);
 
         robot.intake.setAlliance(isRedAlliance);
+        robot.deposit.setAlliance(isRedAlliance);
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -115,8 +124,8 @@ public final class MainTeleOp extends LinearOpMode {
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
                 );
 
-//                robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
-//                if (keyPressed(gamepadEx1, LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+                robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
+                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON)) robot.deposit.lift.reset();
 
                 // SET HEADING:
                 double rightY = gamepadEx1.getRightY();
@@ -148,12 +157,13 @@ public final class MainTeleOp extends LinearOpMode {
 //                    if (keyPressed(gamepadEx1, DPAD_DOWN)) robot.climber.cancelClimb();
 //
 //                } else {
-//                    if (keyPressed(gamepadEx1, DPAD_UP)) robot.deposit.setPosition(HIGH);
-//                    else if (keyPressed(gamepadEx1, DPAD_LEFT)) robot.deposit.setPosition(LOW);
-//                    else if (keyPressed(gamepadEx1, DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
-//                    else if (keyPressed(gamepadEx1, DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
+
+                if (gamepadEx1.wasJustPressed(DPAD_UP)) robot.deposit.setPosition(HIGH);
+                else if (gamepadEx1.wasJustPressed(DPAD_LEFT)) robot.deposit.setPosition(LOW);
+                else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
+                else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
 //
-//                    if (keyPressed(gamepadEx1, B))               robot.deposit.triggerClaw();
+                if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
 //                }
 
             }
@@ -170,7 +180,7 @@ public final class MainTeleOp extends LinearOpMode {
                     useFieldCentric
             );
 
-            mTelemetry.addData("Loop time", loopTimer.seconds());
+            mTelemetry.addData("LOOP TIME", loopTimer.seconds());
             loopTimer.reset();
             divider();
             robot.printTelemetry();

@@ -97,14 +97,14 @@ public final class Deposit {
 
     private final ElapsedTime timeSinceSampleReleased = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();
 
-    private Sample sample, badSample;
+    private Sample sample, specimenColor;
 
     private Deposit.State state = RETRACTED;
 
     private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
     public void setAlliance(boolean redAlliance) {
-        badSample = redAlliance ? BLUE : RED;
+        specimenColor = redAlliance ? RED : BLUE;
     }
 
     Deposit(HardwareMap hardwareMap) {
@@ -150,10 +150,10 @@ public final class Deposit {
                 // check color sensor if needed
                 colorSensor.update();
                 hsv = colorSensor.getHSV();
-                sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
+                sample = hsvToSample(hsv);      // if color sensor found specimen, hasSample() returns true
 
-                // grab specimen if present
-                if (hasSample()) triggerClaw();
+                // raise specimen if color sensor found one
+//                if (hasSample()) triggerClaw();
 
                 break;
 
@@ -256,7 +256,7 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                if (!hasSample()) sample = badSample == RED ? BLUE : RED;
+                if (!hasSample()) sample = specimenColor;
 
                 state = HAS_SPECIMEN;
                 setPosition(FLOOR);
