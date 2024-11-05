@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;

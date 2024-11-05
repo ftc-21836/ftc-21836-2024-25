@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.INACTIVE;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_LOW_RUNG;

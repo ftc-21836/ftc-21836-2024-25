@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.control.vision.detectors;
 
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.openftc.easyopencv.OpenCvCameraRotation.UPRIGHT;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;

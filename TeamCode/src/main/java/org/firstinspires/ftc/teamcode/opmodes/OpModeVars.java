@@ -7,13 +7,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
 
 @Config
-public final class SharedVars {
-
-    public static final double
-            LEFT = PI,
-            FORWARD = 0.5 * PI,
-            RIGHT = 0,
-            BACKWARD = -FORWARD;
+public final class OpModeVars {
 
     public static MultipleTelemetry mTelemetry;
 
@@ -23,7 +17,7 @@ public final class SharedVars {
         mTelemetry.addLine();
     }
 
-    public static Pose2d pose = new Pose2d(0,0,FORWARD);
+    public static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
 
     static boolean isRedAlliance = true;
 

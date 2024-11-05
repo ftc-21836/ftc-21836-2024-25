@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.divider;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.divider;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.LOW;

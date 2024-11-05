@@ -10,11 +10,11 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.divider;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.pose;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.divider;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRedAlliance;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.loopMod;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.pose;
 import static java.lang.Math.atan2;
 
 import com.acmerobotics.dashboard.FtcDashboard;

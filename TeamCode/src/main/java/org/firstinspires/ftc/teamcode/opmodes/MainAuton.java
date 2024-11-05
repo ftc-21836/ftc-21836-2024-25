@@ -13,10 +13,10 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITI
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.ParkingLocation.CORNER;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.loopMod;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.mTelemetry;
-import static org.firstinspires.ftc.teamcode.opmodes.SharedVars.pose;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRedAlliance;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.loopMod;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.pose;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -40,7 +40,7 @@ public final class MainAuton extends LinearOpMode {
         public static final AutonConfig[] selections = values();
 
         public AutonConfig plus(int i) {
-            return selections[SharedVars.loopMod(ordinal() + i, selections.length)];
+            return selections[OpModeVars.loopMod(ordinal() + i, selections.length)];
         }
         public String markIf(AutonConfig s) {
             return this == s ? " <" : "";
