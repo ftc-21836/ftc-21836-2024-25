@@ -99,6 +99,7 @@ public final class Climber {
 
             case PULLING_HIGH_RUNG:
                 limiterBars.setActivated(false);
+                outerHooks.set(0);
             case RAISING_ABOVE_LOW_RUNG:
 
                 innerHooks.setActivated(false);
