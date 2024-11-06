@@ -335,6 +335,10 @@ public final class Intake {
     void printTelemetry() {
         mTelemetry.addLine("INTAKE: " + state);
         mTelemetry.addLine();
+        if (state == INTAKING || state == BUCKET_PIVOTING || state == DROPPING_BAD_SAMPLE) {
+            mTelemetry.addLine("Extended " + extendedLength + " (mm)");
+            mTelemetry.addLine();
+        }
         mTelemetry.addLine(hasSample() ? sample + " sample" : "Empty");
         hsv.toTelemetry();
     }
