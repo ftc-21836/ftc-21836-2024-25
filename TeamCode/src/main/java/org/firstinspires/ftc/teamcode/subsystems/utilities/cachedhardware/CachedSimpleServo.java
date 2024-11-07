@@ -15,6 +15,11 @@ public final class CachedSimpleServo extends SimpleServo {
         super(hw, servoName, minDegree, maxDegree);
     }
 
+    public CachedSimpleServo reversed() {
+        setInverted(true);
+        return this;
+    }
+
     private double lastDegrees = 0;
 
     public void turnToAngle(double degrees) {

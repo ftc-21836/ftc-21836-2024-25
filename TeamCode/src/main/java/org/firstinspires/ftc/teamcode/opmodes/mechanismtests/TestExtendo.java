@@ -7,7 +7,6 @@ import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_EXTENDO_EXT
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_EXTENDO_RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.SPEED_MULTIPLIER_EXTENDO;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -24,7 +23,7 @@ public final class TestExtendo extends LinearOpMode {
         SimpleServoPivot extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
                 extendedAngle,
-                getReversedServo(getGoBildaServo(hardwareMap, "extendo right")),
+                getGoBildaServo(hardwareMap, "extendo right").reversed(),
                 getGoBildaServo(hardwareMap, "extendo left")
         );
 

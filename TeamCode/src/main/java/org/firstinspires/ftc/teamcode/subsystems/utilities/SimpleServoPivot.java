@@ -14,11 +14,6 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.Cached
  */
 public class SimpleServoPivot {
 
-    public static CachedSimpleServo getReversedServo(CachedSimpleServo servo) {
-        servo.setInverted(true);
-        return servo;
-    }
-
     public static CachedSimpleServo getAxonServo(HardwareMap hardwareMap, String name) {
         return new CachedSimpleServo(hardwareMap, name, 0, 355);
     }

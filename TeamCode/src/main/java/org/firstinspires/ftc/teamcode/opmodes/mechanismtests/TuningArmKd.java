@@ -4,7 +4,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.ANGLE_ARM_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -27,7 +26,7 @@ public final class TuningArmKd extends LinearOpMode {
                 ANGLE_ARM_RETRACTED,
                 ANGLE_ARM_SAMPLE,
                 getAxonServo(hardwareMap, "deposit left"),
-                getReversedServo(getAxonServo(hardwareMap, "deposit right"))
+                getAxonServo(hardwareMap, "deposit right").reversed()
         );
 
         // Initialize gamepads:

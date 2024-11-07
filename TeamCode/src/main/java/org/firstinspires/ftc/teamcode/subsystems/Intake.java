@@ -15,7 +15,6 @@ import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
 import static java.lang.Math.PI;
 import static java.lang.Math.asin;
 import static java.lang.Math.sin;
@@ -147,7 +146,7 @@ public final class Intake {
         bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
                 ANGLE_BUCKET_VERTICAL,
-                getReversedServo(getAxonServo(hardwareMap, "bucket right")),
+                getAxonServo(hardwareMap, "bucket right").reversed(),
                 getAxonServo(hardwareMap, "bucket left")
         );
 
@@ -160,7 +159,7 @@ public final class Intake {
         extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
                 extendedAngle,
-                getReversedServo(getGoBildaServo(hardwareMap, "extendo right")),
+                getGoBildaServo(hardwareMap, "extendo right").reversed(),
                 getGoBildaServo(hardwareMap, "extendo left")
         );
 
