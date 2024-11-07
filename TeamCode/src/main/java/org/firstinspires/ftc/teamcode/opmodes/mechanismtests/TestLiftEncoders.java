@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedMotorEx;
 
 @TeleOp(group = "Single mechanism test")
-public final class TestLiftEncoder extends LinearOpMode {
+public final class TestLiftEncoders extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -24,9 +24,8 @@ public final class TestLiftEncoder extends LinearOpMode {
 
         BulkReader bulkReader = new BulkReader(hardwareMap);
 
-        // Motors and variables to manage their readings:
-        Motor.Encoder encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
-        double offset = encoder.getPosition();
+        Motor.Encoder encoder0 = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
+        Motor.Encoder encoder1 = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
         
         waitForStart();
 
@@ -34,9 +33,9 @@ public final class TestLiftEncoder extends LinearOpMode {
         while (opModeIsActive()) {
             bulkReader.bulkRead();
 
-            double x = INCHES_PER_TICK * (encoder.getPosition() - offset);
+            double position = INCHES_PER_TICK * 0.5 * (encoder0.getPosition() + encoder1.getPosition());
 
-            mTelemetry.addData("Current position (in)", x);
+            mTelemetry.addData("Position (in)", position);
             mTelemetry.update();
         }
     }

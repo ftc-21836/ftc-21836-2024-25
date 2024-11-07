@@ -9,24 +9,19 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 
 @TeleOp(group = "Single mechanism test")
 public final class TuningArmKd extends LinearOpMode {
 
-    SimpleServoPivot pivot;
-
     @Override
     public void runOpMode() throws InterruptedException {
 
-        BulkReader bulkReader = new BulkReader(hardwareMap);
-
-        pivot = new SimpleServoPivot(
+        SimpleServoPivot arm = new SimpleServoPivot(
                 ANGLE_ARM_RETRACTED,
                 ANGLE_ARM_SAMPLE,
-                getAxonServo(hardwareMap, "deposit left"),
-                getAxonServo(hardwareMap, "deposit right").reversed()
+                getAxonServo(hardwareMap, "arm left"),
+                getAxonServo(hardwareMap, "arm right").reversed()
         );
 
         // Initialize gamepads:
@@ -36,14 +31,14 @@ public final class TuningArmKd extends LinearOpMode {
 
         // Control loop:
         while (opModeIsActive()) {
-            bulkReader.bulkRead();
+
             gamepadEx1.readButtons();
 
-            pivot.updateAngles(ANGLE_ARM_RETRACTED, ANGLE_ARM_SAMPLE);
+            arm.updateAngles(ANGLE_ARM_RETRACTED, ANGLE_ARM_SAMPLE);
 
-            if (gamepadEx1.wasJustPressed(X)) pivot.toggle();
+            if (gamepadEx1.wasJustPressed(X)) arm.toggle();
 
-            pivot.run();
+            arm.run();
         }
     }
 }

@@ -102,7 +102,7 @@ public final class Intake {
     /**
      * @return The {@link Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
      */
-    private static Sample hsvToSample(HSV hsv) {
+    public static Sample hsvToSample(HSV hsv) {
         return
                 hsv.between(minRed, maxRed) ? RED :
                 hsv.between(minBlue, maxBlue) ? BLUE :

@@ -10,9 +10,11 @@ import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPiv
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot;
 
+@TeleOp(group = "Single mechanism test")
 public final class TestExtendo extends LinearOpMode {
 
     @Override

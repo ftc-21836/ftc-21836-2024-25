@@ -77,7 +77,7 @@ public final class Deposit {
                     0.1
             );
 
-    public Sample hsvToSample(HSV hsv) {
+    public static Sample hsvToSample(HSV hsv) {
         if (hsv.between(minRed, maxRed)) return RED;
         if (hsv.between(minBlue, maxBlue)) return BLUE;
         return null;
