@@ -11,7 +11,6 @@ import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.RAISING_AB
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.RAISING_ABOVE_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
 import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
-import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -139,11 +138,7 @@ public final class Climber {
 
             case PULLING_LOW_RUNG:
 
-                double climbedPosition = HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET;
-                double error = abs(climbedPosition - lift.getPosition());
-                boolean climbed = error <= TOLERANCE_CLIMBED;
-
-                if (climbed) {
+                if (lift.getPosition() <= lift.getTarget() + TOLERANCE_CLIMBED) {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                     state = OUTER_HOOKS_EXTENDING;
