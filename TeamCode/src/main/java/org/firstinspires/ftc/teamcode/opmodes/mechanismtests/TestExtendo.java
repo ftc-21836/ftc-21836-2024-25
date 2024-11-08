@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
-
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
@@ -22,13 +20,9 @@ public final class TestExtendo extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        
-        double extendedAngle = ANGLE_EXTENDO_EXTENDED_MAX;
-
         SimpleServoPivot extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
-                extendedAngle,
+                ANGLE_EXTENDO_EXTENDED_MAX,
                 getGoBildaServo(hardwareMap, "extendo right").reversed(),
                 getGoBildaServo(hardwareMap, "extendo left")
         );
@@ -40,19 +34,11 @@ public final class TestExtendo extends LinearOpMode {
         while (opModeIsActive()) {
 
             gamepadEx1.readButtons();
+            
+            if (gamepadEx1.wasJustPressed(X)) extendo.toggle();
 
-            if (gamepadEx1.wasJustPressed(X)) {
-                extendo.toggle();
-                if (!extendo.isActivated()) extendedAngle = ANGLE_EXTENDO_EXTENDED_MAX;
-            }
-
-            extendedAngle += SPEED_MULTIPLIER_EXTENDO * (gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER));
-
-            extendo.updateAngles(ANGLE_EXTENDO_RETRACTED,extendedAngle);
+            extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
             extendo.run();
-
-            mTelemetry.addLine("Extended angle: " + extendedAngle);
-            mTelemetry.update();
 
         }
 
