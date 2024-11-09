@@ -13,8 +13,8 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Lift.HEIGHT_MAX;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getAxon;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getGBServo;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -124,14 +124,14 @@ public final class Deposit {
         arm = new SimpleServoPivot(
                 ANGLE_ARM_RETRACTED,
                 ANGLE_ARM_SAMPLE,
-                getAxonServo(hardwareMap, "arm left"),
-                getAxonServo(hardwareMap, "arm right").reversed()
+                getAxon(hardwareMap, "arm left"),
+                getAxon(hardwareMap, "arm right").reversed()
         );
 
         claw = new SimpleServoPivot(
                 ANGLE_CLAW_TRANSFER,
                 ANGLE_CLAW_CLOSED,
-                getGoBildaServo(hardwareMap, "claw").reversed()
+                getGBServo(hardwareMap, "claw").reversed()
         );
 
         colorSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);

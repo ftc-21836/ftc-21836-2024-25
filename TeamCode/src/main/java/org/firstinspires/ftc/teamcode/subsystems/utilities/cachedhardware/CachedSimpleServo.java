@@ -15,6 +15,14 @@ public final class CachedSimpleServo extends SimpleServo {
         super(hw, servoName, minDegree, maxDegree);
     }
 
+    public static CachedSimpleServo getAxon(HardwareMap hardwareMap, String name) {
+        return new CachedSimpleServo(hardwareMap, name, 0, 355);
+    }
+
+    public static CachedSimpleServo getGBServo(HardwareMap hardwareMap, String name) {
+        return new CachedSimpleServo(hardwareMap, name, 0, 280);
+    }
+
     public CachedSimpleServo reversed() {
         setInverted(true);
         return this;

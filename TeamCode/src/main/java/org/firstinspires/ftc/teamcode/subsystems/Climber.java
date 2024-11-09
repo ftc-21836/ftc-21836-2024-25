@@ -9,7 +9,7 @@ import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_HI
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.PULLING_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.RAISING_ABOVE_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystems.Climber.State.RAISING_ABOVE_LOW_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getGBServo;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -77,15 +77,15 @@ public final class Climber {
         innerHooks = new SimpleServoPivot(
                 ANGLE_HOOKS_RETRACTED,
                 ANGLE_HOOKS_EXTENDED,
-                getGoBildaServo(hardwareMap, "right inner hook"),
-                getGoBildaServo(hardwareMap, "left inner hook").reversed()
+                getGBServo(hardwareMap, "right inner hook"),
+                getGBServo(hardwareMap, "left inner hook").reversed()
         );
 
         limiterBars = new SimpleServoPivot(
                 ANGLE_BARS_RETRACTED,
                 ANGLE_BARS_EXTENDED,
-                getGoBildaServo(hardwareMap, "right bar"),
-                getGoBildaServo(hardwareMap, "left bar").reversed()
+                getGBServo(hardwareMap, "right bar"),
+                getGBServo(hardwareMap, "left bar").reversed()
         );
 
         outerHooks = new CachedMotorEx(hardwareMap, "outer hooks", Motor.GoBILDA.RPM_1150);

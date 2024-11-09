@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.mechanismtests;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_EXTENDO_EXTENDED_MAX;
 import static org.firstinspires.ftc.teamcode.subsystems.Intake.ANGLE_EXTENDO_RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Intake.SPEED_MULTIPLIER_EXTENDO;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getGBServo;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -23,8 +20,8 @@ public final class TestExtendo extends LinearOpMode {
         SimpleServoPivot extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
                 ANGLE_EXTENDO_EXTENDED_MAX,
-                getGoBildaServo(hardwareMap, "extendo right").reversed(),
-                getGoBildaServo(hardwareMap, "extendo left")
+                getGBServo(hardwareMap, "extendo right").reversed(),
+                getGBServo(hardwareMap, "extendo left")
         );
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
@@ -34,7 +31,7 @@ public final class TestExtendo extends LinearOpMode {
         while (opModeIsActive()) {
 
             gamepadEx1.readButtons();
-            
+
             if (gamepadEx1.wasJustPressed(X)) extendo.toggle();
 
             extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);

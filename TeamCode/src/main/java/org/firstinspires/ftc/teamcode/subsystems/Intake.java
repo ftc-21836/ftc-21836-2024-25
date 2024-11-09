@@ -13,8 +13,8 @@ import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getAxon;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getGBServo;
 import static java.lang.Math.PI;
 import static java.lang.Math.asin;
 import static java.lang.Math.sin;
@@ -146,21 +146,21 @@ public final class Intake {
         bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
                 ANGLE_BUCKET_VERTICAL,
-                getAxonServo(hardwareMap, "bucket right").reversed(),
-                getAxonServo(hardwareMap, "bucket left")
+                getAxon(hardwareMap, "bucket right").reversed(),
+                getAxon(hardwareMap, "bucket left")
         );
 
         latch = new SimpleServoPivot(
                 ANGLE_LATCH_TRANSFERRING,
                 ANGLE_LATCH_LOCKED,
-                getGoBildaServo(hardwareMap, "latch")
+                getGBServo(hardwareMap, "latch")
         );
 
         extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
                 extendedAngle,
-                getGoBildaServo(hardwareMap, "extendo right").reversed(),
-                getGoBildaServo(hardwareMap, "extendo left")
+                getGBServo(hardwareMap, "extendo right").reversed(),
+                getGBServo(hardwareMap, "extendo left")
         );
 
         motor = new CachedMotorEx(hardwareMap, "intake", RPM_1620);
