@@ -21,7 +21,7 @@ public final class TestExtendo extends LinearOpMode {
                 ANGLE_EXTENDO_RETRACTED,
                 ANGLE_EXTENDO_EXTENDED_MAX,
                 getGBServo(hardwareMap, "extendo right").reversed(),
-                getGBServo(hardwareMap, "extendo left")
+                getGBServo(hardwareMap, "extendo left").reversed()
         );
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);

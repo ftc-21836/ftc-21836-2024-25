@@ -160,7 +160,7 @@ public final class Intake {
                 ANGLE_EXTENDO_RETRACTED,
                 extendedAngle,
                 getGBServo(hardwareMap, "extendo right").reversed(),
-                getGBServo(hardwareMap, "extendo left")
+                getGBServo(hardwareMap, "extendo left").reversed()
         );
 
         motor = new CachedMotorEx(hardwareMap, "intake", RPM_1620);
