@@ -28,7 +28,6 @@ public final class Climber {
             ANGLE_BARS_RETRACTED = 0,
             ANGLE_BARS_EXTENDED = 90,
 
-            TIME_CLIMB_LOW_RUNG = 4,
             TIME_OUTER_HOOKS_EXTENSION = 1,
             TIME_OUTER_HOOKS_RETRACTION = 1,
             TIME_INNER_HOOKS_EXTENSION = 1,
@@ -41,7 +40,6 @@ public final class Climber {
 
             HEIGHT_RUNG_LOW_RAISED = 1,
             HEIGHT_RUNG_LOW_CLIMB_OFFSET = -1,
-            HEIGHT_RANGE_INNER_HOOKS_RETRACTED = 2,
             HEIGHT_RUNG_HIGH_RAISED = 1,
             HEIGHT_TO_ACTIVATE_LIMITER_BAR = 1,
             HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -1;
