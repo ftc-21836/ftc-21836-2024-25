@@ -23,26 +23,26 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.Cached
 public final class Climber {
 
     public static double
-            ANGLE_HOOKS_RETRACTED = 0,
-            ANGLE_HOOKS_EXTENDED = 90,
-            ANGLE_BARS_RETRACTED = 0,
-            ANGLE_BARS_EXTENDED = 90,
+            ANGLE_HOOKS_RETRACTED = 7,
+            ANGLE_HOOKS_EXTENDED = 105.4,
+
+            ANGLE_BARS_RETRACTED = 7,
+            ANGLE_BARS_EXTENDED = 97,
 
             TIME_OUTER_HOOKS_EXTENSION = 1,
             TIME_OUTER_HOOKS_RETRACTION = 1,
             TIME_INNER_HOOKS_EXTENSION = 1,
 
-            SPEED_OUTER_HOOKS_EXTENDING = 0.5,
-            SPEED_OUTER_HOOKS_RETRACTING = -0.1,
+            SPEED_OUTER_HOOKS = 0.5,
 
             TOLERANCE_CLIMBED = 0.25,
             TOLERANCE_RAISED = 0.25,
 
-            HEIGHT_RUNG_LOW_RAISED = 1,
-            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -1,
-            HEIGHT_RUNG_HIGH_RAISED = 1,
-            HEIGHT_TO_ACTIVATE_LIMITER_BAR = 1,
-            HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -1;
+            HEIGHT_RUNG_LOW_RAISED = 12.75,
+            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -3,
+            HEIGHT_RUNG_HIGH_RAISED = 32,
+            HEIGHT_TO_ACTIVATE_LIMITER_BAR = 12,
+            HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -20;
 
     private final SimpleServoPivot innerHooks, limiterBars;
 
@@ -75,19 +75,20 @@ public final class Climber {
         innerHooks = new SimpleServoPivot(
                 ANGLE_HOOKS_RETRACTED,
                 ANGLE_HOOKS_EXTENDED,
-                getGBServo(hardwareMap, "right inner hook"),
-                getGBServo(hardwareMap, "left inner hook").reversed()
+                getGBServo(hardwareMap, "right inner hook").reversed(),
+                getGBServo(hardwareMap, "left inner hook")
         );
 
         limiterBars = new SimpleServoPivot(
                 ANGLE_BARS_RETRACTED,
                 ANGLE_BARS_EXTENDED,
-                getGBServo(hardwareMap, "right bar"),
-                getGBServo(hardwareMap, "left bar").reversed()
+                getGBServo(hardwareMap, "right bar").reversed(),
+                getGBServo(hardwareMap, "left bar")
         );
 
         outerHooks = new CachedMotorEx(hardwareMap, "outer hooks", Motor.GoBILDA.RPM_1150);
         outerHooks.setZeroPowerBehavior(FLOAT);
+        outerHooks.setInverted(true);
     }
 
     public void cancelClimb() {
@@ -134,7 +135,7 @@ public final class Climber {
 
                 if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) {
 
-                    outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
+                    outerHooks.set(SPEED_OUTER_HOOKS);
                     state = OUTER_HOOKS_EXTENDING;
                     timer.reset();
 
@@ -168,7 +169,7 @@ public final class Climber {
 
                 if (timer.seconds() >= TIME_INNER_HOOKS_EXTENSION) {
 
-                    outerHooks.set(SPEED_OUTER_HOOKS_RETRACTING);
+                    outerHooks.set(-SPEED_OUTER_HOOKS);
                     timer.reset();
                     lift.setTarget(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
                     state = PULLING_HIGH_RUNG;
