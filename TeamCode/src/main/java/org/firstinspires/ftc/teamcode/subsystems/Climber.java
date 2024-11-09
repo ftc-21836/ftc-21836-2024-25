@@ -135,7 +135,7 @@ public final class Climber {
 
             case PULLING_LOW_RUNG:
 
-                if (lift.getPosition() <= lift.getTarget() + TOLERANCE_CLIMBED) {
+                if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) {
 
                     outerHooks.set(SPEED_OUTER_HOOKS_EXTENDING);
                     state = OUTER_HOOKS_EXTENDING;
@@ -160,7 +160,7 @@ public final class Climber {
 
                 innerHooks.setActivated(!hooksDisengaged);
 
-                if (lift.getPosition() >= HEIGHT_RUNG_HIGH_RAISED - TOLERANCE_RAISED) {
+                if (lift.getPosition() + TOLERANCE_RAISED >= HEIGHT_RUNG_HIGH_RAISED) {
 
                     innerHooks.setActivated(true);
                     state = INNER_HOOKS_EXTENDING;
