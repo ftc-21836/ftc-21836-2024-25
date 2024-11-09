@@ -107,10 +107,7 @@ public final class Climber {
     }
 
     public void climb() {
-
-        // THESE ALL TRIGGER ONCE WHEN CLIMB BUTTON PRESSED
         // climb button has different behavior for each state:
-
         switch (state) {
             case INACTIVE:
 
@@ -154,11 +151,10 @@ public final class Climber {
 
             case RAISING_ABOVE_HIGH_RUNG:
 
-                boolean hooksDisengaged = lift.getPosition() >= HEIGHT_RUNG_LOW_RAISED;
-
-                if (hooksDisengaged) outerHooks.set(0);
-
-                innerHooks.setActivated(!hooksDisengaged);
+                if (innerHooks.isActivated() && lift.getPosition() >= HEIGHT_RUNG_LOW_RAISED) {
+                    outerHooks.set(0);
+                    innerHooks.setActivated(false);
+                }
 
                 if (lift.getPosition() + TOLERANCE_RAISED >= HEIGHT_RUNG_HIGH_RAISED) {
 
