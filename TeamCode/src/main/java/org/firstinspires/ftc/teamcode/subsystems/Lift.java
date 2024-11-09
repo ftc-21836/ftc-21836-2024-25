@@ -80,6 +80,8 @@ public final class Lift {
 
     void run(boolean freeToMove) {
 
+        readSensors();
+
         if (manualLiftPower != 0) setTarget(getPosition()); // replace PID target with current state if using manual control
 
         controller.setTarget(freeToMove ? new State(getTarget()) : ZERO_STATE); // set PID target to 0 (retract) if intake isn't yet out of the way

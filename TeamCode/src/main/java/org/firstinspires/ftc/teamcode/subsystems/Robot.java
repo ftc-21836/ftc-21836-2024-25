@@ -38,7 +38,6 @@ public final class Robot {
     public void readSensors() {
         bulkReader.bulkRead();
         drivetrain.updatePoseEstimate();
-        deposit.lift.readSensors();
     }
 
     public void run() {
