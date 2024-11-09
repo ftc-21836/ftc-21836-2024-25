@@ -11,6 +11,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTO
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
@@ -155,21 +156,21 @@ public final class MainTeleOp extends LinearOpMode {
 
                 if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
                 if (gamepadEx1.wasJustPressed(A))               robot.intake.dumpSample();
-//                if (keyPressed(gamepadEx1, Y))               robot.climber.climb();
-//
-//                if (robot.climber.isActive()) {
-//
-//                    if (keyPressed(gamepadEx1, DPAD_DOWN)) robot.climber.cancelClimb();
-//
-//                } else {
+                if (gamepadEx1.wasJustPressed(Y))               robot.climber.climb();
 
-                if (gamepadEx1.wasJustPressed(DPAD_UP)) robot.deposit.setPosition(HIGH);
-                else if (gamepadEx1.wasJustPressed(DPAD_LEFT)) robot.deposit.setPosition(LOW);
-                else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
-                else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
-//
-                if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
-//                }
+                if (robot.climber.isActive()) {
+
+                    if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.climber.cancelClimb();
+
+                } else {
+
+                    if (gamepadEx1.wasJustPressed(DPAD_UP)) robot.deposit.setPosition(HIGH);
+                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT)) robot.deposit.setPosition(LOW);
+                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
+                    else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
+
+                    if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
+                }
 
             }
 
