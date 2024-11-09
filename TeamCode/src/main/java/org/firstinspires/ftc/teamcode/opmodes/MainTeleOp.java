@@ -1,19 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmodes.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
@@ -22,11 +12,6 @@ import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.pose;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.FLOOR;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.HIGH;
-import static org.firstinspires.ftc.teamcode.subsystems.Deposit.Position.LOW;
-import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
-import static java.lang.Math.atan2;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -65,7 +50,7 @@ public final class MainTeleOp extends LinearOpMode {
 
         // Initialize robot:
         Robot robot = new Robot(hardwareMap, pose);
-        robot.drivetrain.localizer.trackHeadingOnly(true);
+//        robot.drivetrain.localizer.trackHeadingOnly(true);
 
         // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
@@ -103,10 +88,10 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
         }
 
-        robot.drivetrain.localizer.setPosition(pose);
+//        robot.drivetrain.localizer.setPosition(pose);
 
-        robot.intake.setAlliance(isRedAlliance);
-        robot.deposit.setAlliance(isRedAlliance);
+//        robot.intake.setAlliance(isRedAlliance);
+//        robot.deposit.setAlliance(isRedAlliance);
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -123,21 +108,21 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.offsetExtension(
-                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-                );
-
-                robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
-                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON)) robot.deposit.lift.reset();
-
-                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON)) robot.drivetrain.localizer.reset();
-
-                // SET HEADING:
-                double rightY = gamepadEx1.getRightY();
-                if (rightX*rightX + rightY*rightY >= 0.64) {
-                    double radians = -atan2(rightY, rightX);
-                    robot.drivetrain.localizer.setHeading(radians);
-                }
+//                robot.intake.offsetExtension(
+//                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+//                );
+//
+//                robot.deposit.lift.setLiftPower(gamepadEx1.getLeftY());
+//                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON)) robot.deposit.lift.reset();
+//
+//                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON)) robot.drivetrain.localizer.reset();
+//
+//                // SET HEADING:
+//                double rightY = gamepadEx1.getRightY();
+//                if (rightX*rightX + rightY*rightY >= 0.64) {
+//                    double radians = -atan2(rightY, rightX);
+//                    robot.drivetrain.localizer.setHeading(radians);
+//                }
 
                 rightX = 0;
                 leftX = 0;
@@ -150,27 +135,27 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                robot.intake.setMotorPower(
-                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-                );
-
-                if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
-                if (gamepadEx1.wasJustPressed(A))               robot.intake.dumpSample();
-                if (gamepadEx1.wasJustPressed(Y))               robot.climber.climb();
-
-                if (robot.climber.isActive()) {
-
-                    if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.climber.cancelClimb();
-
-                } else {
-
-                    if (gamepadEx1.wasJustPressed(DPAD_UP)) robot.deposit.setPosition(HIGH);
-                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT)) robot.deposit.setPosition(LOW);
-                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
-                    else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
-
-                    if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
-                }
+//                robot.intake.setMotorPower(
+//                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
+//                );
+//
+//                if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
+//                if (gamepadEx1.wasJustPressed(A))               robot.intake.dumpSample();
+//                if (gamepadEx1.wasJustPressed(Y))               robot.climber.climb();
+//
+//                if (robot.climber.isActive()) {
+//
+//                    if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.climber.cancelClimb();
+//
+//                } else {
+//
+//                    if (gamepadEx1.wasJustPressed(DPAD_UP)) robot.deposit.setPosition(HIGH);
+//                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT)) robot.deposit.setPosition(LOW);
+//                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
+//                    else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
+//
+//                    if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
+//                }
 
             }
 
@@ -182,8 +167,8 @@ public final class MainTeleOp extends LinearOpMode {
                     leftX,
                     leftY,
                     rightX,
-                    slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0,
-                    useFieldCentric
+                    true,
+                    false
             );
 
             mTelemetry.addData("LOOP TIME", loopTimer.seconds());
