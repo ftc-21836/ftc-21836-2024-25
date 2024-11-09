@@ -42,13 +42,13 @@ public final class Deposit {
 
             COLOR_SENSOR_GAIN = 1,
 
-            HEIGHT_INTAKING_SPECIMEN = 1,
+            HEIGHT_INTAKING_SPECIMEN = 0.1,
             HEIGHT_OFFSET_POST_INTAKING = 4,
             HEIGHT_OBSERVATION_ZONE = 1,
             HEIGHT_BASKET_LOW = 20,
             HEIGHT_BASKET_HIGH = 32,
-            HEIGHT_CHAMBER_LOW = 20,
-            HEIGHT_CHAMBER_HIGH = 32,
+            HEIGHT_CHAMBER_LOW = 6,
+            HEIGHT_CHAMBER_HIGH = 20,
             HEIGHT_OFFSET_SPECIMEN_SCORING = -10;
 
     /**

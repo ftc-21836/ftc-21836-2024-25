@@ -159,7 +159,7 @@ public final class Intake {
         extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
                 extendedAngle,
-                getGBServo(hardwareMap, "extendo right").reversed(),
+                getGBServo(hardwareMap, "extendo right"),
                 getGBServo(hardwareMap, "extendo left").reversed()
         );
 
