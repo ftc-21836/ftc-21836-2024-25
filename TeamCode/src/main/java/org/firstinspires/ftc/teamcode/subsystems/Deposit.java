@@ -10,12 +10,10 @@ import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SAMPLE
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.HAS_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystems.Deposit.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystems.Lift.HEIGHT_MAX;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getAxon;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getGBServo;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -44,13 +42,13 @@ public final class Deposit {
 
             COLOR_SENSOR_GAIN = 1,
 
-            HEIGHT_INTAKING_SPECIMEN = 1,
+            HEIGHT_INTAKING_SPECIMEN = 0.1,
             HEIGHT_OFFSET_POST_INTAKING = 4,
             HEIGHT_OBSERVATION_ZONE = 1,
             HEIGHT_BASKET_LOW = 20,
             HEIGHT_BASKET_HIGH = 32,
-            HEIGHT_CHAMBER_LOW = 20,
-            HEIGHT_CHAMBER_HIGH = 32,
+            HEIGHT_CHAMBER_LOW = 6,
+            HEIGHT_CHAMBER_HIGH = 20,
             HEIGHT_OFFSET_SPECIMEN_SCORING = -10;
 
     /**
@@ -78,7 +76,7 @@ public final class Deposit {
                     0.1
             );
 
-    public Sample hsvToSample(HSV hsv) {
+    public static Sample hsvToSample(HSV hsv) {
         if (hsv.between(minRed, maxRed)) return RED;
         if (hsv.between(minBlue, maxBlue)) return BLUE;
         return null;
@@ -125,14 +123,14 @@ public final class Deposit {
         arm = new SimpleServoPivot(
                 ANGLE_ARM_RETRACTED,
                 ANGLE_ARM_SAMPLE,
-                getAxonServo(hardwareMap, "arm left"),
-                getReversedServo(getAxonServo(hardwareMap, "arm right"))
+                getAxon(hardwareMap, "arm left"),
+                getAxon(hardwareMap, "arm right").reversed()
         );
 
         claw = new SimpleServoPivot(
                 ANGLE_CLAW_TRANSFER,
                 ANGLE_CLAW_CLOSED,
-                getReversedServo(getGoBildaServo(hardwareMap, "claw"))
+                getGBServo(hardwareMap, "claw").reversed()
         );
 
         colorSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);
@@ -276,7 +274,8 @@ public final class Deposit {
             case HAS_SPECIMEN:
 
                 if (lift.getTarget() != 0) {
-                    releaseSpecimenHeight = clip(lift.getPosition() + HEIGHT_OFFSET_SPECIMEN_SCORING, 0, HEIGHT_MAX);
+                    double position = lift.getPosition();
+                    releaseSpecimenHeight = clip(position + HEIGHT_OFFSET_SPECIMEN_SCORING, 0, position);
                     lift.setTarget(0);
                     break;
                 }

@@ -13,9 +13,8 @@ import static org.firstinspires.ftc.teamcode.subsystems.Intake.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystems.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getAxonServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getGoBildaServo;
-import static org.firstinspires.ftc.teamcode.subsystems.utilities.SimpleServoPivot.getReversedServo;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getAxon;
+import static org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedSimpleServo.getGBServo;
 import static java.lang.Math.PI;
 import static java.lang.Math.asin;
 import static java.lang.Math.sin;
@@ -103,7 +102,7 @@ public final class Intake {
     /**
      * @return The {@link Sample} corresponding to the provided {@link HSV} as per the tuned value bounds
      */
-    private static Sample hsvToSample(HSV hsv) {
+    public static Sample hsvToSample(HSV hsv) {
         return
                 hsv.between(minRed, maxRed) ? RED :
                 hsv.between(minBlue, maxBlue) ? BLUE :
@@ -147,21 +146,21 @@ public final class Intake {
         bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
                 ANGLE_BUCKET_VERTICAL,
-                getReversedServo(getAxonServo(hardwareMap, "bucket right")),
-                getAxonServo(hardwareMap, "bucket left")
+                getAxon(hardwareMap, "bucket right").reversed(),
+                getAxon(hardwareMap, "bucket left")
         );
 
         latch = new SimpleServoPivot(
                 ANGLE_LATCH_TRANSFERRING,
                 ANGLE_LATCH_LOCKED,
-                getGoBildaServo(hardwareMap, "latch")
+                getGBServo(hardwareMap, "latch")
         );
 
         extendo = new SimpleServoPivot(
                 ANGLE_EXTENDO_RETRACTED,
                 extendedAngle,
-                getReversedServo(getGoBildaServo(hardwareMap, "extendo right")),
-                getGoBildaServo(hardwareMap, "extendo left")
+                getGBServo(hardwareMap, "extendo right"),
+                getGBServo(hardwareMap, "extendo left").reversed()
         );
 
         motor = new CachedMotorEx(hardwareMap, "intake", RPM_1620);
@@ -335,6 +334,10 @@ public final class Intake {
     void printTelemetry() {
         mTelemetry.addLine("INTAKE: " + state);
         mTelemetry.addLine();
+        if (state == INTAKING || state == BUCKET_PIVOTING || state == DROPPING_BAD_SAMPLE) {
+            mTelemetry.addLine("Extended " + extendedLength + " (mm)");
+            mTelemetry.addLine();
+        }
         mTelemetry.addLine(hasSample() ? sample + " sample" : "Empty");
         hsv.toTelemetry();
     }

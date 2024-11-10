@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
@@ -18,17 +17,16 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.Cached
 public final class Lift {
 
     public static PIDGains pidGains = new PIDGains(
-            0.3,
-            0.2,
+            0.5,
+            0.4,
             0,
-            0.2
+            1
     );
 
     public static double
             kG = 0.15,
             INCHES_PER_TICK = 0.0088581424,
             HEIGHT_RETRACTED_THRESHOLD = 0.5,
-            HEIGHT_MAX = 32,
             MAX_VOLTAGE = 13;
 
     // Motors and variables to manage their readings:
@@ -79,6 +77,8 @@ public final class Lift {
     }
 
     void run(boolean freeToMove) {
+
+        readSensors();
 
         if (manualLiftPower != 0) setTarget(getPosition()); // replace PID target with current state if using manual control
 
