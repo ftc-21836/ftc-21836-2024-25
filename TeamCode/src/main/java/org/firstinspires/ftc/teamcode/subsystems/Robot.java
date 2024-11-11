@@ -37,7 +37,7 @@ public final class Robot {
 
     public void readSensors() {
         bulkReader.bulkRead();
-        drivetrain.updatePoseEstimate();
+//        drivetrain.updatePoseEstimate();
     }
 
     public void run() {

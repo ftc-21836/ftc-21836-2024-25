@@ -139,7 +139,7 @@ public final class MainTeleOp extends LinearOpMode {
 //                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
 //                );
 //
-//                if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
+                if (gamepadEx1.wasJustPressed(X))               robot.drivetrain.lazyImu.get().resetYaw();
 //                if (gamepadEx1.wasJustPressed(A))               robot.intake.dumpSample();
 //                if (gamepadEx1.wasJustPressed(Y))               robot.climber.climb();
 //
