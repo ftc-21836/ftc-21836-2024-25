@@ -21,6 +21,8 @@ public final class OpModeVars {
 
     static boolean isRedAlliance = true;
 
+    static boolean isBlueAlliance = false;
+
     public static int loopMod(int x, int max) {
         return (int) loopMod(x,(double) max);
     }

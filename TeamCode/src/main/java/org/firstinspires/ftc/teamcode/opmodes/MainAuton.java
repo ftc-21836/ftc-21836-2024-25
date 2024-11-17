@@ -13,7 +13,9 @@ import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITI
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmodes.MainAuton.ParkingLocation.CORNER;
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isBlueAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isRedAlliance;
+//import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.isBlueAlliance;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.pose;
@@ -35,6 +37,7 @@ public final class MainAuton extends LinearOpMode {
         EDITING_SIDE,
         EDITING_PARK,
         EDITING_CYCLE,
+        EDITING_END,
         EDITING_WAIT;
 
         public static final AutonConfig[] selections = values();
@@ -90,6 +93,7 @@ public final class MainAuton extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(X)) switch (selection) {
                 case EDITING_ALLIANCE:
                     isRedAlliance = !isRedAlliance;
+                    isBlueAlliance =!isBlueAlliance;
                     break;
                 case EDITING_SIDE:
                     isRight = !isRight;
@@ -121,6 +125,7 @@ public final class MainAuton extends LinearOpMode {
 
         TeamPropDetector detector = new TeamPropDetector(hardwareMap);
         detector.pipeline.isRedAlliance = isRedAlliance;
+        //detector.pipeline.isBlueAlliance = isBlueAlliance;
 
 //        EditablePose startPose = OpModeVars.startPose.byBoth();
 //        robot.drivetrain.setPoseEstimate(startPose);
