@@ -5,8 +5,8 @@ import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
 
-import org.firstinspires.ftc.teamcode.control.controllers.PIDController;
-import org.firstinspires.ftc.teamcode.control.gainmatrices.PIDGains;
+import org.firstinspires.ftc.teamcode.control.controller.PIDController;
+import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
 
 @Config
 public final class PIDDriver {

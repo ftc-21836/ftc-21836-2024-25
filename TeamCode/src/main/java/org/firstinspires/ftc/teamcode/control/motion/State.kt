@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.control.motion
 
-import org.firstinspires.ftc.teamcode.control.gainmatrices.FeedforwardGains
-import org.firstinspires.ftc.teamcode.control.gainmatrices.FullStateGains
+import org.firstinspires.ftc.teamcode.control.gainmatrix.FeedforwardGains
+import org.firstinspires.ftc.teamcode.control.gainmatrix.FullStateGains
 
 data class State
 
