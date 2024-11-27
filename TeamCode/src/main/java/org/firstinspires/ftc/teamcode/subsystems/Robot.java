@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.divider;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,9 +13,9 @@ import org.firstinspires.ftc.teamcode.subsystems.utilities.BulkReader;
 public final class Robot {
 
     public final MecanumDrive drivetrain;
-//    public final Intake intake;
-//    public final Deposit deposit;
-//    public final Climber climber;
+    public final Intake intake;
+    public final Deposit deposit;
+    public final Climber climber;
 
     private final BulkReader bulkReader;
 
@@ -21,9 +23,9 @@ public final class Robot {
 
         drivetrain = new MecanumDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
-//        intake = new Intake(hardwareMap);
-//        deposit = new Deposit(hardwareMap);
-//        climber = new Climber(hardwareMap, deposit.lift);
+        intake = new Intake(hardwareMap);
+        deposit = new Deposit(hardwareMap);
+        climber = new Climber(hardwareMap, deposit.lift);
     }
 
     public void preload(boolean backdropSide) {
@@ -42,11 +44,11 @@ public final class Robot {
 
     public void run() {
 
-//        if (intake.awaitingTransfer()) deposit.transfer(intake.transfer());
-//
-//        intake.run(deposit.hasSample(), deposit.isActive());
-//        deposit.run(intake.clearOfDeposit(), climber.isActive());
-//        climber.run();
+        if (intake.awaitingTransfer()) deposit.transfer(intake.transfer());
+
+        intake.run(deposit.hasSample(), deposit.isActive());
+        deposit.run(intake.clearOfDeposit(), climber.isActive());
+        climber.run();
     }
 
     public boolean requestingSlowMode() {
@@ -56,11 +58,11 @@ public final class Robot {
 
     public void printTelemetry() {
         drivetrain.printTelemetry();
-//        divider();
-//        intake.printTelemetry();
-//        divider();
-//        deposit.printTelemetry();
-//        divider();
-//        climber.printTelemetry();
+        divider();
+        intake.printTelemetry();
+        divider();
+        deposit.printTelemetry();
+        divider();
+        climber.printTelemetry();
     }
 }
