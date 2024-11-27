@@ -195,7 +195,7 @@ public final class Deposit {
         arm.run();
         claw.run();
 
-        lift.run(intakeClearOfDeposit);
+        lift.run(intakeClearOfDeposit, climbing);
 
         if (arm.isActivated()) timeSinceArmExtended.reset();
     }
