@@ -51,37 +51,6 @@ public final class Deposit {
             HEIGHT_CHAMBER_HIGH = 20,
             HEIGHT_OFFSET_SPECIMEN_SCORING = -10;
 
-    /**
-     * HSV value bound for specimen detection
-     */
-    public static HSV
-            minRed = new HSV(
-                    15,
-                    0.5,
-                    0.009
-            ),
-            maxRed = new HSV(
-                    30,
-                    0.75,
-                    0.06
-            ),
-            minBlue = new HSV(
-                    215,
-                    0.6,
-                    0.01
-            ),
-            maxBlue = new HSV(
-                    230,
-                    0.9,
-                    0.1
-            );
-
-    public static Sample hsvToSample(HSV hsv) {
-        if (hsv.between(minRed, maxRed)) return RED;
-        if (hsv.between(minBlue, maxBlue)) return BLUE;
-        return null;
-    }
-
     enum State {
         RETRACTED,
         HAS_SAMPLE,
@@ -153,7 +122,6 @@ public final class Deposit {
                     // check color sensor if needed
                     colorSensor.update();
                     hsv = colorSensor.getHSV();
-                    sample = hsvToSample(hsv);      // if color sensor found specimen, hasSample() returns true
 
                     timeSinceSpecimenGrabbed.reset();
 
