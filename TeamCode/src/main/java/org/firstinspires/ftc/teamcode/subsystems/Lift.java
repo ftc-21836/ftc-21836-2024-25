@@ -32,11 +32,9 @@ public final class Lift {
     // Motors and variables to manage their readings:
     private final CachedMotorEx[] motors;
     private final PIDController controller = new PIDController();
+    private final VoltageSensor batteryVoltageSensor;
 
     private double position, target, manualPower;
-
-    // Battery voltage sensor and variable to track its readings:
-    private final VoltageSensor batteryVoltageSensor;
 
     Lift(HardwareMap hardwareMap) {
         this.batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
