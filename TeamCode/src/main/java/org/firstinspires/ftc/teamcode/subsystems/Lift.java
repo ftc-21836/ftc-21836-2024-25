@@ -33,9 +33,7 @@ public final class Lift {
     private final CachedMotorEx[] motors;
     private final PIDController controller = new PIDController();
 
-    private final State ZERO_STATE = new State();
-
-    private double position, target, manualLiftPower;
+    private double position, target, manualPower;
 
     // Battery voltage sensor and variable to track its readings:
     private final VoltageSensor batteryVoltageSensor;
@@ -43,14 +41,16 @@ public final class Lift {
     Lift(HardwareMap hardwareMap) {
         this.batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
         this.motors = new CachedMotorEx[]{
-                new CachedMotorEx(hardwareMap, "lift right", RPM_312),
-                new CachedMotorEx(hardwareMap, "lift left", RPM_312)
+                new CachedMotorEx(hardwareMap, "lift 1", RPM_312),
+                new CachedMotorEx(hardwareMap, "lift 2", RPM_312),
+                new CachedMotorEx(hardwareMap, "lift 3", RPM_312)
         };
         motors[1].setInverted(true);
         for (CachedMotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
 
         motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
+        motors[2].encoder = new CachedMotorEx(hardwareMap, "left front", RPM_312).encoder;
 
 //        motors[1].encoder.setDirection(REVERSE);
 
@@ -67,32 +67,31 @@ public final class Lift {
         return getPosition() > HEIGHT_RETRACTED_THRESHOLD;
     }
 
-    public void setLiftPower(double manualLiftPower) {
-        this.manualLiftPower = manualLiftPower;
-    }
-
-    void readSensors() {
-        position = INCHES_PER_TICK * 0.5 * (motors[0].encoder.getPosition() + motors[1].encoder.getPosition());
-        controller.setGains(pidGains);
+    public void runManual(double power) {
+        this.manualPower = power;
     }
 
     void run(boolean freeToMove) {
 
-        readSensors();
+        position = INCHES_PER_TICK * ((motors[0].encoder.getPosition() + motors[1].encoder.getPosition() + motors[2].encoder.getPosition()) / 3.0);
 
-        if (manualLiftPower != 0) setTarget(getPosition()); // replace PID target with current state if using manual control
-
-        controller.setTarget(freeToMove ? new State(getTarget()) : ZERO_STATE); // set PID target to 0 (retract) if intake isn't yet out of the way
+        controller.setGains(pidGains);
+        controller.setTarget(new State(getTarget()));
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
-        double gravityFeedforward = isExtended() ? kG * voltageScalar : 0;
+        double output = isExtended() ? kG * voltageScalar : 0;
 
-        double output = gravityFeedforward + (
-                manualLiftPower != 0 ?                              // if manual input is being used:
-                        manualLiftPower * voltageScalar :               // control with manual power (and voltage compensate)
-                        controller.calculate(new State(getPosition()))  // control with PID output
-        );
+        if (manualPower != 0) {
+
+            setTarget(getPosition());
+            output += manualPower * voltageScalar;
+
+        } else if (freeToMove) {
+
+            output += controller.calculate(new State(getPosition()));
+
+        }
 
         for (CachedMotorEx motor : motors) motor.set(output);
     }
