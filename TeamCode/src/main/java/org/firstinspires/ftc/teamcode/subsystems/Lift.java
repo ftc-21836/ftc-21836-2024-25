@@ -73,7 +73,7 @@ public final class Lift {
 
     void run(boolean freeToMove, boolean climbing) {
 
-        position = INCHES_PER_TICK * ((motors[0].encoder.getPosition() + motors[1].encoder.getPosition() + motors[2].encoder.getPosition()) / 3.0);
+        position = INCHES_PER_TICK * avgTicks();
 
         controller.setGains(pidGains);
         controller.setTarget(new State(getTarget()));
@@ -94,6 +94,12 @@ public final class Lift {
         }
 
         for (CachedMotorEx motor : motors) motor.set(output);
+    }
+
+    private double avgTicks() {
+        double sum = 0;
+        for (CachedMotorEx motor : motors) sum += motor.encoder.getPosition();
+        return sum / motors.length;
     }
 
     void printTelemetry() {
