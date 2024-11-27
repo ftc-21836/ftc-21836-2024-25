@@ -41,16 +41,16 @@ public final class Lift {
     Lift(HardwareMap hardwareMap) {
         this.batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
         this.motors = new CachedMotorEx[]{
-                new CachedMotorEx(hardwareMap, "lift 1", RPM_312),
-                new CachedMotorEx(hardwareMap, "lift 2", RPM_312),
-                new CachedMotorEx(hardwareMap, "lift 3", RPM_312)
+                new CachedMotorEx(hardwareMap, "lift right", RPM_312),
+                new CachedMotorEx(hardwareMap, "lift left", RPM_312),
+//                new CachedMotorEx(hardwareMap, "lift 3", RPM_312)
         };
         motors[1].setInverted(true);
         for (CachedMotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
 
         motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
-        motors[2].encoder = new CachedMotorEx(hardwareMap, "left front", RPM_312).encoder;
+//        motors[2].encoder = new CachedMotorEx(hardwareMap, "left front", RPM_312).encoder;
 
 //        motors[1].encoder.setDirection(REVERSE);
 
