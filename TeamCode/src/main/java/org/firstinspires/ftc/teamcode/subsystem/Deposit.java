@@ -19,9 +19,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
-import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
 @Config
 public final class Deposit {
@@ -39,8 +37,6 @@ public final class Deposit {
             TIME_ARM_RETRACTION = 0.25,
             TIME_POST_TRANSFER = 0.25,
             TIME_GRAB = 0.25,
-
-            COLOR_SENSOR_GAIN = 1,
 
             HEIGHT_INTAKING_SPECIMEN = 0.1,
             HEIGHT_OFFSET_POST_INTAKING = 4,
@@ -66,9 +62,6 @@ public final class Deposit {
 
     public final Lift lift;
     private final SimpleServoPivot arm, claw;
-
-    private final ColorSensor colorSensor;
-    private HSV hsv = new HSV();
 
     private final ElapsedTime
             timeSinceSampleReleased = new ElapsedTime(),
@@ -101,8 +94,6 @@ public final class Deposit {
                 ANGLE_CLAW_CLOSED,
                 getGBServo(hardwareMap, "claw").reversed()
         );
-
-        colorSensor = new ColorSensor(hardwareMap, "arm color", (float) COLOR_SENSOR_GAIN);
     }
 
     void run(boolean intakeClearOfDeposit, boolean climbing) {
@@ -117,15 +108,8 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                if (!hasSample()) {
-
-                    // check color sensor if needed
-                    colorSensor.update();
-                    hsv = colorSensor.getHSV();
-
-                    timeSinceSpecimenGrabbed.reset();
-
-                } else if (timeSinceSpecimenGrabbed.seconds() >= TIME_GRAB) {
+                if (!hasSample()) timeSinceSpecimenGrabbed.reset();
+                else if (timeSinceSpecimenGrabbed.seconds() >= TIME_GRAB) {
                     state = HAS_SPECIMEN;
                     setPosition(FLOOR);
                 }
@@ -274,7 +258,6 @@ public final class Deposit {
         mTelemetry.addLine("DEPOSIT: " + state);
         mTelemetry.addLine();
         mTelemetry.addLine(hasSample() ? sample + (handlingSpecimen() ? " specimen" : " sample") : "Empty");
-        hsv.toTelemetry();
         divider();
         lift.printTelemetry();
     }
