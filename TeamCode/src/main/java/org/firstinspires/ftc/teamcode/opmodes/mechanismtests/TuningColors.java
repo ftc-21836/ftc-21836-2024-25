@@ -30,28 +30,28 @@ public final class TuningColors extends LinearOpMode {
         // Control loop:
         while (opModeIsActive()) {
 
-            armColor.update();
-
-            HSV armHSV = armColor.getHSV();
-            Sample armSample = Deposit.hsvToSample(armHSV);
-
-            mTelemetry.addLine("ARM: ");
-            mTelemetry.addLine();
-            mTelemetry.addLine(armSample != null ? armSample + " sample" : "Empty");
-            armHSV.toTelemetry();
-
-            divider();
-
-            bucketColor.update();
-
-            HSV bucketHSV = bucketColor.getHSV();
-            Sample bucketSample = Intake.hsvToSample(bucketHSV);
-
-            mTelemetry.addLine("BUCKET: ");
-            mTelemetry.addLine();
-            mTelemetry.addLine(bucketSample != null ? bucketSample + " sample" : "Empty");
-            bucketHSV.toTelemetry();
-            mTelemetry.update();
+//            armColor.update();
+//
+//            HSV armHSV = armColor.getHSV();
+//            Sample armSample = Deposit.hsvToSample(armHSV);
+//
+//            mTelemetry.addLine("ARM: ");
+//            mTelemetry.addLine();
+//            mTelemetry.addLine(armSample != null ? armSample + " sample" : "Empty");
+//            armHSV.toTelemetry();
+//
+//            divider();
+//
+//            bucketColor.update();
+//
+//            HSV bucketHSV = bucketColor.getHSV();
+//            Sample bucketSample = Intake.hsvToSample(bucketHSV);
+//
+//            mTelemetry.addLine("BUCKET: ");
+//            mTelemetry.addLine();
+//            mTelemetry.addLine(bucketSample != null ? bucketSample + " sample" : "Empty");
+//            bucketHSV.toTelemetry();
+//            mTelemetry.update();
         }
     }
 }
