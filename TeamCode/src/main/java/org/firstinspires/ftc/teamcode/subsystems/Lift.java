@@ -71,7 +71,7 @@ public final class Lift {
         this.manualPower = power;
     }
 
-    void run(boolean freeToMove) {
+    void run(boolean freeToMove, boolean climbing) {
 
         position = INCHES_PER_TICK * ((motors[0].encoder.getPosition() + motors[1].encoder.getPosition() + motors[2].encoder.getPosition()) / 3.0);
 
@@ -80,7 +80,7 @@ public final class Lift {
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
-        double output = isExtended() ? kG * voltageScalar : 0;
+        double output = !isExtended() || climbing ? 0 : kG * voltageScalar;
 
         if (manualPower != 0) {
 
