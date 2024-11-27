@@ -85,7 +85,7 @@ public final class Lift {
         if (manualPower != 0) {
 
             setTarget(getPosition());
-            output += manualPower * voltageScalar;
+            output += manualPower;
 
         } else if (freeToMove) {
 
