@@ -60,7 +60,7 @@ public final class Deposit {
         HIGH,
     }
 
-    public final Lift lift;
+    private final Lift lift;
     private final SimpleServoPivot arm, claw;
 
     private final ElapsedTime
@@ -79,8 +79,8 @@ public final class Deposit {
         specimenColor = redAlliance ? RED : BLUE;
     }
 
-    Deposit(HardwareMap hardwareMap) {
-        lift = new Lift(hardwareMap);
+    Deposit(HardwareMap hardwareMap, Lift lift) {
+        this.lift = lift;
 
         arm = new SimpleServoPivot(
                 ANGLE_ARM_RETRACTED,
@@ -146,8 +146,6 @@ public final class Deposit {
 
         arm.run();
         claw.run();
-
-        lift.run(intakeClearOfDeposit, climbing);
 
         if (arm.isActivated()) timeSinceArmExtended.reset();
     }
@@ -258,8 +256,6 @@ public final class Deposit {
         mTelemetry.addLine("DEPOSIT: " + state);
         mTelemetry.addLine();
         mTelemetry.addLine(hasSample() ? sample + (handlingSpecimen() ? " specimen" : " sample") : "Empty");
-        divider();
-        lift.printTelemetry();
     }
 
 }
