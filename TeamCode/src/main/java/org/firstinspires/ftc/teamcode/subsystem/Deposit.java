@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import static com.qualcomm.robotcore.util.Range.clip;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
@@ -96,7 +95,7 @@ public final class Deposit {
         );
     }
 
-    void run(boolean intakeClearOfDeposit, boolean climbing) {
+    void run(boolean freeToMove, boolean climbing) {
 
         // release sample when climbing begins
         if (climbing && state != RETRACTED) {
@@ -137,11 +136,11 @@ public final class Deposit {
         );
 
         claw.updateAngles(
-                state == RETRACTED || !intakeClearOfDeposit ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
+                state == RETRACTED || !freeToMove ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
                 ANGLE_CLAW_CLOSED
         );
 
-        arm.setActivated(intakeClearOfDeposit && state != RETRACTED && timeSinceTransfer.seconds() >= TIME_POST_TRANSFER);
+        arm.setActivated(freeToMove && state != RETRACTED && timeSinceTransfer.seconds() >= TIME_POST_TRANSFER);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
 
         arm.run();
