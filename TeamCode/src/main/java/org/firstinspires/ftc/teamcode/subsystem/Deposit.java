@@ -34,7 +34,6 @@ public final class Deposit {
 
             TIME_DROP = 0.5,
             TIME_ARM_RETRACTION = 0.25,
-            TIME_POST_TRANSFER = 0.25,
             TIME_GRAB = 0.25,
 
             HEIGHT_INTAKING_SPECIMEN = 0.1,
@@ -65,7 +64,6 @@ public final class Deposit {
     private final ElapsedTime
             timeSinceSampleReleased = new ElapsedTime(),
             timeSinceArmExtended = new ElapsedTime(),
-            timeSinceTransfer = new ElapsedTime(),
             timeSinceSpecimenGrabbed = new ElapsedTime();
 
     private Sample sample, specimenColor;
@@ -140,7 +138,7 @@ public final class Deposit {
                 ANGLE_CLAW_CLOSED
         );
 
-        arm.setActivated(freeToMove && state != RETRACTED && timeSinceTransfer.seconds() >= TIME_POST_TRANSFER);
+        arm.setActivated(freeToMove && state != RETRACTED);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
 
         arm.run();
@@ -247,8 +245,6 @@ public final class Deposit {
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(FLOOR);
-
-        timeSinceTransfer.reset();
     }
 
     void printTelemetry() {

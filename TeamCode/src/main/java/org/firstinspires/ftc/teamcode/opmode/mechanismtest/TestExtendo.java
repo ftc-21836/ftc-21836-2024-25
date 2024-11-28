@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.ANGLE_EXTENDO_EXTENDED_MAX;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.ANGLE_EXTENDO_RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
+import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystem.Extendo;
 
 @TeleOp(group = "Single mechanism test")
 public final class TestExtendo extends LinearOpMode {
@@ -17,14 +20,11 @@ public final class TestExtendo extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        SimpleServoPivot extendo = new SimpleServoPivot(
-                ANGLE_EXTENDO_RETRACTED,
-                ANGLE_EXTENDO_EXTENDED_MAX,
-                getGBServo(hardwareMap, "extendo right").reversed(),
-                getGBServo(hardwareMap, "extendo left").reversed()
-        );
+        Extendo extendo = new Extendo(hardwareMap);
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
+
+        mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         waitForStart();
 
@@ -32,10 +32,14 @@ public final class TestExtendo extends LinearOpMode {
 
             gamepadEx1.readButtons();
 
+            if (gamepadEx1.wasJustPressed(DPAD_UP)) extendo.setExtended(true);
+            if (gamepadEx1.wasJustPressed(DPAD_DOWN)) extendo.setExtended(false);
             if (gamepadEx1.wasJustPressed(X)) extendo.toggle();
 
-            extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
             extendo.run();
+
+            extendo.printTelemetry();
+            mTelemetry.update();
 
         }
 

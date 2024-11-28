@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
@@ -123,7 +122,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.offsetExtension(
+                robot.intake.extendo.runManual(
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
                 );
 
@@ -150,19 +149,14 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                robot.intake.setMotorPower(
+                robot.intake.runRoller(
                         gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
                 );
 
                 if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
-                if (gamepadEx1.wasJustPressed(A))               robot.intake.dumpSample();
                 if (gamepadEx1.wasJustPressed(Y))               robot.climber.climb();
 
-                if (robot.climber.isActive()) {
-
-                    if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.climber.cancelClimb();
-
-                } else {
+                if (!robot.climber.isActive()) {
 
                     if (gamepadEx1.wasJustPressed(DPAD_UP)) robot.deposit.setPosition(HIGH);
                     else if (gamepadEx1.wasJustPressed(DPAD_LEFT)) robot.deposit.setPosition(LOW);
@@ -170,7 +164,8 @@ public final class MainTeleOp extends LinearOpMode {
                     else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
 
                     if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
-                }
+
+                } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.climber.cancelClimb();
 
             }
 

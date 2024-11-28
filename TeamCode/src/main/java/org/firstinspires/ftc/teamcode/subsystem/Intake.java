@@ -1,67 +1,52 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
-import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
-import static com.qualcomm.robotcore.util.Range.clip;
+import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_PIVOTING;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RAISING;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.DROPPING_BAD_SAMPLE;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Extendo.LENGTH_POST_TRANSFER;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
-import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
-import static java.lang.Math.PI;
-import static java.lang.Math.asin;
-import static java.lang.Math.sin;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
 @Config
 public final class Intake {
 
     public static double
-            SPEED_MULTIPLIER_EXTENDO = 0.1,
-
-            DISTANCE_EXTENDO_ARMS_RETRACTED = 67.4,
-            DISTANCE_EXTENDO_LINKAGE_ARM = 240,
-            DISTANCE_EXTENDO_RETRACTED = 0,
-            DISTANCE_EXTENDO_EXTENDED_MIN = 25.19855,
-            DISTANCE_EXTENDO_EXTENDED_MAX = 410,
-            DISTANCE_DUMPING_MIN = 200,
-
-            ANGLE_EXTENDO_RETRACTED = 16,
-            ANGLE_EXTENDO_EXTENDED_MAX = 70,
 
             ANGLE_BUCKET_RETRACTED = 11.55,
-            ANGLE_BUCKET_INTAKING = 209.1,
-            ANGLE_BUCKET_FLOOR_CLEARANCE = 60,
             ANGLE_BUCKET_VERTICAL = 90,
+            ANGLE_BUCKET_FLOOR_CLEARANCE = 149.1,
+            ANGLE_BUCKET_EJECTING = 204,
+            ANGLE_BUCKET_INTAKING = 209.1,
 
-            ANGLE_LATCH_TRANSFERRING = 20,
-            ANGLE_LATCH_INTAKING = 105,
-            ANGLE_LATCH_LOCKED = 152,
-
-            TIME_BUCKET_PIVOT = 0.5,
+            TIME_EJECTING = 0.5,
             TIME_DROP = 0.5,
             TIME_BUCKET_RAISE_TO_EXTEND = 0.15,
             TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 0.2,
             TIME_REVERSING = 0.175,
             TIME_PRE_TRANSFER = 0.25,
+            TIME_TRANSFER = 0.25,
+            TIME_POST_TRANSFER = 0.25,
 
-            SPEED_REVERSING = -0.6,
+            SPEED_EJECTING = -0.6,
+            SPEED_POST_TRANSFER = -0.1,
+            SPEED_HOLDING = 0.5,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -110,29 +95,28 @@ public final class Intake {
                 null;
     }
 
-    private final CachedMotorEx motor;
+    private final CRServo roller;
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
     private Sample sample, badSample;
 
-    private final TouchSensor bucketSensor, extendoSensor;
+    private final SimpleServoPivot bucket;
+    private final TouchSensor bucketSensor;
 
-    private final SimpleServoPivot bucket, latch, extendo;
+    public final Extendo extendo;
 
     private Intake.State state = RETRACTED;
 
-    private final ElapsedTime timer = new ElapsedTime(), timeSinceBucketExtended = new ElapsedTime(), timeSinceBucketRetracted = new ElapsedTime();
-
-    private double extendedLength, extendedAngle;
+    private final ElapsedTime timer = new ElapsedTime();
 
     enum State {
-        RETRACTED,
-        BUCKET_RAISING,
         INTAKING,
-        BUCKET_PIVOTING,
-        DROPPING_BAD_SAMPLE,
+        EJECTING_SAMPLE,
         EXTENDO_RETRACTING,
+        BUCKET_RETRACTING,
+        TRANSFERRING,
+        RETRACTED,
     }
 
     public void setAlliance(boolean redAlliance) {
@@ -141,7 +125,7 @@ public final class Intake {
 
     Intake(HardwareMap hardwareMap) {
 
-        resetExtendedLength();
+        extendo = new Extendo(hardwareMap);
 
         bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
@@ -150,111 +134,106 @@ public final class Intake {
                 getAxon(hardwareMap, "bucket left")
         );
 
-        latch = new SimpleServoPivot(
-                ANGLE_LATCH_TRANSFERRING,
-                ANGLE_LATCH_LOCKED,
-                getGBServo(hardwareMap, "latch")
-        );
-
-        extendo = new SimpleServoPivot(
-                ANGLE_EXTENDO_RETRACTED,
-                extendedAngle,
-                getGBServo(hardwareMap, "extendo right"),
-                getGBServo(hardwareMap, "extendo left").reversed()
-        );
-
-        motor = new CachedMotorEx(hardwareMap, "intake", RPM_1620);
-        motor.setZeroPowerBehavior(FLOAT);
-        motor.setInverted(true);
+        roller = hardwareMap.get(CRServo.class, "intake");
+//        roller.setDirection(REVERSE);
 
         colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
-        extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
-
-        timer.reset();
     }
 
-    void run(boolean depositHasSample, boolean depositIsActive) {
+    interface Transferable { void transfer(Sample sample); }
+
+    void run(boolean depositHasSample, boolean depositActive, Transferable deposit) {
 
         switch (state) {
-
-            case RETRACTED:
-
-                bucket.setActivated(depositIsActive || (depositHasSample && hasSample()));
-                break;
-
-            case BUCKET_RAISING:
-
-                if (timer.seconds() >= TIME_BUCKET_RAISE_TO_EXTEND) {
-                    extendo.setActivated(true);
-                    state = INTAKING;
-                } else break;
 
             case INTAKING:
 
                 colorSensor.update();
-                hsv = colorSensor.getHSV();
-                sample = hsvToSample(hsv);      // if color sensor found sample, hasSample() returns true
+                sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                if (sample == badSample) {
+                if (sample == badSample || (depositHasSample && this.hasSample())) {
 
-                    if (extendedLength < DISTANCE_DUMPING_MIN) break;
-                    
-                    bucket.setActivated(false);
-                    state = BUCKET_PIVOTING;
+                    sample = null;
+                    roller.setPower(SPEED_EJECTING);
+                    state = EJECTING_SAMPLE;
                     timer.reset();
 
                 } else {
-                    if (hasSample() && motor.get() == 0) setExtended(false);
+                    if (hasSample()) setExtended(false);
                     break;
                 }
 
-            case BUCKET_PIVOTING:
+            case EJECTING_SAMPLE:
 
-                if (timer.seconds() >= TIME_BUCKET_PIVOT) {
-                    sample = null;
-                    state = DROPPING_BAD_SAMPLE;
-                    timer.reset();
-                } else break;
-
-            case DROPPING_BAD_SAMPLE:
-
-                if (timer.seconds() >= TIME_DROP) {
+                if (timer.seconds() >= TIME_EJECTING) {
                     state = INTAKING;
-                    bucket.setActivated(true);
+                    roller.setPower(0);
                 }
 
                 break;
 
             case EXTENDO_RETRACTING:
 
-                if (extendoSensor.isPressed()) state = RETRACTED;
-                else if (timer.seconds() <= TIME_REVERSING) motor.set(SPEED_REVERSING);
+                if (!extendo.isExtended() && !depositActive) {
+
+                    bucket.setActivated(false);
+                    state = BUCKET_RETRACTING;
+                    timer.reset();
+
+                } else break;
+
+            case BUCKET_RETRACTING:
+
+                if (bucketSensor.isPressed()) {
+
+                    roller.setPower(0);
+
+                    if (timer.seconds() >= TIME_PRE_TRANSFER) {
+
+                        deposit.transfer(sample);
+                        sample = null;
+                        state = TRANSFERRING;
+                        timer.reset();
+
+                    } else break;
+
+                } else {
+                    timer.reset();
+                    break;
+                }
+
+            case TRANSFERRING:
+
+                if (timer.seconds() >= TIME_TRANSFER) {
+
+                    state = RETRACTED;
+                    roller.setPower(SPEED_POST_TRANSFER);
+                    timer.reset();
+
+                } else break;
+
+            case RETRACTED:
+
+                if (timer.seconds() >= TIME_POST_TRANSFER) roller.setPower(0);
+
+                extendo.setTarget(depositActive ? LENGTH_POST_TRANSFER : 0);
+
+                break;
         }
 
-        if (bucketSensor.isPressed()) timeSinceBucketExtended.reset();
-        else timeSinceBucketRetracted.reset();
+        double ANGLE_BUCKET_EXTENDED =
+                state == INTAKING ?
+                        roller.getPower() == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE :
+                        ANGLE_BUCKET_INTAKING :
+                state == EJECTING_SAMPLE ? ANGLE_BUCKET_EJECTING :
+                ANGLE_BUCKET_VERTICAL;
 
-        double ANGLE_BUCKET_DOWN = state == RETRACTED ?
-                ANGLE_BUCKET_VERTICAL :
-                ANGLE_BUCKET_INTAKING - (motor.get() != 0 && state == INTAKING ? 0 : ANGLE_BUCKET_FLOOR_CLEARANCE);
-
-        double ANGLE_LATCH_UNLOCKED = state == INTAKING ? ANGLE_LATCH_INTAKING : ANGLE_LATCH_TRANSFERRING;
-
-        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_DOWN);
-        latch.updateAngles(ANGLE_LATCH_UNLOCKED, ANGLE_LATCH_LOCKED);
-        extendo.updateAngles(ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX);
-
-        latch.setActivated(hasSample() && motor.get() == 0);    // latch activates when sample present, otherwise deactivates
-
+        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
-        latch.run();
-        extendo.run();
-    }
 
-    public void dumpSample() {
-        if (state == INTAKING && sample != null) sample = badSample;
+        extendo.run();
     }
 
     private boolean hasSample() {
@@ -262,83 +241,54 @@ public final class Intake {
     }
 
     boolean clearOfDeposit() {
-        return timeSinceBucketExtended.seconds() >= TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING;
+        return extendo.getPosition() >= Extendo.LENGTH_POST_TRANSFER - Extendo.TOLERANCE_EXTENDED;
     }
 
-    boolean awaitingTransfer() {
-        return hasSample() && bucketSensor.isPressed() && timeSinceBucketRetracted.seconds() >= TIME_PRE_TRANSFER;
-    }
-
-    Sample transfer() {
-        Sample releasedSample = sample;
-        sample = null;
-        return releasedSample;
-    }
-
-    private void resetExtendedLength() {
-        extendedLength = DISTANCE_EXTENDO_EXTENDED_MAX;
-        extendedAngle = ANGLE_EXTENDO_EXTENDED_MAX;
-    }
-
-    public void offsetExtension(double offset) {
-        if (offset == 0) return;
-
-        extendedLength = clip(
-                extendedLength + offset * SPEED_MULTIPLIER_EXTENDO,
-                DISTANCE_EXTENDO_EXTENDED_MIN,
-                DISTANCE_EXTENDO_EXTENDED_MAX
-        );
-
-        extendedAngle = extensionToAngle(extendedLength);
-    }
-
-    public void setMotorPower(double motorPower) {
+    public void runRoller(double motorPower) {
         if (motorPower != 0) setExtended(true);
-        motor.set(state == INTAKING ? motorPower : 0);
+        roller.setPower(state == INTAKING ? motorPower : 0);
     }
 
     public void setExtended(boolean extend) {
+        switch (state) {
 
-        if (extend) {
+            case EXTENDO_RETRACTING:
+            case BUCKET_RETRACTING:
+            case RETRACTED:
 
-            if (state == RETRACTED) {
+                if (extend) {
+                    bucket.setActivated(true);
+                    extendo.setExtended(true);
+                    state = INTAKING;
+                }
 
-                bucket.setActivated(true);
-                state = BUCKET_RAISING;
-                timer.reset();
+                break;
 
-            }
+            case INTAKING:
+            case EJECTING_SAMPLE:
 
-        } else if (state == INTAKING) {
+                if (!extend) {
+                    extendo.setExtended(false);
+                    state = EXTENDO_RETRACTING;
+                    roller.setPower(SPEED_HOLDING);
+                }
 
-            state = EXTENDO_RETRACTING;
-            extendo.setActivated(false);
-            resetExtendedLength();
-            timer.reset();
+                break;
+
         }
-
     }
 
     public void toggle() {
         setExtended(state == RETRACTED);
     }
 
-    static double extensionToAngle(double millimeters) {
-        return 180 / PI * asin(0.5 * (clip(millimeters, DISTANCE_EXTENDO_RETRACTED, DISTANCE_EXTENDO_EXTENDED_MAX) + DISTANCE_EXTENDO_ARMS_RETRACTED) / DISTANCE_EXTENDO_LINKAGE_ARM);
-    }
-
-    static double angleToExtension(double theta) {
-        return 2 * DISTANCE_EXTENDO_LINKAGE_ARM * sin(PI / 180 * clip(theta, ANGLE_EXTENDO_RETRACTED, ANGLE_EXTENDO_EXTENDED_MAX)) - DISTANCE_EXTENDO_ARMS_RETRACTED;
-    }
-
     void printTelemetry() {
         mTelemetry.addLine("INTAKE: " + state);
         mTelemetry.addLine();
-        if (state == INTAKING || state == BUCKET_PIVOTING || state == DROPPING_BAD_SAMPLE) {
-            mTelemetry.addLine("Extended " + extendedLength + " (mm)");
-            mTelemetry.addLine();
-        }
         mTelemetry.addLine(hasSample() ? sample + " sample" : "Empty");
         hsv.toTelemetry();
+        divider();
+        extendo.printTelemetry();
     }
+
 }
