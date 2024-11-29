@@ -68,7 +68,7 @@ public final class Deposit {
     public final Lift lift;
     private final SimpleServoPivot arm, claw;
 
-    private final ElapsedTime timer = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime(), timeArmSpentRetracted = new ElapsedTime();
 
     private Sample sample, specimenColor;
 
@@ -135,7 +135,7 @@ public final class Deposit {
         arm.setActivated(state != RETRACTED && freeToMove);
         arm.run();
 
-        if (arm.isActivated()) timeSinceArmExtended.reset();
+        if (arm.isActivated()) timeArmSpentRetracted.reset();
 
         claw.updateAngles(
                 state == RETRACTED || !freeToMove ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
@@ -152,7 +152,7 @@ public final class Deposit {
     }
 
     boolean isActive() {
-        return state != RETRACTED || lift.getTarget() != 0 || lift.isExtended() || timeSinceArmExtended.seconds() <= TIME_ARM_RETRACTION;
+        return state != RETRACTED || lift.getTarget() != 0 || lift.isExtended() || timeArmSpentRetracted.seconds() <= TIME_ARM_RETRACTION;
     }
 
     public void setPosition(Position position) {
