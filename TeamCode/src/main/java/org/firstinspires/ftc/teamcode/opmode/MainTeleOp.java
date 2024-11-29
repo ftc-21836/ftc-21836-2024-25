@@ -138,9 +138,7 @@ public final class MainTeleOp extends LinearOpMode {
                     robot.drivetrain.localizer.setHeading(radians);
                 }
 
-                rightX = 0;
-                leftX = 0;
-                leftY = 0;
+                rightX = leftX = leftY = 0;
 
                 // if (keyPressed(gamepadEx1, DPAD_UP))         autoTurner.setTargetHeading(0);
                 // else if (keyPressed(gamepadEx1, DPAD_LEFT))  autoTurner.setTargetHeading(PI * 0.5);
