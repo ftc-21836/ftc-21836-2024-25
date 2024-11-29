@@ -49,8 +49,11 @@ public final class Deposit {
     enum State {
         RETRACTED,
         HAS_SAMPLE,
+        SAMPLE_FALLING,
         INTAKING_SPECIMEN,
+        GRABBING_SPECIMEN,
         HAS_SPECIMEN,
+        SCORING_SPECIMEN
     }
 
     public enum Position {
@@ -151,7 +154,7 @@ public final class Deposit {
     }
 
     private boolean handlingSpecimen() {
-        return state == INTAKING_SPECIMEN || state == HAS_SPECIMEN;
+        return state.ordinal() >= INTAKING_SPECIMEN.ordinal();
     }
 
     boolean isActive() {
