@@ -4,10 +4,11 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Extendo.LENGTH_POST_TRANSFER;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
@@ -115,6 +116,7 @@ public final class Intake {
         EJECTING_SAMPLE,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
+        BUCKET_SETTLING,
         TRANSFERRING,
         RETRACTED,
     }
@@ -187,27 +189,28 @@ public final class Intake {
                 if (bucketSensor.isPressed()) {
 
                     roller.setPower(0);
-
-                    if (timer.seconds() >= TIME_PRE_TRANSFER) {
-
-                        deposit.transfer(sample);
-                        sample = null;
-                        state = TRANSFERRING;
-                        timer.reset();
-
-                    } else break;
-
-                } else {
+                    state = BUCKET_SETTLING;
                     timer.reset();
-                    break;
-                }
+
+                } else break;
+
+            case BUCKET_SETTLING:
+
+                if (timer.seconds() >= TIME_PRE_TRANSFER) {
+
+                    deposit.transfer(sample);
+                    sample = null;
+                    state = TRANSFERRING;
+                    timer.reset();
+
+                } else break;
 
             case TRANSFERRING:
 
                 if (timer.seconds() >= TIME_TRANSFER) {
 
-                    state = RETRACTED;
                     roller.setPower(SPEED_POST_TRANSFER);
+                    state = RETRACTED;
                     timer.reset();
 
                 } else break;
@@ -252,6 +255,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
             case BUCKET_RETRACTING:
+            case BUCKET_SETTLING:
             case RETRACTED:
 
                 if (extend) {
