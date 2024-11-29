@@ -244,9 +244,9 @@ public final class Intake {
         return extendo.getPosition() >= Extendo.LENGTH_POST_TRANSFER - Extendo.TOLERANCE_EXTENDED;
     }
 
-    public void runRoller(double motorPower) {
-        if (motorPower != 0) setExtended(true);
-        roller.setPower(state == INTAKING ? motorPower : 0);
+    public void runRoller(double power) {
+        if (power != 0) setExtended(true);
+        roller.setPower(state == INTAKING ? power : 0);
     }
 
     public void setExtended(boolean extend) {

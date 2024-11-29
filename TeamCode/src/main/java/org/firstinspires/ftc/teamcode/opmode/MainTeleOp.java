@@ -120,22 +120,19 @@ public final class MainTeleOp extends LinearOpMode {
             double leftX = gamepadEx1.getLeftX();
             double leftY = gamepadEx1.getLeftY();
 
+            double triggersTotal = gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER);
+
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.extendo.runManual(
-                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-                );
-
-                robot.lift.runManual(gamepadEx1.getLeftY());
-                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON)) robot.lift.reset();
-
+                robot.intake.extendo.runManual(triggersTotal);
+                robot.deposit.lift.runManual(leftY);
+                
+                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON)) robot.deposit.lift.reset();
                 if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON)) robot.drivetrain.localizer.reset();
 
                 // SET HEADING:
-                double rightY = gamepadEx1.getRightY();
-                if (rightX*rightX + rightY*rightY >= 0.64) {
-                    robot.drivetrain.localizer.setHeading(-atan2(rightY, rightX));
-                }
+                double y = gamepadEx1.getRightY(), x = rightX;
+                if (x*x + y*y >= 0.64) robot.drivetrain.localizer.setHeading(-atan2(y, x));
 
                 rightX = leftX = leftY = 0;
 
@@ -146,9 +143,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                robot.intake.runRoller(
-                        gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER)
-                );
+                robot.intake.runRoller(triggersTotal);
 
                 if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
                 if (gamepadEx1.wasJustPressed(Y))               robot.climber.climb();

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import static com.qualcomm.robotcore.util.Range.clip;
+import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
@@ -58,7 +59,7 @@ public final class Deposit {
         HIGH,
     }
 
-    private final Lift lift;
+    public final Lift lift;
     private final SimpleServoPivot arm, claw;
 
     private final ElapsedTime
@@ -76,8 +77,8 @@ public final class Deposit {
         specimenColor = redAlliance ? RED : BLUE;
     }
 
-    Deposit(HardwareMap hardwareMap, Lift lift) {
-        this.lift = lift;
+    Deposit(HardwareMap hardwareMap) {
+        this.lift = new Lift(hardwareMap);
 
         arm = new SimpleServoPivot(
                 ANGLE_ARM_RETRACTED,
@@ -145,6 +146,8 @@ public final class Deposit {
         claw.run();
 
         if (arm.isActivated()) timeSinceArmExtended.reset();
+
+        lift.run(freeToMove, climbing);
     }
 
     private boolean handlingSpecimen() {
@@ -251,6 +254,8 @@ public final class Deposit {
         mTelemetry.addLine("DEPOSIT: " + state);
         mTelemetry.addLine();
         mTelemetry.addLine(hasSample() ? sample + (handlingSpecimen() ? " specimen" : " sample") : "Empty");
+        divider();
+        lift.printTelemetry();
     }
 
 }
