@@ -59,21 +59,17 @@ public final class MainTeleOp extends LinearOpMode {
 
         ElapsedTime loopTimer = new ElapsedTime();
 
-        // Initialize multiple telemetry outputs:
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        // Initialize robot:
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.localizer.trackHeadingOnly(true);
 
-        // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         GamepadEx gamepadEx2 = new GamepadEx(gamepad2);
 
         TeleOpConfig selection = EDITING_ALLIANCE;
 
         boolean slowModeLocked = false, useFieldCentric = true;
-        // Get gamepad 1 button input and locks slow mode:
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
@@ -136,11 +132,6 @@ public final class MainTeleOp extends LinearOpMode {
 
                 rightX = leftX = leftY = 0;
 
-                // if (keyPressed(gamepadEx1, DPAD_UP))         autoTurner.setTargetHeading(0);
-                // else if (keyPressed(gamepadEx1, DPAD_LEFT))  autoTurner.setTargetHeading(PI * 0.5);
-                // else if (keyPressed(gamepadEx1, DPAD_DOWN))  autoTurner.setTargetHeading(PI);
-                // else if (keyPressed(gamepadEx1, DPAD_RIGHT)) autoTurner.setTargetHeading(PI * 1.5);
-
             } else {
 
                 robot.intake.runRoller(triggersTotal);
@@ -162,8 +153,6 @@ public final class MainTeleOp extends LinearOpMode {
             }
 
             robot.run();
-
-            // Field-centric driving with control stick inputs:
 
             robot.drivetrain.run(
                     leftX,
