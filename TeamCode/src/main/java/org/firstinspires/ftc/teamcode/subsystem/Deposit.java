@@ -109,7 +109,7 @@ public final class Deposit {
                 if (!hasSample()) timeSinceSpecimenGrabbed.reset();
                 else if (timeSinceSpecimenGrabbed.seconds() >= TIME_GRAB) {
                     state = HAS_SPECIMEN;
-                    setPosition(FLOOR);
+                    setPosition(LOW);
                 }
 
                 break;
@@ -177,11 +177,7 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                lift.setTarget(
-                        position == HIGH ? HEIGHT_CHAMBER_HIGH :
-                        position == LOW ? HEIGHT_CHAMBER_LOW :
-                        HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_POST_INTAKING
-                );
+                lift.setTarget(position == HIGH ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
 
                 break;
 
