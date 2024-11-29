@@ -6,10 +6,13 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.GRABBING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.HAS_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.HAS_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
@@ -65,10 +68,7 @@ public final class Deposit {
     public final Lift lift;
     private final SimpleServoPivot arm, claw;
 
-    private final ElapsedTime
-            timeSinceSampleReleased = new ElapsedTime(),
-            timeSinceArmExtended = new ElapsedTime(),
-            timeSinceSpecimenGrabbed = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime(), timeSinceArmExtended = new ElapsedTime();
 
     private Sample sample, specimenColor;
 
@@ -81,7 +81,8 @@ public final class Deposit {
     }
 
     Deposit(HardwareMap hardwareMap) {
-        this.lift = new Lift(hardwareMap);
+
+        lift = new Lift(hardwareMap);
 
         arm = new SimpleServoPivot(
                 ANGLE_ARM_RETRACTED,
@@ -100,33 +101,28 @@ public final class Deposit {
     void run(boolean freeToMove, boolean climbing) {
 
         // release sample when climbing begins
-        if (climbing && state != RETRACTED) {
-            sample = null;
-            state = RETRACTED;      // RETRACTED state means the following state machine is skipped
-        }
+        if (climbing && state != RETRACTED) state = RETRACTED;
 
         switch (state) {
 
-            case INTAKING_SPECIMEN:
+            case SAMPLE_FALLING:
 
-                if (!hasSample()) timeSinceSpecimenGrabbed.reset();
-                else if (timeSinceSpecimenGrabbed.seconds() >= TIME_GRAB) {
-                    state = HAS_SPECIMEN;
-                    setPosition(LOW);
+                if (timer.seconds() >= TIME_DROP) {
+                    state = RETRACTED;
+                    setPosition(FLOOR);
                 }
 
                 break;
 
-            case HAS_SPECIMEN:
+            case GRABBING_SPECIMEN:
 
-                if (hasSample() && lift.getTarget() == 0 && lift.getPosition() <= releaseSpecimenHeight) triggerClaw();
+                if (timer.seconds() >= TIME_GRAB) triggerClaw();
 
-            case HAS_SAMPLE:
+                break;
 
-                if (!hasSample() && timeSinceSampleReleased.seconds() >= TIME_DROP) {
-                    state = RETRACTED;
-                    setPosition(FLOOR);
-                }
+            case SCORING_SPECIMEN:
+
+                if (lift.getPosition() <= releaseSpecimenHeight) triggerClaw();
 
                 break;
 
@@ -136,19 +132,17 @@ public final class Deposit {
                 ANGLE_ARM_RETRACTED,
                 handlingSpecimen() ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
         );
+        arm.setActivated(state != RETRACTED && freeToMove);
+        arm.run();
+
+        if (arm.isActivated()) timeSinceArmExtended.reset();
 
         claw.updateAngles(
                 state == RETRACTED || !freeToMove ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
                 ANGLE_CLAW_CLOSED
         );
-
-        arm.setActivated(state != RETRACTED && freeToMove);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
-
-        arm.run();
         claw.run();
-
-        if (arm.isActivated()) timeSinceArmExtended.reset();
 
         lift.run(freeToMove, climbing);
     }
@@ -161,44 +155,38 @@ public final class Deposit {
         return state != RETRACTED || lift.getTarget() != 0 || lift.isExtended() || timeSinceArmExtended.seconds() <= TIME_ARM_RETRACTION;
     }
 
-    boolean requestSlowMode() {
-        return state != RETRACTED && state != HAS_SPECIMEN;
-    }
-
     public void setPosition(Position position) {
 
         switch (state) {
 
             case INTAKING_SPECIMEN:
+                if (position != FLOOR) break;
+                state = RETRACTED;
+            case RETRACTED:
 
                 if (position == FLOOR) {
-                    state = RETRACTED;
-                    setPosition(FLOOR);
-                }
-
-                break;
-
-            case HAS_SPECIMEN:
-
-                lift.setTarget(position == HIGH ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
-
-                break;
-
-            case HAS_SAMPLE:
-
-                if (position == FLOOR) {
-                    lift.setTarget(HEIGHT_OBSERVATION_ZONE);
+                    lift.setTarget(0);
                     break;
                 }
 
-            case RETRACTED:
-            default:
+            case HAS_SAMPLE:
+            case SAMPLE_FALLING:
 
                 lift.setTarget(
-                        position == HIGH ? HEIGHT_BASKET_HIGH :
-                        position == LOW ? HEIGHT_BASKET_LOW :
-                        0
+                        position == HIGH ?  HEIGHT_BASKET_HIGH :
+                        position == LOW ?   HEIGHT_BASKET_LOW :
+                                            HEIGHT_OBSERVATION_ZONE
                 );
+
+                break;
+
+            case SCORING_SPECIMEN:
+                if (position == FLOOR) break;
+                state = HAS_SPECIMEN;
+            case GRABBING_SPECIMEN:
+            case HAS_SPECIMEN:
+
+                lift.setTarget(position == HIGH ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
 
                 break;
         }
@@ -207,6 +195,16 @@ public final class Deposit {
 
     public void triggerClaw() {
         switch (state) {
+
+            case HAS_SAMPLE:
+
+                sample = null;
+                state = SAMPLE_FALLING;
+                timer.reset();
+
+                break;
+
+            case SAMPLE_FALLING:
             case RETRACTED:
 
                 state = INTAKING_SPECIMEN;
@@ -216,23 +214,34 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                if (!hasSample()) sample = specimenColor;
+                sample = specimenColor;
+                state = GRABBING_SPECIMEN;
+                timer.reset();
+
+                break;
+
+            case GRABBING_SPECIMEN:
+
+                state = HAS_SPECIMEN;
+                setPosition(LOW);
 
                 break;
 
             case HAS_SPECIMEN:
 
-                if (lift.getTarget() != 0) {
-                    double position = lift.getPosition();
-                    releaseSpecimenHeight = clip(position + HEIGHT_OFFSET_SPECIMEN_SCORING, 0, position);
-                    lift.setTarget(0);
-                    break;
-                }
+                double position = lift.getPosition();
+                releaseSpecimenHeight = clip(position + HEIGHT_OFFSET_SPECIMEN_SCORING, 0, position);
+                lift.setTarget(0);
 
-            case HAS_SAMPLE:
+                state = SCORING_SPECIMEN;
+
+                break;
+
+            case SCORING_SPECIMEN:
 
                 sample = null;
-                timeSinceSampleReleased.reset();
+                state = RETRACTED;
+                setPosition(FLOOR);
 
                 break;
         }
