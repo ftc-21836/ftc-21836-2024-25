@@ -139,7 +139,7 @@ public final class Deposit {
                 ANGLE_CLAW_CLOSED
         );
 
-        arm.setActivated(freeToMove && state != RETRACTED);
+        arm.setActivated(state != RETRACTED && freeToMove);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
 
         arm.run();
