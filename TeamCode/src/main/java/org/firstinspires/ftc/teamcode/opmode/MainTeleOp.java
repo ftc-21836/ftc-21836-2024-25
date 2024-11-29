@@ -134,8 +134,7 @@ public final class MainTeleOp extends LinearOpMode {
                 // SET HEADING:
                 double rightY = gamepadEx1.getRightY();
                 if (rightX*rightX + rightY*rightY >= 0.64) {
-                    double radians = -atan2(rightY, rightX);
-                    robot.drivetrain.localizer.setHeading(radians);
+                    robot.drivetrain.localizer.setHeading(-atan2(rightY, rightX));
                 }
 
                 rightX = leftX = leftY = 0;
