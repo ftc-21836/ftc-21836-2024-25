@@ -86,8 +86,8 @@ public final class Climber {
         passiveHooks = new SimpleServoPivot(
                 ANGLE_HOOKS_PASSIVE_RETRACTED,
                 ANGLE_HOOKS_PASSIVE_EXTENDED,
-                getGBServo(hardwareMap, "right passive hook"),
-                getGBServo(hardwareMap, "left passive hook").reversed()
+                getGBServo(hardwareMap, "right passive hook").reversed(),
+                getGBServo(hardwareMap, "left passive hook")
         );
     }
 
