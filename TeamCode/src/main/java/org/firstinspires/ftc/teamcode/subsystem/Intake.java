@@ -150,6 +150,15 @@ public final class Intake {
 
         switch (state) {
 
+            case EJECTING_SAMPLE:
+
+                roller.setPower(SPEED_EJECTING);
+
+                if (timer.seconds() >= TIME_EJECTING) {
+                    state = INTAKING;
+                    roller.setPower(0);
+                } else break;
+
             case INTAKING:
 
                 colorSensor.update();
@@ -158,25 +167,16 @@ public final class Intake {
                 if (sample == badSample || (depositHasSample && this.hasSample())) {
 
                     sample = null;
-                    roller.setPower(SPEED_EJECTING);
                     state = EJECTING_SAMPLE;
                     timer.reset();
-
-                } else {
-                    if (hasSample()) setExtended(false);
                     break;
-                }
 
-            case EJECTING_SAMPLE:
-
-                if (timer.seconds() >= TIME_EJECTING) {
-                    state = INTAKING;
-                    roller.setPower(0);
-                }
-
-                break;
+                } else if (hasSample()) setExtended(false);
+                else break;
 
             case EXTENDO_RETRACTING:
+
+                roller.setPower(hasSample() ? SPEED_HOLDING : 0);
 
                 if (!extendo.isExtended() && !depositActive) {
 
@@ -188,6 +188,8 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
+                roller.setPower(hasSample() ? SPEED_HOLDING : 0);
+
                 if (bucketSensor.isPressed()) {
 
                     roller.setPower(0);
@@ -197,6 +199,8 @@ public final class Intake {
                 } else break;
 
             case BUCKET_SETTLING:
+
+                roller.setPower(hasSample() ? SPEED_HOLDING : 0);
 
                 if (!hasSample()) {
 
@@ -279,7 +283,6 @@ public final class Intake {
                 if (!extend) {
                     extendo.setExtended(false);
                     state = EXTENDO_RETRACTING;
-                    roller.setPower(hasSample() ? SPEED_HOLDING : 0);
                 }
 
                 break;

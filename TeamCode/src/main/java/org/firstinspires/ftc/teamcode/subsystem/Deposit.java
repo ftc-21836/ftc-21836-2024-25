@@ -33,7 +33,7 @@ public final class Deposit {
             ANGLE_ARM_SAMPLE = 151, // dropping in observation zone and baskets
 
             ANGLE_CLAW_OPEN = 80,
-            ANGLE_CLAW_TRANSFER = 45,
+            ANGLE_CLAW_TRANSFER = 70,
             ANGLE_CLAW_CLOSED = 29,
 
             TIME_DROP = 0.5,
