@@ -123,8 +123,8 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.intake.extendo.runManual(triggersTotal);
                 robot.deposit.lift.runManual(leftY);
                 
-                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON)) robot.deposit.lift.reset();
-                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON)) robot.drivetrain.localizer.reset();
+                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON))  robot.drivetrain.localizer.reset();
 
                 // SET HEADING:
                 double y = gamepadEx1.getRightY(), x = rightX;
@@ -136,19 +136,19 @@ public final class MainTeleOp extends LinearOpMode {
 
                 robot.intake.runRoller(triggersTotal);
 
-                if (gamepadEx1.wasJustPressed(X))               robot.intake.toggle();
-                if (gamepadEx1.wasJustPressed(Y))               robot.climber.climb();
+                if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
+                if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
 
                 if (!robot.climber.isActive()) {
 
-                    if (gamepadEx1.wasJustPressed(DPAD_UP)) robot.deposit.setPosition(HIGH);
-                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT)) robot.deposit.setPosition(LOW);
-                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.deposit.setPosition(FLOOR);
+                    if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
+                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
+                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
                     else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.deposit.transfer(NEUTRAL);
 
                     if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
 
-                } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) robot.climber.cancelClimb();
+                } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
             }
 
