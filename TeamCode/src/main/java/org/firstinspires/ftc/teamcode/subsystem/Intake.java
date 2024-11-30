@@ -144,7 +144,9 @@ public final class Intake {
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
     }
 
-    void run(Deposit deposit) {
+    interface Transferable{ void transfer(Sample sample); }
+
+    void run(boolean depositHasSample, boolean depositActive, Transferable deposit) {
 
         switch (state) {
 
@@ -153,7 +155,7 @@ public final class Intake {
                 colorSensor.update();
                 sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                if (sample == badSample || (deposit.hasSample() && this.hasSample())) {
+                if (sample == badSample || (depositHasSample && this.hasSample())) {
 
                     sample = null;
                     roller.setPower(SPEED_EJECTING);
@@ -176,7 +178,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                if (!extendo.isExtended() && !deposit.isActive()) {
+                if (!extendo.isExtended() && !depositActive) {
 
                     bucket.setActivated(false);
                     state = BUCKET_RETRACTING;
@@ -224,7 +226,7 @@ public final class Intake {
 
                 if (timer.seconds() >= TIME_POST_TRANSFER) roller.setPower(0);
 
-                extendo.setTarget(deposit.isActive() ? LENGTH_DEPOSIT_CLEAR : 0);
+                extendo.setTarget(depositActive ? LENGTH_DEPOSIT_CLEAR : 0);
 
                 break;
         }
