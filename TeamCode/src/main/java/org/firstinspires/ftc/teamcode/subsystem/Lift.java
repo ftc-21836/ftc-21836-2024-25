@@ -101,11 +101,15 @@ public final class Lift {
     }
 
     void printTelemetry() {
-        mTelemetry.addLine("LIFT: " + (isExtended() ? "EXTENDED" : "RETRACTED"));
+        mTelemetry.addData("LIFT", isExtended() ? "EXTENDED" : "RETRACTED");
         mTelemetry.addLine();
         mTelemetry.addData("Position (in)", getPosition());
         mTelemetry.addData("Target (in)", getTarget());
         mTelemetry.addData("Error derivative (in/s)", controller.getFilteredErrorDerivative());
+        mTelemetry.addLine();
+        for (int i = 0; i < motors.length; i++) mTelemetry.addData(
+                "Motor " + (i + 1) + " ticks", motors[i].encoder.getPosition()
+        );
     }
 
     double getPosition() {
