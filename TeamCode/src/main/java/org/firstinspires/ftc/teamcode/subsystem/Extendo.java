@@ -18,7 +18,7 @@ public final class Extendo {
 
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
-            LENGTH_POST_TRANSFER = 20,
+            LENGTH_DEPOSIT_CLEARANCE = 20,
             TOLERANCE_EXTENDED = 10,
             LENGTH_EXTENDED = 70;
 
