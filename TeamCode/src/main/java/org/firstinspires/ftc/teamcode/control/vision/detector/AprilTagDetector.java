@@ -29,16 +29,16 @@ public class AprilTagDetector {
 
     private final AprilTagDetectionPipeline pipeline;
 
-    private int[] tagIdsToLookFor;
+    private int[] targetIDs;
 
     private boolean tagVisible = false;
 
     /**
      * @param hardwareMap     {@link HardwareMap} passed in from the opmode
      * @param cameraRotation  physical orientation of camera
-     * @param tagIdsToLookFor integer IDs of April Tags to look for
+     * @param targetIDs integer IDs of April Tags to look for
      */
-    public AprilTagDetector(HardwareMap hardwareMap, OpenCvCameraRotation cameraRotation, String cameraName, double tagSize, int... tagIdsToLookFor) {
+    public AprilTagDetector(HardwareMap hardwareMap, OpenCvCameraRotation cameraRotation, String cameraName, double tagSize, int... targetIDs) {
         camera = OpenCvCameraFactory.getInstance().createWebcam(
                 hardwareMap.get(WebcamName.class, cameraName),
                 hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName())
@@ -62,11 +62,11 @@ public class AprilTagDetector {
 
             }
         });
-        setTagIdsToLookFor(tagIdsToLookFor);
+        setTargetIDs(targetIDs);
     }
 
-    public void setTagIdsToLookFor(int[] tagIdsToLookFor) {
-        this.tagIdsToLookFor = tagIdsToLookFor;
+    public void setTargetIDs(int[] targetIDs) {
+        this.targetIDs = targetIDs;
     }
 
     /**
@@ -75,12 +75,12 @@ public class AprilTagDetector {
      */
     public void run() {
         ArrayList<AprilTagDetection> detections = pipeline.getLatestDetections();
-        if (detections.size() == 0) {
+        if (detections.isEmpty()) {
             tagVisible = false;
             return;
         }
         for (AprilTagDetection detection : detections) {
-            for (int tagId : tagIdsToLookFor) {
+            for (int tagId : targetIDs) {
                 if (detection.id == tagId) {
                     detectedTag = detection;
                     tagVisible = true;
@@ -104,7 +104,7 @@ public class AprilTagDetector {
      * telemetry.update() should be called after this method
      */
     public void printTagIsVisible() {
-        mTelemetry.addLine("A tag of interest is " + (isTagVisible() ? "" : "not ") + "visible");
+        mTelemetry.addData("A tag of interest is", (isTagVisible() ? "" : "not ") + "visible");
     }
 
     /**
@@ -112,12 +112,8 @@ public class AprilTagDetector {
      * telemetry.update() should be called after this method
      */
     public void printDetectedTag() {
-        AprilTagDetection detectedTag = getDetectedTag();
-        mTelemetry.addLine("A tag has" + (
-                detectedTag == null ?
-                        "never been detected" :
-                        "been detected: " + detectedTag.id
-        ));
+        AprilTagDetection tag = getDetectedTag();
+        mTelemetry.addData("A tag has", tag == null ? "never been detected" : "been detected: " + tag.id);
     }
 
     /**

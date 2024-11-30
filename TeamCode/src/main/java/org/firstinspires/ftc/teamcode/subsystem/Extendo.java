@@ -75,7 +75,7 @@ public final class Extendo {
     }
 
     public void printTelemetry() {
-        mTelemetry.addLine("EXTENDO: " + (isExtended() ? "EXTENDED" : "RETRACTED"));
+        mTelemetry.addData("EXTENDO", isExtended() ? "EXTENDED" : "RETRACTED");
         mTelemetry.addLine();
         mTelemetry.addData("Position (ticks)", getPosition());
         mTelemetry.addData("Target (ticks)", getTarget());

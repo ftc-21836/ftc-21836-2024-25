@@ -285,9 +285,7 @@ public final class Intake {
     }
 
     void printTelemetry() {
-        mTelemetry.addLine("INTAKE: " + state);
-        mTelemetry.addLine();
-        mTelemetry.addLine(hasSample() ? sample + " sample" : "Empty");
+        mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? sample + " sample" : "empty"));
         hsv.toTelemetry();
         divider();
         extendo.printTelemetry();
