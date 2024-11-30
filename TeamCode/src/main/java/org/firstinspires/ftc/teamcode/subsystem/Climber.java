@@ -1,10 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.ACTIVE_HOOKS_EXTENDING;
 import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.INACTIVE;
-import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.INNER_HOOKS_EXTENDING;
-import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.OUTER_HOOKS_EXTENDING;
+import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.PASSIVE_HOOKS_EXTENDING;
 import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.PULLING_HIGH_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.PULLING_LOW_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.RAISING_ABOVE_HIGH_RUNG;
@@ -12,41 +11,39 @@ import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.RAISING_ABO
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
 
 @Config
 public final class Climber {
 
     public static double
-            ANGLE_HOOKS_RETRACTED = 7,
-            ANGLE_HOOKS_EXTENDED = 105.4,
+            ANGLE_HOOKS_ACTIVE_RETRACTED = 7,
+            ANGLE_HOOKS_ACTIVE_EXTENDED = 105.4,
+
+            ANGLE_HOOKS_PASSIVE_RETRACTED = 7,
+            ANGLE_HOOKS_PASSIVE_EXTENDED = 105.4,
 
             ANGLE_BARS_RETRACTED = 7,
             ANGLE_BARS_EXTENDED = 97,
 
-            TIME_OUTER_HOOKS_EXTENSION = 1,
-            TIME_OUTER_HOOKS_RETRACTION = 1,
-            TIME_INNER_HOOKS_EXTENSION = 1,
-
-            SPEED_OUTER_HOOKS = 0.5,
-
-            TOLERANCE_CLIMBED = 0.25,
-            TOLERANCE_RAISED = 0.25,
+            TIME_PASSIVE_HOOKS_EXTENSION = 1,
+            TIME_ACTIVE_HOOKS_EXTENSION = 1,
 
             HEIGHT_RUNG_LOW_RAISED = 12.75,
             HEIGHT_RUNG_LOW_CLIMB_OFFSET = -3,
+            TOLERANCE_CLIMBED = 0.25,
+
             HEIGHT_RUNG_HIGH_RAISED = 32,
-            HEIGHT_TO_ACTIVATE_LIMITER_BAR = 12,
-            HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -20;
+            TOLERANCE_RAISED = 0.25,
+            HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -20,
 
-    private final SimpleServoPivot innerHooks, limiterBars;
+            HEIGHT_TO_RETRACT_PASSIVE_HOOKS = 20,
+            HEIGHT_TO_ACTIVATE_LIMITER_BAR = 12;
 
-    private final CachedMotorEx outerHooks;
+    private final SimpleServoPivot activeHooks, passiveHooks, limiterBars;
 
     private State state = INACTIVE;
 
@@ -56,9 +53,9 @@ public final class Climber {
         INACTIVE,
         RAISING_ABOVE_LOW_RUNG,
         PULLING_LOW_RUNG,
-        OUTER_HOOKS_EXTENDING,
+        PASSIVE_HOOKS_EXTENDING,
         RAISING_ABOVE_HIGH_RUNG,
-        INNER_HOOKS_EXTENDING,
+        ACTIVE_HOOKS_EXTENDING,
         PULLING_HIGH_RUNG,
     }
 
@@ -72,11 +69,11 @@ public final class Climber {
 
         this.lift = lift;
 
-        innerHooks = new SimpleServoPivot(
-                ANGLE_HOOKS_RETRACTED,
-                ANGLE_HOOKS_EXTENDED,
-                getGBServo(hardwareMap, "right inner hook").reversed(),
-                getGBServo(hardwareMap, "left inner hook")
+        activeHooks = new SimpleServoPivot(
+                ANGLE_HOOKS_ACTIVE_RETRACTED,
+                ANGLE_HOOKS_ACTIVE_EXTENDED,
+                getGBServo(hardwareMap, "right active hook").reversed(),
+                getGBServo(hardwareMap, "left active hook")
         );
 
         limiterBars = new SimpleServoPivot(
@@ -86,9 +83,12 @@ public final class Climber {
                 getGBServo(hardwareMap, "left bar")
         );
 
-        outerHooks = new CachedMotorEx(hardwareMap, "outer hooks", Motor.GoBILDA.RPM_1150);
-        outerHooks.setZeroPowerBehavior(FLOAT);
-        outerHooks.setInverted(true);
+        passiveHooks = new SimpleServoPivot(
+                ANGLE_HOOKS_PASSIVE_RETRACTED,
+                ANGLE_HOOKS_PASSIVE_EXTENDED,
+                getGBServo(hardwareMap, "right passive hook"),
+                getGBServo(hardwareMap, "left passive hook").reversed()
+        );
     }
 
     public void cancelClimb() {
@@ -96,23 +96,25 @@ public final class Climber {
 
             case PULLING_HIGH_RUNG:
                 limiterBars.setActivated(false);
-                outerHooks.set(0);
             case RAISING_ABOVE_LOW_RUNG:
 
-                innerHooks.setActivated(false);
+                activeHooks.setActivated(false);
                 lift.setTarget(0);
                 state = INACTIVE;
 
                 break;
+
+            case PULLING_LOW_RUNG:
+                state = INACTIVE;
+                climb();
         }
     }
 
     public void climb() {
-        // climb button has different behavior for each state:
         switch (state) {
             case INACTIVE:
 
-                innerHooks.setActivated(true);
+                activeHooks.setActivated(true);
                 lift.setTarget(HEIGHT_RUNG_LOW_RAISED);
                 state = RAISING_ABOVE_LOW_RUNG;
 
@@ -124,6 +126,39 @@ public final class Climber {
                 state = PULLING_LOW_RUNG;
 
                 break;
+                
+            case PULLING_LOW_RUNG:
+
+                passiveHooks.setActivated(true);
+                state = PASSIVE_HOOKS_EXTENDING;
+                timer.reset();
+                
+                break;
+                
+            case PASSIVE_HOOKS_EXTENDING:
+
+                lift.setTarget(HEIGHT_RUNG_HIGH_RAISED);
+                state = RAISING_ABOVE_HIGH_RUNG;
+                
+                break;
+                
+            case RAISING_ABOVE_HIGH_RUNG:
+
+                if (activeHooks.isActivated()) activeHooks.setActivated(false);
+                else {
+                    activeHooks.setActivated(true);
+                    state = ACTIVE_HOOKS_EXTENDING;
+                    timer.reset();
+                }
+                
+                break;
+                
+            case ACTIVE_HOOKS_EXTENDING:
+
+                lift.setTarget(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
+                state = PULLING_HIGH_RUNG;
+                
+                break;
         }
     }
 
@@ -133,62 +168,41 @@ public final class Climber {
 
             case PULLING_LOW_RUNG:
 
-                if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) {
+                if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) climb();
+                else break;
 
-                    outerHooks.set(SPEED_OUTER_HOOKS);
-                    state = OUTER_HOOKS_EXTENDING;
-                    timer.reset();
+            case PASSIVE_HOOKS_EXTENDING:
 
-                } else break;
-
-            case OUTER_HOOKS_EXTENDING:
-
-                if (timer.seconds() >= TIME_OUTER_HOOKS_EXTENSION) {
-
-                    lift.setTarget(HEIGHT_RUNG_HIGH_RAISED);
-                    state = RAISING_ABOVE_HIGH_RUNG;
-
-                } else break;
+                if (timer.seconds() >= TIME_PASSIVE_HOOKS_EXTENSION) climb();
+                else break;
 
             case RAISING_ABOVE_HIGH_RUNG:
 
-                if (innerHooks.isActivated() && lift.getPosition() >= HEIGHT_RUNG_LOW_RAISED) {
-                    outerHooks.set(0);
-                    innerHooks.setActivated(false);
-                }
+                if (lift.getPosition() >= HEIGHT_RUNG_LOW_RAISED) activeHooks.setActivated(false);
 
-                if (lift.getPosition() + TOLERANCE_RAISED >= HEIGHT_RUNG_HIGH_RAISED) {
+                if (lift.getPosition() + TOLERANCE_RAISED >= lift.getTarget()) climb();
+                else break;
 
-                    innerHooks.setActivated(true);
-                    state = INNER_HOOKS_EXTENDING;
-                    timer.reset();
+            case ACTIVE_HOOKS_EXTENDING:
 
-                } else break;
-
-            case INNER_HOOKS_EXTENDING:
-
-                if (timer.seconds() >= TIME_INNER_HOOKS_EXTENSION) {
-
-                    outerHooks.set(-SPEED_OUTER_HOOKS);
-                    timer.reset();
-                    lift.setTarget(HEIGHT_RUNG_HIGH_RAISED + HEIGHT_RUNG_HIGH_CLIMB_OFFSET);
-                    state = PULLING_HIGH_RUNG;
-
-                } else break;
+                if (timer.seconds() >= TIME_ACTIVE_HOOKS_EXTENSION) climb();
+                else break;
 
             case PULLING_HIGH_RUNG:
 
-                if (outerHooks.get() != 0 && timer.seconds() >= TIME_OUTER_HOOKS_RETRACTION) outerHooks.set(0);
+                if (lift.getPosition() <= HEIGHT_TO_RETRACT_PASSIVE_HOOKS) passiveHooks.setActivated(false);
 
-                if (!limiterBars.isActivated() && lift.getPosition() <= HEIGHT_TO_ACTIVATE_LIMITER_BAR) limiterBars.setActivated(true);
+                if (lift.getPosition() <= HEIGHT_TO_ACTIVATE_LIMITER_BAR) limiterBars.setActivated(true);
 
                 break;
         }
 
-        innerHooks.updateAngles(ANGLE_HOOKS_RETRACTED, ANGLE_HOOKS_EXTENDED);
+        activeHooks.updateAngles(ANGLE_HOOKS_ACTIVE_RETRACTED, ANGLE_HOOKS_ACTIVE_EXTENDED);
+        passiveHooks.updateAngles(ANGLE_HOOKS_PASSIVE_RETRACTED, ANGLE_HOOKS_PASSIVE_EXTENDED);
         limiterBars.updateAngles(ANGLE_BARS_RETRACTED, ANGLE_BARS_EXTENDED);
 
-        innerHooks.run();
+        activeHooks.run();
+        passiveHooks.run();
         limiterBars.run();
     }
 
