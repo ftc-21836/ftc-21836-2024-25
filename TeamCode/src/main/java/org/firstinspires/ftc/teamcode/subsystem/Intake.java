@@ -196,7 +196,12 @@ public final class Intake {
 
             case BUCKET_SETTLING:
 
-                if (timer.seconds() >= TIME_PRE_TRANSFER) {
+                if (!hasSample()) {
+
+                    state = RETRACTED;
+                    break;
+
+                } else if (timer.seconds() >= TIME_PRE_TRANSFER) {
 
                     deposit.transfer(sample);
                     sample = null;
@@ -272,7 +277,7 @@ public final class Intake {
                 if (!extend) {
                     extendo.setExtended(false);
                     state = EXTENDO_RETRACTING;
-                    roller.setPower(SPEED_HOLDING);
+                    roller.setPower(hasSample() ? SPEED_HOLDING : 0);
                 }
 
                 break;
