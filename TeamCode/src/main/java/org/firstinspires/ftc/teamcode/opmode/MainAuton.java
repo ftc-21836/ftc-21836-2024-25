@@ -164,6 +164,5 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry.addLine("WILL " + (cycle ? "CYCLE" : "NOT CYCLE") + selection.markIf(EDITING_CYCLE));
         mTelemetry.addLine();
         mTelemetry.addLine("Pause after spike: " + partnerWait + selection.markIf(EDITING_WAIT));
-        mTelemetry.addLine();
     }
 }
