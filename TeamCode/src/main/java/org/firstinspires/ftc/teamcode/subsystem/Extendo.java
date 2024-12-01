@@ -44,7 +44,7 @@ public final class Extendo {
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
 
         motor.setInverted(true);
-//        motor.encoder.setDirection(REVERSE);
+        motor.encoder.setDirection(REVERSE);
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
 
