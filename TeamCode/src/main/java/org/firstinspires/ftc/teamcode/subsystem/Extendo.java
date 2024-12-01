@@ -24,7 +24,7 @@ public final class Extendo {
             LENGTH_EXTENDED = 410;
 
     public static PIDGains pidGains = new PIDGains(
-            0.03,
+            0.0225,
             0,
             0,
             POSITIVE_INFINITY
