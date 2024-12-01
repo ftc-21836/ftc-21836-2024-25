@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_117;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -40,6 +42,8 @@ public final class Extendo {
         this.motor = new CachedMotorEx(hardwareMap, "extendo", RPM_117);
 
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
+        
+        motor.encoder.setDirection(REVERSE);
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
 
