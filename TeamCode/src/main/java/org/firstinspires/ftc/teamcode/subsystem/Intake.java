@@ -189,7 +189,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                rollerSpeed = hasSample() ? SPEED_HOLDING : 0;
+                rollerSpeed = 0;
 
                 if (!extendo.isExtended() && !depositActive) {
 
@@ -201,7 +201,7 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                rollerSpeed = hasSample() ? SPEED_HOLDING : 0;
+                rollerSpeed = 0;
 
                 if (bucketSensor.isPressed()) {
 
@@ -212,7 +212,7 @@ public final class Intake {
 
             case BUCKET_SETTLING:
 
-                rollerSpeed = hasSample() ? SPEED_HOLDING : 0;
+                rollerSpeed = 0;
 
                 if (!hasSample()) {
 
@@ -278,9 +278,6 @@ public final class Intake {
     public void setExtended(boolean extend) {
         switch (state) {
 
-            case EXTENDO_RETRACTING:
-            case BUCKET_RETRACTING:
-            case BUCKET_SETTLING:
             case RETRACTED:
 
                 if (extend) {
@@ -298,7 +295,8 @@ public final class Intake {
 
                 if (!extend) {
                     extendo.setExtended(false);
-                    state = EXTENDO_RETRACTING;
+                    state = hasSample() ? EXTENDO_RETRACTING : RETRACTED;
+                    rollerSpeed = 0;
                 }
 
                 break;
