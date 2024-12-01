@@ -30,24 +30,20 @@ public final class Intake {
 
     public static double
 
-            ANGLE_BUCKET_RETRACTED = 11.55,
+            ANGLE_BUCKET_RETRACTED = 7.4,
             ANGLE_BUCKET_VERTICAL = 90,
-            ANGLE_BUCKET_FLOOR_CLEARANCE = 149.1,
-            ANGLE_BUCKET_EJECTING = 204,
+            ANGLE_BUCKET_FLOOR_CLEARANCE = 170,
+            ANGLE_BUCKET_EJECTING = 208,
             ANGLE_BUCKET_INTAKING = 209.1,
 
             TIME_EJECTING = 0.5,
-            TIME_DROP = 0.5,
-            TIME_BUCKET_RAISE_TO_EXTEND = 0.15,
-            TIME_BUCKET_RAISE_TO_DEPOSIT_LIFTING = 0.2,
-            TIME_REVERSING = 0.175,
             TIME_PRE_TRANSFER = 0.25,
             TIME_TRANSFER = 0.25,
             TIME_POST_TRANSFER = 0.25,
 
-            SPEED_EJECTING = -0.6,
+            SPEED_EJECTING = -0.5,
             SPEED_POST_TRANSFER = -0.1,
-            SPEED_HOLDING = 0.5,
+            SPEED_HOLDING = 0.2,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -97,6 +93,7 @@ public final class Intake {
     }
 
     private final CRServo roller;
+    private double rollerSpeed;
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
@@ -152,12 +149,10 @@ public final class Intake {
 
             case EJECTING_SAMPLE:
 
-                roller.setPower(SPEED_EJECTING);
+                rollerSpeed = SPEED_EJECTING;
 
-                if (timer.seconds() >= TIME_EJECTING) {
-                    state = INTAKING;
-                    roller.setPower(0);
-                } else break;
+                if (timer.seconds() >= TIME_EJECTING) state = INTAKING;
+                else break;
 
             case INTAKING:
 
@@ -176,7 +171,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                roller.setPower(hasSample() ? SPEED_HOLDING : 0);
+                rollerSpeed = hasSample() ? SPEED_HOLDING : 0;
 
                 if (!extendo.isExtended() && !depositActive) {
 
@@ -188,11 +183,10 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                roller.setPower(hasSample() ? SPEED_HOLDING : 0);
+                rollerSpeed = hasSample() ? SPEED_HOLDING : 0;
 
                 if (bucketSensor.isPressed()) {
 
-                    roller.setPower(0);
                     state = BUCKET_SETTLING;
                     timer.reset();
 
@@ -200,7 +194,7 @@ public final class Intake {
 
             case BUCKET_SETTLING:
 
-                roller.setPower(hasSample() ? SPEED_HOLDING : 0);
+                rollerSpeed = hasSample() ? SPEED_HOLDING : 0;
 
                 if (!hasSample()) {
 
@@ -219,8 +213,6 @@ public final class Intake {
             case TRANSFERRING:
 
                 if (timer.seconds() >= TIME_TRANSFER) {
-
-                    roller.setPower(SPEED_POST_TRANSFER);
                     state = RETRACTED;
                     timer.reset();
 
@@ -228,7 +220,7 @@ public final class Intake {
 
             case RETRACTED:
 
-                if (timer.seconds() >= TIME_POST_TRANSFER) roller.setPower(0);
+                rollerSpeed = timer.seconds() < TIME_POST_TRANSFER ? SPEED_POST_TRANSFER : 0;
 
                 extendo.setTarget(depositActive ? LENGTH_DEPOSIT_CLEAR : 0);
 
@@ -237,7 +229,7 @@ public final class Intake {
 
         double ANGLE_BUCKET_EXTENDED =
                 state == INTAKING ?
-                        roller.getPower() == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE :
+                        rollerSpeed == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE :
                         ANGLE_BUCKET_INTAKING :
                 state == EJECTING_SAMPLE ? ANGLE_BUCKET_EJECTING :
                 ANGLE_BUCKET_VERTICAL;
@@ -246,6 +238,8 @@ public final class Intake {
         bucket.run();
 
         extendo.run();
+
+        roller.setPower(rollerSpeed);
     }
 
     private boolean hasSample() {
@@ -258,7 +252,7 @@ public final class Intake {
 
     public void runRoller(double power) {
         if (power != 0) setExtended(true);
-        roller.setPower(state == INTAKING ? power : 0);
+        rollerSpeed = state == INTAKING ? power : 0;
     }
 
     public void setExtended(boolean extend) {
