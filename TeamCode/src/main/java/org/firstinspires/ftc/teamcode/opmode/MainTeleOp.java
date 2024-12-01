@@ -24,6 +24,7 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.lerp;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static java.lang.Math.atan2;
 
@@ -34,6 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.subsystem.Extendo;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 @TeleOp
@@ -137,11 +139,14 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                boolean retractExtendo = rTrigger != 0 && lTrigger != 0;
-
-                robot.intake.extendo.runManual(retractExtendo ? -lTrigger : 0);
+                if (rTrigger != 0) {
+                    robot.intake.extendo.setTarget(lerp(0, Extendo.LENGTH_EXTENDED, lTrigger));
+                    robot.intake.runRoller(rTrigger);
+                } else {
+                    robot.intake.extendo.runManual(0);
+                    robot.intake.runRoller(triggersTotal);
+                }
                 robot.deposit.lift.runManual(0);
-                robot.intake.runRoller(retractExtendo ? rTrigger : triggersTotal);
 
                 if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
                 if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();

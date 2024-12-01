@@ -242,7 +242,7 @@ public final class Intake {
         }
 
         double ANGLE_BUCKET_EXTENDED =
-                state == INTAKING ? lerp(ANGLE_BUCKET_INTAKING, ANGLE_BUCKET_FLOOR_CLEARANCE, abs(rollerSpeed)) :
+                state == INTAKING ? lerp(ANGLE_BUCKET_FLOOR_CLEARANCE, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)) :
                 state == EJECTING_SAMPLE ? ANGLE_BUCKET_EJECTING :
                 ANGLE_BUCKET_VERTICAL;
 
@@ -254,8 +254,8 @@ public final class Intake {
         roller.setPower(rollerSpeed);
     }
 
-    public static double lerp(double a, double b, double t) {
-        return t * a + (1 - t) * b;
+    public static double lerp(double start, double end, double t) {
+        return (1 - t) * start + t * end;
     }
 
     private boolean hasSample() {
@@ -282,7 +282,7 @@ public final class Intake {
 
                 if (extend) {
                     bucket.setActivated(true);
-                    extendo.setExtended(true);
+//                    extendo.setExtended(true);
                     state = INTAKING;
                     sample = null;
                 }

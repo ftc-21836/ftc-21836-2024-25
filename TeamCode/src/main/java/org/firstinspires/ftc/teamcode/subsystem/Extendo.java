@@ -93,7 +93,7 @@ public final class Extendo {
         return target;
     }
 
-    void setTarget(double ticks) {
+    public void setTarget(double ticks) {
         target = ticks;
     }
 
