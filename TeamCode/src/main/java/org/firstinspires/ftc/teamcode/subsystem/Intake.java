@@ -273,6 +273,7 @@ public final class Intake {
                     bucket.setActivated(true);
                     extendo.setExtended(true);
                     state = INTAKING;
+                    sample = null;
                 }
 
                 break;
