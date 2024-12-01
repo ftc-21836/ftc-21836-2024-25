@@ -149,6 +149,11 @@ public final class Intake {
 
     void run(boolean depositHasSample, boolean depositActive, Transferable deposit) {
 
+        if (state != EJECTING_SAMPLE && state != RETRACTED) {
+            colorSensor.update();
+            sample = hsvToSample(hsv = colorSensor.getHSV());
+        }
+
         switch (state) {
 
             case EJECTING_SAMPLE:
@@ -160,13 +165,7 @@ public final class Intake {
 
             case INTAKING:
 
-                colorSensor.update();
-                sample = hsvToSample(hsv = colorSensor.getHSV());
-
-                if (!hasSample()) {
-                    timer.reset();
-                    break;
-                }
+                if (runColorSensor(INTAKING, timer::reset)) break;
 
                 if (sample == badSample || depositHasSample) {
 
@@ -183,6 +182,8 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
+                if (runColorSensor(INTAKING, timer::reset)) break;
+
                 rollerSpeed = SPEED_HOLDING;
 
                 if (!extendo.isExtended() && !depositActive) {
@@ -195,6 +196,8 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
+                if (runColorSensor(RETRACTED, () -> {})) break;
+
                 rollerSpeed = SPEED_HOLDING;
 
                 if (bucketSensor.isPressed()) {
@@ -206,14 +209,11 @@ public final class Intake {
 
             case BUCKET_SETTLING:
 
+                if (runColorSensor(RETRACTED, () -> {})) break;
+
                 rollerSpeed = SPEED_HOLDING;
 
-                if (!hasSample()) {
-
-                    state = RETRACTED;
-                    break;
-
-                } else if (timer.seconds() >= TIME_PRE_TRANSFER) {
+                if (timer.seconds() >= TIME_PRE_TRANSFER) {
 
                     deposit.transfer(sample);
                     sample = null;
@@ -223,6 +223,8 @@ public final class Intake {
                 } else break;
 
             case TRANSFERRING:
+
+                if (runColorSensor(RETRACTED, () -> {})) break;
 
                 rollerSpeed = 0;
 
@@ -252,6 +254,15 @@ public final class Intake {
         extendo.run();
 
         roller.setPower(rollerSpeed);
+    }
+
+    private boolean runColorSensor(State stateIfNotFound, Runnable actionIfNotFound) {
+        if (!hasSample()) {
+            state = stateIfNotFound;
+            actionIfNotFound.run();
+            return true;
+        }
+        return false;
     }
 
     public static double lerp(double start, double end, double t) {
