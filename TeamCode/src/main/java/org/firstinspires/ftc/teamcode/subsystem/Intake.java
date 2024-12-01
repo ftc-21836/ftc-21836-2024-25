@@ -10,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAM
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.SAMPLE_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
@@ -40,6 +41,7 @@ public final class Intake {
             ANGLE_BUCKET_INTAKING = 209.1,
 
             TIME_EJECTING = 0.5,
+            TIME_SAMPLE_SETTLING = 1,
             TIME_PRE_TRANSFER = 0.25,
             TIME_TRANSFER = 0.25,
             TIME_POST_TRANSFER = 0.25,
@@ -112,8 +114,9 @@ public final class Intake {
     private final ElapsedTime timer = new ElapsedTime();
 
     enum State {
-        INTAKING,
         EJECTING_SAMPLE,
+        INTAKING,
+        SAMPLE_SETTLING,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
         BUCKET_SETTLING,
@@ -169,7 +172,19 @@ public final class Intake {
                     timer.reset();
                     break;
 
-                } else if (hasSample()) setExtended(false);
+                } else if (hasSample()) {
+
+                    state = SAMPLE_SETTLING;
+                    timer.reset();
+
+                } else break;
+
+            case SAMPLE_SETTLING:
+
+                if (!hasSample()) {
+                    state = INTAKING;
+                    break;
+                } else if (timer.seconds() >= TIME_SAMPLE_SETTLING) setExtended(false);
                 else break;
 
             case EXTENDO_RETRACTING:
@@ -277,8 +292,9 @@ public final class Intake {
 
                 break;
 
-            case INTAKING:
             case EJECTING_SAMPLE:
+            case INTAKING:
+            case SAMPLE_SETTLING:
 
                 if (!extend) {
                     extendo.setExtended(false);
