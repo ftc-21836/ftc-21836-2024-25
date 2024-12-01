@@ -304,7 +304,11 @@ public final class Intake {
 
                 if (!extend) {
                     extendo.setExtended(false);
-                    state = hasSample() ? EXTENDO_RETRACTING : RETRACTED;
+                    if (hasSample()) state = EXTENDO_RETRACTING;
+                    else {
+                        state = RETRACTED;
+                        bucket.setActivated(false);
+                    }
                     rollerSpeed = 0;
                 }
 
