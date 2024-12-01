@@ -181,6 +181,9 @@ public final class Intake {
 
             case SAMPLE_SETTLING:
 
+                colorSensor.update();
+                sample = hsvToSample(hsv = colorSensor.getHSV());
+
                 if (!hasSample()) {
                     state = INTAKING;
                     break;
