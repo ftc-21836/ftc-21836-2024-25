@@ -23,8 +23,8 @@ public final class Climber {
             ANGLE_HOOKS_ACTIVE_RETRACTED = 7,
             ANGLE_HOOKS_ACTIVE_EXTENDED = 105.4,
 
-            ANGLE_HOOKS_PASSIVE_RETRACTED = 7,
-            ANGLE_HOOKS_PASSIVE_EXTENDED = 105.4,
+            ANGLE_HOOKS_PASSIVE_RETRACTED = 96.9,
+            ANGLE_HOOKS_PASSIVE_EXTENDED = 197,
 
             ANGLE_BARS_RETRACTED = 7,
             ANGLE_BARS_EXTENDED = 97,
