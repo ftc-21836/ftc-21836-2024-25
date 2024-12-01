@@ -139,13 +139,8 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                if (rTrigger != 0) {
-                    robot.intake.extendo.setTarget(lerp(0, Extendo.LENGTH_EXTENDED, lTrigger));
-                    robot.intake.runRoller(rTrigger);
-                } else {
-                    robot.intake.extendo.runManual(0);
-                    robot.intake.runRoller(triggersTotal);
-                }
+                robot.intake.extendo.setTarget(lerp(0, Extendo.LENGTH_EXTENDED, lTrigger));
+                robot.intake.runRoller(rTrigger);
                 robot.deposit.lift.runManual(0);
 
                 if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
