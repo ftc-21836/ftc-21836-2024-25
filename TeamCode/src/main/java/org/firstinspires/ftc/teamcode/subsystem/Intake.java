@@ -41,7 +41,7 @@ public final class Intake {
             ANGLE_BUCKET_INTAKING = 209.1,
 
             TIME_EJECTING = 0.5,
-            TIME_SAMPLE_SETTLING = 0.5,
+            TIME_SAMPLE_SETTLING = 1,
             TIME_PRE_TRANSFER = 0.25,
             TIME_TRANSFER = 0.25,
             TIME_POST_TRANSFER = 0.25,
