@@ -20,9 +20,9 @@ public final class Extendo {
 
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
-            LENGTH_DEPOSIT_CLEAR = 20,
+            LENGTH_DEPOSIT_CLEAR = 145,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 10,
-            LENGTH_EXTENDED = 70;
+            LENGTH_EXTENDED = 410;
 
     public static PIDGains pidGains = new PIDGains(
             0,
@@ -42,8 +42,9 @@ public final class Extendo {
         this.motor = new CachedMotorEx(hardwareMap, "extendo", RPM_117);
 
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
-        
-        motor.encoder.setDirection(REVERSE);
+
+        motor.setInverted(true);
+//        motor.encoder.setDirection(REVERSE);
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
 
