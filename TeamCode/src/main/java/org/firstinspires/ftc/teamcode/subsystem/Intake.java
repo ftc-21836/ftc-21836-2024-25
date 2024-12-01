@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystem;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Extendo.LENGTH_DEPOSIT_CLEAR;
+import static org.firstinspires.ftc.teamcode.subsystem.Extendo.LENGTH_DEPOSIT_CLEAR_TOLERANCE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
@@ -224,7 +225,7 @@ public final class Intake {
 
                 rollerSpeed = timer.seconds() < TIME_POST_TRANSFER ? SPEED_POST_TRANSFER : 0;
 
-                extendo.setTarget(depositActive ? LENGTH_DEPOSIT_CLEAR : 0);
+                extendo.setTarget(depositActive ? LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE : 0);
 
                 break;
         }
@@ -251,7 +252,7 @@ public final class Intake {
     }
 
     boolean clearOfDeposit() {
-        return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR - Extendo.LENGTH_DEPOSIT_CLEAR_TOLERANCE;
+        return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR;
     }
 
     public void runRoller(double power) {
