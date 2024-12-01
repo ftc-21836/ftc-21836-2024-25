@@ -15,6 +15,8 @@ import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
+import static java.lang.Math.abs;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -228,9 +230,7 @@ public final class Intake {
         }
 
         double ANGLE_BUCKET_EXTENDED =
-                state == INTAKING ?
-                        rollerSpeed == 0 ? ANGLE_BUCKET_FLOOR_CLEARANCE :
-                        ANGLE_BUCKET_INTAKING :
+                state == INTAKING ? lerp(ANGLE_BUCKET_INTAKING, ANGLE_BUCKET_FLOOR_CLEARANCE, abs(rollerSpeed)) :
                 state == EJECTING_SAMPLE ? ANGLE_BUCKET_EJECTING :
                 ANGLE_BUCKET_VERTICAL;
 
@@ -240,6 +240,10 @@ public final class Intake {
         extendo.run();
 
         roller.setPower(rollerSpeed);
+    }
+
+    public static double lerp(double a, double b, double t) {
+        return t * a + (1 - t) * b;
     }
 
     private boolean hasSample() {
