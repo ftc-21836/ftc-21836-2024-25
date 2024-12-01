@@ -189,7 +189,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                rollerSpeed = 0;
+                rollerSpeed = SPEED_HOLDING;
 
                 if (!extendo.isExtended() && !depositActive) {
 
@@ -201,7 +201,7 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                rollerSpeed = 0;
+                rollerSpeed = SPEED_HOLDING;
 
                 if (bucketSensor.isPressed()) {
 
@@ -212,7 +212,7 @@ public final class Intake {
 
             case BUCKET_SETTLING:
 
-                rollerSpeed = 0;
+                rollerSpeed = SPEED_HOLDING;
 
                 if (!hasSample()) {
 
@@ -229,6 +229,8 @@ public final class Intake {
                 } else break;
 
             case TRANSFERRING:
+
+                rollerSpeed = 0;
 
                 if (timer.seconds() >= TIME_TRANSFER) {
                     state = RETRACTED;
