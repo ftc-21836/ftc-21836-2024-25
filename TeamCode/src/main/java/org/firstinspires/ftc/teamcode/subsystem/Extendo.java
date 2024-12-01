@@ -7,7 +7,6 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -39,11 +38,10 @@ public final class Extendo {
 
     public Extendo(HardwareMap hardwareMap) {
 
-        this.motor = new CachedMotorEx(hardwareMap, "extendo", RPM_117);
+        motor = new CachedMotorEx(hardwareMap, "extendo", RPM_117);
+        motor.setInverted(true);
 
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
-
-        motor.setInverted(true);
         motor.encoder.setDirection(REVERSE);
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
