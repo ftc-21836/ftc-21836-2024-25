@@ -10,7 +10,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAM
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.RETRACTED;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.SAMPLE_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
@@ -116,7 +115,6 @@ public final class Intake {
     enum State {
         EJECTING_SAMPLE,
         INTAKING,
-        SAMPLE_SETTLING,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
         BUCKET_SETTLING,
@@ -165,30 +163,23 @@ public final class Intake {
                 colorSensor.update();
                 sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                if (sample == badSample || (depositHasSample && this.hasSample())) {
+                if (!hasSample()) {
+                    timer.reset();
+                    break;
+                }
+
+                if (sample == badSample || depositHasSample) {
 
                     sample = null;
                     state = EJECTING_SAMPLE;
                     timer.reset();
                     break;
 
-                } else if (hasSample()) {
+                }
 
-                    state = SAMPLE_SETTLING;
-                    timer.reset();
+                if (timer.seconds() >= TIME_SAMPLE_SETTLING) setExtended(false);
 
-                } else break;
-
-            case SAMPLE_SETTLING:
-
-                colorSensor.update();
-                sample = hsvToSample(hsv = colorSensor.getHSV());
-
-                if (!hasSample()) {
-                    state = INTAKING;
-                    break;
-                } else if (timer.seconds() >= TIME_SAMPLE_SETTLING) setExtended(false);
-                else break;
+                if (state != EXTENDO_RETRACTING) break;
 
             case EXTENDO_RETRACTING:
 
@@ -300,7 +291,6 @@ public final class Intake {
 
             case EJECTING_SAMPLE:
             case INTAKING:
-            case SAMPLE_SETTLING:
 
                 if (!extend) {
                     extendo.setExtended(false);
