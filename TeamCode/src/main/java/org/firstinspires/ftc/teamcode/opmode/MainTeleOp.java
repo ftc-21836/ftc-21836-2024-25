@@ -116,12 +116,15 @@ public final class MainTeleOp extends LinearOpMode {
             double leftX = gamepadEx1.getLeftX();
             double leftY = gamepadEx1.getLeftY();
 
-            double triggersTotal = gamepadEx1.getTrigger(RIGHT_TRIGGER) - gamepadEx1.getTrigger(LEFT_TRIGGER);
+            double rTrigger = gamepadEx1.getTrigger(RIGHT_TRIGGER);
+            double lTrigger = gamepadEx1.getTrigger(LEFT_TRIGGER);
+            double triggersTotal = rTrigger - lTrigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
                 robot.intake.extendo.runManual(triggersTotal);
                 robot.deposit.lift.runManual(leftY);
+                robot.intake.runRoller(0);
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
                 if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON))  robot.drivetrain.localizer.reset();
@@ -134,7 +137,11 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                robot.intake.runRoller(triggersTotal);
+                boolean retractExtendo = rTrigger != 0 && lTrigger != 0;
+
+                robot.intake.extendo.runManual(retractExtendo ? -lTrigger : 0);
+                robot.deposit.lift.runManual(0);
+                robot.intake.runRoller(retractExtendo ? rTrigger : triggersTotal);
 
                 if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
                 if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
@@ -158,7 +165,7 @@ public final class MainTeleOp extends LinearOpMode {
                     leftX,
                     leftY,
                     rightX,
-                    slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || gamepadEx1.getTrigger(RIGHT_TRIGGER) > 0,
+                    slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || rTrigger > 0,
                     useFieldCentric
             );
 
