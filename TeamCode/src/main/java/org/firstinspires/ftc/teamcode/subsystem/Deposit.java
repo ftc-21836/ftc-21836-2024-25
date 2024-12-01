@@ -10,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.GRABBING_SP
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.HAS_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.HAS_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.INTAKING_SPECIMEN;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
@@ -28,12 +29,11 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
 public final class Deposit {
 
     public static double
-            ANGLE_ARM_RETRACTED = 10,
+            ANGLE_ARM_RETRACTED = 3,
             ANGLE_ARM_SPECIMEN = 110, // wall pickup and chambers
             ANGLE_ARM_SAMPLE = 151, // dropping in observation zone and baskets
 
             ANGLE_CLAW_OPEN = 80,
-            ANGLE_CLAW_TRANSFER = 70,
             ANGLE_CLAW_CLOSED = 29,
 
             TIME_DROP = 0.5,
@@ -41,7 +41,6 @@ public final class Deposit {
             TIME_GRAB = 0.25,
 
             HEIGHT_INTAKING_SPECIMEN = 0.1,
-            HEIGHT_OFFSET_POST_INTAKING = 4,
             HEIGHT_OBSERVATION_ZONE = 1,
             HEIGHT_BASKET_LOW = 20,
             HEIGHT_BASKET_HIGH = 32,
@@ -56,7 +55,8 @@ public final class Deposit {
         INTAKING_SPECIMEN,
         GRABBING_SPECIMEN,
         HAS_SPECIMEN,
-        SCORING_SPECIMEN
+        SCORING_SPECIMEN,
+        RELEASING_SPECIMEN,
     }
 
     public enum Position {
@@ -92,7 +92,7 @@ public final class Deposit {
         );
 
         claw = new SimpleServoPivot(
-                ANGLE_CLAW_TRANSFER,
+                ANGLE_CLAW_OPEN,
                 ANGLE_CLAW_CLOSED,
                 getGBServo(hardwareMap, "claw").reversed()
         );
@@ -105,6 +105,7 @@ public final class Deposit {
 
         switch (state) {
 
+            case RELEASING_SPECIMEN:
             case SAMPLE_FALLING:
 
                 if (timer.seconds() >= TIME_DROP) {
@@ -137,10 +138,7 @@ public final class Deposit {
 
         if (arm.isActivated()) timeArmSpentRetracted.reset();
 
-        claw.updateAngles(
-                state == RETRACTED || !freeToMove ? ANGLE_CLAW_TRANSFER : ANGLE_CLAW_OPEN,
-                ANGLE_CLAW_CLOSED
-        );
+        claw.updateAngles(ANGLE_CLAW_OPEN, ANGLE_CLAW_CLOSED);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
         claw.run();
 
@@ -181,6 +179,7 @@ public final class Deposit {
                 break;
 
             case SCORING_SPECIMEN:
+            case RELEASING_SPECIMEN:
                 if (position == FLOOR) break;
                 state = HAS_SPECIMEN;
             case GRABBING_SPECIMEN:
@@ -240,8 +239,15 @@ public final class Deposit {
             case SCORING_SPECIMEN:
 
                 sample = null;
+                state = RELEASING_SPECIMEN;
+                lift.setTarget(0);
+                timer.reset();
+
+                break;
+
+            case RELEASING_SPECIMEN:
+
                 state = RETRACTED;
-                setPosition(FLOOR);
 
                 break;
         }
