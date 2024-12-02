@@ -162,7 +162,7 @@ public final class Intake {
 
             case INTAKING:
 
-                if (runColorSensor(INTAKING, timer::reset)) break;
+                if (checkSampleStatus(INTAKING, timer::reset)) break;
 
                 if (sample == badSample || depositHasSample) {
 
@@ -179,7 +179,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                if (runColorSensor(INTAKING, timer::reset)) break;
+                if (checkSampleStatus(INTAKING, timer::reset)) break;
 
                 rollerSpeed = SPEED_HOLDING;
 
@@ -193,7 +193,7 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                if (runColorSensor(RETRACTED, () -> {})) break;
+                if (checkSampleStatus(RETRACTED, () -> {})) break;
 
                 rollerSpeed = SPEED_HOLDING;
 
@@ -206,7 +206,7 @@ public final class Intake {
 
             case BUCKET_SETTLING:
 
-                if (runColorSensor(RETRACTED, () -> {})) break;
+                if (checkSampleStatus(RETRACTED, () -> {})) break;
 
                 rollerSpeed = SPEED_HOLDING;
 
@@ -249,7 +249,7 @@ public final class Intake {
         roller.setPower(rollerSpeed);
     }
 
-    private boolean runColorSensor(State stateIfNotFound, Runnable actionIfNotFound) {
+    private boolean checkSampleStatus(State stateIfNotFound, Runnable actionIfNotFound) {
         if (!hasSample()) {
             state = stateIfNotFound;
             actionIfNotFound.run();
