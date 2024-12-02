@@ -224,8 +224,6 @@ public final class Intake {
 
             case TRANSFERRING:
 
-                if (runColorSensor(RETRACTED, () -> {})) break;
-
                 rollerSpeed = 0;
 
                 if (timer.seconds() >= TIME_TRANSFER) {
