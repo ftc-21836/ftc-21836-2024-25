@@ -261,6 +261,13 @@ public final class Intake {
         return false;
     }
 
+    /**
+     * Interpolate between two values
+     * @param start starting value, returned if t = 0
+     * @param end ending value, returned if t = 1
+     * @param t interpolation parameter, on the inclusive interval [0, 1]
+     * @return the interpolated value t% between start and end, on the inclusive interval [start, end]
+     */
     public static double lerp(double start, double end, double t) {
         return (1 - t) * start + t * end;
     }
