@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
-import static org.firstinspires.ftc.teamcode.opmodes.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -56,11 +56,11 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.roadrunner.messages.DriveCommandMessage;
-import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumCommandMessage;
-import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumLocalizerInputsMessage;
-import org.firstinspires.ftc.teamcode.roadrunner.messages.PoseMessage;
-import org.firstinspires.ftc.teamcode.subsystems.utilities.cachedhardware.CachedDcMotorEx;
+import org.firstinspires.ftc.teamcode.roadrunner.message.DriveCommandMessage;
+import org.firstinspires.ftc.teamcode.roadrunner.message.MecanumCommandMessage;
+import org.firstinspires.ftc.teamcode.roadrunner.message.MecanumLocalizerInputsMessage;
+import org.firstinspires.ftc.teamcode.roadrunner.message.PoseMessage;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 
 import java.util.Arrays;
 import java.util.LinkedList;
