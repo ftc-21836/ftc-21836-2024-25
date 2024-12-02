@@ -248,7 +248,7 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run(!depositActive);
+        extendo.run(!depositActive || !depositHasSample);
 
         roller.setPower(rollerSpeed);
     }
