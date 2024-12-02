@@ -24,7 +24,6 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.lerp;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static java.lang.Math.atan2;
 
@@ -139,7 +138,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                robot.intake.extendo.setTarget(lerp(0, Extendo.LENGTH_EXTENDED, lTrigger));
+                robot.intake.extendo.setTarget(lTrigger * Extendo.LENGTH_EXTENDED);
                 robot.intake.runRoller(rTrigger);
                 robot.deposit.lift.runManual(0);
 
