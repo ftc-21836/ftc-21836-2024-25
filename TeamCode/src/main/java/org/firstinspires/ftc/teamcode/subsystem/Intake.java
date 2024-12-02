@@ -32,7 +32,7 @@ public final class Intake {
 
             ANGLE_BUCKET_RETRACTED = 7.4,
             ANGLE_BUCKET_VERTICAL = 90,
-            ANGLE_BUCKET_FLOOR_CLEARANCE = 170,
+            ANGLE_BUCKET_OVER_BARRIER = 170,
             ANGLE_BUCKET_EJECTING = 208,
             ANGLE_BUCKET_INTAKING_NEAR = 209.1,
             ANGLE_BUCKET_INTAKING_FAR = 204,
@@ -238,7 +238,7 @@ public final class Intake {
         }
 
         double ANGLE_BUCKET_FLOOR = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
-        double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_FLOOR_CLEARANCE, ANGLE_BUCKET_FLOOR, abs(rollerSpeed));
+        double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_FLOOR, abs(rollerSpeed));
 
         double ANGLE_BUCKET_EXTENDED =
                 state == INTAKING ? ANGLE_BUCKET_INTAKING :
