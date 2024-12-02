@@ -221,7 +221,7 @@ public final class Intake {
 
             case TRANSFERRING:
 
-                rollerSpeed = 0;
+                rollerSpeed = SPEED_HOLDING;
 
                 if (timer.seconds() >= TIME_TRANSFER) {
                     state = RETRACTED;
