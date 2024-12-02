@@ -163,7 +163,7 @@ public final class Intake {
 
             case INTAKING:
 
-                if (checkSampleStatus(INTAKING, timer::reset)) break;
+                if (sampleLost(INTAKING)) break;
 
                 if (sample == badSample || depositHasSample) {
 
@@ -180,7 +180,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                if (checkSampleStatus(INTAKING, timer::reset)) break;
+                if (sampleLost(INTAKING)) break;
 
                 rollerSpeed = SPEED_HOLDING;
 
@@ -194,7 +194,7 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                if (checkSampleStatus(RETRACTED, () -> {})) break;
+                if (sampleLost(RETRACTED)) break;
 
                 rollerSpeed = SPEED_HOLDING;
 
@@ -207,7 +207,7 @@ public final class Intake {
 
             case BUCKET_SETTLING:
 
-                if (checkSampleStatus(RETRACTED, () -> {})) break;
+                if (sampleLost(RETRACTED)) break;
 
                 rollerSpeed = SPEED_HOLDING;
 
@@ -253,10 +253,9 @@ public final class Intake {
         roller.setPower(rollerSpeed);
     }
 
-    private boolean checkSampleStatus(State stateIfNotFound, Runnable actionIfNotFound) {
+    private boolean sampleLost(State returnTo) {
         if (!hasSample()) {
-            state = stateIfNotFound;
-            actionIfNotFound.run();
+            if ((state = returnTo) == INTAKING) timer.reset();
             return true;
         }
         return false;
