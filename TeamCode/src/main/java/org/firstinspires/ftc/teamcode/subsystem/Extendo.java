@@ -5,6 +5,7 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_117;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static java.lang.Double.POSITIVE_INFINITY;
+import static java.lang.Double.max;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,6 +13,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
+import org.firstinspires.ftc.teamcode.control.motion.State;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
 
 @Config
@@ -59,7 +61,7 @@ public final class Extendo {
         this.manualPower = power * SCALAR_MANUAL_SPEED;
     }
 
-    public void run() {
+    public void run(boolean canRetract) {
 
         if (getTarget() == 0 && !isExtended()) reset();
 
@@ -72,9 +74,11 @@ public final class Extendo {
         }
 
         controller.setGains(pidGains);
-        controller.setTarget(new org.firstinspires.ftc.teamcode.control.motion.State(getTarget()));
+        controller.setTarget(new State(
+                canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE)
+        ));
 
-        motor.set(controller.calculate(new org.firstinspires.ftc.teamcode.control.motion.State(getPosition())));
+        motor.set(controller.calculate(new State(getPosition())));
     }
 
     public void printTelemetry() {

@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
-import static org.firstinspires.ftc.teamcode.subsystem.Extendo.LENGTH_DEPOSIT_CLEAR;
-import static org.firstinspires.ftc.teamcode.subsystem.Extendo.LENGTH_DEPOSIT_CLEAR_TOLERANCE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
@@ -15,7 +13,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
-
 import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -236,8 +233,6 @@ public final class Intake {
 
                 rollerSpeed = timer.seconds() < TIME_POST_TRANSFER ? SPEED_POST_TRANSFER : 0;
 
-                extendo.setTarget(depositActive ? LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE : 0);
-
                 break;
         }
 
@@ -249,7 +244,7 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run();
+        extendo.run(!depositActive);
 
         roller.setPower(rollerSpeed);
     }
