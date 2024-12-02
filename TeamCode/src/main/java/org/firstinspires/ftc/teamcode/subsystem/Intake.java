@@ -288,10 +288,10 @@ public final class Intake {
     public void setExtended(boolean extend) {
         switch (state) {
 
-            case EXTENDO_RETRACTING:
-            case BUCKET_RETRACTING:
-            case BUCKET_SETTLING:
-                if (hasSample()) break;
+//            case EXTENDO_RETRACTING:
+//            case BUCKET_RETRACTING:
+//            case BUCKET_SETTLING:
+//                if (hasSample()) break;
             case RETRACTED:
 
                 if (extend) {
