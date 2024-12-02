@@ -119,11 +119,10 @@ public final class MainTeleOp extends LinearOpMode {
 
             double rTrigger = gamepadEx1.getTrigger(RIGHT_TRIGGER);
             double lTrigger = gamepadEx1.getTrigger(LEFT_TRIGGER);
-            double triggersTotal = rTrigger - lTrigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.extendo.runManual(triggersTotal);
+                robot.intake.extendo.runManual(rTrigger - lTrigger);
                 robot.deposit.lift.runManual(leftY);
                 robot.intake.runRoller(0);
                 
