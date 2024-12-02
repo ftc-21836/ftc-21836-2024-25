@@ -98,7 +98,7 @@ public final class Deposit {
         );
     }
 
-    void run(boolean freeToMove, boolean climbing) {
+    void run(boolean canMove, boolean climbing) {
 
         // release sample when climbing begins
         if (climbing && state != RETRACTED) state = RETRACTED;
@@ -133,7 +133,7 @@ public final class Deposit {
                 ANGLE_ARM_RETRACTED,
                 handlingSpecimen() ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
         );
-        arm.setActivated(state != RETRACTED && freeToMove);
+        arm.setActivated(state != RETRACTED && canMove);
         arm.run();
 
         if (arm.isActivated()) timeArmSpentRetracted.reset();
@@ -142,7 +142,7 @@ public final class Deposit {
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
         claw.run();
 
-        lift.run(freeToMove, climbing);
+        lift.run(canMove, climbing);
     }
 
     private boolean handlingSpecimen() {

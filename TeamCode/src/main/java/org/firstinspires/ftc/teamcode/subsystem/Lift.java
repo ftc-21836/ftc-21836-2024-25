@@ -69,7 +69,7 @@ public final class Lift {
         this.manualPower = power;
     }
 
-    void run(boolean freeToMove, boolean climbing) {
+    void run(boolean canMove, boolean climbing) {
 
         position = INCHES_PER_TICK * avgTicks();
 
@@ -85,7 +85,7 @@ public final class Lift {
             setTarget(getPosition());
             output += manualPower;
 
-        } else if (freeToMove) {
+        } else if (canMove) {
 
             output += controller.calculate(new State(getPosition()));
 
