@@ -27,9 +27,9 @@ public final class Extendo {
 
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
-            LENGTH_DEPOSIT_CLEAR = 120,
-            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 20,
-            LENGTH_EXTENDED = 410;
+            RADIANS_DEPOSIT_CLEAR = 0.5290360909777928,
+            RADIANS_DEPOSIT_CLEAR_TOLERANCE = 0.08817268182963214,
+            RADIANS_EXTENDED = 1.8075399775074588;
 
     public static PIDGains pidGains = new PIDGains(
             0.0225,
@@ -52,6 +52,8 @@ public final class Extendo {
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
         motor.encoder.setDirection(REVERSE);
 
+        motor.encoder.setDistancePerPulse(2 * PI / motor.getCPR());
+
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
 
         reset();
@@ -71,7 +73,7 @@ public final class Extendo {
 
         if (getTarget() == 0 && !isExtended()) reset();
 
-        position = motor.encoder.getPosition();
+        position = motor.encoder.getDistance();
 
         if (manualPower != 0) {
             setTarget(getPosition());
@@ -81,7 +83,7 @@ public final class Extendo {
 
         controller.setGains(pidGains);
         controller.setTarget(new State(
-                canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE)
+                canRetract ? getTarget() : max(getTarget(), RADIANS_DEPOSIT_CLEAR + RADIANS_DEPOSIT_CLEAR_TOLERANCE)
         ));
 
         motor.set(controller.calculate(new State(getPosition())));
@@ -90,9 +92,9 @@ public final class Extendo {
     public void printTelemetry() {
         mTelemetry.addData("EXTENDO", isExtended() ? "EXTENDED" : "RETRACTED");
         mTelemetry.addLine();
-        mTelemetry.addData("Position (ticks)", getPosition());
-        mTelemetry.addData("Target (ticks)", getTarget());
-        mTelemetry.addData("Error derivative (ticks/s)", controller.getFilteredErrorDerivative());
+        mTelemetry.addData("Position (rad)", getPosition());
+        mTelemetry.addData("Target (rad)", getTarget());
+        mTelemetry.addData("Error derivative (rad/s)", controller.getFilteredErrorDerivative());
     }
 
     double getPosition() {
@@ -103,8 +105,8 @@ public final class Extendo {
         return target;
     }
 
-    public void setTarget(double ticks) {
-        target = ticks;
+    public void setTarget(double radians) {
+        target = radians;
     }
 
     boolean isExtended() {
@@ -112,7 +114,7 @@ public final class Extendo {
     }
 
     public void setExtended(boolean extended) {
-        setTarget(extended ? LENGTH_EXTENDED : 0);
+        setTarget(extended ? RADIANS_EXTENDED : 0);
     }
 
     public void toggle() {

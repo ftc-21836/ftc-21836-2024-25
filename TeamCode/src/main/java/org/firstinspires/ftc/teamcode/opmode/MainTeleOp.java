@@ -137,7 +137,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                robot.intake.extendo.setTarget(lTrigger * Extendo.LENGTH_EXTENDED);
+                robot.intake.extendo.setTarget(lTrigger * Extendo.RADIANS_EXTENDED);
                 robot.intake.runRoller(rTrigger);
                 robot.deposit.lift.runManual(0);
 
