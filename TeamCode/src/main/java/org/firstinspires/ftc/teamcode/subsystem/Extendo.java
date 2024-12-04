@@ -12,8 +12,6 @@ import static java.lang.Math.atan;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
-import static java.lang.Math.toDegrees;
-import static java.lang.Math.toRadians;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -124,37 +122,41 @@ public final class Extendo {
 
 
     private static final double
-            A = 240,    A_2 = A*A,
-            B = 360,    B_2 = B*B,
-            H = 19.65,  H_2 = H*H,
-            b = 1 / (2 * A),
+            RAD_RETRACTED = 0.894011730625,
+            RAD_EXTENDED = 2.69343341362,
+            MM_RETRACTED = 144.39994388,
+            MM_EXTENDED = 554.399942992,
+            A = 240,        A_2 = A*A,
+            B = 360,        B_2 = B*B,
+            H = 19.65017,   H_2 = H*H,
+            b = 0.5 / A,
             a = b * (B_2 - A_2 - H_2),
-            bh2a = 2 * b * H_2 + a;
+            c = 2 * b * H_2 + a;
 
-    private static double x(double theta) {
-        double rightLeg = H + A * sin(theta);
-        return sqrt(B_2 - rightLeg*rightLeg) - A * cos(theta);
+    private static double radToMM(double radians) {
+        double rightLeg = H + A * sin(radians);
+        return sqrt(B_2 - rightLeg*rightLeg) - A * cos(radians);
     }
 
-    private static double theta(double x) {
-        double x_2 = x*x;
-        return PI - asin(  (a - b*x_2) / sqrt(H_2 + x_2)  ) - atan(x / H);
+    private static double mmToRadians(double millimeters) {
+        double x_2 = millimeters*millimeters;
+        return PI - asin(  (a - b*x_2) / sqrt(H_2 + x_2)  ) - atan(millimeters / H);
     }
 
-    private static double omega(double x, double v) {
-        double x_2 = x*x;
+    private static double mmPerSecToRadPerSec(double millimeters, double millimetersPerSecond) {
+        double x_2 = millimeters*millimeters;
         double x2h2 = x_2 + H_2;
-        double num = x * (b*x_2 + bh2a);
+        double num = millimeters * (b*x_2 + c);
         double binom = a - b * x_2;
         double denom = x2h2 * sqrt(x2h2 - binom*binom);
-        return v * (num / denom - H / x2h2);
+        return millimetersPerSecond * (num / denom - H / x2h2);
     }
 
-    public static void main(String... args) {
+    public static void main(String[] args) {
 
-        System.out.println(x(toRadians(124.5)) - 422.85163444);
-        System.out.println(toDegrees(theta(237)) - 86.9634939233);
-        System.out.println(toDegrees(omega(445, 1)) - 0.195843409013);
+        System.out.println(radToMM(RAD_RETRACTED) - MM_RETRACTED);
+        System.out.println(mmToRadians(MM_RETRACTED) - RAD_RETRACTED);
+        System.out.println(mmPerSecToRadPerSec(405, 1) - 0.00328031712158);
 
     }
 
