@@ -98,7 +98,9 @@ public final class Deposit {
         );
     }
 
-    void run(boolean canMove, boolean climbing) {
+    void run(boolean intakeClear, boolean climbing) {
+
+        boolean canMove = intakeClear || !hasSample();
 
         // release sample when climbing begins
         if (climbing && state != RETRACTED) state = RETRACTED;
@@ -150,7 +152,12 @@ public final class Deposit {
     }
 
     boolean isActive() {
-        return state != RETRACTED || lift.getTarget() != 0 || lift.isExtended() || timeArmSpentRetracted.seconds() <= TIME_ARM_RETRACTION;
+        return hasSample() && (
+                state != RETRACTED ||
+                lift.getTarget() != 0 ||
+                lift.isExtended() ||
+                timeArmSpentRetracted.seconds() <= TIME_ARM_RETRACTION
+        );
     }
 
     public void setPosition(Position position) {
