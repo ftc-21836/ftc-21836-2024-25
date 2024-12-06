@@ -32,7 +32,7 @@ public final class Extendo {
             RADIANS_EXTENDED = 1.8075399775074588;
 
     public static PIDGains pidGains = new PIDGains(
-            0.0225,
+            0.0001,
             0,
             0,
             POSITIVE_INFINITY
@@ -71,8 +71,6 @@ public final class Extendo {
 
     public void run(boolean canRetract) {
 
-        if (getTarget() == 0 && !isExtended()) reset();
-
         position = motor.encoder.getDistance();
 
         if (manualPower != 0) {
@@ -80,6 +78,8 @@ public final class Extendo {
             motor.set(manualPower);
             return;
         }
+
+        if (getTarget() == 0 && !isExtended()) reset();
 
         controller.setGains(pidGains);
         controller.setTarget(new State(
