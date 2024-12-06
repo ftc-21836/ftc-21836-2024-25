@@ -131,34 +131,34 @@ public final class Extendo {
             A = 240,        A_2 = A*A,
             B = 360,        B_2 = B*B,
             H = 19.65017,   H_2 = H*H,
-            b = 0.5 / A,
-            a = b * (B_2 - A_2 - H_2),
-            c = 2 * b * H_2 + a;
+            b = 0.5 / A,                b_2 = b*b,
+            a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
+            bh2a = 2 * b * H_2 + a,
+            ab2 = a * b * 2;
 
-    private static double radToMM(double radians) {
+    private static double millimeters(double radians) {
         double rightLeg = H + A * sin(radians);
         return sqrt(B_2 - rightLeg*rightLeg) - A * cos(radians);
     }
 
-    private static double mmToRadians(double millimeters) {
+    private static double radians(double millimeters) {
         double x_2 = millimeters*millimeters;
         return PI - asin(  (a - b*x_2) / sqrt(H_2 + x_2)  ) - atan(millimeters / H);
     }
 
-    private static double mmPerSecToRadPerSec(double millimeters, double millimetersPerSecond) {
+    private static double radiansPerMillimeter(double millimeters) {
         double x_2 = millimeters*millimeters;
         double x2h2 = x_2 + H_2;
-        double num = millimeters * (b*x_2 + c);
-        double binom = a - b * x_2;
-        double denom = x2h2 * sqrt(x2h2 - binom*binom);
-        return millimetersPerSecond * (num / denom - H / x2h2);
+        double num = millimeters * (b*x_2 + bh2a);
+        double denom = x2h2 * sqrt(x2h2 - a_2 + ab2 * x_2 - b_2 * x_2 * x_2);
+        return num / denom - H / x2h2;
     }
 
     public static void main(String[] args) {
 
-        System.out.println(radToMM(RAD_RETRACTED) - MM_RETRACTED);
-        System.out.println(mmToRadians(MM_RETRACTED) - RAD_RETRACTED);
-        System.out.println(mmPerSecToRadPerSec(405, 1) - 0.00328031712158);
+        System.out.println(millimeters(RAD_RETRACTED) - MM_RETRACTED);
+        System.out.println(radians(MM_RETRACTED) - RAD_RETRACTED);
+        System.out.println(radiansPerMillimeter(MM_RETRACTED) - 0.0122469670588);
 
     }
 
