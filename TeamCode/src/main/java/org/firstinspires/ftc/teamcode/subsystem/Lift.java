@@ -74,7 +74,7 @@ public final class Lift {
         position = INCHES_PER_TICK * avgTicks();
 
         controller.setGains(pidGains);
-        controller.setTarget(new State(getTarget()));
+        controller.setTarget(new State(canMove ? getTarget() : getPosition()));
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
@@ -85,11 +85,7 @@ public final class Lift {
             setTarget(getPosition());
             output += manualPower;
 
-        } else if (canMove) {
-
-            output += controller.calculate(new State(getPosition()));
-
-        }
+        } else output += controller.calculate(new State(getPosition()));
 
         for (CachedMotorEx motor : motors) motor.set(output);
     }
