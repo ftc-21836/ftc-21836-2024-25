@@ -252,11 +252,11 @@ public final class Intake {
     }
 
     private boolean sampleLost(State returnTo) {
-        if (!hasSample()) {
-            if ((state = returnTo) == INTAKING) timer.reset();
-            return true;
-        }
-        return false;
+        if (hasSample()) return false;
+
+        state = returnTo;
+        timer.reset();
+        return true;
     }
 
     /**
