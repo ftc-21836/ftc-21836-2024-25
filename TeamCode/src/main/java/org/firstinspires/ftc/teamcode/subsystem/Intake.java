@@ -181,8 +181,6 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
-                rollerSpeed = SPEED_HOLDING;
-
                 if (!extendo.isExtended() && !depositActive) {
 
                     bucket.setActivated(false);
@@ -195,8 +193,6 @@ public final class Intake {
 
                 if (sampleLost(RETRACTED)) break;
 
-                rollerSpeed = SPEED_HOLDING;
-
                 if (bucketSensor.isPressed()) {
 
                     state = BUCKET_SETTLING;
@@ -207,8 +203,6 @@ public final class Intake {
             case BUCKET_SETTLING:
 
                 if (sampleLost(RETRACTED)) break;
-
-                rollerSpeed = SPEED_HOLDING;
 
                 if (timer.seconds() >= TIME_PRE_TRANSFER) {
 
@@ -221,9 +215,9 @@ public final class Intake {
 
             case TRANSFERRING:
 
-                rollerSpeed = SPEED_HOLDING;
-
                 if (timer.seconds() >= TIME_TRANSFER) {
+
+                    rollerSpeed = SPEED_POST_TRANSFER;
                     state = RETRACTED;
                     timer.reset();
 
@@ -231,7 +225,7 @@ public final class Intake {
 
             case RETRACTED:
 
-                rollerSpeed = timer.seconds() < TIME_POST_TRANSFER ? SPEED_POST_TRANSFER : 0;
+                if (timer.seconds() >= TIME_POST_TRANSFER) rollerSpeed = 0;
 
                 break;
         }
@@ -306,12 +300,14 @@ public final class Intake {
 
                 if (!extend) {
                     extendo.setExtended(false);
-                    if (hasSample()) state = EXTENDO_RETRACTING;
-                    else {
+                    if (hasSample()) {
+                        state = EXTENDO_RETRACTING;
+                        rollerSpeed = SPEED_HOLDING;
+                    } else {
                         state = RETRACTED;
                         bucket.setActivated(false);
+                        rollerSpeed = 0;
                     }
-                    rollerSpeed = 0;
                 }
 
                 break;
