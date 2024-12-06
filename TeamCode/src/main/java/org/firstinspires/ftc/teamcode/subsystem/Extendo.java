@@ -131,14 +131,17 @@ public final class Extendo {
             A = 240,        A_2 = A*A,
             B = 360,        B_2 = B*B,
             H = 19.65017,   H_2 = H*H,
+            B2_H2 = B_2 - H_2,
+            AH2 = A * H * 2,
             b = 0.5 / A,                b_2 = b*b,
             a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
             bh2a = 2 * b * H_2 + a,
-            ab2 = a * b * 2;
+            ab2 = a * b * 2,
+            NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
 
     private static double millimeters(double radians) {
-        double rightLeg = H + A * sin(radians);
-        return sqrt(B_2 - rightLeg*rightLeg) - A * cos(radians);
+        double sin = sin(radians);
+        return sqrt(B2_H2 - AH2 * sin - A_2 * sin * sin) - A * cos(radians);
     }
 
     private static double radians(double millimeters) {
