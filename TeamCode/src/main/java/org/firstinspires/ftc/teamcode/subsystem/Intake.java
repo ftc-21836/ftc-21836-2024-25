@@ -230,7 +230,7 @@ public final class Intake {
                 break;
         }
 
-        double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.RADIANS_EXTENDED);
+        double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
 
         double ANGLE_BUCKET_EXTENDED =
                 state == EJECTING_SAMPLE ? ANGLE_BUCKET_INTAKING :
@@ -269,7 +269,7 @@ public final class Intake {
     }
 
     boolean clearOfDeposit() {
-        return extendo.getPosition() >= Extendo.RADIANS_DEPOSIT_CLEAR;
+        return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR;
     }
 
     public void runRoller(double power) {

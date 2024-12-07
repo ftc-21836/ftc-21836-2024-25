@@ -43,9 +43,10 @@ public final class Extendo {
 
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
-            RADIANS_DEPOSIT_CLEAR = 0.5290360909777928,
-            RADIANS_DEPOSIT_CLEAR_TOLERANCE = 0.08817268182963214,
-            RADIANS_EXTENDED = 1.8075399775074588;
+            LENGTH_DEPOSIT_CLEAR = 72.3264515921,
+            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 7.87544677926,
+            LENGTH_EXTENDED = MM_EXTENDED - MM_RETRACTED,
+            kS = 0;
 
     public static PIDGains pidGains = new PIDGains(
             0,
@@ -67,7 +68,6 @@ public final class Extendo {
 
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
         motor.encoder.setDirection(REVERSE);
-
         motor.encoder.setDistancePerPulse(2 * PI / motor.getCPR());
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
@@ -87,11 +87,20 @@ public final class Extendo {
 
     public void run(boolean canRetract) {
 
-        position = motor.encoder.getDistance();
+        double radians = motor.encoder.getDistance();
+        double millimeters;
+
+        if (radians == 0) {
+            millimeters = MM_RETRACTED;
+            position = 0;
+        } else {
+            millimeters = millimeters(radians + RAD_RETRACTED);
+            position = millimeters - MM_RETRACTED;
+        }
 
         if (manualPower != 0) {
             setTarget(getPosition());
-            motor.set(manualPower);
+            motor.set(scaledPower(manualPower, millimeters));
             return;
         }
 
@@ -99,10 +108,13 @@ public final class Extendo {
 
         controller.setGains(pidGains);
         controller.setTarget(new State(
-                canRetract ? getTarget() : max(getTarget(), RADIANS_DEPOSIT_CLEAR + RADIANS_DEPOSIT_CLEAR_TOLERANCE)
+                canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE)
         ));
 
-        motor.set(controller.calculate(new State(getPosition())));
+        motor.set(scaledPower(
+                controller.calculate(new State(getPosition())),
+                millimeters
+        ));
     }
 
     public void printTelemetry() {
@@ -130,7 +142,7 @@ public final class Extendo {
     }
 
     public void setExtended(boolean extended) {
-        setTarget(extended ? RADIANS_EXTENDED : 0);
+        setTarget(extended ? LENGTH_EXTENDED : 0);
     }
 
     public void toggle() {
@@ -155,6 +167,10 @@ public final class Extendo {
         double num = millimeters * (b*x_2 + bh2a);
         double denom = x2h2 * sqrt(x2h2 - a_2 + ab2 * x_2 - b_2 * x_2 * x_2);
         return num / denom - H / x2h2;
+    }
+
+    private static double scaledPower(double power, double millimeters) {
+        return power * NORM_FACTOR * radiansPerMillimeter(millimeters) + (power <= 0 ? 0 : (millimeters - MM_RETRACTED) * kS);
     }
 
     public static void main(String[] args) {
