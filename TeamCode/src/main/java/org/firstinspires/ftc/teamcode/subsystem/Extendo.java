@@ -32,7 +32,7 @@ public final class Extendo {
             RADIANS_EXTENDED = 1.8075399775074588;
 
     public static PIDGains pidGains = new PIDGains(
-            0.0001,
+            0,
             0,
             0,
             POSITIVE_INFINITY
