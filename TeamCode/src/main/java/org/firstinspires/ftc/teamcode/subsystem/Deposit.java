@@ -103,9 +103,8 @@ public final class Deposit {
         boolean canMove = intakeClear || !hasSample();
 
         // release sample when climbing begins
-        if (climbing && state != RETRACTED) state = RETRACTED;
-
-        switch (state) {
+        if (climbing) state = RETRACTED;
+        else switch (state) {
 
             case SAMPLE_FALLING:
 
