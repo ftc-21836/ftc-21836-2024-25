@@ -25,27 +25,11 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMot
 @Config
 public final class Extendo {
 
-    private static final double
-            A = 240,        A_2 = A*A,
-            B = 360,        B_2 = B*B,
-            H = 19.65017,   H_2 = H*H,
-            B2_H2 = B_2 - H_2,
-            AH2 = A * H * 2,
-            b = 0.5 / A,                b_2 = b*b,
-            a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
-            bh2a = 2 * b * H_2 + a,
-            ab2 = a * b * 2,
-            MM_RETRACTED = 144.39994388,
-            MM_EXTENDED = 554.399942992,
-            RAD_RETRACTED = radians(MM_RETRACTED),
-            RAD_EXTENDED = radians(MM_EXTENDED),
-            NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
-
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
             LENGTH_DEPOSIT_CLEAR = 72.3264515921,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 7.87544677926,
-            LENGTH_EXTENDED = MM_EXTENDED - MM_RETRACTED,
+            LENGTH_EXTENDED = Math.MM_EXTENDED - Math.MM_RETRACTED,
             kS = 0;
 
     public static PIDGains pidGains = new PIDGains(
@@ -92,16 +76,16 @@ public final class Extendo {
         if (getTarget() == 0 && !isExtended() && manualPower <= 0) {
 
             reset();
-            millimeters = MM_RETRACTED;
+            millimeters = Math.MM_RETRACTED;
 
         } else {
-            millimeters = millimeters(motor.encoder.getDistance() + RAD_RETRACTED);
-            position = millimeters - MM_RETRACTED;
+            millimeters = Math.millimeters(motor.encoder.getDistance() + Math.RAD_RETRACTED);
+            position = millimeters - Math.MM_RETRACTED;
         }
 
         if (manualPower != 0) {
             setTarget(getPosition());
-            motor.set(scaledPower(manualPower, millimeters));
+            motor.set(Math.scaledPower(manualPower, millimeters));
             return;
         }
 
@@ -110,7 +94,7 @@ public final class Extendo {
                 canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE)
         ));
 
-        motor.set(scaledPower(
+        motor.set(Math.scaledPower(
                 controller.calculate(new State(getPosition())),
                 millimeters
         ));
@@ -148,35 +132,54 @@ public final class Extendo {
         setExtended(!isExtended());
     }
 
-    // https://www.desmos.com/calculator/xjwsz9pojl
+    /// <a href="https://www.desmos.com/calculator/xjwsz9pojl">Desmos diagrams + graphs</a>
+    private static final class Math {
 
-    private static double millimeters(double radians) {
-        double sin = sin(radians);
-        return sqrt(B2_H2 - AH2 * sin - A_2 * sin * sin) - A * cos(radians);
-    }
+        private static final double
+                A = 240,        A_2 = A*A,
+                B = 360,        B_2 = B*B,
+                H = 19.65017,   H_2 = H*H,
+                B2_H2 = B_2 - H_2,
+                AH2 = A * H * 2,
+                b = 0.5 / A,                b_2 = b*b,
+                a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
+                bh2a = 2 * b * H_2 + a,
+                ab2 = a * b * 2,
+                MM_RETRACTED = 144.39994388,
+                MM_EXTENDED = 554.399942992,
+                RAD_RETRACTED = radians(MM_RETRACTED),
+                RAD_EXTENDED = radians(MM_EXTENDED),
+                NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
 
-    private static double radians(double millimeters) {
-        double x_2 = millimeters*millimeters;
-        return PI - asin(  (a - b*x_2) / sqrt(H_2 + x_2)  ) - atan(millimeters / H);
-    }
+        private static double millimeters(double radians) {
+            double sin = sin(radians);
+            return sqrt(B2_H2 - AH2 * sin - A_2 * sin * sin) - A * cos(radians);
+        }
 
-    private static double radiansPerMillimeter(double millimeters) {
-        double x_2 = millimeters*millimeters;
-        double x2h2 = x_2 + H_2;
-        double num = millimeters * (b*x_2 + bh2a);
-        double denom = x2h2 * sqrt(x2h2 - a_2 + ab2 * x_2 - b_2 * x_2 * x_2);
-        return num / denom - H / x2h2;
-    }
+        private static double radians(double millimeters) {
+            double x_2 = millimeters*millimeters;
+            return PI - asin(  (a - b*x_2) / sqrt(H_2 + x_2)  ) - atan(millimeters / H);
+        }
 
-    private static double scaledPower(double power, double millimeters) {
-        return power * NORM_FACTOR * radiansPerMillimeter(millimeters) + (power <= 0 ? 0 : (millimeters - MM_RETRACTED) * kS);
-    }
+        private static double radiansPerMillimeter(double millimeters) {
+            double x_2 = millimeters*millimeters;
+            double x2h2 = x_2 + H_2;
+            double num = millimeters * (b*x_2 + bh2a);
+            double denom = x2h2 * sqrt(x2h2 - a_2 + ab2 * x_2 - b_2 * x_2 * x_2);
+            return num / denom - H / x2h2;
+        }
 
-    public static void main(String[] args) {
+        private static double scaledPower(double power, double millimeters) {
+            return power * NORM_FACTOR * radiansPerMillimeter(millimeters) + (power <= 0 ? 0 : (millimeters - MM_RETRACTED) * kS);
+        }
 
-        System.out.println(millimeters(RAD_RETRACTED) - MM_RETRACTED);
-        System.out.println(radians(MM_RETRACTED) - RAD_RETRACTED);
-        System.out.println(radiansPerMillimeter(MM_RETRACTED) - 0.0122469670588);
+        public static void main(String[] args) {
+
+            System.out.println(millimeters(RAD_RETRACTED) - MM_RETRACTED);
+            System.out.println(radians(MM_RETRACTED) - RAD_RETRACTED);
+            System.out.println(radiansPerMillimeter(MM_RETRACTED) - 0.0122469670588);
+
+        }
 
     }
 
