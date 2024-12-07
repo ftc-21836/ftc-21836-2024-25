@@ -25,6 +25,22 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMot
 @Config
 public final class Extendo {
 
+    private static final double
+            A = 240,        A_2 = A*A,
+            B = 360,        B_2 = B*B,
+            H = 19.65017,   H_2 = H*H,
+            B2_H2 = B_2 - H_2,
+            AH2 = A * H * 2,
+            b = 0.5 / A,                b_2 = b*b,
+            a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
+            bh2a = 2 * b * H_2 + a,
+            ab2 = a * b * 2,
+            MM_RETRACTED = 144.39994388,
+            MM_EXTENDED = 554.399942992,
+            RAD_RETRACTED = radians(MM_RETRACTED),
+            RAD_EXTENDED = radians(MM_EXTENDED),
+            NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
+
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
             RADIANS_DEPOSIT_CLEAR = 0.5290360909777928,
@@ -122,22 +138,6 @@ public final class Extendo {
     }
 
 
-
-    private static final double
-            A = 240,        A_2 = A*A,
-            B = 360,        B_2 = B*B,
-            H = 19.65017,   H_2 = H*H,
-            B2_H2 = B_2 - H_2,
-            AH2 = A * H * 2,
-            b = 0.5 / A,                b_2 = b*b,
-            a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
-            bh2a = 2 * b * H_2 + a,
-            ab2 = a * b * 2,
-            MM_RETRACTED = 144.39994388,
-            MM_EXTENDED = 554.399942992,
-            RAD_RETRACTED = radians(MM_RETRACTED),
-            RAD_EXTENDED = radians(MM_EXTENDED),
-            NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
 
     private static double millimeters(double radians) {
         double sin = sin(radians);
