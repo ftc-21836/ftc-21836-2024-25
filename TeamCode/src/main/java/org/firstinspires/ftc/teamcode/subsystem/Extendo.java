@@ -87,14 +87,15 @@ public final class Extendo {
 
     public void run(boolean canRetract) {
 
-        double radians = motor.encoder.getDistance();
         double millimeters;
 
-        if (radians == 0) {
+        if (getTarget() == 0 && !isExtended() && manualPower <= 0) {
+
+            reset();
             millimeters = MM_RETRACTED;
-            position = 0;
+
         } else {
-            millimeters = millimeters(radians + RAD_RETRACTED);
+            millimeters = millimeters(motor.encoder.getDistance() + RAD_RETRACTED);
             position = millimeters - MM_RETRACTED;
         }
 
@@ -103,8 +104,6 @@ public final class Extendo {
             motor.set(scaledPower(manualPower, millimeters));
             return;
         }
-
-        if (getTarget() == 0 && !isExtended()) reset();
 
         controller.setGains(pidGains);
         controller.setTarget(new State(
