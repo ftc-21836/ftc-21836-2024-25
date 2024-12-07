@@ -120,9 +120,9 @@ public final class Extendo {
     public void printTelemetry() {
         mTelemetry.addData("EXTENDO", isExtended() ? "EXTENDED" : "RETRACTED");
         mTelemetry.addLine();
-        mTelemetry.addData("Position (rad)", getPosition());
-        mTelemetry.addData("Target (rad)", getTarget());
-        mTelemetry.addData("Error derivative (rad/s)", controller.getFilteredErrorDerivative());
+        mTelemetry.addData("Position (mm)", getPosition());
+        mTelemetry.addData("Target (mm)", getTarget());
+        mTelemetry.addData("Error derivative (mm/s)", controller.getFilteredErrorDerivative());
     }
 
     double getPosition() {
