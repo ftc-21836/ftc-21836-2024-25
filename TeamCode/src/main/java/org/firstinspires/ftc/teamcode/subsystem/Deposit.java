@@ -107,7 +107,6 @@ public final class Deposit {
 
         switch (state) {
 
-            case RELEASING_SPECIMEN:
             case SAMPLE_FALLING:
 
                 if (timer.seconds() >= TIME_DROP) {
@@ -126,6 +125,12 @@ public final class Deposit {
             case SCORING_SPECIMEN:
 
                 if (lift.getPosition() <= releaseSpecimenHeight) triggerClaw();
+
+                break;
+
+            case RELEASING_SPECIMEN:
+
+                if (timer.seconds() >= TIME_DROP) triggerClaw();
 
                 break;
 
