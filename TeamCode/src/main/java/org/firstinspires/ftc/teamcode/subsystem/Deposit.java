@@ -190,7 +190,6 @@ public final class Deposit {
                 break;
 
             case SCORING_SPECIMEN:
-            case RELEASING_SPECIMEN:
                 if (position == FLOOR) break;
                 state = HAS_SPECIMEN;
             case GRABBING_SPECIMEN:
