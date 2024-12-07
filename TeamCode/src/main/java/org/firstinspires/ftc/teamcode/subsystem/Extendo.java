@@ -124,10 +124,6 @@ public final class Extendo {
 
 
     private static final double
-            RAD_RETRACTED = 0.894011730625,
-            RAD_EXTENDED = 2.69343341362,
-            MM_RETRACTED = 144.39994388,
-            MM_EXTENDED = 554.399942992,
             A = 240,        A_2 = A*A,
             B = 360,        B_2 = B*B,
             H = 19.65017,   H_2 = H*H,
@@ -137,6 +133,10 @@ public final class Extendo {
             a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
             bh2a = 2 * b * H_2 + a,
             ab2 = a * b * 2,
+            MM_RETRACTED = 144.39994388,
+            MM_EXTENDED = 554.399942992,
+            RAD_RETRACTED = radians(MM_RETRACTED),
+            RAD_EXTENDED = radians(MM_EXTENDED),
             NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
 
     private static double millimeters(double radians) {
