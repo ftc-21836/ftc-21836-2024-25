@@ -74,9 +74,6 @@ public final class Lift {
 
     void run(boolean canMove, boolean climbing) {
 
-
-        controller.setGains(pidGains);
-        controller.setTarget(new State(canMove ? getTarget() : getPosition()));
         position = 0;
         for (CachedMotorEx motor1 : motors) position += motor1.encoder.getDistance();
         position /= motors.length;
@@ -90,11 +87,15 @@ public final class Lift {
             setTarget(getPosition());
             output += manualPower;
 
-        } else output += controller.calculate(new State(getPosition()));
+        } else {
+
+            controller.setGains(pidGains);
+            controller.setTarget(new State(canMove ? getTarget() : getPosition()));
+            output += controller.calculate(new State(getPosition()));
+
+        }
 
         for (CachedMotorEx motor : motors) motor.set(output);
-    }
-
     }
 
     void printTelemetry() {
