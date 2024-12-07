@@ -132,8 +132,8 @@ public final class Extendo {
         return target;
     }
 
-    public void setTarget(double radians) {
-        target = radians;
+    public void setTarget(double millimeters) {
+        target = millimeters;
     }
 
     boolean isExtended() {
