@@ -44,7 +44,10 @@ public final class Lift {
 //                new CachedMotorEx(hardwareMap, "lift 3", RPM_312)
         };
         motors[1].setInverted(true);
-        for (CachedMotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
+        for (CachedMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(FLOAT);
+            motor.setDistancePerPulse(INCHES_PER_TICK);
+        }
 
         motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
@@ -71,10 +74,12 @@ public final class Lift {
 
     void run(boolean canMove, boolean climbing) {
 
-        position = INCHES_PER_TICK * avgTicks();
 
         controller.setGains(pidGains);
         controller.setTarget(new State(canMove ? getTarget() : getPosition()));
+        position = 0;
+        for (CachedMotorEx motor1 : motors) position += motor1.encoder.getDistance();
+        position /= motors.length;
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
@@ -90,10 +95,6 @@ public final class Lift {
         for (CachedMotorEx motor : motors) motor.set(output);
     }
 
-    private double avgTicks() {
-        double sum = 0;
-        for (CachedMotorEx motor : motors) sum += motor.encoder.getPosition();
-        return sum / motors.length;
     }
 
     void printTelemetry() {
