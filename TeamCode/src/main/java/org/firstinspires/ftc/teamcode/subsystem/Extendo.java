@@ -149,7 +149,7 @@ public final class Extendo {
         setExtended(!isExtended());
     }
 
-
+    // https://www.desmos.com/calculator/xjwsz9pojl
 
     private static double millimeters(double radians) {
         double sin = sin(radians);
