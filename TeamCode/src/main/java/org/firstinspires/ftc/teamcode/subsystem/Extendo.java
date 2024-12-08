@@ -85,7 +85,7 @@ public final class Extendo {
 
         if (manualPower != 0) {
             setTarget(getPosition());
-            motor.set(Math.scaledPower(manualPower, millimeters));
+            motor.set(manualPower);
             return;
         }
 
@@ -94,10 +94,7 @@ public final class Extendo {
                 canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE)
         ));
 
-        motor.set(Math.scaledPower(
-                controller.calculate(new State(getPosition())),
-                millimeters
-        ));
+        motor.set(controller.calculate(new State(getPosition())));
     }
 
     public void printTelemetry() {
