@@ -116,7 +116,7 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.update();
         }
 
-        robot.preload();
+        robot.deposit.preload();
         robot.run();
 
         TeamPropDetector detector = new TeamPropDetector(hardwareMap);

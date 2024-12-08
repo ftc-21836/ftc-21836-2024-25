@@ -70,7 +70,7 @@ public final class Deposit {
 
     private final ElapsedTime timer = new ElapsedTime(), timeArmSpentRetracted = new ElapsedTime();
 
-    private Sample sample, specimenColor;
+    private Sample sample, specimenColor = RED;
 
     private Deposit.State state = RETRACTED;
 
@@ -135,6 +135,19 @@ public final class Deposit {
 
         }
 
+        runArm(canMove);
+
+        lift.run(canMove, climbing);
+    }
+
+    public void preload() {
+        triggerClaw();
+        triggerClaw();
+        triggerClaw();
+        runArm(true);
+    }
+
+    private void runArm(boolean canMove) {
         arm.updateAngles(
                 ANGLE_ARM_RETRACTED,
                 handlingSpecimen() ? ANGLE_ARM_SPECIMEN : ANGLE_ARM_SAMPLE
@@ -147,8 +160,6 @@ public final class Deposit {
         claw.updateAngles(ANGLE_CLAW_OPEN, ANGLE_CLAW_CLOSED);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
         claw.run();
-
-        lift.run(canMove, climbing);
     }
 
     private boolean handlingSpecimen() {

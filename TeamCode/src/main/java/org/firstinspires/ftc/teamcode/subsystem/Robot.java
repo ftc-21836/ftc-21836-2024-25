@@ -28,12 +28,6 @@ public final class Robot {
         climber = new Climber(hardwareMap, deposit.lift);
     }
 
-    public void preload() {
-        deposit.triggerClaw();
-        deposit.triggerClaw();
-        deposit.run(false, false);
-    }
-
     public void initRun() {
     }
 
