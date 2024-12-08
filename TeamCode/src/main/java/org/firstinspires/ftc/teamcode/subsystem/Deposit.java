@@ -33,8 +33,8 @@ public final class Deposit {
             ANGLE_ARM_SPECIMEN = 110, // wall pickup and chambers
             ANGLE_ARM_SAMPLE = 110, // dropping in observation zone and baskets
 
-            ANGLE_CLAW_OPEN = 80,
-            ANGLE_CLAW_CLOSED = 29,
+            ANGLE_CLAW_OPEN = 60,
+            ANGLE_CLAW_CLOSED = 9,
 
             TIME_DROP = 0.5,
             TIME_ARM_RETRACTION = 0.25,
