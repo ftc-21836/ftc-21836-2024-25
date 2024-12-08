@@ -30,11 +30,11 @@ public final class Intake {
 
     public static double
 
-            ANGLE_BUCKET_RETRACTED = 7.4,
-            ANGLE_BUCKET_VERTICAL = 90,
+            ANGLE_BUCKET_RETRACTED = 7.8,
+            ANGLE_BUCKET_PRE_TRANSFER = 130,
             ANGLE_BUCKET_OVER_BARRIER = 170,
-            ANGLE_BUCKET_INTAKING_NEAR = 209.1,
-            ANGLE_BUCKET_INTAKING_FAR = 204,
+            ANGLE_BUCKET_INTAKING_NEAR = 206,
+            ANGLE_BUCKET_INTAKING_FAR = 202,
 
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 0.5,
@@ -44,7 +44,7 @@ public final class Intake {
 
             SPEED_EJECTING = -0.5,
             SPEED_POST_TRANSFER = -0.1,
-            SPEED_HOLDING = 0.2,
+            SPEED_HOLDING = 1,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -53,7 +53,7 @@ public final class Intake {
     public static HSV
             minRed = new HSV(
             0,
-                    0.5,
+                    0.25,
                     0
             ),
             maxRed = new HSV(
@@ -129,7 +129,7 @@ public final class Intake {
 
         bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
-                ANGLE_BUCKET_VERTICAL,
+                ANGLE_BUCKET_PRE_TRANSFER,
                 getAxon(hardwareMap, "bucket right").reversed(),
                 getAxon(hardwareMap, "bucket left")
         );
@@ -174,8 +174,7 @@ public final class Intake {
                 }
 
                 if (timer.seconds() >= TIME_SAMPLE_SETTLING) setExtended(false);
-
-                if (state != EXTENDO_RETRACTING) break;
+                else break;
 
             case EXTENDO_RETRACTING:
 
@@ -206,6 +205,7 @@ public final class Intake {
 
                 if (timer.seconds() >= TIME_PRE_TRANSFER) {
 
+                    rollerSpeed = 0;
                     deposit.transfer(sample);
                     sample = null;
                     state = TRANSFERRING;
@@ -235,12 +235,12 @@ public final class Intake {
         double ANGLE_BUCKET_EXTENDED =
                 state == EJECTING_SAMPLE ? ANGLE_BUCKET_INTAKING :
                 state == INTAKING ? lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)) :
-                ANGLE_BUCKET_VERTICAL;
+                        ANGLE_BUCKET_PRE_TRANSFER;
 
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run(!depositActive || climbing);
+        extendo.run(!depositActive || climbing || state == TRANSFERRING);
 
         roller.setPower(rollerSpeed);
     }
@@ -274,7 +274,7 @@ public final class Intake {
 
     public void runRoller(double power) {
         if (power != 0) setExtended(true);
-        rollerSpeed = state == INTAKING ? power : 0;
+        if (state == INTAKING) rollerSpeed = power;
     }
 
     public void setExtended(boolean extend) {
@@ -301,8 +301,10 @@ public final class Intake {
                 if (!extend) {
                     extendo.setExtended(false);
                     if (hasSample()) {
+
                         state = EXTENDO_RETRACTING;
                         rollerSpeed = SPEED_HOLDING;
+
                     } else {
                         state = RETRACTED;
                         bucket.setActivated(false);

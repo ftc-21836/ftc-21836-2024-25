@@ -10,6 +10,7 @@ import static java.lang.Math.PI;
 import static java.lang.Math.asin;
 import static java.lang.Math.atan;
 import static java.lang.Math.cos;
+import static java.lang.Math.signum;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
@@ -27,13 +28,15 @@ public final class Extendo {
 
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
+            SPEED_RETRACTION = -0.5,
+            LENGTH_RETRACTING = 15,
             LENGTH_DEPOSIT_CLEAR = 72.3264515921,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 7.87544677926,
             LENGTH_EXTENDED = Math.MM_EXTENDED - Math.MM_RETRACTED,
             kS = 0;
 
     public static PIDGains pidGains = new PIDGains(
-            0,
+            0.015,
             0,
             0,
             POSITIVE_INFINITY
@@ -62,7 +65,8 @@ public final class Extendo {
     private void reset() {
         controller.reset();
         motor.encoder.reset();
-        setTarget(position = 0);
+        position = 0;
+        setTarget(0);
     }
 
     public void runManual(double power) {
@@ -71,21 +75,19 @@ public final class Extendo {
 
     public void run(boolean canRetract) {
 
-        double millimeters;
+        // When the magnet hits
+        if (canRetract && getTarget() == 0 && !isExtended() && manualPower <= 0) reset();
 
-        if (getTarget() == 0 && !isExtended() && manualPower <= 0) {
-
-            reset();
-            millimeters = Math.MM_RETRACTED;
-
-        } else {
-            millimeters = Math.millimeters(motor.encoder.getDistance() + Math.RAD_RETRACTED);
-            position = millimeters - Math.MM_RETRACTED;
-        }
+        position = Math.millimeters(motor.encoder.getDistance() + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
 
         if (manualPower != 0) {
             setTarget(getPosition());
             motor.set(manualPower);
+            return;
+        }
+
+        if (canRetract && getTarget() == 0 && isExtended() && position > 0 && position <= LENGTH_RETRACTING) {
+            motor.set(SPEED_RETRACTION);
             return;
         }
 
@@ -94,7 +96,10 @@ public final class Extendo {
                 canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE)
         ));
 
-        motor.set(controller.calculate(new State(getPosition())));
+        double power = controller.calculate(new State(getPosition()));
+        double slideBindingFF = power <= 0 ? 0 : position * kS;
+
+        motor.set(power + slideBindingFF);
     }
 
     public void printTelemetry() {
@@ -103,6 +108,7 @@ public final class Extendo {
         mTelemetry.addData("Position (mm)", getPosition());
         mTelemetry.addData("Target (mm)", getTarget());
         mTelemetry.addData("Error derivative (mm/s)", controller.getFilteredErrorDerivative());
+        mTelemetry.addData("Encoder (rad)", motor.encoder.getDistance());
     }
 
     double getPosition() {
