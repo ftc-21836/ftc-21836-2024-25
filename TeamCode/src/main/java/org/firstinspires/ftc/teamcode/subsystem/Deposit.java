@@ -31,7 +31,7 @@ public final class Deposit {
     public static double
             ANGLE_ARM_RETRACTED = 3,
             ANGLE_ARM_SPECIMEN = 110, // wall pickup and chambers
-            ANGLE_ARM_SAMPLE = 151, // dropping in observation zone and baskets
+            ANGLE_ARM_SAMPLE = 110, // dropping in observation zone and baskets
 
             ANGLE_CLAW_OPEN = 80,
             ANGLE_CLAW_CLOSED = 29,
@@ -40,9 +40,9 @@ public final class Deposit {
             TIME_ARM_RETRACTION = 0.25,
             TIME_GRAB = 0.25,
 
-            HEIGHT_INTAKING_SPECIMEN = 0.1,
-            HEIGHT_OBSERVATION_ZONE = 1,
-            HEIGHT_BASKET_LOW = 20,
+            HEIGHT_INTAKING_SPECIMEN = 1.9,
+            HEIGHT_OBSERVATION_ZONE = 0.1,
+            HEIGHT_BASKET_LOW = 22,
             HEIGHT_BASKET_HIGH = 32,
             HEIGHT_CHAMBER_LOW = 6,
             HEIGHT_CHAMBER_HIGH = 20,
@@ -100,7 +100,7 @@ public final class Deposit {
 
     void run(boolean intakeClear, boolean climbing) {
 
-        boolean canMove = intakeClear || !hasSample();
+        boolean canMove = intakeClear || !hasSample() || handlingSpecimen();
 
         // release sample when climbing begins
         if (climbing) state = RETRACTED;
@@ -155,8 +155,8 @@ public final class Deposit {
         return state.ordinal() >= INTAKING_SPECIMEN.ordinal();
     }
 
-    boolean isActive() {
-        return hasSample() && (
+    boolean impedingIntake() {
+        return !handlingSpecimen() && hasSample() && (
                 state != RETRACTED ||
                 lift.getTarget() != 0 ||
                 lift.isExtended() ||
