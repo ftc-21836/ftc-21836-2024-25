@@ -40,7 +40,7 @@ public final class MainAuton extends LinearOpMode {
         public static final AutonConfig[] selections = values();
 
         public AutonConfig plus(int i) {
-            return selections[OpModeVars.loopMod(ordinal() + i, selections.length)];
+            return selections[(int) loopMod(ordinal() + i, selections.length)];
         }
         public String markIf(AutonConfig s) {
             return this == s ? " <" : "";
@@ -55,7 +55,7 @@ public final class MainAuton extends LinearOpMode {
         public static final ParkingLocation[] locations = values();
 
         public ParkingLocation plus(int i) {
-            return locations[loopMod(ordinal() + i, locations.length)];
+            return locations[(int) loopMod(ordinal() + i, locations.length)];
         }
     }
 

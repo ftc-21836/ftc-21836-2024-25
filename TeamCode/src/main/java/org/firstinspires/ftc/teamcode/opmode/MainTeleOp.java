@@ -48,7 +48,7 @@ public final class MainTeleOp extends LinearOpMode {
         public static final TeleOpConfig[] selections = values();
 
         public TeleOpConfig plus(int i) {
-            return selections[loopMod(ordinal() + i, selections.length)];
+            return selections[(int) loopMod(ordinal() + i, selections.length)];
         }
         public String markIf(TeleOpConfig s) {
             return this == s ? " <" : "";
