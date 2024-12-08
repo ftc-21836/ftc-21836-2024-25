@@ -33,8 +33,8 @@ public final class Intake {
             ANGLE_BUCKET_RETRACTED = 7.8,
             ANGLE_BUCKET_PRE_TRANSFER = 25,
             ANGLE_BUCKET_OVER_BARRIER = 165,
-            ANGLE_BUCKET_INTAKING_NEAR = 206,
-            ANGLE_BUCKET_INTAKING_FAR = 202,
+            ANGLE_BUCKET_INTAKING_NEAR = 207,
+            ANGLE_BUCKET_INTAKING_FAR = 203,
 
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 0.5,
