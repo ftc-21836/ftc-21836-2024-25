@@ -175,9 +175,12 @@ public final class Extendo {
 
         public static void main(String[] args) {
 
-            System.out.println(millimeters(RAD_RETRACTED) - MM_RETRACTED);
-            System.out.println(radians(MM_RETRACTED) - RAD_RETRACTED);
+            System.out.println(millimeters(RAD_RETRACTED) - 144.39994388);
+            System.out.println(radians(MM_RETRACTED) - 0.89401173062);
             System.out.println(radiansPerMillimeter(MM_RETRACTED) - 0.0122469670588);
+
+            System.out.println(scaledPower(1, MM_EXTENDED) - 0.445959977881);
+            System.out.println(scaledPower(1, MM_RETRACTED) - 1);
 
         }
 
