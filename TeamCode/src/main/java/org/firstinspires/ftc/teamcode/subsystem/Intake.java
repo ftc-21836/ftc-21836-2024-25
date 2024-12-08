@@ -144,7 +144,7 @@ public final class Intake {
 
     interface Transferable{ void transfer(Sample sample); }
 
-    void run(boolean depositHasSample, boolean depositActive, Transferable deposit) {
+    void run(boolean depositHasSample, boolean depositActive, Transferable deposit, boolean climbing) {
 
         if (state != EJECTING_SAMPLE && state != RETRACTED) {
             colorSensor.update();
@@ -240,7 +240,7 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run(!depositActive);
+        extendo.run(!depositActive || climbing);
 
         roller.setPower(rollerSpeed);
     }
