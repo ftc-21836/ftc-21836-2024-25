@@ -24,7 +24,7 @@ public final class Lift {
     );
 
     public static double
-            kG = 0.15,
+            kG = 0.125,
             INCHES_PER_TICK = 0.0088581424,
             HEIGHT_RETRACTED_THRESHOLD = 0.5,
             MAX_VOLTAGE = 13;
@@ -44,16 +44,17 @@ public final class Lift {
 //                new CachedMotorEx(hardwareMap, "lift 3", RPM_312)
         };
         motors[1].setInverted(true);
-        for (CachedMotorEx motor : motors) {
-            motor.setZeroPowerBehavior(FLOAT);
-            motor.setDistancePerPulse(INCHES_PER_TICK);
-        }
 
         motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
 //        motors[2].encoder = new CachedMotorEx(hardwareMap, "left front", RPM_312).encoder;
 
 //        motors[1].encoder.setDirection(REVERSE);
+
+        for (CachedMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(FLOAT);
+            motor.encoder.setDistancePerPulse(INCHES_PER_TICK);
+        }
 
         reset();
     }
@@ -75,7 +76,7 @@ public final class Lift {
     void run(boolean canMove, boolean climbing) {
 
         position = 0;
-        for (CachedMotorEx motor1 : motors) position += motor1.encoder.getDistance();
+        for (CachedMotorEx motor : motors) position += motor.encoder.getDistance();
         position /= motors.length;
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
