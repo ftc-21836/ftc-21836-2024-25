@@ -10,7 +10,6 @@ import static java.lang.Math.PI;
 import static java.lang.Math.asin;
 import static java.lang.Math.atan;
 import static java.lang.Math.cos;
-import static java.lang.Math.signum;
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
 
@@ -75,8 +74,10 @@ public final class Extendo {
 
     public void run(boolean canRetract) {
 
+        double setpoint = canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE);
+
         // When the magnet hits
-        if (canRetract && getTarget() == 0 && !isExtended() && manualPower <= 0) reset();
+        if (setpoint == 0 && !isExtended() && manualPower <= 0) reset();
 
         position = Math.millimeters(motor.encoder.getDistance() + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
 
@@ -86,15 +87,13 @@ public final class Extendo {
             return;
         }
 
-        if (canRetract && getTarget() == 0 && isExtended() && position > 0 && position <= LENGTH_RETRACTING) {
+        if (setpoint == 0 && isExtended() && position > 0 && position <= LENGTH_RETRACTING) {
             motor.set(SPEED_RETRACTION);
             return;
         }
 
         controller.setGains(pidGains);
-        controller.setTarget(new State(
-                canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE)
-        ));
+        controller.setTarget(new State(setpoint));
 
         double power = controller.calculate(new State(getPosition()));
         double slideBindingFF = power <= 0 ? 0 : position * kS;
