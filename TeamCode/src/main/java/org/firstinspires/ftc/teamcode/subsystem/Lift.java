@@ -75,7 +75,7 @@ public final class Lift {
 
     void run(boolean canMove, boolean climbing) {
 
-        position = (motors[0].encoder.getDistance() + motors[1].encoder.getDistance()) / 2.0;
+        position = 0.5 * (motors[0].encoder.getDistance() + motors[1].encoder.getDistance());
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
