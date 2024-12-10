@@ -10,6 +10,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.GRABBING_SP
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.HAS_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.HAS_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.INTAKING_SPECIMEN;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
@@ -55,6 +56,7 @@ public final class Deposit {
         SAMPLE_FALLING,
         INTAKING_SPECIMEN,
         GRABBING_SPECIMEN,
+        RAISING_SPECIMEN,
         HAS_SPECIMEN,
         SCORING_SPECIMEN,
         RELEASING_SPECIMEN,
@@ -122,6 +124,11 @@ public final class Deposit {
             case GRABBING_SPECIMEN:
 
                 if (timer.seconds() >= TIME_GRAB) triggerClaw();
+                else break;
+
+            case RAISING_SPECIMEN:
+
+                if (lift.getPosition() >= HEIGHT_ABOVE_WALL) triggerClaw();
 
                 break;
 
@@ -152,10 +159,6 @@ public final class Deposit {
     }
 
     public void preload() {
-        triggerClaw();
-        triggerClaw();
-        triggerClaw();
-        runArm(true);
     }
 
     private void runArm(boolean canMove) {
@@ -171,6 +174,10 @@ public final class Deposit {
         claw.updateAngles(ANGLE_CLAW_OPEN, ANGLE_CLAW_CLOSED);
         claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
         claw.run();
+        State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
+        while (state != endState) triggerClaw();
+        arm.run(state);
+        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
     }
 
     private boolean handlingSpecimen() {
@@ -219,6 +226,7 @@ public final class Deposit {
                 if (position == FLOOR) break;
                 state = HAS_SPECIMEN;
             case GRABBING_SPECIMEN:
+            case RAISING_SPECIMEN:
             case HAS_SPECIMEN:
 
                 lift.setTarget(position == HIGH ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
@@ -257,8 +265,14 @@ public final class Deposit {
 
             case GRABBING_SPECIMEN:
 
-                state = HAS_SPECIMEN;
+                state = RAISING_SPECIMEN;
                 setPosition(LOW);
+
+                break;
+
+            case RAISING_SPECIMEN:
+
+                state = HAS_SPECIMEN;
 
                 break;
 
