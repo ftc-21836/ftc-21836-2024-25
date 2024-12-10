@@ -277,7 +277,7 @@ public final class Intake {
     }
 
     boolean clearOfDeposit() {
-        return extendo.getPosition() < Extendo.LENGTH_DEPOSIT_CLEAR;
+        return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR;
     }
 
     public void runRoller(double power) {

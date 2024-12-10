@@ -44,7 +44,7 @@ public final class Robot {
         if (deposit.hasSample()) intake.setExtended(false);
 
         intake.run(climber.isActive(), deposit.activeNearIntake(), deposit.readyToTransfer(), deposit::transfer);
-        deposit.run(intake.hasSample(), climber.isActive(), !intake.clearOfDeposit());
+        deposit.run(intake.hasSample(), climber.isActive(), intake.clearOfDeposit());
 
         climber.run();
     }
