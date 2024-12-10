@@ -15,6 +15,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
+import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
@@ -42,6 +43,7 @@ public final class MainTeleOp extends LinearOpMode {
 
     enum TeleOpConfig {
         EDITING_ALLIANCE,
+        EDITING_PRELOAD,
         EDITING_SLOW_LOCK,
         EDITING_FIELD_CENTRIC;
 
@@ -65,8 +67,6 @@ public final class MainTeleOp extends LinearOpMode {
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.localizer.trackHeadingOnly(true);
 
-        robot.deposit.preload();
-
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         GamepadEx gamepadEx2 = new GamepadEx(gamepad2);
 
@@ -83,6 +83,9 @@ public final class MainTeleOp extends LinearOpMode {
                 case EDITING_ALLIANCE:
                     isRedAlliance = !isRedAlliance;
                     break;
+                case EDITING_PRELOAD:
+                    robot.deposit.preload();
+                    break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;
                     break;
@@ -93,6 +96,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
+            mTelemetry.addLine("PRELOAD" + selection.markIf(EDITING_PRELOAD));
             mTelemetry.addLine();
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();
