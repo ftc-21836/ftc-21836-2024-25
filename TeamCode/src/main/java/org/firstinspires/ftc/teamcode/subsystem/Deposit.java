@@ -289,7 +289,7 @@ public final class Deposit {
         }
     }
 
-    boolean hasSample() {
+    public boolean hasSample() {
         return sample != null;
     }
 

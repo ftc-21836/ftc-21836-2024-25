@@ -71,7 +71,7 @@ public final class MainTeleOp extends LinearOpMode {
 
         TeleOpConfig selection = EDITING_ALLIANCE;
 
-        boolean slowModeLocked = false, useFieldCentric = true, preloaded = false;
+        boolean slowModeLocked = false, useFieldCentric = true;
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
@@ -83,10 +83,7 @@ public final class MainTeleOp extends LinearOpMode {
                     isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_PRELOAD:
-                    if (!preloaded) {
-                        robot.deposit.preload();
-                        preloaded = true;
-                    }
+                    robot.deposit.preload();
                     break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;
@@ -98,7 +95,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
-            mTelemetry.addLine((preloaded ? "PRELOADED" : "Preload") + selection.markIf(EDITING_PRELOAD));
+            mTelemetry.addLine((robot.deposit.hasSample() ? "PRELOADED" : "Preload") + selection.markIf(EDITING_PRELOAD));
             mTelemetry.addLine();
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();
