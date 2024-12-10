@@ -36,7 +36,7 @@ public final class Deposit {
             TIME_SAMPLE = 0.5,
             TIME_GRAB = 0.25,
 
-            HEIGHT_FREEDOM = 3,
+            HEIGHT_ABOVE_INTAKE = 3,
             HEIGHT_INTAKING_SPECIMEN = 1.9,
             HEIGHT_ABOVE_WALL = 2,
             HEIGHT_ARM_SAFE = 1,
@@ -135,7 +135,7 @@ public final class Deposit {
 
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
 
-        boolean aboveIntake = lift.getPosition() >= HEIGHT_FREEDOM;
+        boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
 
         boolean intaking = state == INTAKING_SPECIMEN || state == GRABBING_SPECIMEN || state == RAISING_SPECIMEN;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
@@ -165,7 +165,7 @@ public final class Deposit {
 
     // when does the intake need to move out of the way
     boolean activeNearIntake() {
-        return (lift.getPosition() < HEIGHT_FREEDOM || lift.getTarget() < HEIGHT_FREEDOM) && (arm.isExtended() || state != RETRACTED);
+        return (lift.getPosition() < HEIGHT_ABOVE_INTAKE || lift.getTarget() < HEIGHT_ABOVE_INTAKE) && (arm.isExtended() || state != RETRACTED);
     }
 
     boolean readyToTransfer() {
