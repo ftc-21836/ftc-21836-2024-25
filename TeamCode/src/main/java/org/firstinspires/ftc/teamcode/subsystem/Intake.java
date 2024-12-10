@@ -180,6 +180,8 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
+                extendo.setExtended(false);
+
                 if (!extendo.isExtended() && readyToTransfer) {
 
                     bucket.setActivated(false);
@@ -192,6 +194,8 @@ public final class Intake {
 
                 if (sampleLost(RETRACTED)) break;
 
+                extendo.setExtended(false);
+
                 if (bucketSensor.isPressed()) {
 
                     state = BUCKET_SETTLING;
@@ -202,6 +206,8 @@ public final class Intake {
             case BUCKET_SETTLING:
 
                 if (sampleLost(RETRACTED)) break;
+
+                extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_PRE_TRANSFER) {
 
@@ -214,6 +220,8 @@ public final class Intake {
                 } else break;
 
             case TRANSFERRING:
+
+                extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_TRANSFER) {
 
