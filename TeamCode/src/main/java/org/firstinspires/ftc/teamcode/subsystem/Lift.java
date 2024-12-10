@@ -24,7 +24,7 @@ public final class Lift {
     );
 
     public static double
-            kG = 0.15,
+            kG = 0.125,
             INCHES_PER_TICK = 0.0088581424,
             HEIGHT_RETRACTED_THRESHOLD = 0.5,
             MAX_VOLTAGE = 13;
@@ -41,16 +41,20 @@ public final class Lift {
         this.motors = new CachedMotorEx[]{
                 new CachedMotorEx(hardwareMap, "lift right", RPM_312),
                 new CachedMotorEx(hardwareMap, "lift left", RPM_312),
-//                new CachedMotorEx(hardwareMap, "lift 3", RPM_312)
+                new CachedMotorEx(hardwareMap, "lift 3", RPM_312)
         };
         motors[1].setInverted(true);
-        for (CachedMotorEx motor : motors) motor.setZeroPowerBehavior(FLOAT);
 
         motors[0].encoder = new CachedMotorEx(hardwareMap, "right back", RPM_312).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_312).encoder;
 //        motors[2].encoder = new CachedMotorEx(hardwareMap, "left front", RPM_312).encoder;
 
 //        motors[1].encoder.setDirection(REVERSE);
+
+        for (CachedMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(FLOAT);
+            motor.encoder.setDistancePerPulse(INCHES_PER_TICK);
+        }
 
         reset();
     }
@@ -69,12 +73,9 @@ public final class Lift {
         this.manualPower = power;
     }
 
-    void run(boolean freeToMove, boolean climbing) {
+    void run(boolean canMove, boolean climbing) {
 
-        position = INCHES_PER_TICK * avgTicks();
-
-        controller.setGains(pidGains);
-        controller.setTarget(new State(getTarget()));
+        position = (motors[0].encoder.getDistance() + motors[1].encoder.getDistance()) / 2.0;
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
@@ -85,19 +86,15 @@ public final class Lift {
             setTarget(getPosition());
             output += manualPower;
 
-        } else if (freeToMove) {
+        } else {
 
+            controller.setGains(pidGains);
+            controller.setTarget(new State(canMove ? getTarget() : getPosition()));
             output += controller.calculate(new State(getPosition()));
 
         }
 
         for (CachedMotorEx motor : motors) motor.set(output);
-    }
-
-    private double avgTicks() {
-        double sum = 0;
-        for (CachedMotorEx motor : motors) sum += motor.encoder.getPosition();
-        return sum / motors.length;
     }
 
     void printTelemetry() {
@@ -107,9 +104,8 @@ public final class Lift {
         mTelemetry.addData("Target (in)", getTarget());
         mTelemetry.addData("Error derivative (in/s)", controller.getFilteredErrorDerivative());
         mTelemetry.addLine();
-        for (int i = 0; i < motors.length; i++) mTelemetry.addData(
-                "Motor " + (i + 1) + " ticks", motors[i].encoder.getPosition()
-        );
+        mTelemetry.addData("Right encoder (ticks)", motors[0].encoder.getPosition());
+        mTelemetry.addData("Left encoder (ticks)", motors[1].encoder.getPosition());
     }
 
     double getPosition() {

@@ -28,9 +28,6 @@ public final class Robot {
         climber = new Climber(hardwareMap, deposit.lift);
     }
 
-    public void preload(boolean backdropSide) {
-    }
-
     public void initRun() {
     }
 
@@ -44,7 +41,7 @@ public final class Robot {
 
     public void run() {
         climber.run();
-        intake.run(deposit.hasSample(), deposit.isActive(), deposit::transfer);
+        intake.run(deposit.hasSample(), deposit.impedingIntake(), deposit::transfer, climber.isActive());
         deposit.run(intake.clearOfDeposit(), climber.isActive());
     }
 

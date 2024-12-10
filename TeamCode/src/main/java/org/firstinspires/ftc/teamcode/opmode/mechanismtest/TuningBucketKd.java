@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.ANGLE_BUCKET_INTAKING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.ANGLE_BUCKET_INTAKING_NEAR;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.ANGLE_BUCKET_RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
@@ -19,7 +19,7 @@ public final class TuningBucketKd extends LinearOpMode {
 
         SimpleServoPivot bucket = new SimpleServoPivot(
                 ANGLE_BUCKET_RETRACTED,
-                ANGLE_BUCKET_INTAKING,
+                ANGLE_BUCKET_INTAKING_NEAR,
                 getAxon(hardwareMap, "bucket right").reversed(),
                 getAxon(hardwareMap, "bucket left")
         );
@@ -35,7 +35,7 @@ public final class TuningBucketKd extends LinearOpMode {
 
             bucket.updateAngles(
                 ANGLE_BUCKET_RETRACTED,
-                ANGLE_BUCKET_INTAKING
+                    ANGLE_BUCKET_INTAKING_NEAR
             );
 
             if (gamepadEx1.wasJustPressed(X)) bucket.toggle();

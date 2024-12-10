@@ -24,7 +24,6 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.lerp;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static java.lang.Math.atan2;
 
@@ -49,7 +48,7 @@ public final class MainTeleOp extends LinearOpMode {
         public static final TeleOpConfig[] selections = values();
 
         public TeleOpConfig plus(int i) {
-            return selections[loopMod(ordinal() + i, selections.length)];
+            return selections[(int) loopMod(ordinal() + i, selections.length)];
         }
         public String markIf(TeleOpConfig s) {
             return this == s ? " <" : "";
@@ -65,6 +64,8 @@ public final class MainTeleOp extends LinearOpMode {
 
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.localizer.trackHeadingOnly(true);
+
+        robot.deposit.preload();
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         GamepadEx gamepadEx2 = new GamepadEx(gamepad2);
@@ -120,11 +121,10 @@ public final class MainTeleOp extends LinearOpMode {
 
             double rTrigger = gamepadEx1.getTrigger(RIGHT_TRIGGER);
             double lTrigger = gamepadEx1.getTrigger(LEFT_TRIGGER);
-            double triggersTotal = rTrigger - lTrigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.extendo.runManual(triggersTotal);
+                robot.intake.extendo.runManual(rTrigger - lTrigger);
                 robot.deposit.lift.runManual(leftY);
                 robot.intake.runRoller(0);
                 
@@ -139,7 +139,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                robot.intake.extendo.setTarget(lerp(0, Extendo.LENGTH_EXTENDED, lTrigger));
+                robot.intake.extendo.setTarget(lTrigger * Extendo.LENGTH_EXTENDED);
                 robot.intake.runRoller(rTrigger);
                 robot.deposit.lift.runManual(0);
 

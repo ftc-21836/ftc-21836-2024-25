@@ -26,19 +26,19 @@ public final class Climber {
             ANGLE_HOOKS_PASSIVE_RETRACTED = 96.9,
             ANGLE_HOOKS_PASSIVE_EXTENDED = 197,
 
-            ANGLE_BARS_RETRACTED = 7,
+            ANGLE_BARS_RETRACTED = 5,
             ANGLE_BARS_EXTENDED = 97,
 
             TIME_PASSIVE_HOOKS_EXTENSION = 1,
             TIME_ACTIVE_HOOKS_EXTENSION = 1,
 
-            HEIGHT_RUNG_LOW_RAISED = 12.75,
-            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -3,
+            HEIGHT_RUNG_LOW_RAISED = 13.25,
+            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -4.5,
             TOLERANCE_CLIMBED = 0.25,
 
             HEIGHT_RUNG_HIGH_RAISED = 32,
             TOLERANCE_RAISED = 0.25,
-            HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -20,
+            HEIGHT_RUNG_HIGH_CLIMB_OFFSET = -31.5,
 
             HEIGHT_TO_RETRACT_PASSIVE_HOOKS = 20,
             HEIGHT_TO_ACTIVATE_LIMITER_BAR = 12;
@@ -173,8 +173,9 @@ public final class Climber {
 
             case PASSIVE_HOOKS_EXTENDING:
 
-                if (timer.seconds() >= TIME_PASSIVE_HOOKS_EXTENSION) climb();
-                else break;
+//                if (timer.seconds() >= TIME_PASSIVE_HOOKS_EXTENSION) climb();
+//                else
+                    break;
 
             case RAISING_ABOVE_HIGH_RUNG:
 
