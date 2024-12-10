@@ -37,7 +37,7 @@ public final class Intake {
             ANGLE_BUCKET_INTAKING_FAR = 203,
 
             TIME_EJECTING = 0.5,
-            TIME_SAMPLE_SETTLING = 0.5,
+            TIME_SAMPLE_SETTLING = 1.5,
             TIME_PRE_TRANSFER = 0.25,
             TIME_TRANSFER = 0.25,
             TIME_POST_TRANSFER = 0.25,
@@ -173,7 +173,7 @@ public final class Intake {
 
                 }
 
-                if (timer.seconds() >= TIME_SAMPLE_SETTLING) setExtended(false);
+                if (timer.seconds() >= TIME_SAMPLE_SETTLING || rollerSpeed == 0) setExtended(false);
                 else break;
 
             case EXTENDO_RETRACTING:
