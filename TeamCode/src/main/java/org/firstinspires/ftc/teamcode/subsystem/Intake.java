@@ -144,7 +144,8 @@ public final class Intake {
 
     interface Transferable{ void transfer(Sample sample); }
 
-    void run(boolean depositHasSample, boolean depositActive, Transferable deposit, boolean climbing) {
+    void run(boolean climbing, boolean depositActive, boolean readyToTransfer, Transferable deposit) {
+
 
         if (state != EJECTING_SAMPLE && state != RETRACTED) {
             colorSensor.update();
@@ -155,8 +156,6 @@ public final class Intake {
 
             case EJECTING_SAMPLE:
 
-                rollerSpeed = SPEED_EJECTING;
-
                 if (timer.seconds() >= TIME_EJECTING) state = INTAKING;
                 else break;
 
@@ -164,9 +163,10 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
-                if (sample == badSample || depositHasSample) {
+                if (sample == badSample) {
 
                     sample = null;
+                    rollerSpeed = SPEED_EJECTING;
                     state = EJECTING_SAMPLE;
                     timer.reset();
                     break;
@@ -180,7 +180,7 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
-                if (!extendo.isExtended() && !depositActive) {
+                if (!extendo.isExtended() && readyToTransfer) {
 
                     bucket.setActivated(false);
                     state = BUCKET_RETRACTING;
@@ -240,7 +240,7 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run(!depositActive || climbing || state == TRANSFERRING);
+        extendo.run(!depositActive || climbing);
 
         roller.setPower(rollerSpeed);
     }
@@ -264,12 +264,12 @@ public final class Intake {
         return (1 - t) * start + t * end;
     }
 
-    private boolean hasSample() {
+    boolean hasSample() {
         return sample != null;
     }
 
     boolean clearOfDeposit() {
-        return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR;
+        return extendo.getPosition() < Extendo.LENGTH_DEPOSIT_CLEAR;
     }
 
     public void runRoller(double power) {

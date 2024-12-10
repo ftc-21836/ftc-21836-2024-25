@@ -40,6 +40,7 @@ public final class Deposit {
             TIME_ARM_RETRACTION = 0.25,
             TIME_GRAB = 0.25,
 
+            HEIGHT_FREEDOM = 1.5,
             HEIGHT_INTAKING_SPECIMEN = 1.9,
             HEIGHT_OBSERVATION_ZONE = 0.1,
             HEIGHT_BASKET_LOW = 22,
@@ -72,7 +73,7 @@ public final class Deposit {
 
     private Sample sample, specimenColor = RED;
 
-    private Deposit.State state = RETRACTED;
+    private State state = RETRACTED;
 
     private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORING;
 
@@ -98,9 +99,7 @@ public final class Deposit {
         );
     }
 
-    void run(boolean intakeClear, boolean climbing) {
-
-        boolean canMove = intakeClear || !hasSample() || handlingSpecimen();
+    void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
 
         // release sample when climbing begins
         if (climbing) state = RETRACTED;
@@ -113,6 +112,11 @@ public final class Deposit {
                     setPosition(FLOOR);
                 }
 
+                break;
+
+            case INTAKING_SPECIMEN:
+
+                if (intakeHasSample) setPosition(FLOOR);
                 break;
 
             case GRABBING_SPECIMEN:
@@ -135,9 +139,17 @@ public final class Deposit {
 
         }
 
-        runArm(canMove);
+        boolean aboveIntake = lift.getPosition() >= HEIGHT_FREEDOM;
 
-        lift.run(canMove, climbing);
+        runArm(state != RETRACTED && (aboveIntake || intakeClear));
+
+        boolean atSpecimenAngle = true,
+                armInactive = state == RETRACTED && !armExtended(),
+                crushingArm = lift.getPosition() < HEIGHT_INTAKING_SPECIMEN && lift.getTarget() < HEIGHT_INTAKING_SPECIMEN && atSpecimenAngle,
+
+                liftCanMove = aboveIntake || (armInactive || intakeClear) && !crushingArm;
+
+        lift.run(liftCanMove, climbing);
     }
 
     public void preload() {
@@ -166,13 +178,17 @@ public final class Deposit {
         return state.ordinal() >= INTAKING_SPECIMEN.ordinal();
     }
 
-    boolean impedingIntake() {
-        return !handlingSpecimen() && hasSample() && (
-                state != RETRACTED ||
-                lift.getTarget() != 0 ||
-                lift.isExtended() ||
-                timeArmSpentRetracted.seconds() <= TIME_ARM_RETRACTION
-        );
+    // when does the intake need to move out of the way
+    boolean activeNearIntake() {
+        return (lift.getPosition() < HEIGHT_FREEDOM || lift.getTarget() < HEIGHT_FREEDOM) && (armExtended() || state != RETRACTED);
+    }
+
+    boolean readyToTransfer() {
+        return state == RETRACTED && !lift.isExtended() && !hasSample() && !armExtended();
+    }
+
+    private boolean armExtended() {
+        return timeArmSpentRetracted.seconds() <= TIME_ARM_RETRACTION;
     }
 
     public void setPosition(Position position) {
