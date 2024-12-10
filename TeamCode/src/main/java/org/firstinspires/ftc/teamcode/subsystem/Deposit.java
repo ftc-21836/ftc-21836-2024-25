@@ -17,7 +17,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALL
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -25,6 +24,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @Config
 public final class Deposit {
@@ -69,7 +69,8 @@ public final class Deposit {
     }
 
     public final Lift lift;
-    private final SimpleServoPivot arm, claw;
+    private final SimpleServoPivot arm;
+    private final CachedSimpleServo claw;
 
     private final ElapsedTime timer = new ElapsedTime(), timeArmSpentRetracted = new ElapsedTime();
 
@@ -94,11 +95,7 @@ public final class Deposit {
                 getAxon(hardwareMap, "arm right").reversed()
         );
 
-        claw = new SimpleServoPivot(
-                ANGLE_CLAW_OPEN,
-                ANGLE_CLAW_CLOSED,
-                getGBServo(hardwareMap, "claw").reversed()
-        );
+        claw = getGBServo(hardwareMap, "claw").reversed();
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
@@ -146,6 +143,8 @@ public final class Deposit {
 
         }
 
+        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
+
         boolean aboveIntake = lift.getPosition() >= HEIGHT_FREEDOM;
 
         runArm(state != RETRACTED && (aboveIntake || intakeClear)); // extract
@@ -170,10 +169,6 @@ public final class Deposit {
         arm.run();
 
         if (arm.isActivated()) timeArmSpentRetracted.reset();
-
-        claw.updateAngles(ANGLE_CLAW_OPEN, ANGLE_CLAW_CLOSED);
-        claw.setActivated(hasSample());    // activate claw when we have a sample, otherwise deactivate
-        claw.run();
         State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
         arm.run(state);
