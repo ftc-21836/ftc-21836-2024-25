@@ -68,7 +68,6 @@ public final class MainTeleOp extends LinearOpMode {
         robot.drivetrain.localizer.trackHeadingOnly(true);
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
-        GamepadEx gamepadEx2 = new GamepadEx(gamepad2);
 
         TeleOpConfig selection = EDITING_ALLIANCE;
 
@@ -117,7 +116,6 @@ public final class MainTeleOp extends LinearOpMode {
             // Read sensors + gamepads:
             robot.readSensors();
             gamepadEx1.readButtons();
-            gamepadEx2.readButtons();
 
             double rightX = gamepadEx1.getRightX();
             double leftX = gamepadEx1.getLeftX();
