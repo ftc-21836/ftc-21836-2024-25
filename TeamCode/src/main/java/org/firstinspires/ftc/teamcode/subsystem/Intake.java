@@ -144,7 +144,7 @@ public final class Intake {
 
     interface Transferable{ void transfer(Sample sample); }
 
-    void run(boolean climbing, boolean depositActive, boolean readyToTransfer, Transferable deposit) {
+    void run(boolean depositHasSample, boolean climbing, boolean depositActive, boolean readyToTransfer, Transferable deposit) {
 
 
         if (state != EJECTING_SAMPLE && state != RETRACTED) {
@@ -250,7 +250,7 @@ public final class Intake {
 
         extendo.run(!depositActive || climbing || state == TRANSFERRING);
 
-        roller.setPower(rollerSpeed);
+        roller.setPower(depositHasSample ? 0 : rollerSpeed);
     }
 
     private boolean sampleLost(State returnTo) {
