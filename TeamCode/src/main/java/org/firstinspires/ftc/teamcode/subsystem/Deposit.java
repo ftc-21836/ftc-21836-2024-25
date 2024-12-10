@@ -141,13 +141,12 @@ public final class Deposit {
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_FREEDOM;
 
-        runArm(state != RETRACTED && (aboveIntake || intakeClear));
+        runArm(state != RETRACTED && (aboveIntake || intakeClear)); // extract
 
-        boolean atSpecimenAngle = true,
-                armInactive = state == RETRACTED && !armExtended(),
-                crushingArm = lift.getPosition() < HEIGHT_INTAKING_SPECIMEN && lift.getTarget() < HEIGHT_INTAKING_SPECIMEN && atSpecimenAngle,
-
-                liftCanMove = aboveIntake || (armInactive || intakeClear) && !crushingArm;
+        boolean atSpecimenAngle = true; // extract
+        boolean armInactive = state == RETRACTED && !armExtended(); // extract
+        boolean crushingArm = lift.getPosition() < HEIGHT_INTAKING_SPECIMEN && lift.getTarget() < HEIGHT_INTAKING_SPECIMEN && atSpecimenAngle;
+        boolean liftCanMove = !crushingArm && (aboveIntake || armInactive || intakeClear);
 
         lift.run(liftCanMove, climbing);
     }
