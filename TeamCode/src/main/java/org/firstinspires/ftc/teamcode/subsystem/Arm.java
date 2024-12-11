@@ -54,7 +54,7 @@ public final class Arm {
 
         public double right, left;
 
-        Position(double right, double left) {
+        private Position(double right, double left) {
             this.right = right;
             this.left = left;
         }
