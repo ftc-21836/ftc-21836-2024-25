@@ -145,9 +145,8 @@ public final class Deposit {
 
         arm.run(armCanMove ? state : RETRACTED);
 
-        boolean armActive = state != RETRACTED || arm.isExtended();
         boolean crushingArm = belowSafeHeight && lift.getTarget() < HEIGHT_ARM_SAFE && arm.atSpecimenAngle();
-        boolean liftCanMove = !crushingArm && (aboveIntake || !armActive || intakeClear);
+        boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
 
         lift.run(liftCanMove, climbing);
     }
