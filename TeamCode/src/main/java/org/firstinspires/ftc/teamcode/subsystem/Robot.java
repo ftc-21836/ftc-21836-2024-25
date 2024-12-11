@@ -28,12 +28,6 @@ public final class Robot {
         climber = new Climber(hardwareMap, deposit.lift);
     }
 
-    public void initRun() {
-    }
-
-    public void endgame() {
-    }
-
     public void readSensors() {
         bulkReader.bulkRead();
         drivetrain.updatePoseEstimate();
