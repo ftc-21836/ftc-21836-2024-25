@@ -42,25 +42,26 @@ public final class Arm {
 
     void run(Deposit.State state) {
 
-        if (state != RETRACTED) timeArmSpentRetracted.reset();
-
         Arm.Position position;
 
         switch (state) {
             case HAS_SAMPLE:
             case SAMPLE_FALLING:
                 position = SAMPLE;
+                timeArmSpentRetracted.reset();
                 break;
             case INTAKING_SPECIMEN:
             case GRABBING_SPECIMEN:
             case RAISING_SPECIMEN:
                 position = INTAKING;
                 timeSinceIntakingSpecimen.reset();
+                timeArmSpentRetracted.reset();
                 break;
             case HAS_SPECIMEN:
             case SCORING_SPECIMEN:
             case RELEASING_SPECIMEN:
                 position = SCORING_SPEC;
+                timeArmSpentRetracted.reset();
                 break;
             case RETRACTED:
             default:
