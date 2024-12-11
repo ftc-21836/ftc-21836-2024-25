@@ -12,11 +12,11 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 @Config
 public final class Arm {
 
-    public static DiffyAngles
-            TRANSFER = new DiffyAngles(30, 30),
-            SAMPLE = new DiffyAngles(120, 120),
-            INTAKING = new DiffyAngles(0, 0),
-            SCORING_SPEC = new DiffyAngles(90, 90);
+    public static Position
+            TRANSFER = new Position(30, 30),
+            SAMPLE = new Position(120, 120),
+            INTAKING = new Position(0, 0),
+            SCORING_SPEC = new Position(90, 90);
 
     public static double
             TIME_RETRACTION = 0.25,
@@ -44,41 +44,41 @@ public final class Arm {
 
         if (state != RETRACTED) timeArmSpentRetracted.reset();
 
-        DiffyAngles angles;
+        Arm.Position position;
 
         switch (state) {
             case HAS_SAMPLE:
             case SAMPLE_FALLING:
-                angles = SAMPLE;
+                position = SAMPLE;
                 break;
             case INTAKING_SPECIMEN:
             case GRABBING_SPECIMEN:
             case RAISING_SPECIMEN:
-                angles = INTAKING;
+                position = INTAKING;
                 timeSinceIntakingSpecimen.reset();
                 break;
             case HAS_SPECIMEN:
             case SCORING_SPECIMEN:
             case RELEASING_SPECIMEN:
-                angles = SCORING_SPEC;
+                position = SCORING_SPEC;
                 break;
             case RETRACTED:
             default:
-                angles = TRANSFER;
+                position = TRANSFER;
                 break;
         }
 
-        rServo.turnToAngle(angles.right);
-        lServo.turnToAngle(angles.left);
+        rServo.turnToAngle(position.right);
+        lServo.turnToAngle(position.left);
 
 
     }
 
-    public static class DiffyAngles {
+    public static class Position {
 
         public double right, left;
 
-        DiffyAngles(double right, double left) {
+        Position(double right, double left) {
             this.right = right;
             this.left = left;
         }
