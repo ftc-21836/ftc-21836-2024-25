@@ -49,15 +49,21 @@ public final class Deposit {
             HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
     enum State {
-        RETRACTED,
-        HAS_SAMPLE,
-        SAMPLE_FALLING,
-        INTAKING_SPECIMEN,
-        GRABBING_SPECIMEN,
-        RAISING_SPECIMEN,
-        HAS_SPECIMEN,
-        SCORING_SPECIMEN,
-        RELEASING_SPECIMEN,
+        RETRACTED           (Arm.TRANSFER),
+        HAS_SAMPLE          (Arm.SAMPLE),
+        SAMPLE_FALLING      (Arm.SAMPLE),
+        INTAKING_SPECIMEN   (Arm.INTAKING),
+        GRABBING_SPECIMEN   (Arm.INTAKING),
+        RAISING_SPECIMEN    (Arm.INTAKING),
+        HAS_SPECIMEN        (Arm.SCORING_SPEC),
+        SCORING_SPECIMEN    (Arm.SCORING_SPEC),
+        RELEASING_SPECIMEN  (Arm.SCORING_SPEC);
+
+        private final Arm.Position armPosition;
+
+        State(Arm.Position armPosition) {
+            this.armPosition = armPosition;
+        }
     }
 
     public enum Position {
@@ -74,7 +80,7 @@ public final class Deposit {
 
     private Sample sample, specimenColor = RED;
 
-    private State state = RETRACTED;
+    private Deposit.State state = RETRACTED;
 
     private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORED;
 
@@ -143,7 +149,7 @@ public final class Deposit {
 
         boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
 
-        arm.run(armCanMove ? state : RETRACTED);
+        arm.setPosition((armCanMove ? state : RETRACTED).armPosition);
 
         boolean crushingArm = belowSafeHeight && lift.getTarget() < HEIGHT_ARM_SAFE && arm.atSpecimenAngle();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
@@ -152,9 +158,9 @@ public final class Deposit {
     }
 
     public void preload() {
-        State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
+        Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
-        arm.run(state);
+        arm.setPosition(state.armPosition);
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
     }
 

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -40,39 +39,15 @@ public final class Arm {
         return timeSinceIntakingSpecimen.seconds() <= TIME_POST_INTAKING;
     }
 
-    void run(Deposit.State state) {
+    void setPosition(Position position) {
 
-        Arm.Position position;
-
-        switch (state) {
-            case HAS_SAMPLE:
-            case SAMPLE_FALLING:
-                position = SAMPLE;
-                timeArmSpentRetracted.reset();
-                break;
-            case INTAKING_SPECIMEN:
-            case GRABBING_SPECIMEN:
-            case RAISING_SPECIMEN:
-                position = INTAKING;
-                timeSinceIntakingSpecimen.reset();
-                timeArmSpentRetracted.reset();
-                break;
-            case HAS_SPECIMEN:
-            case SCORING_SPECIMEN:
-            case RELEASING_SPECIMEN:
-                position = SCORING_SPEC;
-                timeArmSpentRetracted.reset();
-                break;
-            case RETRACTED:
-            default:
-                position = TRANSFER;
-                break;
+        if (position != TRANSFER) {
+            timeArmSpentRetracted.reset();
+            if (position == INTAKING) timeSinceIntakingSpecimen.reset();
         }
 
         rServo.turnToAngle(position.right);
         lServo.turnToAngle(position.left);
-
-
     }
 
     public static class Position {
