@@ -144,12 +144,6 @@ public final class Intake {
 
     void run(boolean climbing, Deposit deposit) {
 
-
-        if (state != EJECTING_SAMPLE && state != RETRACTED) {
-            colorSensor.update();
-            sample = hsvToSample(hsv = colorSensor.getHSV());
-        }
-
         switch (state) {
 
             case EJECTING_SAMPLE:
@@ -252,6 +246,9 @@ public final class Intake {
     }
 
     private boolean sampleLost(State returnTo) {
+        colorSensor.update();
+        sample = hsvToSample(hsv = colorSensor.getHSV());
+
         if (hasSample()) return false;
 
         state = returnTo;
