@@ -142,9 +142,7 @@ public final class Intake {
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
     }
 
-    interface Transferable{ void transfer(Sample sample); }
-
-    void run(boolean depositHasSample, boolean climbing, boolean depositActive, boolean readyToTransfer, Transferable deposit) {
+    void run(boolean climbing, Deposit deposit) {
 
 
         if (state != EJECTING_SAMPLE && state != RETRACTED) {
@@ -182,7 +180,7 @@ public final class Intake {
 
                 extendo.setExtended(false);
 
-                if (!extendo.isExtended() && readyToTransfer) {
+                if (!extendo.isExtended() && deposit.readyToTransfer()) {
 
                     bucket.setActivated(false);
                     state = BUCKET_RETRACTING;
@@ -248,9 +246,9 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run(!depositActive || climbing || state == TRANSFERRING);
+        extendo.run(!deposit.activeNearIntake() || climbing || state == TRANSFERRING);
 
-        roller.setPower(depositHasSample ? 0 : rollerSpeed);
+        roller.setPower(deposit.hasSample() ? 0 : rollerSpeed);
     }
 
     private boolean sampleLost(State returnTo) {
