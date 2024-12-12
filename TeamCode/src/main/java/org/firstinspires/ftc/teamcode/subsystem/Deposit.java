@@ -48,7 +48,7 @@ public final class Deposit {
 
     enum State {
         RETRACTED           (Arm.Position.TRANSFER),
-        HAS_SAMPLE          (Arm.Position.SAMPLE),
+        HAS_SAMPLE          (Arm.Position.SAMPLE), // Arm.Position.OBS_ZONE is used when lift target is HEIGHT_OBSERVATION_ZONE
         SAMPLE_FALLING      (Arm.Position.SAMPLE),
         INTAKING_SPECIMEN   (Arm.Position.INTAKING),
         GRABBING_SPECIMEN   (Arm.Position.INTAKING),
