@@ -143,7 +143,7 @@ public final class Deposit {
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
 
-        boolean intaking = state == INTAKING_SPECIMEN || state == GRABBING_SPECIMEN || state == RAISING_SPECIMEN;
+        boolean intaking = state.armPosition == Arm.INTAKING;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean armHitting = belowSafeHeight && intaking;
 
