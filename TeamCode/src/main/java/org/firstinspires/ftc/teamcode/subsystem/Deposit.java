@@ -143,7 +143,7 @@ public final class Deposit {
         boolean armHitting = belowSafeHeight && intaking;
 
         boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
-        boolean observationZone = state == HAS_SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
+        boolean observationZone = state.armPosition == Arm.Position.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
         
         arm.setPosition(
                 !armCanMove ? Arm.Position.TRANSFER :
