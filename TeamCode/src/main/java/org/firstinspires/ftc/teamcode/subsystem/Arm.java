@@ -40,25 +40,33 @@ public final class Arm {
             if (position == Arm.Position.INTAKING) timeSinceIntakingSpecimen.reset();
         }
 
-        rServo.turnToAngle(position.right);
-        lServo.turnToAngle(position.left);
+        rServo.turnToAngle(position.rightAngle());
+        lServo.turnToAngle(position.leftAngle());
     }
 
     @Config
     public static class Position {
 
         public static Position
-                TRANSFER = new Position(30, 30),
-                SAMPLE = new Position(120, 120),
-                INTAKING = new Position(0, 0),
-                SPECIMEN = new Position(90, 90),
-                SCORING_SPEC = new Position(90, 90);
+                INTAKING = new Position(50, 0),
+                TRANSFER = new Position(80, 30),
+                SPECIMEN = new Position(140, 90),
+                SCORING_SPEC = new Position(140, 90),
+                SAMPLE = new Position(170, 120);
 
-        public double right, left;
+        public double armAngle, wristAngle;
 
-        private Position(double right, double left) {
-            this.right = right;
-            this.left = left;
+        private Position(double armAngle, double wristAngle) {
+            this.armAngle = armAngle;
+            this.wristAngle = wristAngle;
+        }
+
+        private double rightAngle() {
+            return armAngle - wristAngle;
+        }
+
+        private double leftAngle() {
+            return armAngle + wristAngle;
         }
     }
 
