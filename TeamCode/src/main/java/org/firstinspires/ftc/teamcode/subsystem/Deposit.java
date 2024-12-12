@@ -165,7 +165,7 @@ public final class Deposit {
     }
 
     boolean readyToTransfer() {
-        return state == RETRACTED && !lift.isExtended() && !hasSample() && !arm.isExtended();
+        return state == RETRACTED && !lift.isExtended() && !arm.isExtended();
     }
 
     public void setPosition(Position position) {
