@@ -11,12 +11,6 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 @Config
 public final class Arm {
 
-    public static Position
-            TRANSFER = new Position(30, 30),
-            SAMPLE = new Position(120, 120),
-            INTAKING = new Position(0, 0),
-            SPECIMEN = new Position(90, 90);
-
     public static double
             TIME_RETRACTION = 0.25,
             TIME_POST_INTAKING = 0.5;
@@ -39,18 +33,26 @@ public final class Arm {
         return timeSinceIntakingSpecimen.seconds() <= TIME_POST_INTAKING;
     }
 
-    void setPosition(Position position) {
+    void setPosition(Arm.Position position) {
 
-        if (position != TRANSFER) {
+        if (position != Arm.Position.TRANSFER) {
             timeArmSpentRetracted.reset();
-            if (position == INTAKING) timeSinceIntakingSpecimen.reset();
+            if (position == Arm.Position.INTAKING) timeSinceIntakingSpecimen.reset();
         }
 
         rServo.turnToAngle(position.right);
         lServo.turnToAngle(position.left);
     }
 
+    @Config
     public static class Position {
+
+        public static Position
+                TRANSFER = new Position(30, 30),
+                SAMPLE = new Position(120, 120),
+                INTAKING = new Position(0, 0),
+                SPECIMEN = new Position(90, 90),
+                SCORING_SPEC = new Position(90, 90);
 
         public double right, left;
 

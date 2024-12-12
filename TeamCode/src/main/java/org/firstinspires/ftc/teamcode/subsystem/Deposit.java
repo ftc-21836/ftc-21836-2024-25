@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
@@ -32,6 +31,8 @@ public final class Deposit {
             ANGLE_CLAW_OPEN = 60,
             ANGLE_CLAW_CLOSED = 9,
 
+            TIME_SPEC_RAISE = 0.5,
+            TIME_SPEC_SCORE = 0,
             TIME_SPEC_RELEASE = 0.5,
             TIME_SAMPLE = 0.5,
             TIME_GRAB = 0.25,
@@ -49,15 +50,15 @@ public final class Deposit {
             HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
     enum State {
-        RETRACTED           (Arm.TRANSFER),
-        HAS_SAMPLE          (Arm.SAMPLE),
-        SAMPLE_FALLING      (Arm.SAMPLE),
-        INTAKING_SPECIMEN   (Arm.INTAKING),
-        GRABBING_SPECIMEN   (Arm.INTAKING),
-        RAISING_SPECIMEN    (Arm.INTAKING),
-        HAS_SPECIMEN        (Arm.SPECIMEN),
-        SCORING_SPECIMEN    (Arm.SPECIMEN),
-        RELEASING_SPECIMEN  (Arm.SPECIMEN);
+        RETRACTED           (Arm.Position.TRANSFER),
+        HAS_SAMPLE          (Arm.Position.SAMPLE),
+        SAMPLE_FALLING      (Arm.Position.SAMPLE),
+        INTAKING_SPECIMEN   (Arm.Position.INTAKING),
+        GRABBING_SPECIMEN   (Arm.Position.INTAKING),
+        RAISING_SPECIMEN    (Arm.Position.INTAKING),
+        HAS_SPECIMEN        (Arm.Position.SPECIMEN),
+        SCORING_SPECIMEN    (Arm.Position.SCORING_SPEC),
+        RELEASING_SPECIMEN  (Arm.Position.SCORING_SPEC);
 
         private final Arm.Position armPosition;
 
@@ -81,8 +82,6 @@ public final class Deposit {
     private Sample sample, specimenColor = RED;
 
     private Deposit.State state = RETRACTED;
-
-    private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORED;
 
     public void setAlliance(boolean redAlliance) {
         specimenColor = redAlliance ? RED : BLUE;
@@ -121,15 +120,14 @@ public final class Deposit {
 
             case RAISING_SPECIMEN:
 
-                if (lift.getPosition() >= HEIGHT_ABOVE_WALL) triggerClaw();
+                if (timer.seconds() >= TIME_SPEC_RAISE) triggerClaw();
 
                 break;
 
             case SCORING_SPECIMEN:
 
-                if (lift.getPosition() >= releaseSpecimenHeight) triggerClaw();
-
-                break;
+                if (timer.seconds() >= TIME_SPEC_SCORE) triggerClaw();
+                else break;
 
             case RELEASING_SPECIMEN:
 
@@ -143,7 +141,7 @@ public final class Deposit {
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
 
-        boolean intaking = state.armPosition == Arm.INTAKING;
+        boolean intaking = state.armPosition == Arm.Position.INTAKING;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean armHitting = belowSafeHeight && intaking;
 
@@ -164,13 +162,9 @@ public final class Deposit {
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
     }
 
-    private boolean handlingSpecimen() {
-        return state.ordinal() >= INTAKING_SPECIMEN.ordinal();
-    }
-
     // when does the intake need to move out of the way
     boolean activeNearIntake() {
-        return (lift.getPosition() < HEIGHT_ABOVE_INTAKE || lift.getTarget() < HEIGHT_ABOVE_INTAKE) && (arm.isExtended() || state != RETRACTED);
+        return (lift.getPosition() < HEIGHT_ABOVE_INTAKE || lift.getTarget() < HEIGHT_ABOVE_INTAKE) && (arm.isExtended() || state.armPosition != Arm.Position.TRANSFER);
     }
 
     boolean readyToTransfer() {
@@ -247,6 +241,7 @@ public final class Deposit {
 
                 state = RAISING_SPECIMEN;
                 setPosition(LOW);
+                timer.reset();
 
                 break;
 
@@ -258,11 +253,8 @@ public final class Deposit {
 
             case HAS_SPECIMEN:
 
-                double position = lift.getPosition();
-                releaseSpecimenHeight = clip(position + HEIGHT_OFFSET_SPECIMEN_SCORED, 0, 32);
-                lift.setTarget(position + HEIGHT_OFFSET_SPECIMEN_SCORING);
-
                 state = SCORING_SPECIMEN;
+                timer.reset();
 
                 break;
 
@@ -295,7 +287,8 @@ public final class Deposit {
     }
 
     void printTelemetry() {
-        mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? sample + (handlingSpecimen() ? " specimen" : " sample") : "empty"));
+        String gameElement = sample + (state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? " specimen" : " sample");
+        mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
         divider();
         lift.printTelemetry();
     }
