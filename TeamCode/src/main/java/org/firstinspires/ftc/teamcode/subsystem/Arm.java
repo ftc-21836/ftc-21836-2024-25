@@ -49,6 +49,7 @@ public final class Arm {
 
         public static Position
                 INTAKING = new Position(50, 0),
+                OBS_ZONE = new Position(50, 0),
                 TRANSFER = new Position(80, 30),
                 SPECIMEN = new Position(140, 90),
                 SCORING_SPEC = new Position(140, 90),
