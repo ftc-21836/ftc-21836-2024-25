@@ -32,7 +32,7 @@ public final class Deposit {
             ANGLE_CLAW_OPEN = 60,
             ANGLE_CLAW_CLOSED = 9,
 
-            TIME_SPECIMEN = 0.5,
+            TIME_SPEC_RELEASE = 0.5,
             TIME_SAMPLE = 0.5,
             TIME_GRAB = 0.25,
 
@@ -133,7 +133,7 @@ public final class Deposit {
 
             case RELEASING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_SPECIMEN) triggerClaw();
+                if (timer.seconds() >= TIME_SPEC_RELEASE) triggerClaw();
 
                 break;
 
