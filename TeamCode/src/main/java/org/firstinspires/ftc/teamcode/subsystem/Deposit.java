@@ -55,9 +55,9 @@ public final class Deposit {
         INTAKING_SPECIMEN   (Arm.INTAKING),
         GRABBING_SPECIMEN   (Arm.INTAKING),
         RAISING_SPECIMEN    (Arm.INTAKING),
-        HAS_SPECIMEN        (Arm.SCORING_SPEC),
-        SCORING_SPECIMEN    (Arm.SCORING_SPEC),
-        RELEASING_SPECIMEN  (Arm.SCORING_SPEC);
+        HAS_SPECIMEN        (Arm.SPECIMEN),
+        SCORING_SPECIMEN    (Arm.SPECIMEN),
+        RELEASING_SPECIMEN  (Arm.SPECIMEN);
 
         private final Arm.Position armPosition;
 

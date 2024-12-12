@@ -15,7 +15,7 @@ public final class Arm {
             TRANSFER = new Position(30, 30),
             SAMPLE = new Position(120, 120),
             INTAKING = new Position(0, 0),
-            SCORING_SPEC = new Position(90, 90);
+            SPECIMEN = new Position(90, 90);
 
     public static double
             TIME_RETRACTION = 0.25,
