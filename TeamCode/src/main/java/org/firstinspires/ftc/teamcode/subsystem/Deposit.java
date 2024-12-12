@@ -39,15 +39,12 @@ public final class Deposit {
 
             HEIGHT_ABOVE_INTAKE = 3,
             HEIGHT_INTAKING_SPECIMEN = 1.9,
-            HEIGHT_ABOVE_WALL = 2,
             HEIGHT_ARM_SAFE = 1,
             HEIGHT_OBSERVATION_ZONE = 0.1,
             HEIGHT_BASKET_LOW = 22,
             HEIGHT_BASKET_HIGH = 32,
             HEIGHT_CHAMBER_LOW = 6,
-            HEIGHT_CHAMBER_HIGH = 20,
-            HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
-            HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
+            HEIGHT_CHAMBER_HIGH = 20;
 
     enum State {
         RETRACTED           (Arm.Position.TRANSFER),
