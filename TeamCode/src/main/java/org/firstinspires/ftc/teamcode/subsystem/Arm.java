@@ -16,10 +16,10 @@ public final class Arm {
             TIME_POST_UNDERHAND = 0.75;
 
     public static Position
-            INTAKING = new Position(0, 210),
-            TRANSFER = new Position(150, -150),
-            SPECIMEN = new Position(200, 50),
-            SAMPLE = new Position(170, 120);
+            INTAKING =  new Position(-210, 210),
+            TRANSFER =  new Position(300, 0),
+            SPECIMEN =  new Position(150, 250),
+            SAMPLE =    new Position(50, 290);
 
     private final ElapsedTime
             timeArmSpentRetracted = new ElapsedTime(),
@@ -46,25 +46,17 @@ public final class Arm {
             if (position == INTAKING) timeSinceUnderhand.reset();
         }
 
-        rServo.turnToAngle(position.rightAngle());
-        lServo.turnToAngle(position.leftAngle());
+        rServo.turnToAngle(position.right);
+        lServo.turnToAngle(position.left);
     }
 
     public static final class Position {
 
-        public double armAngle, wristAngle;
+        public double right, left;
 
-        private Position(double armAngle, double wristAngle) {
-            this.armAngle = armAngle;
-            this.wristAngle = wristAngle;
-        }
-
-        private double rightAngle() {
-            return armAngle - wristAngle;
-        }
-
-        private double leftAngle() {
-            return armAngle + wristAngle;
+        private Position(double right, double left) {
+            this.right = right;
+            this.left = left;
         }
     }
 
