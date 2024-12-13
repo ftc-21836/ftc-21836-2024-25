@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -16,10 +18,10 @@ public final class Arm {
             TIME_POST_UNDERHAND = 0.75;
 
     public static Position
-            INTAKING =  new Position(-210, 210),
-            TRANSFER =  new Position(300, 0),
-            SPECIMEN =  new Position(150, 250),
-            SAMPLE =    new Position(50, 290);
+            INTAKING =  new Position(-210, 210, "INTAKING"),
+            TRANSFER =  new Position(300, 0, "TRANSFER"),
+            SPECIMEN =  new Position(150, 250, "SPECIMEN"),
+            SAMPLE =    new Position(50, 290, "SAMPLE");
 
     private final ElapsedTime
             timeArmSpentRetracted = new ElapsedTime(),
@@ -53,10 +55,17 @@ public final class Arm {
     public static final class Position {
 
         public double right, left;
+        private final String name;
 
-        private Position(double right, double left) {
+        private Position(double right, double left, String name) {
             this.right = right;
             this.left = left;
+            this.name = name;
+        }
+
+        @NonNull
+        public String toString() {
+            return name + ", Right: " + right + ", Left: " + left;
         }
     }
 
