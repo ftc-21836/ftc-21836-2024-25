@@ -17,7 +17,6 @@ public final class Arm {
 
     public static Position
             INTAKING = new Position(0, 210),
-            OBS_ZONE = new Position(0, 210),
             TRANSFER = new Position(150, -150),
             SPECIMEN = new Position(200, 50),
             SAMPLE = new Position(170, 120);
@@ -44,7 +43,7 @@ public final class Arm {
 
         if (position != TRANSFER) {
             timeArmSpentRetracted.reset();
-            if (position == INTAKING || position == OBS_ZONE) timeSinceUnderhand.reset();
+            if (position == INTAKING) timeSinceUnderhand.reset();
         }
 
         rServo.turnToAngle(position.rightAngle());

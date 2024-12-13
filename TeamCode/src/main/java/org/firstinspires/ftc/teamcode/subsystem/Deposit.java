@@ -40,7 +40,7 @@ public final class Deposit {
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_INTAKING_SPECIMEN = 7,
             HEIGHT_ARM_SAFE = 3,
-            HEIGHT_OBSERVATION_ZONE = 7,
+            HEIGHT_OBSERVATION_ZONE = 3,
             HEIGHT_BASKET_LOW = 10,
             HEIGHT_BASKET_HIGH = 22,
             HEIGHT_CHAMBER_LOW = 9,
@@ -50,7 +50,7 @@ public final class Deposit {
 
     enum State {
         RETRACTED           (Arm.TRANSFER),
-        HAS_SAMPLE          (Arm.SAMPLE), // Arm.Position.OBS_ZONE is used when lift target is HEIGHT_OBSERVATION_ZONE
+        HAS_SAMPLE          (Arm.SAMPLE),
         SAMPLE_FALLING      (Arm.SAMPLE),
         INTAKING_SPECIMEN   (Arm.INTAKING),
         GRABBING_SPECIMEN   (Arm.INTAKING),
@@ -141,19 +141,15 @@ public final class Deposit {
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
+        boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
-        boolean observationZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-
-        Arm.Position position = observationZone ? Arm.OBS_ZONE : state.armPosition;
-
-        boolean underhand = position == Arm.INTAKING || position == Arm.OBS_ZONE;
-        boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
+        boolean underhand = state.armPosition == Arm.INTAKING;
         boolean armHitting = belowSafeHeight && underhand;
 
         boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
-        
-        arm.setPosition(armCanMove ? position : Arm.TRANSFER);
+
+        arm.setPosition(armCanMove ? state.armPosition : Arm.TRANSFER);
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
