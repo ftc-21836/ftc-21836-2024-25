@@ -141,6 +141,7 @@ public final class Deposit {
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
+        boolean liftLowering = lift.getTarget() < lift.getPosition();
 
         boolean observationZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
 
@@ -154,7 +155,7 @@ public final class Deposit {
         
         arm.setPosition(armCanMove ? position : Arm.TRANSFER);
 
-        boolean crushingArm = belowSafeHeight && lift.getTarget() < HEIGHT_ARM_SAFE && arm.isUnderhand();
+        boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
 
         lift.run(liftCanMove, climbing);
