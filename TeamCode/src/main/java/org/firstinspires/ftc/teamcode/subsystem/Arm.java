@@ -59,11 +59,11 @@ public final class Arm {
             this.wristAngle = wristAngle;
         }
 
-        double rightAngle() {
+        private double rightAngle() {
             return armAngle - wristAngle;
         }
 
-        double leftAngle() {
+        private double leftAngle() {
             return armAngle + wristAngle;
         }
     }
