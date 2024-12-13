@@ -148,13 +148,13 @@ public final class Deposit {
 
         boolean underhand = position == Arm.INTAKING || position == Arm.OBS_ZONE;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
-        boolean armHitting = belowSafeHeight && underhand;  
+        boolean armHitting = belowSafeHeight && underhand;
 
         boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
         
         arm.setPosition(armCanMove ? position : Arm.TRANSFER);
 
-        boolean crushingArm = belowSafeHeight && lift.getTarget() < HEIGHT_ARM_SAFE && arm.atSpecimenAngle();
+        boolean crushingArm = belowSafeHeight && lift.getTarget() < HEIGHT_ARM_SAFE && arm.isUnderhand();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
 
         lift.run(liftCanMove, climbing);

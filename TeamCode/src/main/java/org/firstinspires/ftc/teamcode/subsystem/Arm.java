@@ -13,7 +13,7 @@ public final class Arm {
 
     public static double
             TIME_RETRACTION = 0.75,
-            TIME_POST_INTAKING = 0.75;
+            TIME_POST_UNDERHAND = 0.75;
 
     public static Position
             INTAKING = new Position(0, 210),
@@ -24,7 +24,7 @@ public final class Arm {
 
     private final ElapsedTime
             timeArmSpentRetracted = new ElapsedTime(),
-            timeSinceIntakingSpecimen = new ElapsedTime();
+            timeSinceUnderhand = new ElapsedTime();
 
     private final CachedSimpleServo rServo, lServo;
 
@@ -36,15 +36,15 @@ public final class Arm {
     boolean isExtended() {
         return timeArmSpentRetracted.seconds() <= TIME_RETRACTION;
     }
-    boolean atSpecimenAngle() {
-        return timeSinceIntakingSpecimen.seconds() <= TIME_POST_INTAKING;
+    boolean isUnderhand() {
+        return timeSinceUnderhand.seconds() <= TIME_POST_UNDERHAND;
     }
 
     void setPosition(Arm.Position position) {
 
         if (position != TRANSFER) {
             timeArmSpentRetracted.reset();
-            if (position == INTAKING || position == OBS_ZONE) timeSinceIntakingSpecimen.reset();
+            if (position == INTAKING || position == OBS_ZONE) timeSinceUnderhand.reset();
         }
 
         rServo.turnToAngle(position.rightAngle());
