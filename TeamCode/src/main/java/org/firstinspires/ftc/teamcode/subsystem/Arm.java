@@ -27,7 +27,7 @@ public final class Arm {
 
     private final CachedSimpleServo rServo, lServo;
 
-    Arm(HardwareMap hardwareMap) {
+    public Arm(HardwareMap hardwareMap) {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
     }
@@ -39,7 +39,7 @@ public final class Arm {
         return timeSinceUnderhand.seconds() <= TIME_POST_UNDERHAND;
     }
 
-    void setPosition(Arm.Position position) {
+    public void setPosition(Arm.Position position) {
 
         if (position != TRANSFER) {
             timeArmSpentRetracted.reset();
