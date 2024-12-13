@@ -29,8 +29,8 @@ public final class Extendo {
             SCALAR_MANUAL_SPEED = 1.0,
             SPEED_RETRACTION = -0.5,
             LENGTH_RETRACTING = 15,
-            LENGTH_DEPOSIT_CLEAR = 72.3264515921,
-            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 7.87544677926,
+            LENGTH_DEPOSIT_CLEAR = 80,
+            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 5,
             LENGTH_EXTENDED = Math.MM_EXTENDED - Math.MM_RETRACTED,
             kS = 0;
 

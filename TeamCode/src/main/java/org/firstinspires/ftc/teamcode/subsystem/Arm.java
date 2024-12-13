@@ -12,8 +12,15 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Arm {
 
     public static double
-            TIME_RETRACTION = 0.25,
-            TIME_POST_INTAKING = 0.5;
+            TIME_RETRACTION = 0.75,
+            TIME_POST_INTAKING = 0.75;
+
+    public static Position
+            INTAKING = new Position(0, 210),
+            OBS_ZONE = new Position(0, 210),
+            TRANSFER = new Position(150, -150),
+            SPECIMEN = new Position(200, 50),
+            SAMPLE = new Position(170, 120);
 
     private final ElapsedTime
             timeArmSpentRetracted = new ElapsedTime(),
@@ -35,25 +42,16 @@ public final class Arm {
 
     void setPosition(Arm.Position position) {
 
-        if (position != Arm.Position.TRANSFER) {
+        if (position != TRANSFER) {
             timeArmSpentRetracted.reset();
-            if (position == Arm.Position.INTAKING) timeSinceIntakingSpecimen.reset();
+            if (position == INTAKING || position == OBS_ZONE) timeSinceIntakingSpecimen.reset();
         }
 
         rServo.turnToAngle(position.rightAngle());
         lServo.turnToAngle(position.leftAngle());
     }
 
-    @Config
-    public static class Position {
-
-        public static Position
-                INTAKING = new Position(50, 0),
-                OBS_ZONE = new Position(50, 0),
-                TRANSFER = new Position(80, 30),
-                SPECIMEN = new Position(140, 90),
-                SCORING_SPEC = new Position(140, 90),
-                SAMPLE = new Position(170, 120);
+    public static final class Position {
 
         public double armAngle, wristAngle;
 
@@ -62,11 +60,11 @@ public final class Arm {
             this.wristAngle = wristAngle;
         }
 
-        private double rightAngle() {
+        double rightAngle() {
             return armAngle - wristAngle;
         }
 
-        private double leftAngle() {
+        double leftAngle() {
             return armAngle + wristAngle;
         }
     }

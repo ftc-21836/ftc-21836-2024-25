@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
@@ -32,30 +33,31 @@ public final class Deposit {
             ANGLE_CLAW_CLOSED = 9,
 
             TIME_SPEC_RAISE = 0.5,
-            TIME_SPEC_SCORE = 0,
             TIME_SPEC_RELEASE = 0.5,
             TIME_SAMPLE = 0.5,
             TIME_GRAB = 0.25,
 
-            HEIGHT_ABOVE_INTAKE = 3,
-            HEIGHT_INTAKING_SPECIMEN = 1.9,
-            HEIGHT_ARM_SAFE = 1,
-            HEIGHT_OBSERVATION_ZONE = 0.1,
-            HEIGHT_BASKET_LOW = 22,
-            HEIGHT_BASKET_HIGH = 32,
-            HEIGHT_CHAMBER_LOW = 6,
-            HEIGHT_CHAMBER_HIGH = 20;
+            HEIGHT_ABOVE_INTAKE = 10,
+            HEIGHT_INTAKING_SPECIMEN = 7,
+            HEIGHT_ARM_SAFE = 3,
+            HEIGHT_OBSERVATION_ZONE = 7,
+            HEIGHT_BASKET_LOW = 10,
+            HEIGHT_BASKET_HIGH = 22,
+            HEIGHT_CHAMBER_LOW = 9,
+            HEIGHT_CHAMBER_HIGH = 17.5,
+            HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
+            HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
     enum State {
-        RETRACTED           (Arm.Position.TRANSFER),
-        HAS_SAMPLE          (Arm.Position.SAMPLE), // Arm.Position.OBS_ZONE is used when lift target is HEIGHT_OBSERVATION_ZONE
-        SAMPLE_FALLING      (Arm.Position.SAMPLE),
-        INTAKING_SPECIMEN   (Arm.Position.INTAKING),
-        GRABBING_SPECIMEN   (Arm.Position.INTAKING),
-        RAISING_SPECIMEN    (Arm.Position.INTAKING),
-        HAS_SPECIMEN        (Arm.Position.SPECIMEN),
-        SCORING_SPECIMEN    (Arm.Position.SCORING_SPEC),
-        RELEASING_SPECIMEN  (Arm.Position.SCORING_SPEC);
+        RETRACTED           (Arm.TRANSFER),
+        HAS_SAMPLE          (Arm.SAMPLE), // Arm.Position.OBS_ZONE is used when lift target is HEIGHT_OBSERVATION_ZONE
+        SAMPLE_FALLING      (Arm.SAMPLE),
+        INTAKING_SPECIMEN   (Arm.INTAKING),
+        GRABBING_SPECIMEN   (Arm.INTAKING),
+        RAISING_SPECIMEN    (Arm.INTAKING),
+        HAS_SPECIMEN        (Arm.SPECIMEN),
+        SCORING_SPECIMEN    (Arm.SPECIMEN),
+        RELEASING_SPECIMEN  (Arm.SPECIMEN);
 
         private final Arm.Position armPosition;
 
@@ -83,6 +85,8 @@ public final class Deposit {
     public void setAlliance(boolean redAlliance) {
         specimenColor = redAlliance ? RED : BLUE;
     }
+
+    private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORED;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
@@ -123,7 +127,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_SPEC_SCORE) triggerClaw();
+                if (lift.getPosition() >= releaseSpecimenHeight) triggerClaw();
                 else break;
 
             case RELEASING_SPECIMEN:
@@ -138,18 +142,17 @@ public final class Deposit {
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
 
-        boolean intaking = state.armPosition == Arm.Position.INTAKING;
+        boolean observationZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
+
+        Arm.Position position = observationZone ? Arm.OBS_ZONE : state.armPosition;
+
+        boolean underhand = position == Arm.INTAKING || position == Arm.OBS_ZONE;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
-        boolean armHitting = belowSafeHeight && intaking;
+        boolean armHitting = belowSafeHeight && underhand;  
 
         boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
-        boolean observationZone = state.armPosition == Arm.Position.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
         
-        arm.setPosition(
-                !armCanMove ? Arm.Position.TRANSFER :
-                observationZone ? Arm.Position.OBS_ZONE :
-                state.armPosition
-        );
+        arm.setPosition(armCanMove ? position : Arm.TRANSFER);
 
         boolean crushingArm = belowSafeHeight && lift.getTarget() < HEIGHT_ARM_SAFE && arm.atSpecimenAngle();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
@@ -166,7 +169,7 @@ public final class Deposit {
 
     // when does the intake need to move out of the way
     boolean activeNearIntake() {
-        return (lift.getPosition() < HEIGHT_ABOVE_INTAKE || lift.getTarget() < HEIGHT_ABOVE_INTAKE) && (arm.isExtended() || state.armPosition != Arm.Position.TRANSFER);
+        return (lift.getPosition() < HEIGHT_ABOVE_INTAKE || lift.getTarget() < HEIGHT_ABOVE_INTAKE) && (arm.isExtended() || state.armPosition != Arm.TRANSFER);
     }
 
     boolean readyToTransfer() {
@@ -256,7 +259,10 @@ public final class Deposit {
             case HAS_SPECIMEN:
 
                 state = SCORING_SPECIMEN;
-                timer.reset();
+
+                double position = lift.getPosition();
+                releaseSpecimenHeight = clip(position + HEIGHT_OFFSET_SPECIMEN_SCORED, 0, 32);
+                lift.setTarget(position + HEIGHT_OFFSET_SPECIMEN_SCORING);
 
                 break;
 
