@@ -18,10 +18,10 @@ public final class Arm {
             TIME_POST_UNDERHAND = 0.75;
 
     public static Position
-            INTAKING =  new Position(-210, 210, "INTAKING"),
-            TRANSFER =  new Position(300, 0, "TRANSFER"),
-            SPECIMEN =  new Position(150, 250, "SPECIMEN"),
-            SAMPLE =    new Position(50, 290, "SAMPLE");
+            INTAKING =  new Position(270, 0, "INTAKING"),
+            TRANSFER =  new Position(160, 210, "TRANSFER"),
+            SPECIMEN =  new Position(350, 170, "SPECIMEN"),
+            SAMPLE =    new Position(355, 355, "SAMPLE");
 
     private final ElapsedTime
             timeArmSpentRetracted = new ElapsedTime(),
