@@ -32,6 +32,8 @@ public final class Arm {
     public Arm(HardwareMap hardwareMap) {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
+
+        setPosition(INTAKING);
     }
 
     boolean isExtended() {

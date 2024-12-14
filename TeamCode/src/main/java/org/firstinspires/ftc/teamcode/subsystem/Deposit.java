@@ -92,6 +92,7 @@ public final class Deposit {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
+        claw.turnToAngle(ANGLE_CLAW_CLOSED);
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
