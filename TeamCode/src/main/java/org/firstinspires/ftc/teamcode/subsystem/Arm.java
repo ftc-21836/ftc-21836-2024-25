@@ -18,9 +18,9 @@ public final class Arm {
             TIME_POST_UNDERHAND = 0.75;
 
     public static Position
-            INTAKING =  new Position(270, 0, "INTAKING"),
-            TRANSFER =  new Position(160, 210, "TRANSFER"),
-            SPECIMEN =  new Position(350, 170, "SPECIMEN"),
+            INTAKING =  new Position(285, 0, "INTAKING"),
+            TRANSFER =  new Position(75, 305, "TRANSFER"),
+            SPECIMEN =  new Position(285, 215, "SPECIMEN"),
             SAMPLE =    new Position(355, 355, "SAMPLE");
 
     private final ElapsedTime
@@ -59,7 +59,7 @@ public final class Arm {
         public double right, left;
         private final String name;
 
-        private Position(double right, double left, String name) {
+        private Position(double left, double right, String name) {
             this.right = right;
             this.left = left;
             this.name = name;
