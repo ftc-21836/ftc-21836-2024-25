@@ -19,7 +19,7 @@ public final class Arm {
 
     public static Position
             INTAKING =  new Position(285, 0, "INTAKING"),
-            TRANSFER =  new Position(80, 300, "TRANSFER"),
+            TRANSFER =  new Position(85, 305, "TRANSFER"),
             SPECIMEN =  new Position(285, 215, "SPECIMEN"),
             SAMPLE =    new Position(355, 355, "SAMPLE");
 

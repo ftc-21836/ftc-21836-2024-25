@@ -165,6 +165,10 @@ public final class Deposit {
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
     }
 
+    public void closeClaw() {
+        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+    }
+
     // when does the intake need to move out of the way
     boolean activeNearIntake() {
         return (lift.getPosition() < HEIGHT_ABOVE_INTAKE || lift.getTarget() < HEIGHT_ABOVE_INTAKE) && (arm.isExtended() || state.armPosition != Arm.TRANSFER);

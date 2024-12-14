@@ -83,7 +83,8 @@ public final class MainTeleOp extends LinearOpMode {
                     isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_PRELOAD:
-                    robot.deposit.preload();
+                    robot.intake.transfer(robot.deposit, NEUTRAL);
+                    robot.deposit.closeClaw();
                     break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;

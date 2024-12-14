@@ -30,7 +30,7 @@ public final class Intake {
 
     public static double
 
-            ANGLE_BUCKET_RETRACTED = 7.8,
+            ANGLE_BUCKET_RETRACTED = 5,
             ANGLE_BUCKET_PRE_TRANSFER = 25,
             ANGLE_BUCKET_OVER_BARRIER = 150,
             ANGLE_BUCKET_INTAKING_NEAR = 206,
@@ -44,6 +44,7 @@ public final class Intake {
 
             SPEED_EJECTING = -0.5,
             SPEED_POST_TRANSFER = -0.1,
+            SPEED_PRE_TRANSFER = -0.1,
             SPEED_HOLDING = 1,
             COLOR_SENSOR_GAIN = 1;
 
@@ -165,7 +166,9 @@ public final class Intake {
 
                 }
 
-                if (timer.seconds() >= TIME_SAMPLE_SETTLING || rollerSpeed == 0) setExtended(false);
+                if (
+//                        timer.seconds() >= TIME_SAMPLE_SETTLING ||
+                                rollerSpeed == 0) setExtended(false);
                 else break;
 
             case EXTENDO_RETRACTING:
@@ -190,6 +193,7 @@ public final class Intake {
 
                 if (bucketSensor.isPressed()) {
 
+                    rollerSpeed = SPEED_PRE_TRANSFER;
                     state = BUCKET_SETTLING;
                     timer.reset();
 
