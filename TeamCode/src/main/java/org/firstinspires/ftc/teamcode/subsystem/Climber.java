@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
 public final class Climber {
 
     public static double
-            ANGLE_HOOKS_ACTIVE_RETRACTED = 7,
+            ANGLE_HOOKS_ACTIVE_RETRACTED = 0,
             ANGLE_HOOKS_ACTIVE_EXTENDED = 105.4,
 
             ANGLE_HOOKS_PASSIVE_RETRACTED = 96.9,

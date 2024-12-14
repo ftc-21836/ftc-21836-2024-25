@@ -30,7 +30,7 @@ public final class Deposit {
 
     public static double
             ANGLE_CLAW_OPEN = 60,
-            ANGLE_CLAW_CLOSED = 9,
+            ANGLE_CLAW_CLOSED = 7,
 
             TIME_SPEC_RAISE = 0.5,
             TIME_SPEC_RELEASE = 0.5,
@@ -44,7 +44,7 @@ public final class Deposit {
             HEIGHT_BASKET_LOW = 10,
             HEIGHT_BASKET_HIGH = 22,
             HEIGHT_CHAMBER_LOW = 9,
-            HEIGHT_CHAMBER_HIGH = 17.5,
+            HEIGHT_CHAMBER_HIGH = 12,
             HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
             HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
@@ -92,7 +92,7 @@ public final class Deposit {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
-        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+        claw.turnToAngle(ANGLE_CLAW_OPEN + 1);
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {

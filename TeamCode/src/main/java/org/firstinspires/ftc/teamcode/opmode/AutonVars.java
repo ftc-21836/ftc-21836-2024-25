@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
+
 import com.acmerobotics.dashboard.config.Config;
 
 @Config
@@ -14,4 +16,16 @@ public final class AutonVars {
             X_START_LEFT = SIZE_TILE * -1.5,
             X_START_RIGHT = SIZE_TILE * 0.5,
             Y_START = -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5;
+
+    enum ParkingLocation {
+        CORNER,
+        OUTER,
+        TOUCHING_RUNG;
+
+        public static final ParkingLocation[] locations = values();
+
+        public ParkingLocation plus(int i) {
+            return locations[(int) loopMod(ordinal() + i, locations.length)];
+        }
+    }
 }

@@ -19,7 +19,7 @@ public final class Arm {
 
     public static Position
             INTAKING =  new Position(285, 0, "INTAKING"),
-            TRANSFER =  new Position(75, 305, "TRANSFER"),
+            TRANSFER =  new Position(80, 300, "TRANSFER"),
             SPECIMEN =  new Position(285, 215, "SPECIMEN"),
             SAMPLE =    new Position(355, 355, "SAMPLE");
 
@@ -33,7 +33,7 @@ public final class Arm {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
 
-        setPosition(INTAKING);
+        setPosition(new Position(TRANSFER.left + 1, TRANSFER.right - 1, "POOPOO"));
     }
 
     boolean isExtended() {

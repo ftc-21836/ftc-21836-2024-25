@@ -32,8 +32,8 @@ public final class Intake {
 
             ANGLE_BUCKET_RETRACTED = 7.8,
             ANGLE_BUCKET_PRE_TRANSFER = 25,
-            ANGLE_BUCKET_OVER_BARRIER = 165,
-            ANGLE_BUCKET_INTAKING_NEAR = 207,
+            ANGLE_BUCKET_OVER_BARRIER = 150,
+            ANGLE_BUCKET_INTAKING_NEAR = 206,
             ANGLE_BUCKET_INTAKING_FAR = 203,
 
             TIME_EJECTING = 0.5,
@@ -203,11 +203,7 @@ public final class Intake {
 
                 if (timer.seconds() >= TIME_PRE_TRANSFER) {
 
-                    rollerSpeed = 0;
-                    deposit.transfer(sample);
-                    sample = null;
-                    state = TRANSFERRING;
-                    timer.reset();
+                    transfer(deposit, sample);
 
                 } else break;
 
@@ -243,6 +239,14 @@ public final class Intake {
         extendo.run(!deposit.activeNearIntake() || climbing || state == TRANSFERRING);
 
         roller.setPower(deposit.hasSample() ? 0 : rollerSpeed);
+    }
+
+    public void transfer(Deposit deposit, Sample sample) {
+        state = TRANSFERRING;
+        deposit.transfer(sample);
+        this.sample = null;
+        rollerSpeed = 0;
+        timer.reset();
     }
 
     private boolean sampleLost(State returnTo) {
