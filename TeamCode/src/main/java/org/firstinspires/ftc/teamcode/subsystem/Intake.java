@@ -30,20 +30,21 @@ public final class Intake {
 
     public static double
 
-            ANGLE_BUCKET_RETRACTED = 7.8,
+            ANGLE_BUCKET_RETRACTED = 5,
             ANGLE_BUCKET_PRE_TRANSFER = 25,
-            ANGLE_BUCKET_OVER_BARRIER = 165,
-            ANGLE_BUCKET_INTAKING_NEAR = 207,
+            ANGLE_BUCKET_OVER_BARRIER = 150,
+            ANGLE_BUCKET_INTAKING_NEAR = 206,
             ANGLE_BUCKET_INTAKING_FAR = 203,
 
             TIME_EJECTING = 0.5,
-            TIME_SAMPLE_SETTLING = 0.5,
+            TIME_SAMPLE_SETTLING = 1.5,
             TIME_PRE_TRANSFER = 0.25,
             TIME_TRANSFER = 0.25,
             TIME_POST_TRANSFER = 0.25,
 
             SPEED_EJECTING = -0.5,
             SPEED_POST_TRANSFER = -0.1,
+            SPEED_PRE_TRANSFER = -0.1,
             SPEED_HOLDING = 1,
             COLOR_SENSOR_GAIN = 1;
 
@@ -142,20 +143,11 @@ public final class Intake {
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
     }
 
-    interface Transferable{ void transfer(Sample sample); }
-
-    void run(boolean depositHasSample, boolean depositActive, Transferable deposit, boolean climbing) {
-
-        if (state != EJECTING_SAMPLE && state != RETRACTED) {
-            colorSensor.update();
-            sample = hsvToSample(hsv = colorSensor.getHSV());
-        }
+    void run(boolean climbing, Deposit deposit) {
 
         switch (state) {
 
             case EJECTING_SAMPLE:
-
-                rollerSpeed = SPEED_EJECTING;
 
                 if (timer.seconds() >= TIME_EJECTING) state = INTAKING;
                 else break;
@@ -164,23 +156,28 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
-                if (sample == badSample || depositHasSample) {
+                if (sample == badSample) {
 
                     sample = null;
+                    rollerSpeed = SPEED_EJECTING;
                     state = EJECTING_SAMPLE;
                     timer.reset();
                     break;
 
                 }
 
-                if (timer.seconds() >= TIME_SAMPLE_SETTLING) setExtended(false);
+                if (
+//                        timer.seconds() >= TIME_SAMPLE_SETTLING ||
+                                rollerSpeed == 0) setExtended(false);
                 else break;
 
             case EXTENDO_RETRACTING:
 
                 if (sampleLost(INTAKING)) break;
 
-                if (!extendo.isExtended() && !depositActive) {
+                extendo.setExtended(false);
+
+                if (!extendo.isExtended() && deposit.readyToTransfer()) {
 
                     bucket.setActivated(false);
                     state = BUCKET_RETRACTING;
@@ -192,8 +189,11 @@ public final class Intake {
 
                 if (sampleLost(RETRACTED)) break;
 
+                extendo.setExtended(false);
+
                 if (bucketSensor.isPressed()) {
 
+                    rollerSpeed = SPEED_PRE_TRANSFER;
                     state = BUCKET_SETTLING;
                     timer.reset();
 
@@ -203,17 +203,17 @@ public final class Intake {
 
                 if (sampleLost(RETRACTED)) break;
 
+                extendo.setExtended(false);
+
                 if (timer.seconds() >= TIME_PRE_TRANSFER) {
 
-                    rollerSpeed = 0;
-                    deposit.transfer(sample);
-                    sample = null;
-                    state = TRANSFERRING;
-                    timer.reset();
+                    transfer(deposit, sample);
 
                 } else break;
 
             case TRANSFERRING:
+
+                extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_TRANSFER) {
 
@@ -240,12 +240,23 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run(!depositActive || climbing || state == TRANSFERRING);
+        extendo.run(!deposit.activeNearIntake() || climbing || state == TRANSFERRING);
 
-        roller.setPower(rollerSpeed);
+        roller.setPower(deposit.hasSample() ? 0 : rollerSpeed);
+    }
+
+    public void transfer(Deposit deposit, Sample sample) {
+        state = TRANSFERRING;
+        deposit.transfer(sample);
+        this.sample = null;
+        rollerSpeed = 0;
+        timer.reset();
     }
 
     private boolean sampleLost(State returnTo) {
+        colorSensor.update();
+        sample = hsvToSample(hsv = colorSensor.getHSV());
+
         if (hasSample()) return false;
 
         state = returnTo;
@@ -264,7 +275,7 @@ public final class Intake {
         return (1 - t) * start + t * end;
     }
 
-    private boolean hasSample() {
+    boolean hasSample() {
         return sample != null;
     }
 

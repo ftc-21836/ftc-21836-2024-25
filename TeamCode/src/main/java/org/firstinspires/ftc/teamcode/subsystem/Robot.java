@@ -28,21 +28,17 @@ public final class Robot {
         climber = new Climber(hardwareMap, deposit.lift);
     }
 
-    public void initRun() {
-    }
-
-    public void endgame() {
-    }
-
     public void readSensors() {
         bulkReader.bulkRead();
         drivetrain.updatePoseEstimate();
     }
 
     public void run() {
+
+        intake.run(climber.isActive(), deposit);
+        deposit.run(intake.hasSample(), climber.isActive(), intake.clearOfDeposit());
+
         climber.run();
-        intake.run(deposit.hasSample(), deposit.impedingIntake(), deposit::transfer, climber.isActive());
-        deposit.run(intake.clearOfDeposit(), climber.isActive());
     }
 
     public boolean requestingSlowMode() {

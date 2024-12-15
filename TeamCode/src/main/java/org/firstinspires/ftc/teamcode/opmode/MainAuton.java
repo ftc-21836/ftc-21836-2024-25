@@ -12,7 +12,7 @@ import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITIN
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_PARK;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_WAIT;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.ParkingLocation.CORNER;
+import static org.firstinspires.ftc.teamcode.opmode.AutonVars.ParkingLocation.CORNER;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
@@ -47,18 +47,6 @@ public final class MainAuton extends LinearOpMode {
         }
     }
 
-    enum ParkingLocation {
-        CORNER,
-        OUTER,
-        TOUCHING_RUNG;
-
-        public static final ParkingLocation[] locations = values();
-
-        public ParkingLocation plus(int i) {
-            return locations[(int) loopMod(ordinal() + i, locations.length)];
-        }
-    }
-
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -74,7 +62,7 @@ public final class MainAuton extends LinearOpMode {
 
         AutonConfig selection = EDITING_ALLIANCE;
 
-        ParkingLocation parking = CORNER;
+        AutonVars.ParkingLocation parking = CORNER;
 
         boolean isRight = true, cycle = false;
 
@@ -154,7 +142,7 @@ public final class MainAuton extends LinearOpMode {
         }
     }
 
-    private void printConfig(AutonConfig selection, boolean isRight, boolean cycle, ParkingLocation parking, double partnerWait) {
+    private void printConfig(AutonConfig selection, boolean isRight, boolean cycle, AutonVars.ParkingLocation parking, double partnerWait) {
         mTelemetry.addLine((isRedAlliance ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
         mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
