@@ -166,9 +166,7 @@ public final class Intake {
 
                 }
 
-                if (
-//                        timer.seconds() >= TIME_SAMPLE_SETTLING ||
-                                rollerSpeed == 0) setExtended(false);
+                if (rollerSpeed == 0) setExtended(false);
                 else break;
 
             case EXTENDO_RETRACTING:
@@ -205,11 +203,8 @@ public final class Intake {
 
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_PRE_TRANSFER) {
-
-                    transfer(deposit, sample);
-
-                } else break;
+                if (timer.seconds() >= TIME_PRE_TRANSFER) transfer(deposit, sample);
+                else break;
 
             case TRANSFERRING:
 
@@ -235,7 +230,7 @@ public final class Intake {
         double ANGLE_BUCKET_EXTENDED =
                 state == EJECTING_SAMPLE ? ANGLE_BUCKET_INTAKING :
                 state == INTAKING ? lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)) :
-                        ANGLE_BUCKET_PRE_TRANSFER;
+                ANGLE_BUCKET_PRE_TRANSFER;
 
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
@@ -291,18 +286,13 @@ public final class Intake {
     public void setExtended(boolean extend) {
         switch (state) {
 
-//            case EXTENDO_RETRACTING:
-//            case BUCKET_RETRACTING:
-//            case BUCKET_SETTLING:
-//                if (hasSample()) break;
             case RETRACTED:
 
-                if (extend) {
-                    bucket.setActivated(true);
-//                    extendo.setExtended(true);
-                    state = INTAKING;
-                    sample = null;
-                }
+                if (!extend) break;
+
+                bucket.setActivated(true);
+                state = INTAKING;
+                sample = null;
 
                 break;
 
