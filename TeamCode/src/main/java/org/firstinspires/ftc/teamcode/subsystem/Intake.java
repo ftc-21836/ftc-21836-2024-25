@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystem;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SEMI_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
@@ -38,6 +39,7 @@ public final class Intake {
 
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 1.5,
+            TIME_BUCKET_SEMI_RETRACT = 1,
             TIME_PRE_TRANSFER = 0.25,
             TIME_TRANSFER = 0.25,
             TIME_POST_TRANSFER = 0.25,
@@ -113,6 +115,7 @@ public final class Intake {
     enum State {
         EJECTING_SAMPLE,
         INTAKING,
+        BUCKET_SEMI_RETRACTING,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
         BUCKET_SETTLING,
@@ -167,6 +170,13 @@ public final class Intake {
                 }
 
                 if (rollerSpeed == 0) setExtended(false);
+                else break;
+
+            case BUCKET_SEMI_RETRACTING:
+
+                if (sampleLost(INTAKING)) break;
+
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT) state = EXTENDO_RETRACTING;
                 else break;
 
             case EXTENDO_RETRACTING:
@@ -299,19 +309,21 @@ public final class Intake {
             case EJECTING_SAMPLE:
             case INTAKING:
 
-                if (!extend) {
-                    extendo.setExtended(false);
-                    if (hasSample()) {
+                if (extend) break;
 
-                        state = EXTENDO_RETRACTING;
-                        rollerSpeed = SPEED_HOLDING;
+                if (hasSample()) {
 
-                    } else {
-                        state = RETRACTED;
-                        bucket.setActivated(false);
-                        rollerSpeed = 0;
-                    }
+                    state = BUCKET_SEMI_RETRACTING;
+                    rollerSpeed = SPEED_HOLDING;
+                    timer.reset();
+                    break;
+
                 }
+
+                extendo.setExtended(false);
+                state = RETRACTED;
+                bucket.setActivated(false);
+                rollerSpeed = 0;
 
                 break;
 
