@@ -45,7 +45,7 @@ public final class Intake {
             SPEED_EJECTING = -0.5,
             SPEED_POST_TRANSFER = -0.1,
             SPEED_PRE_TRANSFER = -0.1,
-            SPEED_HOLDING = 1,
+            SPEED_HOLDING = 0.5,
             COLOR_SENSOR_GAIN = 1;
 
     /**
