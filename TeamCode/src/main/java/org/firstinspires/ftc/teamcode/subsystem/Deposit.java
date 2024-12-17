@@ -31,6 +31,7 @@ public final class Deposit {
     public static double
             ANGLE_CLAW_OPEN = 60,
             ANGLE_CLAW_CLOSED = 7,
+            ANGLE_CLAW_TRANSFER = 30,
 
             TIME_SPEC_RAISE = 0.5,
             TIME_SPEC_RELEASE = 0.5,
@@ -139,7 +140,11 @@ public final class Deposit {
 
         }
 
-        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
+        claw.turnToAngle(
+            hasSample() ? ANGLE_CLAW_CLOSED :
+            state == RETRACTED ? ANGLE_CLAW_TRANSFER :
+            ANGLE_CLAW_OPEN
+        );
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
