@@ -168,14 +168,14 @@ public final class Climber {
 
             case PULLING_LOW_RUNG:
 
-                if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) climb();
-                else break;
+                // if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) climb();
+                // else
+                break;
 
             case PASSIVE_HOOKS_EXTENDING:
 
-//                if (timer.seconds() >= TIME_PASSIVE_HOOKS_EXTENSION) climb();
-//                else
-                    break;
+               if (timer.seconds() >= TIME_PASSIVE_HOOKS_EXTENSION) climb();
+               else break;
 
             case RAISING_ABOVE_HIGH_RUNG:
 
