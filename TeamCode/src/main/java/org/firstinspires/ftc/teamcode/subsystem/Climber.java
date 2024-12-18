@@ -32,8 +32,8 @@ public final class Climber {
             TIME_PASSIVE_HOOKS_EXTENSION = 1,
             TIME_ACTIVE_HOOKS_EXTENSION = 1,
 
-            HEIGHT_RUNG_LOW_RAISED = 13.25,
-            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -4.5,
+            HEIGHT_RUNG_LOW_RAISED = 32,
+            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -12,
             TOLERANCE_CLIMBED = 0.25,
 
             HEIGHT_RUNG_HIGH_RAISED = 32,
