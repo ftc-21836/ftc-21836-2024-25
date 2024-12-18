@@ -166,11 +166,10 @@ public final class Climber {
 
         switch (state) {
 
-            case PULLING_LOW_RUNG:
+            // case PULLING_LOW_RUNG:
 
-                // if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) climb();
-                // else
-                break;
+            //     if (lift.getPosition() - TOLERANCE_CLIMBED <= lift.getTarget()) climb();
+            //     else break;
 
             case PASSIVE_HOOKS_EXTENDING:
 
