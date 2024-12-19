@@ -33,17 +33,17 @@ public final class Deposit {
             ANGLE_CLAW_CLOSED = 7,
             ANGLE_CLAW_TRANSFER = 30,
 
-            TIME_SPEC_RAISE = 0.5,
             TIME_SPEC_RELEASE = 0.5,
             TIME_SAMPLE = 0.5,
             TIME_GRAB = 0.25,
 
             HEIGHT_ABOVE_INTAKE = 10,
-            HEIGHT_INTAKING_SPECIMEN = 7,
             HEIGHT_ARM_SAFE = 7,
             HEIGHT_OBSERVATION_ZONE = 0,
             HEIGHT_BASKET_LOW = 10,
             HEIGHT_BASKET_HIGH = 22,
+            HEIGHT_INTAKING_SPECIMEN = 7,
+            HEIGHT_OFFSET_SPECIMEN_INTAKED = 3,
             HEIGHT_CHAMBER_LOW = 9,
             HEIGHT_CHAMBER_HIGH = 12,
             HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
@@ -123,7 +123,7 @@ public final class Deposit {
 
             case RAISING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_SPEC_RAISE) triggerClaw();
+                if (lift.getPosition() >= HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_SPECIMEN_INTAKED) triggerClaw();
 
                 break;
 
