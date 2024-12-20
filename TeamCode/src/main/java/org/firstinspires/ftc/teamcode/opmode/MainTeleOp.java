@@ -15,8 +15,9 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
-import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_PRELOAD;
+import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
+import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
@@ -43,7 +44,8 @@ public final class MainTeleOp extends LinearOpMode {
 
     enum TeleOpConfig {
         EDITING_ALLIANCE,
-        EDITING_PRELOAD,
+        PRELOAD_SAMPLE,
+        PRELOAD_SPECIMEN,
         EDITING_SLOW_LOCK,
         EDITING_FIELD_CENTRIC;
 
@@ -82,9 +84,11 @@ public final class MainTeleOp extends LinearOpMode {
                 case EDITING_ALLIANCE:
                     isRedAlliance = !isRedAlliance;
                     break;
-                case EDITING_PRELOAD:
-                    robot.intake.transfer(robot.deposit, NEUTRAL);
-                    robot.deposit.closeClaw();
+                case PRELOAD_SAMPLE:
+                    robot.deposit.transfer(NEUTRAL);
+                    break;
+                case PRELOAD_SPECIMEN:
+                    robot.deposit.preload();
                     break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;
@@ -96,7 +100,9 @@ public final class MainTeleOp extends LinearOpMode {
 
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
-            mTelemetry.addLine((robot.deposit.hasSample() ? "PRELOADED" : "Preload") + selection.markIf(EDITING_PRELOAD));
+            mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
+            mTelemetry.addLine();
+            mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
             mTelemetry.addLine();
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();

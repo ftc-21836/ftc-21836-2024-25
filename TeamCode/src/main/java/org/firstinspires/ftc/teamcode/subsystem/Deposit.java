@@ -166,12 +166,7 @@ public final class Deposit {
     public void preload() {
         Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
-        arm.setPosition(state.armPosition);
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
-    }
-
-    public void closeClaw() {
-        claw.turnToAngle(ANGLE_CLAW_CLOSED);
     }
 
     // when does the intake need to move out of the way
@@ -299,6 +294,7 @@ public final class Deposit {
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(FLOOR);
+        claw.turnToAngle(ANGLE_CLAW_CLOSED);
     }
 
     void printTelemetry() {
