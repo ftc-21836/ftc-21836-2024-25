@@ -30,8 +30,8 @@ public final class Deposit {
 
     public static double
             ANGLE_CLAW_OPEN = 60,
+            ANGLE_CLAW_TRANSFER = 45,
             ANGLE_CLAW_CLOSED = 7,
-            ANGLE_CLAW_TRANSFER = 30,
 
             TIME_SPEC_RELEASE = 0.5,
             TIME_SAMPLE = 0.5,
