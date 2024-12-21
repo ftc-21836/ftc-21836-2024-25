@@ -37,6 +37,7 @@ public final class Deposit {
             TIME_SPEC_RELEASE = 0.5,
             TIME_SAMPLE = 0.5,
             TIME_GRAB = 0.25,
+            TIME_POST_INTAKE_SWING = 1,
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_ARM_SAFE = 7,
@@ -45,8 +46,8 @@ public final class Deposit {
             HEIGHT_BASKET_HIGH = 18,
             HEIGHT_INTAKING_SPECIMEN = 7,
             HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
-            HEIGHT_CHAMBER_LOW = 9,
-            HEIGHT_CHAMBER_HIGH = 12,
+            HEIGHT_CHAMBER_HIGH = 11.5,
+            HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
             HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
             HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
@@ -156,7 +157,11 @@ public final class Deposit {
 
         boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
 
-        if (armCanMove) arm.setPosition(state.armPosition);
+        if (armCanMove) arm.setPosition(
+                state == HAS_SPECIMEN && timer.seconds() <= TIME_POST_INTAKE_SWING ?
+                        Arm.POST_SPEC_INTAKE :
+                        state.armPosition
+        );
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
@@ -256,6 +261,7 @@ public final class Deposit {
             case RAISING_SPECIMEN:
 
                 state = HAS_SPECIMEN;
+                timer.reset();
 
                 break;
 
