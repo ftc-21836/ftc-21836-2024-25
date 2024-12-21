@@ -29,9 +29,9 @@ public final class Extendo {
             SCALAR_MANUAL_SPEED = 1.0,
             SPEED_RETRACTION = -0.5,
             LENGTH_RETRACTING = 15,
-            LENGTH_DEPOSIT_CLEAR = 80,
-            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 5,
-            LENGTH_EXTENDED = Math.MM_EXTENDED - Math.MM_RETRACTED,
+            LENGTH_DEPOSIT_CLEAR = 150,
+            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
+            LENGTH_EXTENDED = 410,
             kS = 0;
 
     public static PIDGains pidGains = new PIDGains(
