@@ -89,7 +89,7 @@ public final class Deposit {
 
     private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORED;
 
-    Deposit(HardwareMap hardwareMap) {
+    public Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();

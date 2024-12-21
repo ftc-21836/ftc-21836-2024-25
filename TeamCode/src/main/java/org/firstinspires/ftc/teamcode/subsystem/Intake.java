@@ -127,7 +127,7 @@ public final class Intake {
         badSample = redAlliance ? BLUE : RED;
     }
 
-    Intake(HardwareMap hardwareMap) {
+    public Intake(HardwareMap hardwareMap) {
 
         extendo = new Extendo(hardwareMap);
 
@@ -151,14 +151,17 @@ public final class Intake {
         switch (state) {
 
             case EJECTING_SAMPLE:
-
-                if (timer.seconds() >= TIME_EJECTING) state = INTAKING;
-                else break;
+                if (timer.seconds() >= TIME_EJECTING)
+                    state = INTAKING;
+                else
+                    break;
 
             case INTAKING:
 
-                if (sampleLost(INTAKING)) break;
+                if (switchIfSampleLost(INTAKING))
+                    break;
 
+                // Eject bad samples
                 if (sample == badSample) {
 
                     sample = null;
@@ -169,22 +172,30 @@ public final class Intake {
 
                 }
 
-                if (rollerSpeed == 0) setExtended(false);
-                else break;
+                // If our input is zero let's retract the intake
+                if (rollerSpeed == 0)
+                    setExtended(false);
+                else
+                    break;
 
             case BUCKET_SEMI_RETRACTING:
+                if (switchIfSampleLost(INTAKING))
+                    break;
 
-                if (sampleLost(INTAKING)) break;
-
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT) state = EXTENDO_RETRACTING;
-                else break;
+                // Wait for the bucket to flip upward halfway
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT)
+                    state = EXTENDO_RETRACTING;
+                else
+                    break;
 
             case EXTENDO_RETRACTING:
+                if (switchIfSampleLost(INTAKING))
+                    break;
 
-                if (sampleLost(INTAKING)) break;
-
+                // Keep telling our extendo to retract
                 extendo.setExtended(false);
 
+                // As soon as it's retracted & deposit ready, finish flipping the bucket
                 if (!extendo.isExtended() && deposit.readyToTransfer()) {
 
                     bucket.setActivated(false);
@@ -194,11 +205,13 @@ public final class Intake {
                 } else break;
 
             case BUCKET_RETRACTING:
+                if (switchIfSampleLost(RETRACTED))
+                    break;
 
-                if (sampleLost(RETRACTED)) break;
-
+                // While the bucket is retracting make sure our extendo stays put
                 extendo.setExtended(false);
 
+                // Wait for the limit switch to trigger
                 if (bucketSensor.isPressed()) {
 
                     rollerSpeed = SPEED_PRE_TRANSFER;
@@ -208,18 +221,23 @@ public final class Intake {
                 } else break;
 
             case BUCKET_SETTLING:
+                if (switchIfSampleLost(RETRACTED))
+                    break;
 
-                if (sampleLost(RETRACTED)) break;
-
+                // Keep the extendo put
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_PRE_TRANSFER) transfer(deposit, sample);
-                else break;
+                // Wait for the transfer to happen
+                if (timer.seconds() >= TIME_PRE_TRANSFER)
+                    transfer(deposit, sample);
+                else
+                    break;
 
             case TRANSFERRING:
-
+                // Extendo should stay put while transferring
                 extendo.setExtended(false);
 
+                // Wait a bit for the transfer to be considered complete
                 if (timer.seconds() >= TIME_TRANSFER) {
 
                     rollerSpeed = SPEED_POST_TRANSFER;
@@ -229,22 +247,34 @@ public final class Intake {
                 } else break;
 
             case RETRACTED:
-
-                if (timer.seconds() >= TIME_POST_TRANSFER) rollerSpeed = 0;
+                // Wait a bit after a transfer before stopping the roller
+                if (timer.seconds() >= TIME_POST_TRANSFER)
+                    rollerSpeed = 0;
 
                 break;
         }
 
-        double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
+        // The intaking angle of the bucket corrected for the extendo's tilt
+        double correctedIntakingAngle =
+                lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR,
+                        extendo.getPosition() / Extendo.LENGTH_EXTENDED);
 
-        double ANGLE_BUCKET_EXTENDED =
-                state == EJECTING_SAMPLE ? ANGLE_BUCKET_INTAKING :
-                state == INTAKING ? lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)) :
-                ANGLE_BUCKET_PRE_TRANSFER;
+        double bucketExtendedAngle;
 
-        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
+        if (state == EJECTING_SAMPLE)
+            // If we're ejecting a sample, go to max extension
+            bucketExtendedAngle = correctedIntakingAngle;
+        else {
+            if (state == INTAKING)
+                bucketExtendedAngle = lerp(ANGLE_BUCKET_OVER_BARRIER, correctedIntakingAngle, abs(rollerSpeed));
+            else
+                bucketExtendedAngle = ANGLE_BUCKET_PRE_TRANSFER;
+        }
+
+        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, bucketExtendedAngle);
         bucket.run();
 
+        // Tell the extendo whether it's clear to retract
         extendo.run(!deposit.activeNearIntake() || climbing || state == TRANSFERRING);
 
         roller.setPower(deposit.hasSample() ? 0 : rollerSpeed);
@@ -258,11 +288,17 @@ public final class Intake {
         timer.reset();
     }
 
-    private boolean sampleLost(State returnTo) {
+    /**
+     * Check if we lost a sample, and if we did, switch our state
+     * @param returnTo the fallback state to switch to
+     * @return whether or not we lost a sample (and switched state)
+     */
+    private boolean switchIfSampleLost(State returnTo) {
         colorSensor.update();
         sample = hsvToSample(hsv = colorSensor.getHSV());
 
-        if (hasSample()) return false;
+        if (hasSample())
+            return false;
 
         state = returnTo;
         timer.reset();
@@ -294,38 +330,34 @@ public final class Intake {
     }
 
     public void setExtended(boolean extend) {
-        switch (state) {
 
-            case RETRACTED:
+        if (state == RETRACTED){
+            // If we're trying to retract, we're already good
+            if (!extend)
+                return;
 
-                if (!extend) break;
+            bucket.setActivated(true);
+            state = INTAKING;
+            sample = null;
+        } else if (state == EJECTING_SAMPLE || state == INTAKING){
+            // We're already extended
+            if (extend)
+                return;
 
-                bucket.setActivated(true);
-                state = INTAKING;
-                sample = null;
 
-                break;
+            if (hasSample()) {
 
-            case EJECTING_SAMPLE:
-            case INTAKING:
+                state = BUCKET_SEMI_RETRACTING;
+                rollerSpeed = SPEED_HOLDING;
+                timer.reset();
+                return;
 
-                if (extend) break;
+            }
 
-                if (hasSample()) {
-
-                    state = BUCKET_SEMI_RETRACTING;
-                    rollerSpeed = SPEED_HOLDING;
-                    timer.reset();
-                    break;
-
-                }
-
-                extendo.setExtended(false);
-                state = RETRACTED;
-                bucket.setActivated(false);
-                rollerSpeed = 0;
-
-                break;
+            extendo.setExtended(false);
+            state = RETRACTED;
+            bucket.setActivated(false);
+            rollerSpeed = 0;
 
         }
     }

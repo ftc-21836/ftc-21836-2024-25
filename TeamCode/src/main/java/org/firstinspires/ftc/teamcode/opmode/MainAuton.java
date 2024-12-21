@@ -75,7 +75,9 @@ public final class MainAuton extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(DPAD_UP))   selection = selection.plus(-1);
             if (gamepadEx1.wasJustPressed(DPAD_DOWN)) selection = selection.plus(1);
 
-            if (gamepadEx1.wasJustPressed(X)) switch (selection) {
+            if (gamepadEx1.wasJustPressed(X))
+                switch (selection) {
+
                 case EDITING_ALLIANCE:
                     isRedAlliance = !isRedAlliance;
                     break;
@@ -89,7 +91,8 @@ public final class MainAuton extends LinearOpMode {
                 default:
                     cycle = !cycle;
                     break;
-            }
+
+                }
 
             if (selection == EDITING_WAIT) {
                 if (gamepadEx1.wasJustPressed(Y)) partnerWait += 0.5;
@@ -107,8 +110,8 @@ public final class MainAuton extends LinearOpMode {
         robot.deposit.preload();
         robot.run();
 
-        TeamPropDetector detector = new TeamPropDetector(hardwareMap);
-        detector.pipeline.isRedAlliance = isRedAlliance;
+//        TeamPropDetector detector = new TeamPropDetector(hardwareMap);
+//        detector.pipeline.isRedAlliance = isRedAlliance;
 
 //        EditablePose startPose = OpModeVars.startPose.byBoth();
 //        robot.drivetrain.setPoseEstimate(startPose);
@@ -116,15 +119,15 @@ public final class MainAuton extends LinearOpMode {
 //        TrajectorySequence[] sequences = generateTrajectories(startPose);
 
         while (opModeInInit()) {
-            detector.printTelemetry();
+//            detector.printTelemetry();
             mTelemetry.addLine();
             mTelemetry.addLine();
             printConfig(selection, isRight, cycle, parking, partnerWait);
             mTelemetry.update();
         }
 
-        PropDetectPipeline.Randomization location = detector.pipeline.getLocation();
-        detector.stop();
+//        PropDetectPipeline.Randomization location = detector.pipeline.getLocation();
+//        detector.stop();
 
 //        robot.drivetrain.followTrajectorySequenceAsync(sequences[location.ordinal()]);
 
