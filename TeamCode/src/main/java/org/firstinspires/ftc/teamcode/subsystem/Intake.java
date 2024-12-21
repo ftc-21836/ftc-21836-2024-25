@@ -45,9 +45,10 @@ public final class Intake {
             TIME_POST_TRANSFER = 0.25,
 
             SPEED_EJECTING = -0.5,
-            SPEED_POST_TRANSFER = -0.1,
+            SPEED_HOLDING = 1,
+            SPEED_INTERFACING = 0.1,
             SPEED_PRE_TRANSFER = -0.1,
-            SPEED_HOLDING = 0.5,
+            SPEED_POST_TRANSFER = -0.1,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -188,6 +189,7 @@ public final class Intake {
                 if (!extendo.isExtended() && deposit.readyToTransfer()) {
 
                     bucket.setActivated(false);
+                    rollerSpeed = SPEED_INTERFACING;
                     state = BUCKET_RETRACTING;
                     timer.reset();
 
