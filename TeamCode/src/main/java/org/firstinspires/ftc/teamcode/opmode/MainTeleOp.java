@@ -88,7 +88,7 @@ public final class MainTeleOp extends LinearOpMode {
                     robot.deposit.transfer(NEUTRAL);
                     break;
                 case PRELOAD_SPECIMEN:
-                    robot.deposit.preload();
+                    robot.deposit.preloadSpecimen();
                     break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;

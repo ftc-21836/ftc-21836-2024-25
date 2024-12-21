@@ -163,7 +163,7 @@ public final class Deposit {
         lift.run(liftCanMove, climbing);
     }
 
-    public void preload() {
+    public void preloadSpecimen() {
         Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
