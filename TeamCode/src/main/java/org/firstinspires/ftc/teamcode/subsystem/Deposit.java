@@ -16,6 +16,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
@@ -40,10 +41,10 @@ public final class Deposit {
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_ARM_SAFE = 7,
             HEIGHT_OBSERVATION_ZONE = 0,
-            HEIGHT_BASKET_LOW = 10,
-            HEIGHT_BASKET_HIGH = 22,
+            HEIGHT_BASKET_LOW = 6,
+            HEIGHT_BASKET_HIGH = 18,
             HEIGHT_INTAKING_SPECIMEN = 7,
-            HEIGHT_OFFSET_SPECIMEN_INTAKED = 1,
+            HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
             HEIGHT_CHAMBER_LOW = 9,
             HEIGHT_CHAMBER_HIGH = 12,
             HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
@@ -79,7 +80,7 @@ public final class Deposit {
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    private Sample sample, specimenColor = RED;
+    private Sample sample, specimenColor = NEUTRAL;
 
     private Deposit.State state = RETRACTED;
 
