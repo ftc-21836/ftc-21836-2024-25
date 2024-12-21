@@ -155,7 +155,7 @@ public final class Deposit {
 
         boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
 
-        arm.setPosition(armCanMove ? state.armPosition : Arm.TRANSFER);
+        if (armCanMove) arm.setPosition(state.armPosition);
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
