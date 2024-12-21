@@ -2,16 +2,12 @@ package com.example.meepmeeptesting;
 
 import static java.lang.Math.PI;
 
-import com.acmerobotics.roadrunner.Pose2d;
-
-import java.util.PrimitiveIterator;
-
 public final class AutonVars {
 
     public static double
             SIZE_WINDOW = 720,
-            LENGTH_ROBOT = 17.3984665354,
-            WIDTH_ROBOT = 16.4220472441,
+            LENGTH_ROBOT = 17.30327,
+            WIDTH_ROBOT = 16.42126,
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             X_START_LEFT = SIZE_TILE * -1.5,
@@ -32,6 +28,5 @@ public final class AutonVars {
     }
 
     public static EditablePose
-            startPose = new EditablePose(X_START_RIGHT, Y_START, 0.5 * PI)
-            ;
+            startPose = new EditablePose(X_START_RIGHT, Y_START, 0.5 * PI);
 }
