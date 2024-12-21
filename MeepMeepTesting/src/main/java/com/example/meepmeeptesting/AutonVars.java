@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 
 import java.util.PrimitiveIterator;
 
+
 public final class AutonVars {
 
     public static double
@@ -18,7 +19,7 @@ public final class AutonVars {
             X_START_RIGHT = SIZE_TILE * 0.5,
             Y_START = -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5;
 
-    enum ParkingLocation {
+    public enum ParkingLocation {
         CORNER,
         OUTER,
         TOUCHING_RUNG;
