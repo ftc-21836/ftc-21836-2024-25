@@ -15,17 +15,17 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Arm {
 
     public static double
-            TIME_RETRACTED_TO_SAMPLE = 1,
-            TIME_RETRACTED_TO_INTAKING = 1,
-            TIME_INTAKING_TO_WRIST_FREE = 1,
-            TIME_INTAKING_TO_SPEC = 1,
+            TIME_RETRACTED_TO_SAMPLE = 0.85,
+            TIME_RETRACTED_TO_INTAKING = 0.65,
+            TIME_INTAKING_TO_WRIST_FREE = 0.2,
+            TIME_INTAKING_TO_SPEC = 0.65,
             TIME_SPEC_TO_SCORED = 1,
-            TIME_SCORING_SPEC_TO_RETRACTED = 1;
+            TIME_SCORING_SPEC_TO_RETRACTED = 0.35;
 
     public static Arm.Position
             INTAKING =  new Arm.Position(285, 0, "INTAKING"),
             TRANSFER =  new Arm.Position(85, 305, "TRANSFER"),
-            POST_INTAKING =  new Arm.Position(355, 90, "POST INTAKING AVOID WALL"),
+            POST_INTAKING =  new Arm.Position(355, 75, "POST INTAKING AVOID WALL"),
             SPECIMEN =  new Arm.Position(285, 215, "SPECIMEN"),
             SCORING_SPEC = new Arm.Position(285, 215, "SCORING SPEC"),
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
