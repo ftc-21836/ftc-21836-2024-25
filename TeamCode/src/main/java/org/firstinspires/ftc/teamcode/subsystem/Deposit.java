@@ -147,10 +147,10 @@ public final class Deposit {
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
-        boolean underhand = state.armPosition == Arm.INTAKING;
-        boolean armHittingDrivetrain = belowSafeHeight && underhand;
+        boolean movingToUnderhand = state.armPosition == Arm.INTAKING;
+        boolean armWouldHitDrivetrain = belowSafeHeight && movingToUnderhand;
 
-        boolean armCanMove = !armHittingDrivetrain && (aboveIntake || intakeClear);
+        boolean armCanMove = !armWouldHitDrivetrain && (aboveIntake || intakeClear);
 
         if (armCanMove) arm.setPosition(
                 state == HAS_SPECIMEN && timer.seconds() <= TIME_POST_INTAKE_SWING ?
