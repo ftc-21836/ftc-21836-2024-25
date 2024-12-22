@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static com.acmerobotics.roadrunner.Math.lerp;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_117;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
@@ -28,6 +29,7 @@ public final class Extendo {
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
             SPEED_RETRACTION = -0.5,
+            TOUCHPAD_RANGE = 0.8,
             LENGTH_RETRACTING = 15,
             LENGTH_SLOW_ROLLER = 10,
             LENGTH_DEPOSIT_CLEAR = 150,
@@ -124,8 +126,7 @@ public final class Extendo {
     }
 
     public void setWithTouchpad(double x) {
-        x = 0.5 * (x + 1);
-        setTarget(x < .1 ? 0 : x * Extendo.LENGTH_EXTENDED);
+        setTarget(lerp(x, -TOUCHPAD_RANGE, TOUCHPAD_RANGE, 0, LENGTH_EXTENDED));
     }
 
     boolean isExtended() {
