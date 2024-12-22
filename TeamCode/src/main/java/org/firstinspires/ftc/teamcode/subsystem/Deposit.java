@@ -89,7 +89,7 @@ public final class Deposit {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
-        claw.turnToAngle(ANGLE_CLAW_OPEN + 1);
+        claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
@@ -151,10 +151,8 @@ public final class Deposit {
 
         boolean armCanMove = !armWouldHitDrivetrain && (aboveIntake || intakeClear);
 
-        if (armCanMove) {
-            arm.setTarget(state.armPosition);
-            arm.run();
-        }
+        arm.setTarget(state.armPosition);
+        if (armCanMove) arm.run();
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.collidingWithIntake() || intakeClear);
