@@ -125,7 +125,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (arm.reachedTarget()) triggerClaw();
+                if (arm.atPosition(Arm.SCORING_SPEC)) triggerClaw();
                 else break;
 
             case RELEASING_SPECIMEN:
