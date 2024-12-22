@@ -31,7 +31,7 @@ public final class Extendo {
             TOUCHPAD_RANGE = 0.8,
             LENGTH_RETRACTING = 15,
             LENGTH_SLOW_ROLLER = 10,
-            LENGTH_DEPOSIT_CLEAR = 150,
+            LENGTH_DEPOSIT_CLEAR = 80,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
             LENGTH_EXTENDED = 410,
             kS = 0;
