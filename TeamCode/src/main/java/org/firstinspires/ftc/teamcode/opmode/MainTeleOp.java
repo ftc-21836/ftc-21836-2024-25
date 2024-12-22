@@ -11,8 +11,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
@@ -127,12 +125,11 @@ public final class MainTeleOp extends LinearOpMode {
             double leftX = gamepadEx1.getLeftX();
             double leftY = gamepadEx1.getLeftY();
 
-            double rTrigger = gamepadEx1.getTrigger(RIGHT_TRIGGER);
-            double lTrigger = gamepadEx1.getTrigger(LEFT_TRIGGER);
+            double triggers = gamepad1.right_trigger - gamepad1.left_trigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.extendo.runManual(rTrigger - lTrigger);
+                robot.intake.extendo.runManual(triggers);
                 robot.deposit.lift.runManual(leftY);
                 robot.intake.runRoller(0);
                 
@@ -147,7 +144,7 @@ public final class MainTeleOp extends LinearOpMode {
                 if (gamepad1.touchpad) {
                     robot.intake.extendo.setTarget(0.5 * (gamepad1.touchpad_finger_1_x + 1) * Extendo.LENGTH_EXTENDED);
                 }
-                robot.intake.runRoller(rTrigger - lTrigger);
+                robot.intake.runRoller(triggers);
                 robot.deposit.lift.runManual(0);
 
                 if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
@@ -168,7 +165,7 @@ public final class MainTeleOp extends LinearOpMode {
                         leftX,
                         leftY,
                         rightX,
-                        slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || rTrigger > 0,
+                        slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
                         useFieldCentric
                 );
 
