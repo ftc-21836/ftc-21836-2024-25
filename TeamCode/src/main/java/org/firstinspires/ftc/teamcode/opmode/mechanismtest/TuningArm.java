@@ -76,7 +76,7 @@ public final class TuningArm extends LinearOpMode {
             claw.turnToAngle(closed ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
 
             arm.printTelemetry();
-            mTelemetry.addData("Time to reach target", seconds);
+            mTelemetry.addData("Time to reach target (sec)", seconds);
             divider();
             mTelemetry.addData("CLAW", closed ? "CLOSED" : "OPEN");
             mTelemetry.update();
