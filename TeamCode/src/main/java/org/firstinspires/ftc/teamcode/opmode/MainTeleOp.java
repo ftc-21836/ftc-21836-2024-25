@@ -137,6 +137,7 @@ public final class MainTeleOp extends LinearOpMode {
 
                 // SET HEADING:
                 robot.drivetrain.setHeadingFromStick(rightX, gamepadEx1.getRightY());
+                robot.drivetrain.run(0, 0, 0, false, true);
 
             } else {
 
