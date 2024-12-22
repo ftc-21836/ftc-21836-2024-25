@@ -75,11 +75,10 @@ public final class Arm {
         if (this.target == target) return;
         lastTarget = this.target;
         this.target = target;
+        timer.reset();
     }
 
     public void run() {
-
-        if (target != lastTarget) timer.reset();
 
         Position target = this.target == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE ?
                                 Arm.POST_INTAKING :
@@ -94,7 +93,7 @@ public final class Arm {
     }
 
     public void printTelemetry() {
-        mTelemetry.addData("ARM", target.name);
+        mTelemetry.addLine("ARM:");
         mTelemetry.addLine();
         mTelemetry.addLine((reachedTarget() ? "Reached " : "Moving to ") + target.name + " (from " + lastTarget.name + ")");
     }
