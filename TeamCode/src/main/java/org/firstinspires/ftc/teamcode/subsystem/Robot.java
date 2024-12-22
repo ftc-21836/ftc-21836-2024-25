@@ -42,8 +42,7 @@ public final class Robot {
     }
 
     public boolean requestingSlowMode() {
-        return false;
-//                deposit.movingToScore() && intake.clearOfDeposit(); // deposit intends to move and intake is not blocking it
+        return intake.extendo.getTarget() > 0;
     }
 
     public void printTelemetry() {
