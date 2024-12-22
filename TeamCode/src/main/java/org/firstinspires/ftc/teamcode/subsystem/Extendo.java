@@ -119,8 +119,13 @@ public final class Extendo {
         return target;
     }
 
-    public void setTarget(double millimeters) {
+    void setTarget(double millimeters) {
         target = millimeters;
+    }
+
+    public void setWithTouchpad(double x) {
+        x = 0.5 * (x + 1);
+        setTarget(x < .1 ? 0 : x * Extendo.LENGTH_EXTENDED);
     }
 
     boolean isExtended() {

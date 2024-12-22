@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.subsystem.Extendo;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 @TeleOp
@@ -141,9 +140,7 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                if (gamepad1.touchpad) {
-                    robot.intake.extendo.setTarget(0.5 * (gamepad1.touchpad_finger_1_x + 1) * Extendo.LENGTH_EXTENDED);
-                }
+                if (gamepad1.touchpad) robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
                 robot.intake.runRoller(triggers);
                 robot.deposit.lift.runManual(0);
 
