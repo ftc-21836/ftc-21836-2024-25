@@ -44,20 +44,16 @@ public final class Arm {
     }
 
     private double timeToReachTarget() {
-
-        if (target == TRANSFER) {
-
-            if (lastTarget == INTAKING) return TIME_RETRACTED_TO_INTAKING;
-            if (lastTarget == SAMPLE) return TIME_RETRACTED_TO_SAMPLE;
-            return TIME_SCORING_SPEC_TO_RETRACTED;
-
-        }
-
-        if (target == INTAKING)                                   return TIME_RETRACTED_TO_INTAKING;
-        if (target == POST_INTAKING || target == SPECIMEN)   return TIME_INTAKING_TO_SPEC;
-        if (target == SCORING_SPEC)                               return TIME_SPEC_TO_SCORED;
-        if (target == SAMPLE)                                     return TIME_RETRACTED_TO_SAMPLE;
-        return 1;
+        return
+                target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
+                target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
+                target == SCORING_SPEC ?    TIME_SPEC_TO_SCORED :
+                target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
+                target == TRANSFER ?
+                        lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
+                        lastTarget == SAMPLE ?      TIME_RETRACTED_TO_SAMPLE :
+                                                    TIME_SCORING_SPEC_TO_RETRACTED :
+                1;
     }
 
     boolean reachedTarget() {
