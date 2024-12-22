@@ -125,11 +125,11 @@ public final class Extendo {
     }
 
     public void setWithTouchpad(double x) {
-        setTarget(Extendo.LENGTH_EXTENDED * (
-                x > TOUCHPAD_RANGE ? 1 :
+        setTarget(
                 x < -TOUCHPAD_RANGE ? 0 :
-                0.5 * (x + 1)
-        ));
+                x > TOUCHPAD_RANGE ? LENGTH_EXTENDED :
+                LENGTH_EXTENDED * 0.5 * (x + 1)
+        );
     }
 
     boolean isExtended() {
