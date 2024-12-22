@@ -26,8 +26,8 @@ public final class Arm {
             INTAKING =  new Arm.Position(285, 0, "INTAKING"),
             TRANSFER =  new Arm.Position(85, 305, "TRANSFER"),
             POST_INTAKING =  new Arm.Position(355, 75, "POST INTAKING AVOID WALL"),
-            SPECIMEN =  new Arm.Position(285, 215, "SPECIMEN"),
-            SCORING_SPEC = new Arm.Position(285, 215, "SCORING SPEC"),
+            SPECIMEN =  new Arm.Position(260, 300, "SPECIMEN"),
+            SCORING_SPEC = new Arm.Position(355, 290, "SCORING SPEC"),
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
