@@ -32,6 +32,7 @@ public final class Arm {
 
     private final ElapsedTime timer = new ElapsedTime();
 
+    private final Arm.Position startPos = new Position(TRANSFER.left + 1, TRANSFER.right - 1, "START POSITION");
     private Arm.Position target = TRANSFER, lastTarget = TRANSFER;
     private final CachedSimpleServo rServo, lServo;
 
@@ -39,7 +40,7 @@ public final class Arm {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
 
-        setTarget(new Position(TRANSFER.left + 1, TRANSFER.right - 1, "POOPOO"));
+        setTarget(startPos);
         run();
     }
 
@@ -49,9 +50,11 @@ public final class Arm {
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SCORING_SPEC ?    TIME_SPEC_TO_SCORED :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
+                target == startPos ?        0 :
                 target == TRANSFER ?
                         lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
                         lastTarget == SAMPLE ?      TIME_RETRACTED_TO_SAMPLE :
+                        lastTarget == startPos ?    0 :
                                                     TIME_SCORING_SPEC_TO_RETRACTED :
                 1;
     }
@@ -65,7 +68,7 @@ public final class Arm {
     }
 
     boolean atPosition(Position position) {
-        return this.target == position && reachedTarget();
+        return (this.target == position || (position == TRANSFER && target == startPos)) && reachedTarget();
     }
 
     public void setTarget(Arm.Position target) {
