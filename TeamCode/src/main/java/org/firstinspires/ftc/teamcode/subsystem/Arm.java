@@ -17,79 +17,85 @@ public final class Arm {
     public static double
             TIME_RETRACTED_TO_SAMPLE = 1,
             TIME_RETRACTED_TO_INTAKING = 1,
+            TIME_INTAKING_TO_WRIST_FREE = 1,
             TIME_INTAKING_TO_SPEC = 1,
             TIME_SPEC_TO_SCORED = 1,
             TIME_SCORING_SPEC_TO_RETRACTED = 1;
 
-    public static Position
-            INTAKING =  new Position(285, 0, "INTAKING"),
-            TRANSFER =  new Position(85, 305, "TRANSFER"),
-            POST_SPEC_INTAKE =  new Position(355, 90, "POST SPEC INTAKE"),
-            SPECIMEN =  new Position(285, 215, "SPECIMEN"),
-            SCORING_SPEC = new Position(285, 215, "SCORING SPEC"),
-            SAMPLE =    new Position(355, 355, "SAMPLE");
+    public static Arm.Position
+            INTAKING =  new Arm.Position(285, 0, "INTAKING"),
+            TRANSFER =  new Arm.Position(85, 305, "TRANSFER"),
+            POST_INTAKING =  new Arm.Position(355, 90, "POST INTAKING AVOID WALL"),
+            SPECIMEN =  new Arm.Position(285, 215, "SPECIMEN"),
+            SCORING_SPEC = new Arm.Position(285, 215, "SCORING SPEC"),
+            SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    private Position position = TRANSFER, lastPosition = TRANSFER;
+    private Arm.Position target = TRANSFER, lastTarget = TRANSFER;
     private final CachedSimpleServo rServo, lServo;
 
     public Arm(HardwareMap hardwareMap) {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
 
-        setPosition(new Position(TRANSFER.left + 1, TRANSFER.right - 1, "POOPOO"));
+        setTarget(new Position(TRANSFER.left + 1, TRANSFER.right - 1, "POOPOO"));
+        run();
     }
 
-    private double timeToReachPosition() {
+    private double timeToReachTarget() {
 
-        if (position == TRANSFER) {
+        if (target == TRANSFER) {
 
-            if (lastPosition == INTAKING) return TIME_RETRACTED_TO_INTAKING;
-            if (lastPosition == SAMPLE) return TIME_RETRACTED_TO_SAMPLE;
+            if (lastTarget == INTAKING) return TIME_RETRACTED_TO_INTAKING;
+            if (lastTarget == SAMPLE) return TIME_RETRACTED_TO_SAMPLE;
             return TIME_SCORING_SPEC_TO_RETRACTED;
 
         }
 
-        if (position == INTAKING)                                   return TIME_RETRACTED_TO_INTAKING;
-        if (position == POST_SPEC_INTAKE || position == SPECIMEN)   return TIME_INTAKING_TO_SPEC;
-        if (position == SCORING_SPEC)                               return TIME_SPEC_TO_SCORED;
-        if (position == SAMPLE)                                     return TIME_RETRACTED_TO_SAMPLE;
+        if (target == INTAKING)                                   return TIME_RETRACTED_TO_INTAKING;
+        if (target == POST_INTAKING || target == SPECIMEN)   return TIME_INTAKING_TO_SPEC;
+        if (target == SCORING_SPEC)                               return TIME_SPEC_TO_SCORED;
+        if (target == SAMPLE)                                     return TIME_RETRACTED_TO_SAMPLE;
         return 1;
     }
 
-    boolean reachedPosition() {
-        return timer.seconds() >= timeToReachPosition();
+    boolean reachedTarget() {
+        return timer.seconds() >= timeToReachTarget();
     }
 
     boolean isUnderhand() {
-        return position == INTAKING || (lastPosition == INTAKING && timer.seconds() < TIME_RETRACTED_TO_INTAKING);
+        return target == INTAKING || (lastTarget == INTAKING && timer.seconds() < TIME_RETRACTED_TO_INTAKING);
     }
 
     boolean atPosition(Position position) {
-        return this.position == position && reachedPosition();
+        return this.target == position && reachedTarget();
     }
 
-    public void setPosition(Arm.Position position) {
+    public void setTarget(Arm.Position target) {
+        this.target = target;
+        if (target != lastTarget) timer.reset();
+        lastTarget = target;
+    }
 
-        this.position = position;
+    public void run() {
 
-        if (position != lastPosition) timer.reset();
+        Position target = this.target == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE ?
+                                Arm.POST_INTAKING :
+                                this.target;
 
-        lastPosition = position;
-
-        rServo.turnToAngle(position.right);
-        lServo.turnToAngle(position.left);
+        rServo.turnToAngle(target.right);
+        lServo.turnToAngle(target.left);
     }
 
     boolean collidingWithIntake() {
-        return !reachedPosition() || position == POST_SPEC_INTAKE || position == SPECIMEN || position == SCORING_SPEC;
+        return !reachedTarget() || target == POST_INTAKING || target == SPECIMEN || target == SCORING_SPEC;
     }
 
     public void printTelemetry() {
-        mTelemetry.addData("ARM", position.name);
+        mTelemetry.addData("ARM", target.name);
         mTelemetry.addLine();
-        mTelemetry.addLine((reachedPosition() ? "Reached " : "Moving to ") + position.name + " (from " + lastPosition.name + ")");
+        mTelemetry.addLine((reachedTarget() ? "Reached " : "Moving to ") + target.name + " (from " + lastTarget.name + ")");
     }
 
     public static final class Position {

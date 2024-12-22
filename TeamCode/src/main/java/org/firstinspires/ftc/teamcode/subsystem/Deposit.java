@@ -33,10 +33,9 @@ public final class Deposit {
             ANGLE_CLAW_TRANSFER = 45,
             ANGLE_CLAW_CLOSED = 7,
 
+            TIME_SAMPLE_RELEASE = 0.5,
+            TIME_SPEC_GRAB = 0.25,
             TIME_SPEC_RELEASE = 0.5,
-            TIME_SAMPLE = 0.5,
-            TIME_GRAB = 0.25,
-            TIME_POST_INTAKE_SWING = 1,
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_ARM_SAFE = 7,
@@ -101,7 +100,7 @@ public final class Deposit {
 
             case SAMPLE_FALLING:
 
-                if (timer.seconds() >= TIME_SAMPLE) {
+                if (timer.seconds() >= TIME_SAMPLE_RELEASE) {
                     state = RETRACTED;
                     setPosition(FLOOR);
                 }
@@ -115,7 +114,7 @@ public final class Deposit {
 
             case GRABBING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_GRAB) triggerClaw();
+                if (timer.seconds() >= TIME_SPEC_GRAB) triggerClaw();
                 else break;
 
             case RAISING_SPECIMEN:
@@ -126,7 +125,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (arm.reachedPosition()) triggerClaw();
+                if (arm.reachedTarget()) triggerClaw();
                 else break;
 
             case RELEASING_SPECIMEN:
@@ -152,11 +151,10 @@ public final class Deposit {
 
         boolean armCanMove = !armWouldHitDrivetrain && (aboveIntake || intakeClear);
 
-        if (armCanMove) arm.setPosition(
-                state == HAS_SPECIMEN && timer.seconds() <= TIME_POST_INTAKE_SWING ?
-                        Arm.POST_SPEC_INTAKE :
-                        state.armPosition
-        );
+        if (armCanMove) {
+            arm.setTarget(state.armPosition);
+            arm.run();
+        }
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.collidingWithIntake() || intakeClear);

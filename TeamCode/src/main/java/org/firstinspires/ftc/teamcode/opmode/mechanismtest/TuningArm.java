@@ -5,6 +5,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.INTAKING;
@@ -20,6 +21,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
@@ -35,6 +37,9 @@ public final class TuningArm extends LinearOpMode {
 
         boolean closed = false;
 
+        ElapsedTime timer = new ElapsedTime();
+        double seconds = 0;
+
         // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -46,15 +51,32 @@ public final class TuningArm extends LinearOpMode {
 
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(DPAD_DOWN))   arm.setPosition(INTAKING);
-            if (gamepadEx1.wasJustPressed(DPAD_UP))     arm.setPosition(SAMPLE);
-            if (gamepadEx1.wasJustPressed(DPAD_LEFT))   arm.setPosition(SPECIMEN);
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))  arm.setPosition(TRANSFER);
+            if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                arm.setTarget(INTAKING);
+                timer.reset();
+            }
+            if (gamepadEx1.wasJustPressed(DPAD_UP)) {
+                arm.setTarget(SAMPLE);
+                timer.reset();
+            }
+            if (gamepadEx1.wasJustPressed(DPAD_LEFT)) {
+                arm.setTarget(SPECIMEN);
+                timer.reset();
+            }
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) {
+                arm.setTarget(TRANSFER);
+                timer.reset();
+            }
+
+            if (gamepadEx1.wasJustPressed(X)) seconds = timer.seconds();
+
+            arm.run();
 
             if (gamepadEx1.wasJustPressed(B)) closed = !closed;
             claw.turnToAngle(closed ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
 
             arm.printTelemetry();
+            mTelemetry.addData("Time to reach target", seconds);
             divider();
             mTelemetry.addData("CLAW", closed ? "CLOSED" : "OPEN");
             mTelemetry.update();
