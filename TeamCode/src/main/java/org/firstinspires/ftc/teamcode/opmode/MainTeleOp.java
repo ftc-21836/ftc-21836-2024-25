@@ -15,8 +15,8 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.LEFT_TRIGGER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Trigger.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
-import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
+import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
@@ -27,7 +27,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
-import static java.lang.Math.atan2;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -141,10 +140,7 @@ public final class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON))  robot.drivetrain.localizer.reset();
 
                 // SET HEADING:
-                double y = gamepadEx1.getRightY(), x = rightX;
-                if (x*x + y*y >= 0.64) robot.drivetrain.localizer.setHeading(-atan2(y, x));
-
-                rightX = leftX = leftY = 0;
+                robot.drivetrain.setHeadingFromStick(rightX, gamepadEx1.getRightY());
 
             } else {
 
@@ -166,17 +162,17 @@ public final class MainTeleOp extends LinearOpMode {
 
                 } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
+                robot.drivetrain.run(
+                        leftX,
+                        leftY,
+                        rightX,
+                        slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || rTrigger > 0,
+                        useFieldCentric
+                );
+
             }
 
             robot.run();
-
-            robot.drivetrain.run(
-                    leftX,
-                    leftY,
-                    rightX,
-                    slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || rTrigger > 0,
-                    useFieldCentric
-            );
 
             mTelemetry.addData("LOOP TIME", loopTimer.seconds());
             loopTimer.reset();
