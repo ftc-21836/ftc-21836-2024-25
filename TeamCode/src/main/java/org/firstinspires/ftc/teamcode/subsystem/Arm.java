@@ -89,7 +89,7 @@ public final class Arm {
     }
 
     boolean collidingWithIntake() {
-        return !reachedTarget() || target == POST_INTAKING || target == SPECIMEN || target == SCORING_SPEC;
+        return !reachedTarget() || target == SPECIMEN || target == SCORING_SPEC;
     }
 
     public void printTelemetry() {
