@@ -72,15 +72,14 @@ public final class Arm {
     }
 
     public void setTarget(Arm.Position target) {
+        if (this.target == target) return;
+        lastTarget = this.target;
         this.target = target;
     }
 
     public void run() {
 
-        if (target != lastTarget) {
-            timer.reset();
-            lastTarget = target;
-        }
+        if (target != lastTarget) timer.reset();
 
         Position target = this.target == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE ?
                                 Arm.POST_INTAKING :
