@@ -186,10 +186,13 @@ public final class Intake {
 
                 extendo.setExtended(false);
 
+                if (extendo.getPosition() <= Extendo.LENGTH_SLOW_ROLLER) {
+                    rollerSpeed = SPEED_INTERFACING;
+                }
+
                 if (!extendo.isExtended() && deposit.readyToTransfer()) {
 
                     bucket.setActivated(false);
-                    rollerSpeed = SPEED_INTERFACING;
                     state = BUCKET_RETRACTING;
                     timer.reset();
 

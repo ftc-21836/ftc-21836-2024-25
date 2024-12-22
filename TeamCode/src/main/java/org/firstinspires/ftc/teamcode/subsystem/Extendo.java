@@ -29,6 +29,7 @@ public final class Extendo {
             SCALAR_MANUAL_SPEED = 1.0,
             SPEED_RETRACTION = -0.5,
             LENGTH_RETRACTING = 15,
+            LENGTH_SLOW_ROLLER = 10,
             LENGTH_DEPOSIT_CLEAR = 150,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
             LENGTH_EXTENDED = 410,
