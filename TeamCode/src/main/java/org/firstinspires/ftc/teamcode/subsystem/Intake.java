@@ -49,6 +49,7 @@ public final class Intake {
             SPEED_INTERFACING = 0.1,
             SPEED_PRE_TRANSFER = -0.1,
             SPEED_POST_TRANSFER = -0.1,
+            SPEED_RETRACTED = 0,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -235,7 +236,7 @@ public final class Intake {
 
             case RETRACTED:
 
-                if (timer.seconds() >= TIME_POST_TRANSFER) rollerSpeed = 0;
+                if (timer.seconds() >= TIME_POST_TRANSFER) rollerSpeed = SPEED_RETRACTED;
 
                 break;
         }
@@ -328,7 +329,7 @@ public final class Intake {
                 extendo.setExtended(false);
                 state = RETRACTED;
                 bucket.setActivated(false);
-                rollerSpeed = 0;
+                rollerSpeed = SPEED_RETRACTED;
 
                 break;
 
