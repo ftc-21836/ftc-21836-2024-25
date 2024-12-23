@@ -32,7 +32,7 @@ public final class Extendo {
             LENGTH_RETRACTING = 15,
             LENGTH_SLOW_ROLLER = 10,
             LENGTH_BUCKET_DOWN = 15,
-            LENGTH_DEPOSIT_CLEAR = 80,
+            LENGTH_DEPOSIT_CLEAR = 90,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
             LENGTH_EXTENDED = 410,
             kS = 0;
