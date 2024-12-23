@@ -251,7 +251,9 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        extendo.run(!deposit.requestingIntakeToMove() || climbing || state == TRANSFERRING, bucket.isActivated());
+        boolean bucketDown = bucket.isActivated() && ANGLE_BUCKET_EXTENDED > 0.5 * (ANGLE_BUCKET_OVER_BARRIER + ANGLE_BUCKET_INTAKING_NEAR);
+
+        extendo.run(!deposit.requestingIntakeToMove() || climbing || state == TRANSFERRING, bucketDown);
 
         roller.setPower(deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
     }
