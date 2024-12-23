@@ -94,7 +94,7 @@ public final class Deposit {
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
 
-        // release sample when climbing begins
+        // home arm when climbing begins
         if (climbing) state = RETRACTED;
         else switch (state) {
 
