@@ -31,6 +31,7 @@ public final class Extendo {
             TOUCHPAD_RANGE = 0.8,
             LENGTH_RETRACTING = 15,
             LENGTH_SLOW_ROLLER = 10,
+            LENGTH_BUCKET_DOWN = 15,
             LENGTH_DEPOSIT_CLEAR = 80,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
             LENGTH_EXTENDED = 410,
@@ -74,9 +75,12 @@ public final class Extendo {
         this.manualPower = power * SCALAR_MANUAL_SPEED;
     }
 
-    public void run(boolean canRetract) {
+    public void run(boolean canRetract, boolean bucketDown) {
 
-        double setpoint = canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE);
+        double setpoint =
+                !canRetract ?   max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE) :
+                bucketDown ?    max (getTarget(), LENGTH_BUCKET_DOWN) :
+                                getTarget();
 
         // When the magnet hits
         if (setpoint == 0 && !isExtended() && manualPower <= 0) reset();
