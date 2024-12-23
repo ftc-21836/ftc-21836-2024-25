@@ -31,6 +31,10 @@ public final class Arm {
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
+    private boolean startedTiming = true;
+    private double getTimeTraveled() {
+        return startedTiming ? timer.seconds() : 0;
+    }
 
     private final Arm.Position startPos = new Position(TRANSFER.left + 1, TRANSFER.right - 1, "START POSITION");
     private Arm.Position target = TRANSFER, lastTarget = TRANSFER;
@@ -60,11 +64,11 @@ public final class Arm {
     }
 
     boolean reachedTarget() {
-        return timer.seconds() >= timeToReachTarget();
+        return getTimeTraveled() >= timeToReachTarget();
     }
 
     boolean isUnderhand() {
-        return target == INTAKING || (lastTarget == INTAKING && timer.seconds() < TIME_RETRACTED_TO_INTAKING);
+        return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_RETRACTED_TO_INTAKING);
     }
 
     boolean atPosition(Position position) {
@@ -75,12 +79,17 @@ public final class Arm {
         if (this.target == target) return;
         lastTarget = this.target;
         this.target = target;
-        timer.reset();
+        startedTiming = false;
     }
 
     public void run() {
 
-        Position target = this.target == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE ?
+        if (!startedTiming) {
+            timer.reset();
+            startedTiming = true;
+        }
+
+        Position target = this.target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
                                 Arm.POST_INTAKING :
                                 this.target;
 
