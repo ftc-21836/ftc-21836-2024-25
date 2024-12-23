@@ -253,7 +253,7 @@ public final class Intake {
 
         extendo.run(!deposit.requestingIntakeToMove() || climbing || state == TRANSFERRING, bucket.isActivated());
 
-        roller.setPower(deposit.hasSample() ? 0 : rollerSpeed);
+        roller.setPower(deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
     }
 
     public void transfer(Deposit deposit, Sample sample) {
