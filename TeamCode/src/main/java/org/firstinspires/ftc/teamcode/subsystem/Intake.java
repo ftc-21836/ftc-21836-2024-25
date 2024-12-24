@@ -288,7 +288,7 @@ public final class Intake {
         return (1 - t) * start + t * end;
     }
 
-    boolean hasSample() {
+    public boolean hasSample() {
         return sample != null;
     }
 

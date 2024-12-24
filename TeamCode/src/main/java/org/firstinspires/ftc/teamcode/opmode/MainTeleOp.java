@@ -31,6 +31,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
@@ -58,7 +59,17 @@ public final class MainTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ElapsedTime loopTimer = new ElapsedTime();
+        ElapsedTime loopTimer = new ElapsedTime(), matchTimer = new ElapsedTime();
+
+        double TELE = 120; // seconds
+        double CLIMB_TIME = TELE - 15; // 15 seconds for climb
+        boolean rumbledClimb = false, rumbledSample = false;
+
+        Gamepad.RumbleEffect climbReminder = new Gamepad.RumbleEffect.Builder()
+                .addStep(1.0, 1.0, 500)  //  Rumble both 100% for 500 mSec
+                .addStep(0.0, 0.0, 250)  //  Pause for 250 mSec
+                .addStep(1.0, 1.0, 500)  //  Rumble left motor 100% for 250 mSec
+                .build();
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -112,6 +123,8 @@ public final class MainTeleOp extends LinearOpMode {
         robot.intake.setAlliance(isRedAlliance);
         robot.deposit.setAlliance(isRedAlliance);
 
+        matchTimer.reset();
+
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // Control loop:
@@ -141,7 +154,9 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                if (gamepad1.touchpad_finger_1) robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
+                if (gamepad1.touchpad_finger_1) {
+                    robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
+                }
                 robot.intake.runRoller(triggers);
                 robot.deposit.lift.runManual(0);
 
@@ -176,6 +191,18 @@ public final class MainTeleOp extends LinearOpMode {
             divider();
             robot.printTelemetry();
             mTelemetry.update();
+
+            if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
+                gamepad1.runRumbleEffect(climbReminder);
+                rumbledClimb = true;
+            }
+
+            if (!robot.intake.hasSample()) rumbledSample = false;
+            else if (!gamepad1.isRumbling() && !rumbledSample) {
+                gamepad1.rumbleBlips(2);
+                rumbledSample = true;
+            }
+
         }
     }
 }
