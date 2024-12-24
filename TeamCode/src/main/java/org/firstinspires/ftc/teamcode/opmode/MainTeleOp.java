@@ -160,8 +160,9 @@ public final class MainTeleOp extends LinearOpMode {
                 if (gamepad1.touchpad_finger_1) {
                     robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
                 }
-                robot.intake.runRoller(triggers);
+                robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
+                robot.intake.runRoller(triggers);
 
                 if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
                 if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
