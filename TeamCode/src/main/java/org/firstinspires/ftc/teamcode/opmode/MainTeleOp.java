@@ -24,7 +24,9 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
+import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -35,6 +37,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
+import org.firstinspires.ftc.teamcode.subsystem.Sample;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
@@ -202,6 +205,14 @@ public final class MainTeleOp extends LinearOpMode {
                 gamepad1.runRumbleEffect(sampleRumble);
                 rumbledSample = true;
             }
+
+            Sample sample = robot.getSample();
+            gamepad1.setLedColor(
+                    sample == RED || sample == NEUTRAL ? 1 : 0,
+                    sample == NEUTRAL ? 1 : 0,
+                    sample == BLUE ? 1 : 0,
+                    Gamepad.LED_DURATION_CONTINUOUS
+            );
 
         }
     }

@@ -292,6 +292,10 @@ public final class Intake {
         return sample != null;
     }
 
+    Sample getSample() {
+        return sample;
+    }
+
     boolean clearOfDeposit() {
         return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR;
     }

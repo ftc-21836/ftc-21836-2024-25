@@ -41,6 +41,13 @@ public final class Robot {
         climber.run();
     }
 
+    public Sample getSample() {
+        return
+                intake.hasSample() ?    intake.getSample() :
+                deposit.hasSample() ?   deposit.getSample() :
+                                        null;
+    }
+
     public boolean requestingSlowMode() {
         return false;
     }

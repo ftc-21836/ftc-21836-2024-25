@@ -288,6 +288,10 @@ public final class Deposit {
         return sample != null;
     }
 
+    Sample getSample() {
+        return sample;
+    }
+
     public void transfer(Sample sample) {
         if (sample == null || hasSample() || state != RETRACTED) return;
         this.sample = sample;
