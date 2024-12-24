@@ -31,6 +31,7 @@ public final class Deposit {
     public static double
             ANGLE_CLAW_OPEN = 70,
             ANGLE_CLAW_TRANSFER = 60,
+            ANGLE_CLAW_TRANSFERRED = 30,
             ANGLE_CLAW_CLOSED = 13,
 
             TIME_SAMPLE_RELEASE = 0.5,
@@ -136,12 +137,6 @@ public final class Deposit {
 
         }
 
-        claw.turnToAngle(
-            hasSample() ? ANGLE_CLAW_CLOSED :
-            state == RETRACTED ? ANGLE_CLAW_TRANSFER :
-            ANGLE_CLAW_OPEN
-        );
-
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
@@ -158,6 +153,17 @@ public final class Deposit {
         boolean liftCanMove = !crushingArm && (aboveIntake || !arm.collidingWithIntake() || intakeClear);
 
         lift.run(liftCanMove, climbing);
+
+        boolean intakePullingAwayPostTransfer = state == HAS_SAMPLE && arm.atPosition(Arm.TRANSFER) && !lift.isExtended() && !intakeClear;
+        claw.turnToAngle(
+                hasSample() ?
+                        intakePullingAwayPostTransfer ?
+                                ANGLE_CLAW_TRANSFERRED :
+                                ANGLE_CLAW_CLOSED :
+                state == RETRACTED ?
+                        ANGLE_CLAW_TRANSFER :
+                        ANGLE_CLAW_OPEN
+        );
     }
 
     public void preloadSpecimen() {
@@ -287,7 +293,7 @@ public final class Deposit {
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(FLOOR);
-        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+        claw.turnToAngle(ANGLE_CLAW_TRANSFERRED);
     }
 
     void printTelemetry() {
