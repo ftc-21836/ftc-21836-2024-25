@@ -50,6 +50,7 @@ public final class Arm {
 
     private double timeToReachTarget() {
         return
+                target == lastTarget ?      0 :
                 target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SCORING_SPEC ?    TIME_SPEC_TO_SCORED :
