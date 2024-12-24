@@ -42,7 +42,7 @@ public final class Robot {
     }
 
     public boolean requestingSlowMode() {
-        return intake.extendo.getTarget() > 0;
+        return false;
     }
 
     public void printTelemetry() {

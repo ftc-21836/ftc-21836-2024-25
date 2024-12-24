@@ -31,7 +31,7 @@ public final class Intake {
 
     public static double
 
-            ANGLE_BUCKET_RETRACTED = 7,
+            ANGLE_BUCKET_RETRACTED = 7.5,
             ANGLE_BUCKET_PRE_TRANSFER = 25,
             ANGLE_BUCKET_OVER_BARRIER = 140,
             ANGLE_BUCKET_INTAKING_NEAR = 213,
@@ -39,17 +39,17 @@ public final class Intake {
 
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 1.5,
-            TIME_BUCKET_SEMI_RETRACT = 0.75,
+            TIME_BUCKET_SEMI_RETRACT = 0.5,
             TIME_PRE_TRANSFER = 0.25,
             TIME_TRANSFER = 0.25,
             TIME_POST_TRANSFER = 0.25,
 
-            SPEED_EJECTING = -0.5,
-            SPEED_HOLDING = 1,
-            SPEED_INTERFACING = 0.1,
+            SPEED_EJECTING = -0.25,
+            SPEED_HOLDING = 0.25,
+            SPEED_INTERFACING = 0.25,
             SPEED_PRE_TRANSFER = -0.1,
-            SPEED_POST_TRANSFER = -0.1,
-            SPEED_RETRACTED = 0,
+            SPEED_POST_TRANSFER = -0.2,
+            SPEED_RETRACTED = -0.05,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -187,7 +187,7 @@ public final class Intake {
 
                 extendo.setExtended(false);
 
-                if (extendo.getPosition() <= Extendo.LENGTH_SLOW_ROLLER) {
+                if (extendo.getPosition() <= Extendo.LENGTH_INTERFACING) {
                     rollerSpeed = SPEED_INTERFACING;
                 }
 
