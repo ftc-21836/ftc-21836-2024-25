@@ -65,10 +65,10 @@ public final class MainTeleOp extends LinearOpMode {
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
         boolean rumbledClimb = false, rumbledSample = false;
 
-        Gamepad.RumbleEffect climbReminder = new Gamepad.RumbleEffect.Builder()
-                .addStep(1.0, 1.0, 500)  //  Rumble both 100% for 500 mSec
-                .addStep(0.0, 0.0, 250)  //  Pause for 250 mSec
-                .addStep(1.0, 1.0, 500)  //  Rumble left motor 100% for 250 mSec
+        Gamepad.RumbleEffect sampleRumble = new Gamepad.RumbleEffect.Builder()
+                .addStep(1, 1, 250)
+                .addStep(0, 0, 100)
+                .addStep(1, 1, 250)
                 .build();
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -193,13 +193,13 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
 
             if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
-                gamepad1.runRumbleEffect(climbReminder);
+                gamepad1.rumble(1, 1, 1000);
                 rumbledClimb = true;
             }
 
             if (!robot.intake.hasSample()) rumbledSample = false;
             else if (!gamepad1.isRumbling() && !rumbledSample) {
-                gamepad1.rumbleBlips(2);
+                gamepad1.runRumbleEffect(sampleRumble);
                 rumbledSample = true;
             }
 
