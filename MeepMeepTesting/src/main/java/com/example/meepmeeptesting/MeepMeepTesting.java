@@ -6,13 +6,11 @@ import static com.example.meepmeeptesting.AutonVars.WAIT_APPROACH_BASKET;
 import static com.example.meepmeeptesting.AutonVars.WAIT_POST_INTAKING;
 import static com.example.meepmeeptesting.AutonVars.WAIT_SCORE_BASKET;
 import static com.example.meepmeeptesting.AutonVars.WIDTH_ROBOT;
-import static com.example.meepmeeptesting.AutonVars.X_START_LEFT;
-import static com.example.meepmeeptesting.AutonVars.X_START_RIGHT;
-import static com.example.meepmeeptesting.AutonVars.Y_START;
 import static com.example.meepmeeptesting.AutonVars.basket;
 import static com.example.meepmeeptesting.AutonVars.sample1;
 import static com.example.meepmeeptesting.AutonVars.sample1Floor;
-import static java.lang.Math.PI;
+import static com.example.meepmeeptesting.AutonVars.startLeft;
+import static com.example.meepmeeptesting.AutonVars.startRight;
 import static java.lang.Math.atan2;
 
 import com.acmerobotics.roadrunner.Action;
@@ -49,7 +47,7 @@ public class MeepMeepTesting {
 
         boolean isRight = false;
 
-        Pose2d startPose = new Pose2d(isRight ? X_START_RIGHT : X_START_LEFT, Y_START, isRight ? 0.5 * PI : 0);
+        Pose2d startPose = (isRight ? startRight : startLeft).toPose2d();
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width

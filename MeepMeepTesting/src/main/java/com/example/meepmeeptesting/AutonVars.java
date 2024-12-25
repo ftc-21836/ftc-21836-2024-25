@@ -1,5 +1,6 @@
 package com.example.meepmeeptesting;
 
+import static java.lang.Math.PI;
 import static java.lang.Math.toRadians;
 
 public final class AutonVars {
@@ -23,9 +24,6 @@ public final class AutonVars {
             WIDTH_ROBOT = 16.42126,
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
-            X_START_LEFT = SIZE_TILE * -1.5,
-            X_START_RIGHT = SIZE_TILE * 0.5,
-            Y_START = -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5,
             WAIT_APPROACH_BASKET = 0,
             WAIT_SCORE_BASKET = 1.5,
             WAIT_POST_INTAKING = 0.5,
@@ -35,6 +33,8 @@ public final class AutonVars {
             EXTEND_SAMPLE_3 = 300;
 
     public static EditablePose
+            startRight = new EditablePose(SIZE_TILE * 0.5, -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5, 0.5 * PI),
+            startLeft = new EditablePose(SIZE_TILE * -1.5, -SIZE_HALF_FIELD + WIDTH_ROBOT * 0.5, 0),
             sample1Floor = new EditablePose(-48, -27.75, toRadians(90)),
             basket = new EditablePose(-56, -56, toRadians(45)),
             sample1 = new EditablePose(-50, -48, toRadians(84.36)),
