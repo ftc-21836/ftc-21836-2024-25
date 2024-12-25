@@ -100,7 +100,7 @@ public final class Extendo {
             return;
         }
 
-        if (setpoint == 0 && isExtended() && position > 0 && position <= LENGTH_RETRACTING) {
+        if (setpoint == 0 && isExtended() && getPosition() > 0 && getPosition() <= LENGTH_RETRACTING) {
             motor.set(SPEED_RETRACTION);
             return;
         }
@@ -109,7 +109,7 @@ public final class Extendo {
         controller.setTarget(new State(setpoint));
 
         double power = controller.calculate(new State(getPosition()));
-        double slideBindingFF = power <= 0 ? 0 : position * kS;
+        double slideBindingFF = power <= 0 ? 0 : getPosition() * kS;
 
         motor.set(power + slideBindingFF);
     }
