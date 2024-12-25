@@ -69,9 +69,9 @@ public final class MainTeleOp extends LinearOpMode {
         boolean rumbledClimb = false, rumbledSample = false;
 
         Gamepad.RumbleEffect sampleRumble = new Gamepad.RumbleEffect.Builder()
-                .addStep(1, 1, 250)
+                .addStep(1, 1, 100)
                 .addStep(0, 0, 100)
-                .addStep(1, 1, 250)
+                .addStep(1, 1, 100)
                 .build();
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -197,7 +197,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
 
             if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
-                gamepad1.rumble(1, 1, 1000);
+                gamepad1.rumble(1, 1, 1500);
                 rumbledClimb = true;
             }
 
