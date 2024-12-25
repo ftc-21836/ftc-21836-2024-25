@@ -131,7 +131,7 @@ public final class Extendo {
         return target;
     }
 
-    void setTarget(double millimeters) {
+    public void setTarget(double millimeters) {
         target = millimeters;
     }
 
