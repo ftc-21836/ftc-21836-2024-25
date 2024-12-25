@@ -85,7 +85,7 @@ public final class Extendo {
         // When the magnet hits
         if (setpoint == 0 && !isExtended() && manualPower <= 0) reset();
 
-        position = Math.millimeters(motor.encoder.getDistance() + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
+        position = Math.millimeters(max(0, motor.encoder.getDistance()) + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
 
         if (manualPower != 0) {
             setTarget(getPosition());
