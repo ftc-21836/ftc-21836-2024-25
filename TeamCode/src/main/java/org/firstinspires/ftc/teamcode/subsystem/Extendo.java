@@ -34,7 +34,7 @@ public final class Extendo {
             LENGTH_BUCKET_DOWN = 50,
             LENGTH_DEPOSIT_CLEAR = 100,
             LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
-            LENGTH_EXTENDED = 410,
+            LENGTH_EXTENDED = Math.MM_EXTENSION,
             kS = 0;
 
     public static PIDGains pidGains = new PIDGains(
@@ -162,7 +162,8 @@ public final class Extendo {
                 bh2a = 2 * b * H_2 + a,
                 ab2 = a * b * 2,
                 MM_RETRACTED = 144.39994388,
-                MM_EXTENDED = 554.399942992,
+                MM_EXTENSION = 410,
+                MM_EXTENDED = MM_RETRACTED + MM_EXTENSION,
                 RAD_RETRACTED = radians(MM_RETRACTED),
                 RAD_EXTENDED = radians(MM_EXTENDED),
                 NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
