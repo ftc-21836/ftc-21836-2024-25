@@ -148,7 +148,7 @@ public final class Extendo {
         setExtended(!isExtended());
     }
 
-    /// <a href="https://www.desmos.com/calculator/xjwsz9pojl">Desmos diagrams + graphs</a>
+    /// <a href="https://www.desmos.com/calculator/guflnpad5a">Desmos diagrams + graphs</a>
     private static final class Math {
 
         private static final double
