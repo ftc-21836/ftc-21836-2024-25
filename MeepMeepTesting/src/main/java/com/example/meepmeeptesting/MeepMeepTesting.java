@@ -1,14 +1,16 @@
 package com.example.meepmeeptesting;
 
-import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_1;
 import static com.example.meepmeeptesting.AutonVars.LENGTH_ROBOT;
 import static com.example.meepmeeptesting.AutonVars.WAIT_APPROACH_BASKET;
 import static com.example.meepmeeptesting.AutonVars.WAIT_POST_INTAKING;
 import static com.example.meepmeeptesting.AutonVars.WAIT_SCORE_BASKET;
 import static com.example.meepmeeptesting.AutonVars.WIDTH_ROBOT;
 import static com.example.meepmeeptesting.AutonVars.basket;
-import static com.example.meepmeeptesting.AutonVars.sample1;
-import static com.example.meepmeeptesting.AutonVars.sample1Floor;
+import static com.example.meepmeeptesting.AutonVars.extendoMMs;
+import static com.example.meepmeeptesting.AutonVars.intakingPositions;
+import static com.example.meepmeeptesting.AutonVars.parkLeft;
+import static com.example.meepmeeptesting.AutonVars.sampleCycles;
+import static com.example.meepmeeptesting.AutonVars.samplePositions;
 import static com.example.meepmeeptesting.AutonVars.startLeft;
 import static com.example.meepmeeptesting.AutonVars.startRight;
 import static java.lang.Math.atan2;
@@ -56,7 +58,7 @@ public class MeepMeepTesting {
                 .setStartPose(startPose)
                 .build();
 
-        sample1.heading = atan2(sample1Floor.y - sample1.y, sample1Floor.x - sample1.x);
+        TrajectoryActionBuilder builder = myBot.getDrive().actionBuilder(startPose);
 
         Action scoreSample = new SequentialAction(
                 new SleepAction(WAIT_APPROACH_BASKET),
@@ -70,11 +72,6 @@ public class MeepMeepTesting {
                 new SleepAction(WAIT_SCORE_BASKET)
         );
 
-        Action waitForIntake = telemetryPacket -> {
-            // return robot.getSample() == null;
-            return false;
-        };
-
         Action raiseLift = new SequentialAction(
                 telemetryPacket -> {
                     // return !robot.deposit.hasSample();
@@ -85,45 +82,54 @@ public class MeepMeepTesting {
                 })
         );
 
-        TrajectoryActionBuilder builder = myBot.getDrive().actionBuilder(startPose)
-
-                /// Score preloaded
+        /// Score preload
+        builder = builder
                 .afterTime(0, raiseLift)
                 .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                 .stopAndAdd(scoreSample)
+        ;
 
-                /// Intake first
-                .afterTime(0, asyncIntakeSequence(EXTEND_SAMPLE_1))
-                .strafeToSplineHeading(sample1.toVector2d(), sample1.heading)
+        /// Cycle samples off the floor
+        for (int i = 0; i < sampleCycles; i++) {
+
+            double millimeters = extendoMMs[i];
+            EditablePose intakingPos = intakingPositions[i];
+            EditablePose samplePos = samplePositions[i];
+
+            // Calculate angle to point intake at floor sample
+            intakingPos.heading = atan2(samplePos.y - intakingPos.y, samplePos.x - intakingPos.x);
+
+            builder = builder
+
+                    /// Intake
+                    .afterTime(0, asyncIntakeSequence(millimeters))
+                    .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
+                    .afterTime(0, () -> {
+                        // if (!robot.intake.hasSample()) robot.intake.runRoller(1);
+                    })
+                    // wait for intake to get sample:
+                    .stopAndAdd(telemetryPacket -> {
+                        // return robot.getSample() == null;
+                        return false;
+                    })
+                    .waitSeconds(5) // simulate intaking
+
+                    /// Score
+                    .afterTime(0, raiseLift)
+                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .stopAndAdd(scoreSample)
+            ;
+        }
+
+        /// Level 1 ascent (left park)
+        builder = builder
                 .afterTime(0, () -> {
-                    // if (!robot.intake.hasSample()) robot.intake.runRoller(1);
+                    // robot.deposit.triggerClaw();
+                    // robot.deposit.triggerClaw();
+                    // robot.deposit.lift.setTarget(LIFT_PARK_LEFT);
                 })
-                .stopAndAdd(waitForIntake) // wait for sample
-                .waitSeconds(5) // simulate intaking
-
-                /// Score first
-                .afterTime(0, raiseLift)
-                .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                .stopAndAdd(scoreSample)
-
-//                // Score first
-//                .setReversed(true)
-//                .splineTo(new Vector2d(-52, -53), toRadians(225))
-//                .waitSeconds(0.1)
-
-//                // Grab second
-//                .setReversed(false)
-//                .turnTo(toRadians(105))
-////                .splineTo(new Vector2d(-54, -45), Math.toRadians(90))
-//                .waitSeconds(10)
-//
-//                // Score second
-//                .setReversed(true)
-//                .splineTo(new Vector2d(-52, -53), toRadians(225))
-////                .waitSeconds(10)
-                ;
-
-
+                .splineTo(parkLeft.toVector2d(), parkLeft.heading)
+        ;
 
         myBot.runAction(builder.build());
 
