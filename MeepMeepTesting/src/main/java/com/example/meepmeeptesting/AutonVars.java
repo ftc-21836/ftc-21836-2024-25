@@ -18,8 +18,6 @@ public final class AutonVars {
         }
     }
 
-    static int sampleCycles = 3;
-
     public static double
             SIZE_WINDOW = 720,
             LENGTH_ROBOT = 17.30327,
@@ -45,8 +43,4 @@ public final class AutonVars {
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-48, -49, toRadians(120)),
             parkLeft = new EditablePose(-25, -11, toRadians(0));
-
-    static double[] extendoMMs = {EXTEND_SAMPLE_1, EXTEND_SAMPLE_2, EXTEND_SAMPLE_3};
-    static EditablePose[] intakingPositions = {intaking1, intaking2, intaking3};
-    static EditablePose[] samplePositions = {sample1, sample2, sample3};
 }

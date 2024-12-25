@@ -1,16 +1,21 @@
 package com.example.meepmeeptesting;
 
+import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_1;
+import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_2;
+import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_3;
 import static com.example.meepmeeptesting.AutonVars.LENGTH_ROBOT;
 import static com.example.meepmeeptesting.AutonVars.WAIT_APPROACH_BASKET;
 import static com.example.meepmeeptesting.AutonVars.WAIT_POST_INTAKING;
 import static com.example.meepmeeptesting.AutonVars.WAIT_SCORE_BASKET;
 import static com.example.meepmeeptesting.AutonVars.WIDTH_ROBOT;
 import static com.example.meepmeeptesting.AutonVars.basket;
-import static com.example.meepmeeptesting.AutonVars.extendoMMs;
-import static com.example.meepmeeptesting.AutonVars.intakingPositions;
+import static com.example.meepmeeptesting.AutonVars.intaking1;
+import static com.example.meepmeeptesting.AutonVars.intaking2;
+import static com.example.meepmeeptesting.AutonVars.intaking3;
 import static com.example.meepmeeptesting.AutonVars.parkLeft;
-import static com.example.meepmeeptesting.AutonVars.sampleCycles;
-import static com.example.meepmeeptesting.AutonVars.samplePositions;
+import static com.example.meepmeeptesting.AutonVars.sample1;
+import static com.example.meepmeeptesting.AutonVars.sample2;
+import static com.example.meepmeeptesting.AutonVars.sample3;
 import static com.example.meepmeeptesting.AutonVars.startLeft;
 import static com.example.meepmeeptesting.AutonVars.startRight;
 import static java.lang.Math.atan2;
@@ -48,6 +53,7 @@ public class MeepMeepTesting {
         MeepMeep meepMeep = new MeepMeep(800);
 
         boolean isRight = false;
+        int sampleCycles = 0;
 
         Pose2d startPose = (isRight ? startRight : startLeft).toPose2d();
 
@@ -88,6 +94,10 @@ public class MeepMeepTesting {
                 .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                 .stopAndAdd(scoreSample)
         ;
+
+        double[] extendoMMs = {EXTEND_SAMPLE_1, EXTEND_SAMPLE_2, EXTEND_SAMPLE_3};
+        EditablePose[] intakingPositions = {intaking1, intaking2, intaking3};
+        EditablePose[] samplePositions = {sample1, sample2, sample3};
 
         /// Cycle samples off the floor
         for (int i = 0; i < sampleCycles; i++) {
