@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.control.motion;
 
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Vector2d;
 
 public final class EditablePose {
 
@@ -22,5 +23,9 @@ public final class EditablePose {
 
     public Pose2d toPose2d() {
         return new Pose2d(x, y, heading);
+    }
+
+    public Vector2d toVector2d() {
+        return new Vector2d(x, y);
     }
 }
