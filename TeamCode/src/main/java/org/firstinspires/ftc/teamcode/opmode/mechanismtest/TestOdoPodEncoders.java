@@ -26,16 +26,18 @@ public final class TestOdoPodEncoders extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         PinpointLocalizer localizer = new PinpointLocalizer(hardwareMap);
-        localizer.setPosition(new Pose2d(0, 0, 0.5 * PI));
 
         int xReversed = X_POD_DIRECTION == REVERSED ? -1 : 1;
         int yReversed = Y_POD_DIRECTION == REVERSED ? -1 : 1;
 
         waitForStart();
 
+        localizer.setPosition(new Pose2d(0, 0, 0.5 * PI));
+
         // Control loop:
         while (opModeIsActive()) {
             bulkReader.bulkRead();
+            localizer.update();
 
             int x = localizer.rawEncoderX() * xReversed;
             int y = localizer.rawEncoderY() * yReversed;

@@ -341,9 +341,7 @@ public final class MecanumDrive {
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         localizer = new PinpointLocalizer(hardwareMap);
-//        localizer.setPosition(
-                this.pose = pose;
-//        );
+        this.pose = pose;
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
@@ -549,7 +547,7 @@ public final class MecanumDrive {
     public PoseVelocity2d updatePoseEstimate() {
         Twist2dDual<Time> twist = localizer.update();
         pose = localizer.getPosition();
-//                pose.plus(twist.value());
+        pose.plus(twist.value());
 
         poseHistory.add(pose);
         while (poseHistory.size() > 100) {
