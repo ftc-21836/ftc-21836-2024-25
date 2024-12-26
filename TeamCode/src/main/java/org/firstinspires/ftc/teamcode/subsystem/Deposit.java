@@ -288,6 +288,10 @@ public final class Deposit {
         return sample != null;
     }
 
+    public boolean specimenIntaked() {
+        return state == HAS_SPECIMEN;
+    }
+
     Sample getSample() {
         return sample;
     }
