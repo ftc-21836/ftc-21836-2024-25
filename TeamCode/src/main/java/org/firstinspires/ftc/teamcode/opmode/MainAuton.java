@@ -126,7 +126,7 @@ public final class MainAuton extends LinearOpMode {
 
         AutonConfig selection = EDITING_ALLIANCE;
 
-        boolean right = false, specimenPreload = false;
+        boolean right = false;
         double partnerWait = 0;
         int cycles = 3;
 
@@ -149,7 +149,6 @@ public final class MainAuton extends LinearOpMode {
                     break;
                 case PRELOAD_SPECIMEN:
                     robot.deposit.preloadSpecimen();
-                    if (!right) specimenPreload = true;
                     break;
             }
 
@@ -168,6 +167,8 @@ public final class MainAuton extends LinearOpMode {
 
             mTelemetry.update();
         }
+
+        boolean specimenPreload = !right && robot.deposit.specimenIntaked();
 
         mTelemetry.addLine("CONFIRMED:");
         mTelemetry.addLine();
