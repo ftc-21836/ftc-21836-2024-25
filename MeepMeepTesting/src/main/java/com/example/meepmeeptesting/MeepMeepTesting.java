@@ -77,7 +77,7 @@ public class MeepMeepTesting {
         Pose2d startPose = new Pose2d(
                 right ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
                 0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                right || specimenPreload ? toRadians(90) : 0
+                toRadians(right || specimenPreload ? 90 : 0)
         );
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)

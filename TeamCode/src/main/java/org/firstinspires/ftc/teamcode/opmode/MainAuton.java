@@ -178,7 +178,7 @@ public final class MainAuton extends LinearOpMode {
         Pose2d startPose = new Pose2d(
                 right ? chamber0.x : specimenPreload ? chamberLeft.x : (SIZE_TILE * -1.5),
                 0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                right || specimenPreload ? toRadians(90) : 0
+                toRadians(right || specimenPreload ? 90 : 0)
         );
 
         robot.drivetrain.localizer.setPosition(startPose);
