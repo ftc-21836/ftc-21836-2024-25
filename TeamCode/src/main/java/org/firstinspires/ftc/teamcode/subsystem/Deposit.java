@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
@@ -48,7 +49,9 @@ public final class Deposit {
             HEIGHT_INTAKING_SPECIMEN = 7,
             HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
             HEIGHT_CHAMBER_HIGH = 11.5,
-            HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH;
+            HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
+            HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
+            HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
     enum State {
         RETRACTED           (Arm.TRANSFER),
@@ -58,8 +61,8 @@ public final class Deposit {
         GRABBING_SPECIMEN   (Arm.INTAKING),
         RAISING_SPECIMEN    (Arm.INTAKING),
         HAS_SPECIMEN        (Arm.SPECIMEN),
-        SCORING_SPECIMEN    (Arm.SCORING_SPEC),
-        RELEASING_SPECIMEN  (Arm.SCORING_SPEC);
+        SCORING_SPECIMEN    (Arm.SPECIMEN),
+        RELEASING_SPECIMEN  (Arm.SPECIMEN);
 
         private final Arm.Position armPosition;
 
@@ -87,6 +90,8 @@ public final class Deposit {
     public void setAlliance(boolean redAlliance) {
         specimenColor = redAlliance ? RED : BLUE;
     }
+
+    private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORED;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
@@ -128,7 +133,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (arm.atPosition(Arm.SCORING_SPEC)) triggerClaw();
+                if (lift.getPosition() >= releaseSpecimenHeight) triggerClaw();
                 else break;
 
             case RELEASING_SPECIMEN:
@@ -270,6 +275,10 @@ public final class Deposit {
             case HAS_SPECIMEN:
 
                 state = SCORING_SPECIMEN;
+
+                double position = lift.getPosition();
+                releaseSpecimenHeight = clip(position + HEIGHT_OFFSET_SPECIMEN_SCORED, 0, 32);
+                lift.setTarget(position + HEIGHT_OFFSET_SPECIMEN_SCORING);
 
                 break;
 

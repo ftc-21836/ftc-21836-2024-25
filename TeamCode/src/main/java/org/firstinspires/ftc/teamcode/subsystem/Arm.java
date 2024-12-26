@@ -19,7 +19,6 @@ public final class Arm {
             TIME_RETRACTED_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_WRIST_FREE = 0.2,
             TIME_INTAKING_TO_SPEC = 0.65,
-            TIME_SPEC_TO_SCORED = 1,
             TIME_SCORING_SPEC_TO_RETRACTED = 0.35;
 
     public static Arm.Position
@@ -27,7 +26,6 @@ public final class Arm {
             TRANSFER =  new Arm.Position(85, 305, "TRANSFER"),
             POST_INTAKING =  new Arm.Position(355, 75, "POST INTAKING AVOID WALL"),
             SPECIMEN =  new Arm.Position(260, 300, "SPECIMEN"),
-            SCORING_SPEC = new Arm.Position(355, 290, "SCORING SPEC"),
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
@@ -53,7 +51,6 @@ public final class Arm {
                 target == lastTarget ?      0 :
                 target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
-                target == SCORING_SPEC ?    TIME_SPEC_TO_SCORED :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
                 target == startPos ?        0 :
                 target == TRANSFER ?
@@ -99,7 +96,7 @@ public final class Arm {
     }
 
     boolean collidingWithIntake() {
-        return !reachedTarget() || target == SPECIMEN || target == SCORING_SPEC;
+        return !reachedTarget() || target == SPECIMEN;
     }
 
     public void printTelemetry() {
