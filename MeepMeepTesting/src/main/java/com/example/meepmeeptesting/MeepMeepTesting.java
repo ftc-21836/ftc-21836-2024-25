@@ -75,15 +75,15 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
 
-        boolean isRight = false, specimenPreload = false;
+        boolean right = false, specimenPreload = false;
         double partnerWait = 0;
         int cycles = 3;
         AutonVars.ParkingLocation parking = TOUCHING_RUNG;
 
         Pose2d startPose = new Pose2d(
-                SIZE_TILE * (isRight ? 0.5 : specimenPreload ? -0.5 : -1.5),
-                0.5 * (isRight || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                isRight || specimenPreload ? 0.5 * PI : 0
+                SIZE_TILE * (right ? 0.5 : specimenPreload ? -0.5 : -1.5),
+                0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
+                right || specimenPreload ? 0.5 * PI : 0
         );
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
@@ -111,7 +111,7 @@ public class MeepMeepTesting {
                 new SleepAction(WAIT_SCORE_CHAMBER)
         );
 
-        if (isRight) {
+        if (right) {
             Action intakeSpec = new SequentialAction(
                     new InstantAction(() -> {
                         // robot.deposit.triggerClaw();
