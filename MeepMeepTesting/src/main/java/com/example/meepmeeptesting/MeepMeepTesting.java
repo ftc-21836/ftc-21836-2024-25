@@ -35,7 +35,6 @@ import static com.example.meepmeeptesting.AutonVars.pushing3;
 import static com.example.meepmeeptesting.AutonVars.sample1;
 import static com.example.meepmeeptesting.AutonVars.sample2;
 import static com.example.meepmeeptesting.AutonVars.sample3;
-import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
@@ -54,18 +53,13 @@ public class MeepMeepTesting {
 
     private static Action asyncIntakeSequence(double extension) {
         return new SequentialAction(
-            new InstantAction(() -> {
-                // robot.intake.extendo.setTarget(extension);
-                // robot.intake.runRoller(0.8);
-            }),
-            telemetryPacket -> {
-                // return !robot.intake.hasSample();
-                return false;
-            },
-            new SleepAction(WAIT_POST_INTAKING),
-            new InstantAction(() -> {
-                // robot.intake.runRoller(0);
-            })
+                new InstantAction(() -> {
+//                    robot.intake.extendo.setTarget(extension);
+//                    robot.intake.runRoller(0.8);
+                }),
+//                telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
+                new SleepAction(WAIT_POST_INTAKING)
+//                new InstantAction(() -> robot.intake.runRoller(0))
         );
     }
 
@@ -83,7 +77,7 @@ public class MeepMeepTesting {
         Pose2d startPose = new Pose2d(
                 right ? chamber0.x : specimenPreload ? chamber(LEFT_SPEC_ID).position.x : (SIZE_TILE * -1.5),
                 0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                right || specimenPreload ? 0.5 * PI : 0
+                right || specimenPreload ? toRadians(90) : 0
         );
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
@@ -97,17 +91,9 @@ public class MeepMeepTesting {
 
         Action scoreSpec = new SequentialAction(
                 new SleepAction(WAIT_APPROACH_CHAMBER),
-                telemetryPacket -> {
-                    // return !robot.deposit.reachedTarget();
-                    return false;
-                },
-                new InstantAction(() -> {
-                    // robot.deposit.triggerClaw();
-                }),
-                telemetryPacket -> {
-                    // return robot.deposit.hasSample();
-                    return false;
-                },
+//                telemetryPacket -> !robot.deposit.reachedTarget(), // wait until deposit in position
+//                new InstantAction(robot.deposit::triggerClaw),
+//                telemetryPacket -> robot.deposit.hasSample(), // wait until spec scored
                 new SleepAction(WAIT_SCORE_CHAMBER)
         );
 

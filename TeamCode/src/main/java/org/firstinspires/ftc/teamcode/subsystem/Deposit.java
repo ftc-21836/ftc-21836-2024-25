@@ -19,6 +19,8 @@ import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
+import static java.lang.Math.abs;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -179,6 +181,10 @@ public final class Deposit {
 
     boolean readyToTransfer() {
         return state == RETRACTED && arm.atPosition(Arm.TRANSFER) && !lift.isExtended();
+    }
+
+    public boolean reachedTarget() {
+        return arm.reachedTarget() && abs(lift.getTarget() - lift.getPosition()) < Lift.HEIGHT_RETRACTED_THRESHOLD;
     }
 
     public void setPosition(Position position) {
