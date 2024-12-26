@@ -55,9 +55,9 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
+import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
-import static java.lang.Math.toRadians;
 
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
@@ -126,7 +126,7 @@ public final class MainAuton extends LinearOpMode {
 
         AutonConfig selection = EDITING_ALLIANCE;
 
-        boolean right = false;
+        boolean specimenSide = false;
         double partnerWait = 0;
         int cycles = 3;
 
@@ -142,7 +142,7 @@ public final class MainAuton extends LinearOpMode {
                     isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_SIDE:
-                    right = !right;
+                    specimenSide = !specimenSide;
                     break;
                 case PRELOAD_SAMPLE:
                     robot.deposit.transfer(NEUTRAL);
@@ -163,30 +163,30 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
             mTelemetry.addLine();
             mTelemetry.addLine();
-            printConfig(selection, right, cycles, partnerWait);
+            printConfig(selection, specimenSide, cycles, partnerWait);
 
             mTelemetry.update();
         }
 
-        boolean specimenPreload = !right && robot.deposit.specimenIntaked();
+        boolean specimenPreload = !specimenSide && robot.deposit.specimenIntaked();
 
         mTelemetry.addLine("CONFIRMED:");
         mTelemetry.addLine();
         mTelemetry.addLine();
-        printConfig(selection, right, cycles, partnerWait);
+        printConfig(selection, specimenSide, cycles, partnerWait);
         mTelemetry.update();
 
         Pose2d startPose = new Pose2d(
-                right ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
-                0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                toRadians(right || specimenPreload ? 90 : 0)
+                specimenSide ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
+                0.5 * (specimenSide || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
+                specimenSide || specimenPreload ? PI / 2 : 0
         );
 
         robot.drivetrain.localizer.setPosition(startPose);
 
         TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(startPose);
 
-        Action scoreSpec = new SequentialAction(
+        Action scoreSpecimen = new SequentialAction(
                 new SleepAction(WAIT_APPROACH_CHAMBER),
                 telemetryPacket -> !robot.deposit.reachedTarget(), // wait until deposit in position
                 new InstantAction(robot.deposit::triggerClaw),
@@ -194,24 +194,19 @@ public final class MainAuton extends LinearOpMode {
                 new SleepAction(WAIT_SCORE_CHAMBER)
         );
 
-        if (right) {
-            Action intakeSpec = new SequentialAction(
-                    new InstantAction(robot.deposit::triggerClaw),
-                    telemetryPacket -> !robot.deposit.specimenIntaked(),
-                    new InstantAction(() -> robot.deposit.setPosition(HIGH))
-            );
+        if (specimenSide) {
 
             /// Score preloaded specimen
             builder = builder
                     .strafeTo(chamber0.toVector2d())
-                    .stopAndAdd(scoreSpec)
+                    .stopAndAdd(scoreSpecimen)
             ;
 
-            if (cycles >= 0) {
+            if (cycles > 0) {
 
                 /// Push samples
                 builder = builder
-                        .setTangent(toRadians(-90))
+                        .setTangent(-PI / 2)
                         .splineToConstantHeading(aroundBeamPushing.toVector2d(), aroundBeamPushing.heading)
                         .splineToConstantHeading(pushing1.toVector2d(), pushing1.heading)
                         .splineToConstantHeading(pushed1.toVector2d(), pushed1.heading)
@@ -222,18 +217,24 @@ public final class MainAuton extends LinearOpMode {
                         .splineToConstantHeading(intakingFirstSpec.toVector2d(), intakingFirstSpec.heading)
                 ;
 
+                Action intakeSpec = new SequentialAction(
+                        new InstantAction(robot.deposit::triggerClaw),
+                        telemetryPacket -> !robot.deposit.specimenIntaked(),
+                        new InstantAction(() -> robot.deposit.setPosition(HIGH))
+                );
+
                 /// Cycle specimens
                 for (int i = 0; i < cycles; i++) {
                     builder = builder
                             .stopAndAdd(intakeSpec)
-                            .setTangent(toRadians(90))
-                            .splineToConstantHeading(chamber(i + 1).position, toRadians(90))
-                            .stopAndAdd(scoreSpec)
+                            .setTangent(PI / 2)
+                            .splineToConstantHeading(chamber(i + 1).position, PI / 2)
+                            .stopAndAdd(scoreSpecimen)
                             .afterTime(0, robot.deposit::triggerClaw)
-                            .setTangent(toRadians(-90))
+                            .setTangent(- PI / 2)
                     ;
                     if (i < cycles - 1) builder = builder
-                            .splineToConstantHeading(intakingSpec.toVector2d(), toRadians(-90))
+                            .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
                     ;
                 }
 
@@ -261,7 +262,7 @@ public final class MainAuton extends LinearOpMode {
                 builder = builder
                         .waitSeconds(partnerWait)
                         .strafeTo(chamberLeft.toVector2d())
-                        .stopAndAdd(scoreSpec)
+                        .stopAndAdd(scoreSpecimen)
                 ;
             } else {
                 /// Score preloaded sample
@@ -289,7 +290,10 @@ public final class MainAuton extends LinearOpMode {
                 builder = builder
 
                         /// Intake
-                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, asyncIntakeSequence(robot, millimeters))
+                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, asyncIntakeSequence(
+                                robot,
+                                millimeters
+                        ))
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, () -> {
                              if (!robot.intake.hasSample()) robot.intake.runRoller(1);
@@ -314,10 +318,10 @@ public final class MainAuton extends LinearOpMode {
 
             if (specimenPreload && cycles == 0)
                 builder = builder
-                        .setTangent(toRadians(-150))
-                        .splineToSplineHeading(aroundBeamParkLeft.toPose2d(), toRadians(90))
+                        .setTangent(- 5 * PI / 6)
+                        .splineToSplineHeading(aroundBeamParkLeft.toPose2d(), PI / 2)
                         .splineToConstantHeading(parkLeft.toVector2d(), parkLeft.heading)
-                        ;
+                ;
             else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
         }
 
@@ -340,10 +344,10 @@ public final class MainAuton extends LinearOpMode {
         ));
     }
 
-    private void printConfig(AutonConfig selection, boolean isRight, int cycles, double partnerWait) {
+    private void printConfig(AutonConfig selection, boolean specimenSide, int cycles, double partnerWait) {
         mTelemetry.addLine((isRedAlliance ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
-        mTelemetry.addLine((isRight ? "RIGHT " : "LEFT ") + "side" + selection.markIf(EDITING_SIDE));
+        mTelemetry.addLine((specimenSide ? "RIGHT (SPECIMEN-SIDE)" : "LEFT (SAMPLE-SIDE)") + " side" + selection.markIf(EDITING_SIDE));
         mTelemetry.addLine();
         mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
         mTelemetry.addLine();

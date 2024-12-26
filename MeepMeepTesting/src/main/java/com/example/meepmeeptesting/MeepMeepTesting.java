@@ -35,9 +35,9 @@ import static com.example.meepmeeptesting.AutonVars.pushing3;
 import static com.example.meepmeeptesting.AutonVars.sample1;
 import static com.example.meepmeeptesting.AutonVars.sample2;
 import static com.example.meepmeeptesting.AutonVars.sample3;
+import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
-import static java.lang.Math.toRadians;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -70,14 +70,14 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(720);
 
-        boolean right = true, specimenPreload = false;
+        boolean specimenSide = false, specimenPreload = true;
         double partnerWait = 0;
-        int cycles = 4;
+        int cycles = 3;
 
         Pose2d startPose = new Pose2d(
-                right ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
-                0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                toRadians(right || specimenPreload ? 90 : 0)
+                specimenSide ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
+                0.5 * (specimenSide || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
+                specimenSide || specimenPreload ? PI / 2 : 0
         );
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
@@ -89,7 +89,7 @@ public class MeepMeepTesting {
 
         TrajectoryActionBuilder builder = myBot.getDrive().actionBuilder(startPose);
 
-        Action scoreSpec = new SequentialAction(
+        Action scoreSpecimen = new SequentialAction(
                 new SleepAction(WAIT_APPROACH_CHAMBER),
 //                telemetryPacket -> !robot.deposit.reachedTarget(), // wait until deposit in position
 //                new InstantAction(robot.deposit::triggerClaw),
@@ -97,57 +97,48 @@ public class MeepMeepTesting {
                 new SleepAction(WAIT_SCORE_CHAMBER)
         );
 
-        if (right) {
-            Action intakeSpec = new SequentialAction(
-                    new InstantAction(() -> {
-                        // robot.deposit.triggerClaw();
-                    }),
-                    telemetryPacket -> {
-                        // return !robot.deposit.specimenIntaked();
-                        return false;
-                    },
-                    new SleepAction(1) // TODO remove in opmode
-            );
+        if (specimenSide) {
 
             /// Score preloaded specimen
             builder = builder
                     .strafeTo(chamber0.toVector2d())
-                    .stopAndAdd(scoreSpec)
+                    .stopAndAdd(scoreSpecimen)
             ;
 
-            if (cycles >= 0) {
+            if (cycles > 0) {
 
                 /// Push samples
                 builder = builder
-                        .setTangent(toRadians(-90))
+                        .setTangent(-PI / 2)
                         .splineToConstantHeading(aroundBeamPushing.toVector2d(), aroundBeamPushing.heading)
                         .splineToConstantHeading(pushing1.toVector2d(), pushing1.heading)
                         .splineToConstantHeading(pushed1.toVector2d(), pushed1.heading)
-//                        .waitSeconds(0.1)
-//                        .setTangent(toRadians(120))
                         .splineToConstantHeading(pushing2.toVector2d(), pushing2.heading)
                         .splineToConstantHeading(pushed2.toVector2d(), pushed2.heading)
-//                        .waitSeconds(0.1)
-//                        .setTangent(toRadians(120))
                         .splineToConstantHeading(pushing3.toVector2d(), pushing3.heading)
                         .splineToConstantHeading(pushed3.toVector2d(), pushed3.heading)
                         .splineToConstantHeading(intakingFirstSpec.toVector2d(), intakingFirstSpec.heading)
                 ;
 
+                Action intakeSpec = new SequentialAction(
+//                    new InstantAction(robot.deposit::triggerClaw),
+//                    telemetryPacket -> !robot.deposit.specimenIntaked(),
+//                    new InstantAction(() -> robot.deposit.setPosition(HIGH)),
+                        new SleepAction(1) // TODO remove in opmode
+                );
+
                 /// Cycle specimens
                 for (int i = 0; i < cycles; i++) {
                     builder = builder
                             .stopAndAdd(intakeSpec)
-                            .setTangent(toRadians(90))
-                            .splineToConstantHeading(chamber(i + 1).position, toRadians(90))
-                            .stopAndAdd(scoreSpec)
-                            .afterTime(0, () -> {
-                                // robot.deposit.triggerClaw()
-                            })
-                            .setTangent(toRadians(-90))
+                            .setTangent(PI / 2)
+                            .splineToConstantHeading(chamber(i + 1).position, PI / 2)
+                            .stopAndAdd(scoreSpecimen)
+//                            .afterTime(0, robot.deposit::triggerClaw)
+                            .setTangent(- PI / 2)
                     ;
                     if (i < cycles - 1) builder = builder
-                            .splineToConstantHeading(intakingSpec.toVector2d(), toRadians(-90))
+                            .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
                     ;
                 }
 
@@ -160,24 +151,14 @@ public class MeepMeepTesting {
         } else {
             Action scoreSample = new SequentialAction(
                     new SleepAction(WAIT_APPROACH_BASKET),
-                    telemetryPacket -> {
-                        // return !robot.deposit.reachedTarget();
-                        return false;
-                    },
-                    new InstantAction(() -> {
-                        // robot.deposit.triggerClaw();
-                    }),
+//                    telemetryPacket -> !robot.deposit.reachedTarget(),
+//                    new InstantAction(robot.deposit::triggerClaw),
                     new SleepAction(WAIT_SCORE_BASKET)
             );
 
             Action raiseLift = new SequentialAction(
-                    telemetryPacket -> {
-                        // return !robot.deposit.hasSample();
-                        return false;
-                    },
-                    new InstantAction(() -> {
-                        // robot.deposit.setPosition(HIGH);
-                    })
+//                    telemetryPacket -> !robot.deposit.hasSample(),
+//                    new InstantAction(() -> robot.deposit.setPosition(HIGH))
             );
 
             if (specimenPreload) {
@@ -185,7 +166,7 @@ public class MeepMeepTesting {
                 builder = builder
                         .waitSeconds(partnerWait)
                         .strafeTo(chamberLeft.toVector2d())
-                        .stopAndAdd(scoreSpec)
+                        .stopAndAdd(scoreSpecimen)
                 ;
             } else {
                 /// Score preloaded sample
@@ -213,16 +194,15 @@ public class MeepMeepTesting {
                 builder = builder
 
                         /// Intake
-                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, asyncIntakeSequence(millimeters))
+                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, asyncIntakeSequence(
+                                millimeters
+                        ))
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, () -> {
-                            // if (!robot.intake.hasSample()) robot.intake.runRoller(1);
+//                             if (!robot.intake.hasSample()) robot.intake.runRoller(1);
                         })
                         // wait for intake to get sample:
-                        .stopAndAdd(telemetryPacket -> {
-                            // return robot.getSample() == null;
-                            return false;
-                        })
+//                        .stopAndAdd(telemetryPacket -> robot.getSample() == null)
                         .waitSeconds(2) // TODO remove in opmode
 
                         /// Score
@@ -242,8 +222,8 @@ public class MeepMeepTesting {
 
             if (specimenPreload && cycles == 0)
                 builder = builder
-                        .setTangent(toRadians(-150))
-                        .splineToSplineHeading(aroundBeamParkLeft.toPose2d(), toRadians(90))
+                        .setTangent(- 5 * PI / 6)
+                        .splineToSplineHeading(aroundBeamParkLeft.toPose2d(), PI / 2)
                         .splineToConstantHeading(parkLeft.toVector2d(), parkLeft.heading)
                 ;
             else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
