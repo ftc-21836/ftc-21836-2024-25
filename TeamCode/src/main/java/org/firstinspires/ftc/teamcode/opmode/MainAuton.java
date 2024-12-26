@@ -161,13 +161,19 @@ public final class MainAuton extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
             }
 
-            printConfig(selection, right, cycles, partnerWait);
-            mTelemetry.addLine();
-            mTelemetry.addLine();
             mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
+            mTelemetry.addLine();
+            mTelemetry.addLine();
+            printConfig(selection, right, cycles, partnerWait);
 
             mTelemetry.update();
         }
+
+        mTelemetry.addLine("CONFIRMED:");
+        mTelemetry.addLine();
+        mTelemetry.addLine();
+        printConfig(selection, right, cycles, partnerWait);
+        mTelemetry.update();
 
         Pose2d startPose = new Pose2d(
                 right ? chamber0.x : specimenPreload ? chamberLeft.x : (SIZE_TILE * -1.5),
@@ -312,9 +318,6 @@ public final class MainAuton extends LinearOpMode {
         }
 
         Action trajectory = builder.build();
-
-        printConfig(selection, right, cycles, partnerWait);
-        mTelemetry.update();
 
         waitForStart();
 
