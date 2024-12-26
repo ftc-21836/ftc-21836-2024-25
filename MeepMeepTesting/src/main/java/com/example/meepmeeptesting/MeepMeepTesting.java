@@ -6,7 +6,6 @@ import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_2;
 import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_3;
 import static com.example.meepmeeptesting.AutonVars.LEFT_SPEC_ID;
 import static com.example.meepmeeptesting.AutonVars.LENGTH_ROBOT;
-import static com.example.meepmeeptesting.AutonVars.ParkingLocation.TOUCHING_RUNG;
 import static com.example.meepmeeptesting.AutonVars.SIZE_HALF_FIELD;
 import static com.example.meepmeeptesting.AutonVars.SIZE_TILE;
 import static com.example.meepmeeptesting.AutonVars.WAIT_APPROACH_BASKET;
@@ -23,8 +22,10 @@ import static com.example.meepmeeptesting.AutonVars.chamber0;
 import static com.example.meepmeeptesting.AutonVars.intaking1;
 import static com.example.meepmeeptesting.AutonVars.intaking2;
 import static com.example.meepmeeptesting.AutonVars.intaking3;
+import static com.example.meepmeeptesting.AutonVars.intakingFirstSpec;
 import static com.example.meepmeeptesting.AutonVars.intakingSpec;
 import static com.example.meepmeeptesting.AutonVars.parkLeft;
+import static com.example.meepmeeptesting.AutonVars.parkRight;
 import static com.example.meepmeeptesting.AutonVars.pushed1;
 import static com.example.meepmeeptesting.AutonVars.pushed2;
 import static com.example.meepmeeptesting.AutonVars.pushed3;
@@ -75,20 +76,19 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
 
-        boolean right = false, specimenPreload = false;
+        boolean right = true, specimenPreload = true;
         double partnerWait = 0;
-        int cycles = 3;
-        AutonVars.ParkingLocation parking = TOUCHING_RUNG;
+        int cycles = 4;
 
         Pose2d startPose = new Pose2d(
-                SIZE_TILE * (right ? 0.5 : specimenPreload ? -0.5 : -1.5),
+                right ? chamber0.x : specimenPreload ? chamber(LEFT_SPEC_ID).position.x : (SIZE_TILE * -1.5),
                 0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
                 right || specimenPreload ? 0.5 * PI : 0
         );
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
-                .setConstraints(100, 100, 5.3, 20.378758517977975, 14.47)
+                .setConstraints(50, 50, 5.3, 20.378758517977975, 14.47)
                 .setDimensions(WIDTH_ROBOT, LENGTH_ROBOT)
                 .setStartPose(startPose)
                 .build();
@@ -129,25 +129,47 @@ public class MeepMeepTesting {
                     .stopAndAdd(scoreSpec)
             ;
 
-            if (cycles > 0) {
+            if (cycles >= 0) {
+
                 /// Push samples
                 builder = builder
                         .setTangent(toRadians(-90))
-                        .splineToConstantHeading(aroundBeamPushing.toVector2d(), toRadians(90))
-                        .splineToConstantHeading(pushing1.toVector2d(), toRadians(-90))
-                        .splineToConstantHeading(pushed1.toVector2d(), toRadians(-90))
-                        .waitSeconds(0.1)
-                        .setTangent(toRadians(90))
+                        .splineToConstantHeading(aroundBeamPushing.toVector2d(), aroundBeamPushing.heading)
+                        .splineToConstantHeading(pushing1.toVector2d(), pushing1.heading)
+                        .splineToConstantHeading(pushed1.toVector2d(), pushed1.heading)
+//                        .waitSeconds(0.1)
+//                        .setTangent(toRadians(120))
                         .splineToConstantHeading(pushing2.toVector2d(), pushing2.heading)
-                        .splineToConstantHeading(pushed2.toVector2d(), toRadians(-90))
-                ;
-                if (cycles == 4 && specimenPreload) builder = builder
-                        .splineToConstantHeading(pushing3.toVector2d(), toRadians(-90))
-                        .splineToConstantHeading(pushed3.toVector2d(), toRadians(-90))
+                        .splineToConstantHeading(pushed2.toVector2d(), pushed2.heading)
+//                        .waitSeconds(0.1)
+//                        .setTangent(toRadians(120))
+                        .splineToConstantHeading(pushing3.toVector2d(), pushing3.heading)
+                        .splineToConstantHeading(pushed3.toVector2d(), pushed3.heading)
+                        .splineToConstantHeading(intakingFirstSpec.toVector2d(), intakingFirstSpec.heading)
                 ;
 
+                /// Cycle specimens
+                for (int i = 0; i < cycles; i++) {
+                    builder = builder
+                            .stopAndAdd(intakeSpec)
+                            .setTangent(toRadians(90))
+                            .splineToConstantHeading(chamber(i + 1).position, toRadians(90))
+                            .stopAndAdd(scoreSpec)
+                            .afterTime(0, () -> {
+                                // robot.deposit.triggerClaw()
+                            })
+                            .setTangent(toRadians(-90))
+                    ;
+                    if (i < cycles - 1) builder = builder
+                            .splineToConstantHeading(intakingSpec.toVector2d(), toRadians(-90))
+                    ;
+                }
 
-            } else builder = builder.strafeTo(intakingSpec.toVector2d());
+
+            }
+
+            /// Park in observation zone
+            builder = builder.strafeTo(parkRight.toVector2d());
 
         } else {
             Action scoreSample = new SequentialAction(
@@ -225,23 +247,20 @@ public class MeepMeepTesting {
             }
 
             /// Level 1 ascent (left park)
-            if (parking == TOUCHING_RUNG) {
+            builder = builder
+                    .afterTime(0, () -> {
+                        // robot.deposit.triggerClaw();
+                        // robot.deposit.triggerClaw();
+                        // robot.deposit.lift.setTarget(LIFT_PARK_LEFT);
+                    });
 
+            if (specimenPreload && cycles == 0)
                 builder = builder
-                        .afterTime(0, () -> {
-                            // robot.deposit.triggerClaw();
-                            // robot.deposit.triggerClaw();
-                            // robot.deposit.lift.setTarget(LIFT_PARK_LEFT);
-                        });
-
-                if (specimenPreload && cycles == 0)
-                    builder = builder
-                            .setTangent(toRadians(-150))
-                            .splineToSplineHeading(aroundBeamParkLeft.toPose2d(), toRadians(90))
-                            .splineToConstantHeading(parkLeft.toVector2d(), parkLeft.heading)
-                    ;
-                else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
-            }
+                        .setTangent(toRadians(-150))
+                        .splineToSplineHeading(aroundBeamParkLeft.toPose2d(), toRadians(90))
+                        .splineToConstantHeading(parkLeft.toVector2d(), parkLeft.heading)
+                ;
+            else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
         }
 
         myBot.runAction(builder.build());

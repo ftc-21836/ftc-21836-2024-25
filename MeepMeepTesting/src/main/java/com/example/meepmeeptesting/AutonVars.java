@@ -4,19 +4,6 @@ import static java.lang.Math.toRadians;
 
 public final class AutonVars {
 
-    enum ParkingLocation {
-        CORNER,
-        OUTER,
-        TOUCHING_RUNG;
-
-        public static final ParkingLocation[] locations = values();
-
-        public ParkingLocation plus(int i) {
-            int x = ordinal() + 1, max = locations.length;
-            return locations[(x % max + max) % max];
-        }
-    }
-
     public static int LEFT_SPEC_ID = 10;
 
     public static double
@@ -47,13 +34,15 @@ public final class AutonVars {
             intaking3 = new EditablePose(-48, -49, toRadians(120)),
             aroundBeamParkLeft = new EditablePose(-40, -25, toRadians(0)),
             parkLeft = new EditablePose(-25, -11, toRadians(0)),
-            chamber0 = new EditablePose(10, -33, toRadians(90)),
-            aroundBeamPushing = new EditablePose(35, -28, toRadians(90)),
-            pushing1 = new EditablePose(48, -13, toRadians(90)),
-            pushing2 = new EditablePose(58.5, -13, toRadians(-45)),
-            pushing3 = new EditablePose(62.28937, -13, toRadians(90)),
-            pushed1 = new EditablePose(pushing1.x, -55, toRadians(90)),
-            pushed2 = new EditablePose(pushing2.x, -55, toRadians(90)),
-            pushed3 = new EditablePose(pushing3.x, -55, toRadians(90)),
-            intakingSpec = new EditablePose(36, -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5, toRadians(90));
+            chamber0 = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, toRadians(90)),
+            aroundBeamPushing = new EditablePose(35, -30, toRadians(90)),
+            pushing1 = new EditablePose(46, -13, toRadians(-80)),
+            pushing2 = new EditablePose(55, pushing1.y, toRadians(-70)),
+            pushing3 = new EditablePose(62, pushing1.y, toRadians(-90)),
+            pushed1 = new EditablePose(pushing1.x, -50, toRadians(110)),
+            pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
+            pushed3 = new EditablePose(pushing3.x, pushed1.y, toRadians(-90)),
+            intakingSpec = new EditablePose(36, -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5, toRadians(90)),
+            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading),
+            parkRight = new EditablePose(36, -60, toRadians(90));
 }
