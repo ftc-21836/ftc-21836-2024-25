@@ -4,10 +4,7 @@ import static java.lang.Math.toRadians;
 
 public final class AutonVars {
 
-    public static int LEFT_SPEC_ID = 10;
-
     public static double
-            SIZE_WINDOW = 720,
             LENGTH_ROBOT = 17.30327,
             WIDTH_ROBOT = 16.42126,
             SIZE_HALF_FIELD = 70.5,
