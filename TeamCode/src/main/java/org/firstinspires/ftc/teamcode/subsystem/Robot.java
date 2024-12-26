@@ -17,7 +17,7 @@ public final class Robot {
     public final Deposit deposit;
     public final Climber climber;
 
-    private final BulkReader bulkReader;
+    public final BulkReader bulkReader;
 
     public Robot(HardwareMap hardwareMap, Pose2d startPose) {
 

@@ -325,8 +325,8 @@ public final class MainAuton extends LinearOpMode {
 
         Actions.runBlocking(new ParallelAction(
                 telemetryPacket -> {
-                    robot.readSensors();
                     pose = robot.drivetrain.pose;
+                    robot.bulkReader.bulkRead();
                     robot.run();
                     robot.printTelemetry();
                     mTelemetry.update();
