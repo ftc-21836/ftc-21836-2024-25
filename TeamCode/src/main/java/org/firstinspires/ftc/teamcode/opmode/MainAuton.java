@@ -196,7 +196,8 @@ public final class MainAuton extends LinearOpMode {
         if (right) {
             Action intakeSpec = new SequentialAction(
                     new InstantAction(robot.deposit::triggerClaw),
-                    telemetryPacket -> !robot.deposit.specimenIntaked()
+                    telemetryPacket -> !robot.deposit.specimenIntaked(),
+                    new InstantAction(() -> robot.deposit.setPosition(HIGH))
             );
 
             /// Score preloaded specimen
