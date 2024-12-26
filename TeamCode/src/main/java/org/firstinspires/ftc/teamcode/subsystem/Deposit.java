@@ -176,7 +176,7 @@ public final class Deposit {
     public void preloadSpecimen() {
         Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
-        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
+        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_TRANSFER);
     }
 
     // when does the intake need to move out of the way
