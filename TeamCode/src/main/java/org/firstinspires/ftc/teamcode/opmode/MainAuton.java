@@ -181,6 +181,8 @@ public final class MainAuton extends LinearOpMode {
                 right || specimenPreload ? toRadians(90) : 0
         );
 
+        robot.drivetrain.localizer.setPosition(startPose);
+
         TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(startPose);
 
         Action scoreSpec = new SequentialAction(
