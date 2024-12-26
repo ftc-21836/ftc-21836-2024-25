@@ -35,7 +35,7 @@ public final class Deposit {
             ANGLE_CLAW_OPEN = 70,
             ANGLE_CLAW_TRANSFER = 60,
             ANGLE_CLAW_TRANSFERRED = 30,
-            ANGLE_CLAW_CLOSED = 13,
+            ANGLE_CLAW_CLOSED = 25,
 
             TIME_SAMPLE_RELEASE = 0.5,
             TIME_SPEC_GRAB = 0.25,
@@ -48,9 +48,9 @@ public final class Deposit {
             HEIGHT_BASKET_HIGH = 18,
             HEIGHT_INTAKING_SPECIMEN = 7,
             HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
-            HEIGHT_CHAMBER_HIGH = 11.5,
+            HEIGHT_CHAMBER_HIGH = 9,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
-            HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
+            HEIGHT_OFFSET_SPECIMEN_SCORED = 8,
             HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
     enum State {
