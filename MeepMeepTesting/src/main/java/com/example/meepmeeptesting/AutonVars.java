@@ -35,6 +35,7 @@ public final class AutonVars {
             aroundBeamParkLeft = new EditablePose(-40, -25, toRadians(0)),
             parkLeft = new EditablePose(-25, -11, toRadians(0)),
             chamber0 = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, toRadians(90)),
+            chamberLeft = new EditablePose(-chamber0.x, chamber0.y, chamber0.heading),
             aroundBeamPushing = new EditablePose(35, -30, toRadians(90)),
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
             pushing2 = new EditablePose(55, pushing1.y, toRadians(-70)),

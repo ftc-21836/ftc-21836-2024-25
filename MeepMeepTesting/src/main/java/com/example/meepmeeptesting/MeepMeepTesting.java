@@ -4,7 +4,6 @@ import static com.example.meepmeeptesting.AutonVars.DISTANCE_BETWEEN_SPECIMENS;
 import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_1;
 import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_2;
 import static com.example.meepmeeptesting.AutonVars.EXTEND_SAMPLE_3;
-import static com.example.meepmeeptesting.AutonVars.LEFT_SPEC_ID;
 import static com.example.meepmeeptesting.AutonVars.LENGTH_ROBOT;
 import static com.example.meepmeeptesting.AutonVars.SIZE_HALF_FIELD;
 import static com.example.meepmeeptesting.AutonVars.SIZE_TILE;
@@ -19,6 +18,7 @@ import static com.example.meepmeeptesting.AutonVars.aroundBeamParkLeft;
 import static com.example.meepmeeptesting.AutonVars.aroundBeamPushing;
 import static com.example.meepmeeptesting.AutonVars.basket;
 import static com.example.meepmeeptesting.AutonVars.chamber0;
+import static com.example.meepmeeptesting.AutonVars.chamberLeft;
 import static com.example.meepmeeptesting.AutonVars.intaking1;
 import static com.example.meepmeeptesting.AutonVars.intaking2;
 import static com.example.meepmeeptesting.AutonVars.intaking3;
@@ -70,12 +70,12 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
 
-        boolean right = true, specimenPreload = true;
+        boolean right = false, specimenPreload = true;
         double partnerWait = 0;
         int cycles = 4;
 
         Pose2d startPose = new Pose2d(
-                right ? chamber0.x : specimenPreload ? chamber(LEFT_SPEC_ID).position.x : (SIZE_TILE * -1.5),
+                right ? chamber0.x : specimenPreload ? chamberLeft.x : (SIZE_TILE * -1.5),
                 0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
                 right || specimenPreload ? toRadians(90) : 0
         );
@@ -111,7 +111,7 @@ public class MeepMeepTesting {
 
             /// Score preloaded specimen
             builder = builder
-                    .strafeTo(chamber(0).position)
+                    .strafeTo(chamber0.toVector2d())
                     .stopAndAdd(scoreSpec)
             ;
 
@@ -184,7 +184,7 @@ public class MeepMeepTesting {
                 /// Score preloaded specimen
                 builder = builder
                         .waitSeconds(partnerWait)
-                        .strafeTo(chamber(LEFT_SPEC_ID).position)
+                        .strafeTo(chamberLeft.toVector2d())
                         .stopAndAdd(scoreSpec)
                 ;
             } else {

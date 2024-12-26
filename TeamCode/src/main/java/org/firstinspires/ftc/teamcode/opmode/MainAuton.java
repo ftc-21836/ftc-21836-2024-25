@@ -11,7 +11,6 @@ import static org.firstinspires.ftc.teamcode.opmode.AutonVars.DISTANCE_BETWEEN_S
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_1;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_2;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_3;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.LEFT_SPEC_ID;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.LENGTH_ROBOT;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.LIFT_PARK_LEFT;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_HALF_FIELD;
@@ -27,6 +26,7 @@ import static org.firstinspires.ftc.teamcode.opmode.AutonVars.aroundBeamParkLeft
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.aroundBeamPushing;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.basket;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.chamber0;
+import static org.firstinspires.ftc.teamcode.opmode.AutonVars.chamberLeft;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intaking1;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intaking2;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intaking3;
@@ -170,7 +170,7 @@ public final class MainAuton extends LinearOpMode {
         }
 
         Pose2d startPose = new Pose2d(
-                right ? chamber0.x : specimenPreload ? chamber(LEFT_SPEC_ID).position.x : (SIZE_TILE * -1.5),
+                right ? chamber0.x : specimenPreload ? chamberLeft.x : (SIZE_TILE * -1.5),
                 0.5 * (right || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
                 right || specimenPreload ? toRadians(90) : 0
         );
@@ -193,7 +193,7 @@ public final class MainAuton extends LinearOpMode {
 
             /// Score preloaded specimen
             builder = builder
-                    .strafeTo(chamber(0).position)
+                    .strafeTo(chamber0.toVector2d())
                     .stopAndAdd(scoreSpec)
             ;
 
@@ -250,7 +250,7 @@ public final class MainAuton extends LinearOpMode {
                 /// Score preloaded specimen
                 builder = builder
                         .waitSeconds(partnerWait)
-                        .strafeTo(chamber(LEFT_SPEC_ID).position)
+                        .strafeTo(chamberLeft.toVector2d())
                         .stopAndAdd(scoreSpec)
                 ;
             } else {
