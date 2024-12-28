@@ -15,7 +15,6 @@ import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDIT
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
@@ -62,7 +61,7 @@ public final class MainTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ElapsedTime loopTimer = new ElapsedTime(), matchTimer = new ElapsedTime();
+        ElapsedTime matchTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
@@ -121,12 +120,12 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
         }
 
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         robot.intake.setAlliance(isRedAlliance);
         robot.deposit.setAlliance(isRedAlliance);
 
         matchTimer.reset();
-
-// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         // Control loop:
         while (opModeIsActive()) {
@@ -188,9 +187,6 @@ public final class MainTeleOp extends LinearOpMode {
 
             robot.run();
 
-            mTelemetry.addData("LOOP TIME", loopTimer.seconds());
-            loopTimer.reset();
-            divider();
             robot.printTelemetry();
             mTelemetry.update();
 
