@@ -99,10 +99,10 @@ public final class PinpointLocalizer implements Localizer {
     }
 
     public int rawEncoderX() {
-        return pinpoint.getEncoderX() * (X_POD_DIRECTION == REVERSED ? -1 : 1);
+        return pinpoint.getEncoderX();
     }
     public int rawEncoderY() {
-        return pinpoint.getEncoderY() * (Y_POD_DIRECTION == REVERSED ? -1 : 1);
+        return pinpoint.getEncoderY();
     }
     public void setHeading(double radians) {
         pinpoint.setHeading(radians);
