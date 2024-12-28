@@ -336,8 +336,6 @@ public final class MainAuton extends LinearOpMode {
                     pose = robot.drivetrain.pose;
                     robot.bulkReader.bulkRead();
                     robot.run();
-                    robot.printTelemetry();
-                    mTelemetry.update();
                     return opModeIsActive();
                 },
                 trajectory
