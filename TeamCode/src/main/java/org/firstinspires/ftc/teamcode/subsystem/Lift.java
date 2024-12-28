@@ -79,22 +79,23 @@ public final class Lift {
 
         double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
 
-        double output = !isExtended() || climbing ? 0 : kG * voltageScalar;
+        double kG = !isExtended() || climbing ? 0 : Lift.kG * voltageScalar;
+        double output;
 
         if (manualPower != 0) {
 
             setTarget(getPosition());
-            output += manualPower;
+            output = manualPower;
 
         } else {
 
             controller.setGains(pidGains);
             controller.setTarget(new State(canMove ? getTarget() : getPosition()));
-            output += controller.calculate(new State(getPosition()));
+            output = controller.calculate(new State(getPosition()));
 
         }
 
-        for (CachedMotorEx motor : motors) motor.set(output);
+        for (CachedMotorEx motor : motors) motor.set(output + kG);
     }
 
     void printTelemetry() {
@@ -116,7 +117,7 @@ public final class Lift {
         return target;
     }
 
-    void setTarget(double inches) {
+    public void setTarget(double inches) {
         target = inches;
     }
 

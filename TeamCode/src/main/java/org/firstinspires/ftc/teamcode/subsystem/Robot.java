@@ -17,7 +17,7 @@ public final class Robot {
     public final Deposit deposit;
     public final Climber climber;
 
-    private final BulkReader bulkReader;
+    public final BulkReader bulkReader;
 
     public Robot(HardwareMap hardwareMap, Pose2d startPose) {
 
@@ -41,9 +41,15 @@ public final class Robot {
         climber.run();
     }
 
+    public Sample getSample() {
+        return
+                intake.hasSample() ?    intake.getSample() :
+                deposit.hasSample() ?   deposit.getSample() :
+                                        null;
+    }
+
     public boolean requestingSlowMode() {
         return false;
-//                deposit.movingToScore() && intake.clearOfDeposit(); // deposit intends to move and intake is not blocking it
     }
 
     public void printTelemetry() {

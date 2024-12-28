@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.roadrunner;
 
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static java.lang.Math.PI;
+import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
@@ -139,6 +140,10 @@ public final class MecanumDrive {
                 ),
                 -turnCommand
         ));
+    }
+
+    public void setHeadingFromStick(double x, double y) {
+        if (x*x + y*y >= 0.64) localizer.setHeading(-atan2(y, x));
     }
 
     public void printTelemetry() {

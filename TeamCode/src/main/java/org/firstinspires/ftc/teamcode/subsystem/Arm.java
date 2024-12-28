@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
 import androidx.annotation.NonNull;
@@ -14,44 +15,94 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Arm {
 
     public static double
-            TIME_RETRACTION = 0.75,
-            TIME_POST_UNDERHAND = 0.75;
+            TIME_RETRACTED_TO_SAMPLE = 0.45,
+            TIME_RETRACTED_TO_INTAKING = 0.65,
+            TIME_INTAKING_TO_WRIST_FREE = 0.2,
+            TIME_INTAKING_TO_SPEC = 0.65,
+            TIME_SCORING_SPEC_TO_RETRACTED = 0.35;
 
-    public static Position
-            INTAKING =  new Position(285, 0, "INTAKING"),
-            TRANSFER =  new Position(85, 305, "TRANSFER"),
-            SPECIMEN =  new Position(285, 215, "SPECIMEN"),
-            SAMPLE =    new Position(355, 355, "SAMPLE");
+    public static Arm.Position
+            INTAKING =  new Arm.Position(285, 0, "INTAKING"),
+            TRANSFER =  new Arm.Position(85, 305, "TRANSFER"),
+            POST_INTAKING =  new Arm.Position(355, 75, "POST INTAKING AVOID WALL"),
+            SPECIMEN =  new Arm.Position(275, 240, "SPECIMEN"),
+            SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
-    private final ElapsedTime
-            timeArmSpentRetracted = new ElapsedTime(),
-            timeSinceUnderhand = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime();
+    private boolean startedTiming = true;
+    private double getTimeTraveled() {
+        return startedTiming ? timer.seconds() : 0;
+    }
 
+    private final Arm.Position startPos = new Position(TRANSFER.left + 1, TRANSFER.right - 1, "START POSITION");
+    private Arm.Position target = TRANSFER, lastTarget = TRANSFER;
     private final CachedSimpleServo rServo, lServo;
 
     public Arm(HardwareMap hardwareMap) {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
 
-        setPosition(new Position(TRANSFER.left + 1, TRANSFER.right - 1, "POOPOO"));
+        setTarget(startPos);
+        run();
     }
 
-    boolean isExtended() {
-        return timeArmSpentRetracted.seconds() <= TIME_RETRACTION;
+    private double timeToReachTarget() {
+        return
+                target == lastTarget ?      0 :
+                target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
+                target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
+                target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
+                target == startPos ?        0 :
+                target == TRANSFER ?
+                        lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
+                        lastTarget == SAMPLE ?      TIME_RETRACTED_TO_SAMPLE :
+                        lastTarget == startPos ?    0 :
+                                                    TIME_SCORING_SPEC_TO_RETRACTED :
+                1;
     }
+
+    boolean reachedTarget() {
+        return getTimeTraveled() >= timeToReachTarget();
+    }
+
     boolean isUnderhand() {
-        return timeSinceUnderhand.seconds() <= TIME_POST_UNDERHAND;
+        return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_RETRACTED_TO_INTAKING);
     }
 
-    public void setPosition(Arm.Position position) {
+    boolean atPosition(Position position) {
+        return (this.target == position || (position == TRANSFER && target == startPos)) && reachedTarget();
+    }
 
-        if (position != TRANSFER) {
-            timeArmSpentRetracted.reset();
-            if (position == INTAKING) timeSinceUnderhand.reset();
+    public void setTarget(Arm.Position target) {
+        if (this.target == target) return;
+        lastTarget = this.target;
+        this.target = target;
+        startedTiming = false;
+    }
+
+    public void run() {
+
+        if (!startedTiming) {
+            timer.reset();
+            startedTiming = true;
         }
 
-        rServo.turnToAngle(position.right);
-        lServo.turnToAngle(position.left);
+        Position target = this.target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
+                                Arm.POST_INTAKING :
+                                this.target;
+
+        rServo.turnToAngle(target.right);
+        lServo.turnToAngle(target.left);
+    }
+
+    boolean collidingWithIntake() {
+        return !reachedTarget() || target == SPECIMEN;
+    }
+
+    public void printTelemetry() {
+        mTelemetry.addLine("ARM:");
+        mTelemetry.addLine();
+        mTelemetry.addLine((reachedTarget() ? "Reached " : "Moving to ") + target.name + " (from " + lastTarget.name + ")");
     }
 
     public static final class Position {

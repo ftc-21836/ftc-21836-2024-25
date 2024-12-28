@@ -1,13 +1,8 @@
-package org.firstinspires.ftc.teamcode.opmode;
+package com.example.meepmeeptesting;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.toRadians;
 
-import com.acmerobotics.dashboard.config.Config;
-
-import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
-
-@Config
 public final class AutonVars {
 
     public static double

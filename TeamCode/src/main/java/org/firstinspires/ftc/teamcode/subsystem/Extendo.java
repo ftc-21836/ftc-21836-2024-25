@@ -27,11 +27,14 @@ public final class Extendo {
 
     public static double
             SCALAR_MANUAL_SPEED = 1.0,
-            SPEED_RETRACTION = -0.5,
-            LENGTH_RETRACTING = 15,
-            LENGTH_DEPOSIT_CLEAR = 80,
-            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 5,
-            LENGTH_EXTENDED = Math.MM_EXTENDED - Math.MM_RETRACTED,
+            SPEED_RETRACTION = -0.75,
+            TOUCHPAD_RANGE = 0.9,
+            LENGTH_RETRACTING = 20,
+            LENGTH_INTERFACING = 10,
+            LENGTH_BUCKET_DOWN = 50,
+            LENGTH_DEPOSIT_CLEAR = 100,
+            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
+            LENGTH_EXTENDED = Math.MM_EXTENSION,
             kS = 0;
 
     public static PIDGains pidGains = new PIDGains(
@@ -72,14 +75,24 @@ public final class Extendo {
         this.manualPower = power * SCALAR_MANUAL_SPEED;
     }
 
-    public void run(boolean canRetract) {
+    public void run(boolean canRetract, boolean bucketDown) {
 
-        double setpoint = canRetract ? getTarget() : max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE);
+        double setpoint =
+                !canRetract ?   max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE) :
+                bucketDown ?    max (getTarget(), LENGTH_BUCKET_DOWN) :
+                                getTarget();
 
         // When the magnet hits
         if (setpoint == 0 && !isExtended() && manualPower <= 0) reset();
 
-        position = Math.millimeters(motor.encoder.getDistance() + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
+        double radians = motor.encoder.getDistance();
+
+        if (radians > 0) {
+            position = Math.millimeters(radians + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
+        } else {
+            motor.encoder.reset();
+            position = 0;
+        }
 
         if (manualPower != 0) {
             setTarget(getPosition());
@@ -87,7 +100,7 @@ public final class Extendo {
             return;
         }
 
-        if (setpoint == 0 && isExtended() && position > 0 && position <= LENGTH_RETRACTING) {
+        if (setpoint == 0 && isExtended() && getPosition() > 0 && getPosition() <= LENGTH_RETRACTING) {
             motor.set(SPEED_RETRACTION);
             return;
         }
@@ -96,7 +109,7 @@ public final class Extendo {
         controller.setTarget(new State(setpoint));
 
         double power = controller.calculate(new State(getPosition()));
-        double slideBindingFF = power <= 0 ? 0 : position * kS;
+        double slideBindingFF = power <= 0 ? 0 : getPosition() * kS;
 
         motor.set(power + slideBindingFF);
     }
@@ -122,6 +135,14 @@ public final class Extendo {
         target = millimeters;
     }
 
+    public void setWithTouchpad(double x) {
+        setTarget(
+                x < -TOUCHPAD_RANGE ? 0 :
+                x > TOUCHPAD_RANGE ? LENGTH_EXTENDED :
+                LENGTH_EXTENDED * 0.5 * (x + 1)
+        );
+    }
+
     boolean isExtended() {
         return !extendoSensor.isPressed();
     }
@@ -134,7 +155,7 @@ public final class Extendo {
         setExtended(!isExtended());
     }
 
-    /// <a href="https://www.desmos.com/calculator/xjwsz9pojl">Desmos diagrams + graphs</a>
+    /// <a href="https://www.desmos.com/calculator/guflnpad5a">Desmos diagrams + graphs</a>
     private static final class Math {
 
         private static final double
@@ -148,7 +169,8 @@ public final class Extendo {
                 bh2a = 2 * b * H_2 + a,
                 ab2 = a * b * 2,
                 MM_RETRACTED = 144.39994388,
-                MM_EXTENDED = 554.399942992,
+                MM_EXTENSION = 410,
+                MM_EXTENDED = MM_RETRACTED + MM_EXTENSION,
                 RAD_RETRACTED = radians(MM_RETRACTED),
                 RAD_EXTENDED = radians(MM_EXTENDED),
                 NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);

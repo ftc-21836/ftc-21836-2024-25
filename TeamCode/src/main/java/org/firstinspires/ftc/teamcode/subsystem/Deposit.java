@@ -16,8 +16,11 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
+
+import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -29,23 +32,25 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Deposit {
 
     public static double
-            ANGLE_CLAW_OPEN = 60,
-            ANGLE_CLAW_CLOSED = 7,
+            ANGLE_CLAW_OPEN = 70,
+            ANGLE_CLAW_TRANSFER = 60,
+            ANGLE_CLAW_TRANSFERRED = 30,
+            ANGLE_CLAW_CLOSED = 25,
 
-            TIME_SPEC_RAISE = 0.5,
+            TIME_SAMPLE_RELEASE = 0.5,
+            TIME_SPEC_GRAB = 0.25,
             TIME_SPEC_RELEASE = 0.5,
-            TIME_SAMPLE = 0.5,
-            TIME_GRAB = 0.25,
 
             HEIGHT_ABOVE_INTAKE = 10,
-            HEIGHT_INTAKING_SPECIMEN = 7,
-            HEIGHT_ARM_SAFE = 3,
+            HEIGHT_ARM_SAFE = 7,
             HEIGHT_OBSERVATION_ZONE = 0,
-            HEIGHT_BASKET_LOW = 10,
-            HEIGHT_BASKET_HIGH = 22,
-            HEIGHT_CHAMBER_LOW = 9,
-            HEIGHT_CHAMBER_HIGH = 12,
-            HEIGHT_OFFSET_SPECIMEN_SCORED = 5,
+            HEIGHT_BASKET_LOW = 0,
+            HEIGHT_BASKET_HIGH = 18,
+            HEIGHT_INTAKING_SPECIMEN = 7,
+            HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
+            HEIGHT_CHAMBER_HIGH = 9,
+            HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
+            HEIGHT_OFFSET_SPECIMEN_SCORED = 8,
             HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
 
     enum State {
@@ -78,7 +83,7 @@ public final class Deposit {
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    private Sample sample, specimenColor = RED;
+    private Sample sample, specimenColor = NEUTRAL;
 
     private Deposit.State state = RETRACTED;
 
@@ -92,18 +97,18 @@ public final class Deposit {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
-        claw.turnToAngle(ANGLE_CLAW_OPEN + 1);
+        claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
 
-        // release sample when climbing begins
+        // home arm when climbing begins
         if (climbing) state = RETRACTED;
         else switch (state) {
 
             case SAMPLE_FALLING:
 
-                if (timer.seconds() >= TIME_SAMPLE) {
+                if (timer.seconds() >= TIME_SAMPLE_RELEASE) {
                     state = RETRACTED;
                     setPosition(FLOOR);
                 }
@@ -117,12 +122,12 @@ public final class Deposit {
 
             case GRABBING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_GRAB) triggerClaw();
+                if (timer.seconds() >= TIME_SPEC_GRAB) triggerClaw();
                 else break;
 
             case RAISING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_SPEC_RAISE) triggerClaw();
+                if (lift.getPosition() >= HEIGHT_INTAKING_SPECIMEN + HEIGHT_OFFSET_SPECIMEN_INTAKED) triggerClaw();
 
                 break;
 
@@ -139,43 +144,52 @@ public final class Deposit {
 
         }
 
-        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
-
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
-        boolean underhand = state.armPosition == Arm.INTAKING;
-        boolean armHitting = belowSafeHeight && underhand;
+        boolean movingToUnderhand = state.armPosition == Arm.INTAKING;
+        boolean armWouldHitDrivetrain = belowSafeHeight && movingToUnderhand;
 
-        boolean armCanMove = !armHitting && (aboveIntake || intakeClear);
+        boolean armCanMove = !armWouldHitDrivetrain && (aboveIntake || intakeClear);
 
-        arm.setPosition(armCanMove ? state.armPosition : Arm.TRANSFER);
+        arm.setTarget(state.armPosition);
+        if (armCanMove) arm.run();
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
-        boolean liftCanMove = !crushingArm && (aboveIntake || !arm.isExtended() || intakeClear);
+        boolean liftCanMove = !crushingArm && (aboveIntake || !arm.collidingWithIntake() || intakeClear);
 
         lift.run(liftCanMove, climbing);
+
+        boolean intakePullingAwayPostTransfer = state == HAS_SAMPLE && arm.atPosition(Arm.TRANSFER) && !lift.isExtended() && !intakeClear;
+        claw.turnToAngle(
+                hasSample() ?
+                        intakePullingAwayPostTransfer ?
+                                ANGLE_CLAW_TRANSFERRED :
+                                ANGLE_CLAW_CLOSED :
+                state == RETRACTED ?
+                        ANGLE_CLAW_TRANSFER :
+                        ANGLE_CLAW_OPEN
+        );
     }
 
-    public void preload() {
+    public void preloadSpecimen() {
         Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
-        arm.setPosition(state.armPosition);
-        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
-    }
-
-    public void closeClaw() {
-        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_TRANSFER);
     }
 
     // when does the intake need to move out of the way
-    boolean activeNearIntake() {
-        return (lift.getPosition() < HEIGHT_ABOVE_INTAKE || lift.getTarget() < HEIGHT_ABOVE_INTAKE) && (arm.isExtended() || state.armPosition != Arm.TRANSFER);
+    boolean requestingIntakeToMove() {
+        return lift.getPosition() < HEIGHT_ABOVE_INTAKE && !arm.atPosition(Arm.TRANSFER);
     }
 
     boolean readyToTransfer() {
-        return state == RETRACTED && !lift.isExtended() && !arm.isExtended();
+        return state == RETRACTED && arm.atPosition(Arm.TRANSFER) && !lift.isExtended();
+    }
+
+    public boolean reachedTarget() {
+        return arm.reachedTarget() && abs(lift.getTarget() - lift.getPosition()) < Lift.HEIGHT_RETRACTED_THRESHOLD;
     }
 
     public void setPosition(Position position) {
@@ -203,12 +217,11 @@ public final class Deposit {
 
                 break;
 
-            case SCORING_SPECIMEN:
-                if (position == FLOOR) break;
-                state = HAS_SPECIMEN;
             case GRABBING_SPECIMEN:
             case RAISING_SPECIMEN:
             case HAS_SPECIMEN:
+            case SCORING_SPECIMEN:
+            case RELEASING_SPECIMEN:
 
                 lift.setTarget(position == HIGH ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
 
@@ -255,6 +268,7 @@ public final class Deposit {
             case RAISING_SPECIMEN:
 
                 state = HAS_SPECIMEN;
+                timer.reset();
 
                 break;
 
@@ -289,16 +303,27 @@ public final class Deposit {
         return sample != null;
     }
 
+    public boolean specimenIntaked() {
+        return state == HAS_SPECIMEN;
+    }
+
+    Sample getSample() {
+        return sample;
+    }
+
     public void transfer(Sample sample) {
         if (sample == null || hasSample() || state != RETRACTED) return;
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(FLOOR);
+        claw.turnToAngle(ANGLE_CLAW_TRANSFERRED);
     }
 
     void printTelemetry() {
         String gameElement = sample + (state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? " specimen" : " sample");
         mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
+        divider();
+        arm.printTelemetry();
         divider();
         lift.printTelemetry();
     }

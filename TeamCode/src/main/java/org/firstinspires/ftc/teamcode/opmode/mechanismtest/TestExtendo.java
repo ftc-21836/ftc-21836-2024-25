@@ -36,7 +36,7 @@ public final class TestExtendo extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(DPAD_DOWN)) extendo.setExtended(false);
             if (gamepadEx1.wasJustPressed(X)) extendo.toggle();
 
-            extendo.run(true);
+            extendo.run(true, false);
 
             extendo.printTelemetry();
             mTelemetry.update();
