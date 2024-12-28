@@ -117,6 +117,12 @@ public class TestPinpoint extends LinearOpMode {
         //odo.recalibrateIMU();
         odo.resetPosAndIMU();
 
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         telemetry.addData("Status", "Initialized");
         telemetry.addData("X offset", odo.getXOffset());
         telemetry.addData("Y offset", odo.getYOffset());
@@ -147,10 +153,22 @@ public class TestPinpoint extends LinearOpMode {
 
             if (gamepad1.a){
                 odo.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             if (gamepad1.b){
                 odo.recalibrateIMU(); //recalibrates the IMU without resetting position
+
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             /*
