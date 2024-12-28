@@ -59,6 +59,7 @@ import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -75,8 +76,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
+@Config
 @Autonomous(preselectTeleOp = "MainTeleOp")
 public final class MainAuton extends LinearOpMode {
+
+    public static boolean TELEMETRY = false;
 
     private Action asyncIntakeSequence(Robot robot, double extension) {
         return new SequentialAction(
@@ -345,11 +349,18 @@ public final class MainAuton extends LinearOpMode {
         Actions.runBlocking(new ParallelAction(
                 new InstantAction(robot.bulkReader::bulkRead),
                 trajectory,
-                telemetryPacket -> {
-                    pose = robot.drivetrain.pose;
-                    robot.run();
-                    return opModeIsActive();
-                }
+                TELEMETRY ?
+                        telemetryPacket -> {
+                            pose = robot.drivetrain.pose;
+                            robot.run();
+                            robot.printTelemetry();
+                            mTelemetry.update();
+                            return opModeIsActive();
+                        } : telemetryPacket -> {
+                            pose = robot.drivetrain.pose;
+                            robot.run();
+                            return opModeIsActive();
+                        }
         ));
     }
 
