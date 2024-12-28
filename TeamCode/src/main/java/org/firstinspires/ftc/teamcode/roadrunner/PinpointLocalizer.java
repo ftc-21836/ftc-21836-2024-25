@@ -43,17 +43,13 @@ public final class PinpointLocalizer implements Localizer {
         pinpoint.setEncoderResolution(TICKS_PER_MM);
         pinpoint.setEncoderDirections(X_POD_DIRECTION, Y_POD_DIRECTION);
 
-        reset();
+        pinpoint.resetPosAndIMU();
 
         try {
             Thread.sleep(300);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void reset() {
-        pinpoint.resetPosAndIMU();
     }
 
     public Twist2dDual<Time> update() {
