@@ -198,6 +198,7 @@ public final class MainAuton extends LinearOpMode {
 
             /// Score preloaded specimen
             builder = builder
+                    .waitSeconds(partnerWait)
                     .strafeTo(chamber0.toVector2d())
                     .stopAndAdd(scoreSpecimen)
             ;
