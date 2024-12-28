@@ -13,6 +13,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
+import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_HEADING;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
@@ -27,6 +28,9 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -46,6 +50,7 @@ public final class MainTeleOp extends LinearOpMode {
         EDITING_ALLIANCE,
         PRELOAD_SAMPLE,
         PRELOAD_SPECIMEN,
+        EDITING_HEADING,
         EDITING_SLOW_LOCK,
         EDITING_FIELD_CENTRIC;
 
@@ -84,6 +89,8 @@ public final class MainTeleOp extends LinearOpMode {
         TeleOpConfig selection = EDITING_ALLIANCE;
 
         boolean slowModeLocked = false, useFieldCentric = true;
+        double heading = pose.heading.toDouble();
+
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
@@ -100,6 +107,9 @@ public final class MainTeleOp extends LinearOpMode {
                 case PRELOAD_SPECIMEN:
                     robot.deposit.preloadSpecimen();
                     break;
+                case EDITING_HEADING:
+                    heading += PI / 2;
+                    break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;
                     break;
@@ -114,6 +124,8 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
             mTelemetry.addLine();
+            mTelemetry.addData("Start heading (deg)", toDegrees(heading) + selection.markIf(EDITING_HEADING));
+            mTelemetry.addLine();
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();
             mTelemetry.addLine((useFieldCentric ? "Field centric" : "ROBOT CENTRIC") + " driving" + selection.markIf(EDITING_FIELD_CENTRIC));
@@ -121,7 +133,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
         }
 
-        robot.drivetrain.localizer.setPosition(pose);
+        robot.drivetrain.localizer.setHeading(heading);
 
         robot.intake.setAlliance(isRedAlliance);
         robot.deposit.setAlliance(isRedAlliance);
