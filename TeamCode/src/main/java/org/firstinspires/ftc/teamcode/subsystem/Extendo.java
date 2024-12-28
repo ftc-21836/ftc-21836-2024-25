@@ -4,7 +4,6 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_117;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
-import static java.lang.Double.POSITIVE_INFINITY;
 import static java.lang.Double.max;
 import static java.lang.Math.PI;
 import static java.lang.Math.asin;
@@ -37,12 +36,7 @@ public final class Extendo {
             LENGTH_EXTENDED = Math.MM_EXTENSION,
             kS = 0;
 
-    public static PIDGains pidGains = new PIDGains(
-            0.015,
-            0,
-            0,
-            POSITIVE_INFINITY
-    );
+    public static PIDGains pidGains = new PIDGains(0.015);
 
     private final CachedMotorEx motor;
     private final PIDController controller = new PIDController();
