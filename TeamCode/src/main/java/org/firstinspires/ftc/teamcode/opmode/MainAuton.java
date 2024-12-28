@@ -313,7 +313,7 @@ public final class MainAuton extends LinearOpMode {
                 ;
             }
 
-            /// Level 1 ascent (left park)
+            /// Raise lift for level 1 ascent
             builder = builder
                     .afterTime(0, () -> {
                          robot.deposit.triggerClaw();
@@ -321,6 +321,7 @@ public final class MainAuton extends LinearOpMode {
                          robot.deposit.lift.setTarget(LIFT_PARK_LEFT);
                     });
 
+            /// Drive to level 1 ascent location
             if (specimenPreload && cycles == 0)
                 builder = builder
                         .setTangent(- 5 * PI / 6)
@@ -330,25 +331,9 @@ public final class MainAuton extends LinearOpMode {
             else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
         }
 
-        Action trajectory = builder.build();
-
-        mTelemetry.addLine("TRAJECTORY GENERATED:");
-        mTelemetry.addLine();
-        mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-        mTelemetry.addLine();
-        mTelemetry.addLine(
-                specimenSide ? "Right side specimen preload" + (cycles > 0 ? " and " + cycles + " specimens from floor" : "") :
-                "Left side " + (specimenPreload ? "specimen" : "sample") + " preload" + (cycles > 0 ? " and " + cycles + " samples from floor" : "")
-        );
-        mTelemetry.update();
-
-        waitForStart();
-
-// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-        Actions.runBlocking(new ParallelAction(
+        ParallelAction auton = new ParallelAction(
                 new InstantAction(robot.bulkReader::bulkRead),
-                trajectory,
+                builder.build(),
                 TELEMETRY ?
                         telemetryPacket -> {
                             pose = robot.drivetrain.pose;
@@ -361,7 +346,23 @@ public final class MainAuton extends LinearOpMode {
                             robot.run();
                             return opModeIsActive();
                         }
-        ));
+        );
+
+        mTelemetry.addLine("TRAJECTORY GENERATED:");
+        mTelemetry.addLine();
+        mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+        mTelemetry.addLine();
+        mTelemetry.addLine(specimenSide ?
+                "Right side specimen preload" + (cycles > 0 ? " and " + cycles + " specimens from floor" : "") :
+                "Left side " + (specimenPreload ? "specimen" : "sample") + " preload" + (cycles > 0 ? " and " + cycles + " samples from floor" : "")
+        );
+        mTelemetry.update();
+
+        waitForStart();
+
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        Actions.runBlocking(auton);
     }
 
     private void printConfig(AutonConfig selection, boolean specimenSide, int cycles, double partnerWait) {
