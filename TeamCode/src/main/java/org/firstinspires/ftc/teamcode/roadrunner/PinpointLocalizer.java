@@ -86,7 +86,7 @@ public final class PinpointLocalizer implements Localizer {
                         pinpoint.getVelX() * INCH_PER_MM,
                         pinpoint.getVelY() * INCH_PER_MM
                 ),
-                pinpoint.getHeading()
+                pinpoint.getHeadingVelocity()
         );
     }
 
