@@ -10,8 +10,6 @@ import static java.lang.Math.PI;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.Time;
-import com.acmerobotics.roadrunner.Twist2dDual;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -19,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver;
 
 @Config
-public final class PinpointLocalizer implements Localizer {
+public final class PinpointLocalizer {
 
     private static final double INCH_PER_MM = 1 / 25.4;
 
@@ -52,14 +50,13 @@ public final class PinpointLocalizer implements Localizer {
         }
     }
 
-    public Twist2dDual<Time> update() {
+    public void update() {
 
         if (trackHeadingOnly)
             pinpoint.update(ONLY_UPDATE_HEADING);
         else
             pinpoint.update();
 
-        return null;
     }
 
     public Pose2d getPosition() {
