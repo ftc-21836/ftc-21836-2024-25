@@ -333,8 +333,8 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
         mTelemetry.addLine(
-                specimenSide ? "Specimen preload" + (cycles > 0 ? " and " + cycles + " specimens from floor" : "") :
-                (specimenPreload ? "Specimen" : "Sample") + " preload" + (cycles > 0 ? " and " + cycles + " samples from floor" : "")
+                specimenSide ? "Right side specimen preload" + (cycles > 0 ? " and " + cycles + " specimens from floor" : "") :
+                "Left side " + (specimenPreload ? "specimen" : "sample") + " preload" + (cycles > 0 ? " and " + cycles + " samples from floor" : "")
         );
         mTelemetry.update();
 
