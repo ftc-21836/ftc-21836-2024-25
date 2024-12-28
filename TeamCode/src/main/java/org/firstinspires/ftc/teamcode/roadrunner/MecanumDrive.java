@@ -545,9 +545,8 @@ public final class MecanumDrive {
     }
 
     public PoseVelocity2d updatePoseEstimate() {
-        Twist2dDual<Time> twist = localizer.update();
+        localizer.update();
         pose = localizer.getPosition();
-        pose.plus(twist.value());
 
         poseHistory.add(pose);
         while (poseHistory.size() > 100) {
@@ -556,7 +555,7 @@ public final class MecanumDrive {
 
         estimatedPoseWriter.write(new PoseMessage(pose));
 
-        return twist.velocity().value();
+        return localizer.getVelocity();
     }
 
     private void drawPoseHistory(Canvas c) {

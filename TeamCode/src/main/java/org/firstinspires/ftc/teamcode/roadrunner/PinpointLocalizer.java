@@ -10,8 +10,10 @@ import static java.lang.Math.PI;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.Twist2dDual;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Vector2dDual;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -20,6 +22,8 @@ import org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver;
 
 @Config
 public final class PinpointLocalizer implements Localizer {
+
+    private static final double INCH_PER_MM = 1 / 25.4;
 
     public static double TICKS_PER_MM = 8192 / (PI * 38);
 
@@ -42,6 +46,12 @@ public final class PinpointLocalizer implements Localizer {
         pinpoint.setEncoderDirections(X_POD_DIRECTION, Y_POD_DIRECTION);
 
         reset();
+
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void reset() {
@@ -53,34 +63,30 @@ public final class PinpointLocalizer implements Localizer {
         if (trackHeadingOnly) pinpoint.update(ONLY_UPDATE_HEADING);
         else pinpoint.update();
 
-        Pose2D velocity = pinpoint.getVelocity();
-
         return new Twist2dDual<>(
                 new Vector2dDual<>(
-                        new DualNum<Time>(new double[] {
-                                0,
-                                velocity.getX(INCH),
-                        }),
-                        new DualNum<Time>(new double[] {
-                                0,
-                                velocity.getY(INCH),
-                        })
+                        new DualNum<>(new double[] {0, 0,}),
+                        new DualNum<>(new double[] {0, 0,})
                 ),
-                new DualNum<>(new double[] {
-                        0,
-                        velocity.getHeading(RADIANS)
-                })
+                new DualNum<>(new double[] {0, 0})
         );
     }
 
     public Pose2d getPosition() {
-
-        Pose2D position = pinpoint.getPosition();
-
         return new Pose2d(
-                position.getX(INCH),
-                position.getY(INCH),
-                position.getHeading(RADIANS)
+                pinpoint.getPosX() * INCH_PER_MM,
+                pinpoint.getPosY() * INCH_PER_MM,
+                pinpoint.getHeading()
+        );
+    }
+
+    public PoseVelocity2d getVelocity() {
+        return new PoseVelocity2d(
+                new Vector2d(
+                        pinpoint.getVelX() * INCH_PER_MM,
+                        pinpoint.getVelY() * INCH_PER_MM
+                ),
+                pinpoint.getHeading()
         );
     }
 
