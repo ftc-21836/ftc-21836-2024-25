@@ -328,6 +328,16 @@ public final class MainAuton extends LinearOpMode {
 
         Action trajectory = builder.build();
 
+        mTelemetry.addLine("TRAJECTORY GENERATED:");
+        mTelemetry.addLine();
+        mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+        mTelemetry.addLine();
+        mTelemetry.addLine(
+                specimenSide ? "Specimen preload" + (cycles > 0 ? " and " + cycles + " specimens from floor" : "") :
+                (specimenPreload ? "Specimen" : "Sample") + " preload" + (cycles > 0 ? " and " + cycles + " samples from floor" : "")
+        );
+        mTelemetry.update();
+
         waitForStart();
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
