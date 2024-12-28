@@ -343,7 +343,7 @@ public final class MainAuton extends LinearOpMode {
     }
 
     private void printConfig(AutonConfig selection, boolean specimenSide, int cycles, double partnerWait) {
-        mTelemetry.addLine((isRedAlliance ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
+        mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
         mTelemetry.addLine((specimenSide ? "RIGHT (SPECIMEN-SIDE)" : "LEFT (SAMPLE-SIDE)") + " side" + selection.markIf(EDITING_SIDE));
         mTelemetry.addLine();
@@ -353,6 +353,6 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry.addLine();
         mTelemetry.addLine(cycles + "cycles" + selection.markIf(EDITING_CYCLES));
         mTelemetry.addLine();
-        mTelemetry.addLine("Pause after spike: " + partnerWait + selection.markIf(EDITING_WAIT));
+        mTelemetry.addData("Wait before scoring specimen preload (sec)", partnerWait + selection.markIf(EDITING_WAIT));
     }
 }
