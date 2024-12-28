@@ -343,13 +343,13 @@ public final class MainAuton extends LinearOpMode {
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         Actions.runBlocking(new ParallelAction(
+                new InstantAction(robot.bulkReader::bulkRead),
+                trajectory,
                 telemetryPacket -> {
                     pose = robot.drivetrain.pose;
-                    robot.bulkReader.bulkRead();
                     robot.run();
                     return opModeIsActive();
-                },
-                trajectory
+                }
         ));
     }
 
