@@ -131,7 +131,8 @@ public final class MainTeleOp extends LinearOpMode {
         // Control loop:
         while (opModeIsActive()) {
             // Read sensors + gamepads:
-            robot.readSensors();
+            robot.bulkReader.bulkRead();
+            robot.drivetrain.updatePoseEstimate();
             gamepadEx1.readButtons();
 
             double rightX = gamepadEx1.getRightX();

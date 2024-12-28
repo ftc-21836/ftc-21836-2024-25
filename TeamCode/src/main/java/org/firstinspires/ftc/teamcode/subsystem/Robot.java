@@ -16,7 +16,6 @@ public final class Robot {
     public final Intake intake;
     public final Deposit deposit;
     public final Climber climber;
-
     public final BulkReader bulkReader;
 
     public Robot(HardwareMap hardwareMap, Pose2d startPose) {
@@ -26,11 +25,6 @@ public final class Robot {
         intake = new Intake(hardwareMap);
         deposit = new Deposit(hardwareMap);
         climber = new Climber(hardwareMap, deposit.lift);
-    }
-
-    public void readSensors() {
-        bulkReader.bulkRead();
-        drivetrain.updatePoseEstimate();
     }
 
     public void run() {
