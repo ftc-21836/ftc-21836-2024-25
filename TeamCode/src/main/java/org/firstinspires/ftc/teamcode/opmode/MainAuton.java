@@ -54,7 +54,7 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;

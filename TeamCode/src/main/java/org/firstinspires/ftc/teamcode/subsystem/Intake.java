@@ -10,9 +10,9 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETR
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static java.lang.Math.abs;
 
@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
+import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 

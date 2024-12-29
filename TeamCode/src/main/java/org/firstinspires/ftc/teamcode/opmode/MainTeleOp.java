@@ -22,9 +22,9 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -36,7 +36,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
-import org.firstinspires.ftc.teamcode.subsystem.Sample;
+import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
