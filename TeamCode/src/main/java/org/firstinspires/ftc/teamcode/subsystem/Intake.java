@@ -237,7 +237,7 @@ public final class Intake {
 
             case RETRACTED:
 
-                if (timer.seconds() >= TIME_REVERSING) rollerSpeed = SPEED_RETRACTED;
+                if (extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR) rollerSpeed = SPEED_RETRACTED;
 
                 break;
         }
