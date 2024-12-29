@@ -28,6 +28,9 @@ import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.X_POD_
 import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.Y_POD_DIRECTION;
 import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.Y_POD_OFFSET;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -35,6 +38,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.roadrunner.Drawing;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
 
 import java.util.Locale;
 
@@ -196,6 +201,17 @@ public class TestPinpoint extends LinearOpMode {
             Pose2D vel = odo.getVelocity();
             String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
             telemetry.addData("Velocity", velocity);
+
+            Pose2d pose = new Pose2d(
+                    odo.getPosX() * PinpointLocalizer.INCH_PER_MM,
+                    odo.getPosY() * PinpointLocalizer.INCH_PER_MM,
+                    odo.getHeading()
+            );
+
+            TelemetryPacket packet = new TelemetryPacket();
+            packet.fieldOverlay().setStroke("#3F51B5");
+            Drawing.drawRobot(packet.fieldOverlay(), pose);
+            FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
 
             /*

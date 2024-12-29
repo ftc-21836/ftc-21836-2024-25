@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver;
 @Config
 public final class PinpointLocalizer {
 
-    private static final double INCH_PER_MM = 1 / 25.4;
+    public static final double INCH_PER_MM = 1 / 25.4;
 
     public static double TICKS_PER_MM = 8192 / (PI * 38);
 
