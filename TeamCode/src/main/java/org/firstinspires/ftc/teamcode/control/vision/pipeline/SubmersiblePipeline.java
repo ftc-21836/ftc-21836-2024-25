@@ -4,8 +4,8 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.AprilTagDet
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.AprilTagDetectionPipeline.lavender;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.AprilTagDetectionPipeline.red;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.AprilTagDetectionPipeline.yellow;
-import static org.opencv.imgproc.Imgproc.FILLED;
 import static org.opencv.imgproc.Imgproc.MARKER_CROSS;
+import static org.opencv.imgproc.Imgproc.MARKER_DIAMOND;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
@@ -108,12 +108,15 @@ public class SubmersiblePipeline extends OpenCvPipeline {
         // Executed every time a new frame is dispatched
 
         for (int i = 0; i < warpColors.length; i++) {
-            Imgproc.drawMarker(input, SOURCE_1[i], warpColors[i], MARKER_CROSS, 25, 10);
-            Imgproc.circle(input, TARGET[i], 10, warpColors[i], 10, FILLED);
+            Imgproc.drawMarker(input, SOURCE_1[i], warpColors[i], MARKER_CROSS, 25, 2);
         }
 
         if (warp) {
             Imgproc.warpPerspective(input, input, transformMatrix, input.size());
+        }
+
+        for (int i = 0; i < warpColors.length; i++) {
+            Imgproc.drawMarker(input, TARGET[i], warpColors[i], MARKER_DIAMOND, 30, 6);
         }
 
         return input;
