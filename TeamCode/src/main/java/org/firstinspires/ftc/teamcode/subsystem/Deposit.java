@@ -43,7 +43,7 @@ public final class Deposit {
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_ARM_SAFE = 7,
-            HEIGHT_OBSERVATION_ZONE = 0,
+            HEIGHT_OBSERVATION_ZONE = 7,
             HEIGHT_BASKET_LOW = 0,
             HEIGHT_BASKET_HIGH = 18,
             HEIGHT_INTAKING_SPECIMEN = 7,
@@ -148,12 +148,14 @@ public final class Deposit {
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
-        boolean movingToUnderhand = state.armPosition == Arm.INTAKING;
+        Arm.Position armPosition = state == HAS_SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE ? Arm.INTAKING : state.armPosition;
+
+        boolean movingToUnderhand = armPosition == Arm.INTAKING;
         boolean armWouldHitDrivetrain = belowSafeHeight && movingToUnderhand;
 
         boolean armCanMove = !armWouldHitDrivetrain && (aboveIntake || intakeClear);
 
-        arm.setTarget(state.armPosition);
+        arm.setTarget(armPosition);
         if (armCanMove) arm.run();
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
