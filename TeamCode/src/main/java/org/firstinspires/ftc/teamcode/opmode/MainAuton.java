@@ -310,7 +310,7 @@ public final class MainAuton extends LinearOpMode {
                                     robot.intake.extendo.setTarget(millimeters);
                                     robot.intake.runRoller(0.8);
                                 }),
-                                telemetryPacket1 -> !robot.intake.hasSample(), // wait until intake gets a sample
+                                telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
                                 new SleepAction(WAIT_POST_INTAKING),
                                 new InstantAction(() -> robot.intake.runRoller(0))
                         ))
