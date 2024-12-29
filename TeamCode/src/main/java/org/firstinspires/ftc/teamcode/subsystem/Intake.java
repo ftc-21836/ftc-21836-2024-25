@@ -40,10 +40,10 @@ public final class Intake {
 
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 1.5,
-            TIME_BUCKET_SEMI_RETRACT = 0.3,
-            TIME_PRE_TRANSFER = 0.1,
-            TIME_TRANSFER = 0.25,
-            TIME_POST_TRANSFER = 0.25,
+            TIME_BUCKET_SEMI_RETRACT = 0.2,
+            TIME_PRE_TRANSFER = 0.25,
+            TIME_TRANSFER = 0.4,
+            TIME_REVERSING = 0.25,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
@@ -237,7 +237,7 @@ public final class Intake {
 
             case RETRACTED:
 
-                if (timer.seconds() >= TIME_POST_TRANSFER) rollerSpeed = SPEED_RETRACTED;
+                if (timer.seconds() >= TIME_REVERSING) rollerSpeed = SPEED_RETRACTED;
 
                 break;
         }
