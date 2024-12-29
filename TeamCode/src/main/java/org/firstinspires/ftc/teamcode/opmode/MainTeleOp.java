@@ -77,7 +77,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
-        robot.drivetrain.localizer.trackHeadingOnly(true);
+        //robot.drivetrain.localizer.trackHeadingOnly(true);
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
@@ -95,10 +95,10 @@ public final class MainTeleOp extends LinearOpMode {
                     isRedAlliance = !isRedAlliance;
                     break;
                 case PRELOAD_SAMPLE:
-                    robot.deposit.transfer(NEUTRAL);
+//                    robot.deposit.transfer(NEUTRAL);
                     break;
                 case PRELOAD_SPECIMEN:
-                    robot.deposit.preloadSpecimen();
+//                    robot.deposit.preloadSpecimen();
                     break;
                 case EDITING_SLOW_LOCK:
                     slowModeLocked = !slowModeLocked;
@@ -121,10 +121,10 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.update();
         }
 
-        robot.drivetrain.localizer.setPosition(pose);
+//        robot.drivetrain.localizer.setPosition(pose);
 
-        robot.intake.setAlliance(isRedAlliance);
-        robot.deposit.setAlliance(isRedAlliance);
+//        robot.intake.setAlliance(isRedAlliance);
+//        robot.deposit.setAlliance(isRedAlliance);
 
         matchTimer.reset();
 
@@ -144,46 +144,46 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.extendo.runManual(triggers);
-                robot.deposit.lift.runManual(leftY);
-                robot.intake.runRoller(0);
+//                robot.intake.extendo.runManual(triggers);
+//                robot.deposit.lift.runManual(leftY);
+//                robot.intake.runRoller(0);
                 
-                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
-                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON))  robot.drivetrain.localizer.reset();
+//                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+//                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON))  robot.drivetrain.localizer.reset();
 
                 // SET HEADING:
-                robot.drivetrain.setHeadingFromStick(rightX, gamepadEx1.getRightY());
+//                robot.drivetrain.setHeadingFromStick(rightX, gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
             } else {
 
-                if (gamepad1.touchpad_finger_1) {
-                    robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
-                }
-                robot.intake.extendo.runManual(0);
-                robot.deposit.lift.runManual(0);
-                robot.intake.runRoller(triggers);
-
-                if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
-                if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
-
-                if (!robot.climber.isActive()) {
-
-                    if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
-                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
-                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
-                    else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
-
-                    if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
-
-                } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
+//                if (gamepad1.touchpad_finger_1) {
+//                    robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
+//                }
+//                robot.intake.extendo.runManual(0);
+//                robot.deposit.lift.runManual(0);
+//                robot.intake.runRoller(triggers);
+//
+//                if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
+//                if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
+//
+//                if (!robot.climber.isActive()) {
+//
+//                    if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
+//                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
+//                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
+//                    else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
+//
+//                    if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
+//
+//                } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
                 robot.drivetrain.run(
                         leftX,
                         leftY,
                         rightX,
                         slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
-                        useFieldCentric
+                        false
                 );
 
             }
@@ -195,25 +195,6 @@ public final class MainTeleOp extends LinearOpMode {
             divider();
             robot.printTelemetry();
             mTelemetry.update();
-
-            if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
-                gamepad1.rumble(1, 1, 1500);
-                rumbledClimb = true;
-            }
-
-            if (!robot.intake.hasSample()) rumbledSample = false;
-            else if (!gamepad1.isRumbling() && !rumbledSample) {
-                gamepad1.runRumbleEffect(sampleRumble);
-                rumbledSample = true;
-            }
-
-            Sample sample = robot.getSample();
-            gamepad1.setLedColor(
-                    sample == RED || sample == NEUTRAL ? 1 : 0,
-                    sample == NEUTRAL ? 1 : 0,
-                    sample == BLUE ? 1 : 0,
-                    Gamepad.LED_DURATION_CONTINUOUS
-            );
 
         }
     }

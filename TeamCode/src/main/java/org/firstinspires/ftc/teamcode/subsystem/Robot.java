@@ -13,9 +13,9 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
 public final class Robot {
 
     public final MecanumDrive drivetrain;
-    public final Intake intake;
-    public final Deposit deposit;
-    public final Climber climber;
+//    public final Intake intake;
+//    public final Deposit deposit;
+//    public final Climber climber;
 
     public final BulkReader bulkReader;
 
@@ -23,9 +23,9 @@ public final class Robot {
 
         drivetrain = new MecanumDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
-        intake = new Intake(hardwareMap);
-        deposit = new Deposit(hardwareMap);
-        climber = new Climber(hardwareMap, deposit.lift);
+//        intake = new Intake(hardwareMap);
+//        deposit = new Deposit(hardwareMap);
+//        climber = new Climber(hardwareMap, deposit.lift);
     }
 
     public void readSensors() {
@@ -35,16 +35,16 @@ public final class Robot {
 
     public void run() {
 
-        intake.run(climber.isActive(), deposit);
-        deposit.run(intake.hasSample(), climber.isActive(), intake.clearOfDeposit());
+//        intake.run(climber.isActive(), deposit);
+//        deposit.run(intake.hasSample(), climber.isActive(), intake.clearOfDeposit());
 
-        climber.run();
+//        climber.run();
     }
 
     public Sample getSample() {
         return
-                intake.hasSample() ?    intake.getSample() :
-                deposit.hasSample() ?   deposit.getSample() :
+//                intake.hasSample() ?    intake.getSample() :
+//                deposit.hasSample() ?   deposit.getSample() :
                                         null;
     }
 
@@ -54,11 +54,11 @@ public final class Robot {
 
     public void printTelemetry() {
         drivetrain.printTelemetry();
-        divider();
-        intake.printTelemetry();
-        divider();
-        deposit.printTelemetry();
-        divider();
-        climber.printTelemetry();
+//        divider();
+//        intake.printTelemetry();
+//        divider();
+//        deposit.printTelemetry();
+//        divider();
+//        climber.printTelemetry();
     }
 }
