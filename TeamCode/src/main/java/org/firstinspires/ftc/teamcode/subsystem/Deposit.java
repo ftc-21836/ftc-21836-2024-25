@@ -315,7 +315,7 @@ public final class Deposit {
         if (sample == null || hasSample() || state != RETRACTED) return;
         this.sample = sample;
         state = HAS_SAMPLE;
-        setPosition(FLOOR);
+        setPosition(LOW);
         claw.turnToAngle(ANGLE_CLAW_TRANSFERRED);
     }
 
