@@ -198,9 +198,6 @@ public final class Deposit {
 
         switch (state) {
 
-            case INTAKING_SPECIMEN:
-                if (position != FLOOR) break;
-                state = RETRACTED;
             case RETRACTED:
 
                 if (position == FLOOR) {
@@ -219,11 +216,21 @@ public final class Deposit {
 
                 break;
 
+            case INTAKING_SPECIMEN:
+                if (position != FLOOR) break;
             case GRABBING_SPECIMEN:
             case RAISING_SPECIMEN:
             case HAS_SPECIMEN:
             case SCORING_SPECIMEN:
             case RELEASING_SPECIMEN:
+
+                if (position == FLOOR) {
+
+                    while (state != RETRACTED) {
+                        triggerClaw();
+                    }
+                    break;
+                }
 
                 lift.setTarget(position == HIGH ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
 
