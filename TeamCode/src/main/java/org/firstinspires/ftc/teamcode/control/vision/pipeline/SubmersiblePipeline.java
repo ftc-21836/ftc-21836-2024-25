@@ -82,6 +82,23 @@ public class SubmersiblePipeline extends OpenCvPipeline {
                     0.1
             );
 
+
+    private final MatOfPoint2f
+            source = new MatOfPoint2f(
+                    SOURCE_1[0],
+                    SOURCE_1[1],
+                    SOURCE_1[2],
+                    SOURCE_1[3]
+            ),
+            dest = new MatOfPoint2f(
+                    TARGET[0],
+                    TARGET[1],
+                    TARGET[2],
+                    TARGET[3]
+            );
+
+    private final Mat transformMatrix = Imgproc.getPerspectiveTransform(source, dest);
+
     public SubmersiblePipeline(Telemetry t) {
         telemetry = t;
     }
@@ -96,25 +113,7 @@ public class SubmersiblePipeline extends OpenCvPipeline {
         }
 
         if (warp) {
-            MatOfPoint2f source = new MatOfPoint2f(
-                    SOURCE_1[0],
-                    SOURCE_1[1],
-                    SOURCE_1[2],
-                    SOURCE_1[3]
-            );
-
-            MatOfPoint2f dest = new MatOfPoint2f(
-                    TARGET[0],
-                    TARGET[1],
-                    TARGET[2],
-                    TARGET[3]
-            );
-
-            Mat transformMatrix = Imgproc.getPerspectiveTransform(source, dest);
             Imgproc.warpPerspective(input, input, transformMatrix, input.size());
-            source.release();
-            dest.release();
-            transformMatrix.release();
         }
 
         return input;
