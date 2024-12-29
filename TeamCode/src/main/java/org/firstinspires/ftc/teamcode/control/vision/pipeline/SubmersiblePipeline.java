@@ -23,32 +23,32 @@ public class SubmersiblePipeline extends OpenCvPipeline {
 
     private final Telemetry telemetry;
 
-    public boolean isRedAlliance = false, warp = false;
-
-    private static final double
-            TARGET_ANGLE = toRadians(30),
-            SAMPLE_WIDTH = 85,
-            SAMPLE_LENGTH = SAMPLE_WIDTH * 3.5 / 1.5;
+    public boolean isRedAlliance = false, warp = false, neutral = false;
 
     private final Scalar[] warpColors = {blue, red, lavender, yellow};
 
-    private final Point
-            TARGET_1 = new Point(450,800),
-            TARGET_3 = new Point(TARGET_1.x + SAMPLE_LENGTH * cos(TARGET_ANGLE-PI/2),TARGET_1.y - SAMPLE_LENGTH * sin(TARGET_ANGLE-PI/2));
-
     private final Point[]
-            TARGET = {
-                    TARGET_1,
-                    new Point(TARGET_1.x + SAMPLE_WIDTH * cos(TARGET_ANGLE),TARGET_1.y - SAMPLE_WIDTH * sin(TARGET_ANGLE)),
-                    TARGET_3,
-                    new Point(TARGET_3.x + SAMPLE_WIDTH * cos(TARGET_ANGLE),TARGET_3.y - SAMPLE_WIDTH * sin(TARGET_ANGLE))
-            },
+            TARGET = new Point[4],
             SOURCE_1 = {
                     new Point(425, 535),
                     new Point(540, 500),
                     new Point(607, 715),
                     new Point(735, 665)
             };
+
+    private final Mat transformMatrix;
+
+    {
+        double TARGET_ANGLE = toRadians(30);
+        double SAMPLE_WIDTH = 85;
+        double SAMPLE_LENGTH = SAMPLE_WIDTH * 3.5 / 1.5;
+
+        TARGET[0] = new Point(450,800);
+        TARGET[1] = new Point(TARGET[0].x + SAMPLE_WIDTH * cos(TARGET_ANGLE),TARGET[0].y - SAMPLE_WIDTH * sin(TARGET_ANGLE));
+        TARGET[2] = new Point(TARGET[0].x + SAMPLE_LENGTH * cos(TARGET_ANGLE-PI/2),TARGET[0].y - SAMPLE_LENGTH * sin(TARGET_ANGLE-PI/2));
+        TARGET[3] = new Point(TARGET[2].x + SAMPLE_WIDTH * cos(TARGET_ANGLE),TARGET[2].y - SAMPLE_WIDTH * sin(TARGET_ANGLE));
+        transformMatrix = Imgproc.getPerspectiveTransform(new MatOfPoint2f(SOURCE_1), new MatOfPoint2f(TARGET));
+    }
 
     private final Scalar
             minRed = new Scalar(
@@ -81,8 +81,6 @@ public class SubmersiblePipeline extends OpenCvPipeline {
                     0.9,
                     0.1
             );
-
-    private final Mat transformMatrix = Imgproc.getPerspectiveTransform(new MatOfPoint2f(SOURCE_1), new MatOfPoint2f(TARGET));
 
     public SubmersiblePipeline(Telemetry t) {
         telemetry = t;
