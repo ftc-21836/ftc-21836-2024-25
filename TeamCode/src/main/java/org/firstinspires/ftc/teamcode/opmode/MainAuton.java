@@ -355,9 +355,14 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.update();
         }
 
+        // Parallel action to bulk read, update trajectory, and update robot (robot.run())
         ParallelAction auton = new ParallelAction(
-                new InstantAction(robot.bulkReader::bulkRead),
+                telemetryPacket -> {
+                    robot.bulkReader.bulkRead();
+                    return opModeIsActive();
+                },
                 builder.build(),
+                // only print telemetry if enabled from dashboard
                 TELEMETRY ?
                         telemetryPacket -> {
                             pose = robot.drivetrain.pose;
