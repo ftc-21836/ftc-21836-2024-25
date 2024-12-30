@@ -23,8 +23,8 @@ public final class PinpointLocalizer {
 
     public static double TICKS_PER_MM = 8192 / (PI * 38);
 
-    public static double X_POD_OFFSET = -12000; // y position of the forward (x) encoder (in tick units)
-    public static double Y_POD_OFFSET = -3268.070848297075; // x position of the perpendicular (y) encoder (in tick units)
+    public static double X_POD_OFFSET = (165.42500 + 3); // y position of the forward (x) encoder (in tick units)
+    public static double Y_POD_OFFSET = -(52.65000 + 3); // x position of the perpendicular (y) encoder (in tick units)
 
     public static GoBildaPinpointDriver.EncoderDirection
             X_POD_DIRECTION = REVERSED,
