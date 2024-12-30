@@ -41,8 +41,8 @@ public final class Intake {
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 1.5,
             TIME_BUCKET_SEMI_RETRACT = 0.2,
-            TIME_PRE_TRANSFER = 0.25,
-            TIME_TRANSFER = 0.4,
+            TIME_PRE_TRANSFER = 0.15,
+            TIME_TRANSFER = 0.15,
             TIME_REVERSING = 0.25,
 
             SPEED_EJECTING = -0.25,
