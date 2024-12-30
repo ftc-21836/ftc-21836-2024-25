@@ -17,6 +17,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.control.filter.FIRLowPassFilter;
+import org.firstinspires.ftc.teamcode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 @Config
@@ -24,6 +26,8 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 public class ManualFeedforwardTuner extends LinearOpMode {
 
     public static double DISTANCE = 64;
+
+    public static boolean FILTER = false;
 
     enum Mode {
         DRIVER_MODE,
@@ -35,6 +39,8 @@ public class ManualFeedforwardTuner extends LinearOpMode {
         Telemetry telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
 
         MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+        FIRLowPassFilter filter = new FIRLowPassFilter(new LowPassGains(0.75, 2));
 
         double maxVel = MecanumDrive.PARAMS.maxWheelVel;
         double minAccel = MecanumDrive.PARAMS.minProfileAccel;
@@ -71,6 +77,7 @@ public class ManualFeedforwardTuner extends LinearOpMode {
                     if (gamepad1.y) mode = Mode.DRIVER_MODE;
 
                     double v = drive.localizer.getVelocity().linearVel.x;
+                    if (FILTER) v = filter.calculate(v);
                     telemetry.addData("velocity", v);
 
                     double ts = System.nanoTime() / 1e9;
