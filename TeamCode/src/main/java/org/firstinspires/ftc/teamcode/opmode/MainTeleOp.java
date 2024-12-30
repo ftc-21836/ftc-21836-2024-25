@@ -104,6 +104,7 @@ public final class MainTeleOp extends LinearOpMode {
             }
 
             robot.drivetrain.setHeadingFromStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
+            robot.drivetrain.updatePoseEstimate();
 
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
@@ -115,7 +116,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((useFieldCentric ? "Field centric" : "ROBOT CENTRIC") + " driving" + selection.markIf(EDITING_FIELD_CENTRIC));
             mTelemetry.addLine();
-            mTelemetry.addData("Start heading (deg)", toDegrees(robot.drivetrain.localizer.getPosition().heading.toDouble()));
+            mTelemetry.addData("Start heading (deg)", toDegrees(robot.drivetrain.pose.heading.toDouble()));
 
             mTelemetry.update();
         }
