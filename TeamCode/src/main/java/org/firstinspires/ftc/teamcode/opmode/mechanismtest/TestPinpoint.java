@@ -192,18 +192,16 @@ public class TestPinpoint extends LinearOpMode {
             /*
             gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
              */
-            double x = odo.getPosX();
-            double y = odo.getPosY();
-            double heading = odo.getHeading();
+            Pose2D pos = odo.getPosition();
 
-            telemetry.addData("x", x);
-            telemetry.addData("y", y);
-            telemetry.addData("heading (deg)", toDegrees(heading));
+            telemetry.addData("x", pos.getX(DistanceUnit.MM));
+            telemetry.addData("y", pos.getY(DistanceUnit.MM));
+            telemetry.addData("heading (deg)", pos.getHeading(AngleUnit.DEGREES));
 
             Pose2d pose = new Pose2d(
-                    x * PinpointLocalizer.INCH_PER_MM,
-                    y * PinpointLocalizer.INCH_PER_MM,
-                    heading
+                    pos.getX(DistanceUnit.INCH),
+                    pos.getY(DistanceUnit.INCH),
+                    pos.getHeading(AngleUnit.RADIANS)
             );
 
             TelemetryPacket packet = new TelemetryPacket();
