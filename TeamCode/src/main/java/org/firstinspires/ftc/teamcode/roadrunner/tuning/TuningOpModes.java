@@ -31,6 +31,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
 import org.firstinspires.ftc.teamcode.roadrunner.TankDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.ThreeDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.roadrunner.TwoDeadWheelLocalizer;
@@ -95,9 +96,11 @@ public final class TuningOpModes {
                 }
                 @Override public void setVelocity(double angularRate, AngleUnit unit) {
                 }
-                @Override public double getVelocity() {return 0;}
-                    @Override public double getVelocity(AngleUnit unit) {return 0;}
-                    @Override public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
+                @Override public double getVelocity() {
+                    return md.localizer.getVelocity().linearVel.x * 25.4 * PinpointLocalizer.TICKS_PER_MM;
+                }
+                @Override public double getVelocity(AngleUnit unit) {return 0;}
+                @Override public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
                 }
                 @Override public void setPIDFCoefficients(RunMode mode, PIDFCoefficients pidfCoefficients) throws UnsupportedOperationException {
                 }
@@ -118,7 +121,7 @@ public final class TuningOpModes {
                     @Override public MotorConfigurationType getMotorType() {return null;}
                     @Override public void setMotorType(MotorConfigurationType motorType) {
                 }
-                @Override public DcMotorController getController() {return null;}
+                @Override public DcMotorController getController() {return md.rightBack.motor.getController();}
                     @Override public int getPortNumber() {return 0;}
                     @Override public void setZeroPowerBehavior(ZeroPowerBehavior zeroPowerBehavior) {
                 }
@@ -147,7 +150,9 @@ public final class TuningOpModes {
                     }
                     @Override public void setVelocity(double angularRate, AngleUnit unit) {
                     }
-                    @Override public double getVelocity() {return 0;}
+                    @Override public double getVelocity() {
+                        return md.localizer.getVelocity().linearVel.y * 25.4 * PinpointLocalizer.TICKS_PER_MM;
+                    }
                     @Override public double getVelocity(AngleUnit unit) {return 0;}
                     @Override public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
                     }
@@ -170,7 +175,7 @@ public final class TuningOpModes {
                     @Override public MotorConfigurationType getMotorType() {return null;}
                     @Override public void setMotorType(MotorConfigurationType motorType) {
                     }
-                    @Override public DcMotorController getController() {return null;}
+                    @Override public DcMotorController getController() {return md.rightFront.motor.getController();}
                     @Override public int getPortNumber() {return 0;}
                     @Override public void setZeroPowerBehavior(ZeroPowerBehavior zeroPowerBehavior) {
                     }
