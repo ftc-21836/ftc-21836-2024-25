@@ -289,7 +289,7 @@ public final class TuningOpModes {
                     AngularRampLogger.class,
                     ForwardRampLogger.class,
                     LateralRampLogger.class,
-                    ManualFeedforwardTuner.class,
+//                    ManualFeedforwardTuner.class,
                     MecanumMotorDirectionDebugger.class,
                     ManualFeedbackTuner.class
             )) {

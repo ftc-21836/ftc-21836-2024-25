@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 @TeleOp
 public class ManualFeedforwardTuner extends LinearOpMode {
 
-    public static double DISTANCE = 64;
+    public static double DISTANCE = 130;
 
     public static boolean FILTER = false;
 
