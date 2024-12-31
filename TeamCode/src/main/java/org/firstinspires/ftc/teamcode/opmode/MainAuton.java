@@ -173,9 +173,9 @@ public final class MainAuton extends LinearOpMode {
 
         boolean specimenPreload = !specimenSide && robot.deposit.specimenIntaked();
 
-        String genLog = "GENERATING TRAJECTORY...";
-        mTelemetry.addLine(genLog);
-        mTelemetry.update();
+        mTelemetry.addLine("GENERATING TRAJECTORY...");
+        mTelemetry.addLine();
+        mTelemetry.addLine("> " + (isRedAlliance ? "Red" : "Blue") + " alliance");
 
         Pose2d startPose = new Pose2d(
                 specimenSide ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
@@ -189,6 +189,8 @@ public final class MainAuton extends LinearOpMode {
 
         if (specimenSide) {
 
+            mTelemetry.addLine("> Right side");
+
             /// Score preloaded specimen
             builder = builder
                     .waitSeconds(partnerWait)
@@ -196,8 +198,7 @@ public final class MainAuton extends LinearOpMode {
                     .stopAndAdd(scoreSpecimen(robot))
             ;
 
-            mTelemetry.addLine(genLog += "\n> Score preloaded specimen");
-            mTelemetry.update();
+            mTelemetry.addLine("> Score preloaded specimen");
 
             if (cycles > 0) {
 
@@ -214,8 +215,7 @@ public final class MainAuton extends LinearOpMode {
                         .splineToConstantHeading(intakingFirstSpec.toVector2d(), intakingFirstSpec.heading)
                 ;
 
-                mTelemetry.addLine(genLog += "\n> Push samples");
-                mTelemetry.update();
+                mTelemetry.addLine("> Push samples");
 
                 /// Cycle specimens
                 for (int i = 0; i < cycles; i++) {
@@ -235,8 +235,7 @@ public final class MainAuton extends LinearOpMode {
                             .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
                     ;
 
-                    mTelemetry.addLine(genLog += "\n> Specimen cycle " + (i + 1));
-                    mTelemetry.update();
+                    mTelemetry.addLine("> Specimen cycle " + (i + 1));
                 }
 
 
@@ -245,10 +244,11 @@ public final class MainAuton extends LinearOpMode {
             /// Park in observation zone
             builder = builder.strafeTo(parkRight.toVector2d());
 
-            mTelemetry.addLine(genLog += "\n> Park in observation zone");
-            mTelemetry.update();
+            mTelemetry.addLine("> Park in observation zone");
 
         } else {
+
+            mTelemetry.addLine("> Left side");
 
             if (specimenPreload) {
                 /// Score preloaded specimen
@@ -258,7 +258,7 @@ public final class MainAuton extends LinearOpMode {
                         .stopAndAdd(scoreSpecimen(robot))
                 ;
 
-                mTelemetry.addLine(genLog += "\n> Score preloaded specimen");
+                mTelemetry.addLine("> Score preloaded specimen");
             } else {
                 /// Score preloaded sample
                 builder = builder
@@ -267,9 +267,8 @@ public final class MainAuton extends LinearOpMode {
                         .stopAndAdd(scoreSample(robot))
                 ;
 
-                mTelemetry.addLine(genLog += "\n> Score preloaded sample");
+                mTelemetry.addLine("> Score preloaded sample");
             }
-            mTelemetry.update();
 
             double[] extendoMMs = {EXTEND_SAMPLE_1, EXTEND_SAMPLE_2, EXTEND_SAMPLE_3};
             EditablePose[] intakingPositions = {intaking1, intaking2, intaking3};
@@ -310,15 +309,13 @@ public final class MainAuton extends LinearOpMode {
                         .stopAndAdd(scoreSample(robot))
                 ;
 
-                mTelemetry.addLine(genLog += "\n> Sample cycle " + (i + 1));
-                mTelemetry.update();
+                mTelemetry.addLine("> Sample cycle " + (i + 1));
             }
 
             /// Raise arm for level 1 ascent
             builder = builder.afterTime(0, robot.deposit::level1Ascent);
 
-            mTelemetry.addLine(genLog += "\n> Raise lift for level 1 ascent");
-            mTelemetry.update();
+            mTelemetry.addLine("Raise lift for level 1 ascent");
 
             /// Drive to level 1 ascent location
             if (specimenPreload && cycles == 0)
@@ -329,8 +326,7 @@ public final class MainAuton extends LinearOpMode {
                 ;
             else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
 
-            mTelemetry.addLine(genLog += "\n> Drive to level 1 ascent location");
-            mTelemetry.update();
+            mTelemetry.addLine("Drive to level 1 ascent location");
         }
 
         // Parallel action to bulk read, update trajectory, and update robot (robot.run())
@@ -356,17 +352,9 @@ public final class MainAuton extends LinearOpMode {
                         }
         );
 
-        mTelemetry.addLine(genLog);
         mTelemetry.addLine();
-        mTelemetry.addLine();
-        mTelemetry.addLine("TRAJECTORY GENERATED:");
-        mTelemetry.addLine();
-        mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-        mTelemetry.addLine();
-        mTelemetry.addLine(specimenSide ?
-                "Right side specimen preload" + (cycles > 0 ? " and " + cycles + " specimens from floor" : "") :
-                "Left side " + (specimenPreload ? "specimen" : "sample") + " preload" + (cycles > 0 ? " and " + cycles + " samples from floor" : "")
-        );
+        mTelemetry.addLine("TRAJECTORY GENERATED");
+        mTelemetry.addLine("(Press play to run autonomous)");
         mTelemetry.update();
 
         waitForStart();
