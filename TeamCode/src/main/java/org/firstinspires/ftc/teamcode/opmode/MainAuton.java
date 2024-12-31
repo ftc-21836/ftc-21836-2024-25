@@ -379,6 +379,8 @@ public final class MainAuton extends LinearOpMode {
         );
 
         mTelemetry.addLine(genLog);
+        mTelemetry.addLine();
+        mTelemetry.addLine();
         mTelemetry.addLine("TRAJECTORY GENERATED:");
         mTelemetry.addLine();
         mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
