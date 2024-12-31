@@ -185,7 +185,7 @@ public final class Deposit {
 
     // when does the intake need to move out of the way
     boolean requestingIntakeToMove() {
-        return lift.getPosition() < HEIGHT_ABOVE_INTAKE && !arm.atPosition(Arm.TRANSFER);
+        return lift.getPosition() < HEIGHT_ABOVE_INTAKE && !arm.atPosition(Arm.TRANSFER) && !arm.reachedTarget();
     }
 
     boolean readyToTransfer() {
