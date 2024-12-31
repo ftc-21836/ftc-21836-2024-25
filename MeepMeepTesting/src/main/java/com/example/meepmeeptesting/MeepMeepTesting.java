@@ -45,32 +45,17 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
 public class MeepMeepTesting {
 
-    private static Action asyncIntakeSequence(double extension) {
-        return new SequentialAction(
-                new InstantAction(() -> {
-//                    robot.intake.extendo.setTarget(extension);
-//                    robot.intake.runRoller(0.8);
-                }),
-//                telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
-                new SleepAction(WAIT_POST_INTAKING)
-//                new InstantAction(() -> robot.intake.runRoller(0))
-        );
-    }
-
-    private static Pose2d chamber(int id) {
-        return new Pose2d(chamber0.x - id * DISTANCE_BETWEEN_SPECIMENS, chamber0.y, chamber0.heading);
-    }
-
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(720);
 
-        boolean specimenSide = false, specimenPreload = true;
+        boolean specimenSide = false, specimenPreload = false;
         double partnerWait = 0;
         int cycles = 3;
 
@@ -132,14 +117,17 @@ public class MeepMeepTesting {
                     builder = builder
                             .stopAndAdd(intakeSpec)
                             .setTangent(PI / 2)
-                            .splineToConstantHeading(chamber(i + 1).position, PI / 2)
+                            .splineToConstantHeading(new Vector2d(chamber0.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamber0.y), chamber0.heading)
                             .stopAndAdd(scoreSpecimen)
 //                            .afterTime(0, robot.deposit::triggerClaw)
                             .setTangent(- PI / 2)
                     ;
                     if (i < cycles - 1) builder = builder
                             .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
-                    ;
+                            ;
+
+//                    mTelemetry.addLine(genLog += "\n> Specimen cycle " + (i + 1));
+//                    mTelemetry.update();
                 }
 
 
@@ -194,8 +182,14 @@ public class MeepMeepTesting {
                 builder = builder
 
                         /// Intake
-                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, asyncIntakeSequence(
-                                millimeters
+                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, new SequentialAction(
+                                new InstantAction(() -> {
+//                                    robot.intake.extendo.setTarget(millimeters);
+//                                    robot.intake.runRoller(0.8);
+                                }),
+//                                telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
+                                new SleepAction(WAIT_POST_INTAKING)
+//                                new InstantAction(() -> robot.intake.runRoller(0))
                         ))
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, () -> {
@@ -203,7 +197,7 @@ public class MeepMeepTesting {
                         })
                         // wait for intake to get sample:
 //                        .stopAndAdd(telemetryPacket -> robot.getSample() == null)
-                        .waitSeconds(2) // TODO remove in opmode
+                        .waitSeconds(1)
 
                         /// Score
                         .afterTime(0, raiseLift)
