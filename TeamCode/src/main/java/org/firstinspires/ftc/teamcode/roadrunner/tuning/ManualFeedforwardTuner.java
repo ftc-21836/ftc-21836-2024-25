@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.roadrunner.tuning;
 import static com.acmerobotics.roadrunner.Profiles.constantProfile;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.MotorFeedforward;
@@ -14,15 +13,14 @@ import com.acmerobotics.roadrunner.TimeProfile;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.FeedforwardFactory;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.control.filter.FIRLowPassFilter;
 import org.firstinspires.ftc.teamcode.control.gainmatrix.LowPassGains;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
-@Config
-@TeleOp
+//@Config
+//@TeleOp
 public class ManualFeedforwardTuner extends LinearOpMode {
 
     public static double DISTANCE = 130;

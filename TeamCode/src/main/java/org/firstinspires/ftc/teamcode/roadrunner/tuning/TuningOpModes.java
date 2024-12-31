@@ -97,7 +97,7 @@ public final class TuningOpModes {
                 @Override public void setVelocity(double angularRate, AngleUnit unit) {
                 }
                 @Override public double getVelocity() {
-                    return md.localizer.getVelocity().linearVel.x * 25.4 * PinpointLocalizer.TICKS_PER_MM;
+                    return md.localizer.velX() * PinpointLocalizer.TICKS_PER_MM;
                 }
                 @Override public double getVelocity(AngleUnit unit) {return 0;}
                 @Override public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
@@ -136,6 +136,7 @@ public final class TuningOpModes {
 
                     @Override
                     public int getCurrentPosition() {
+                        md.updatePoseEstimate();
                         return md.localizer.rawEncoderX();
                     }
                     @Override public void setMode(RunMode mode) {}@Override public RunMode getMode() {return null;}@Override public void setDirection(Direction direction) {}@Override public Direction getDirection() {return null;}@Override public void setPower(double power) {}@Override public double getPower() {return 0;}@Override public Manufacturer getManufacturer() {return null;}@Override public String getDeviceName() {return "";}@Override public String getConnectionInfo() {return "";}@Override public int getVersion() {return 0;}@Override public void resetDeviceConfigurationForOpMode() {}@Override public void close() {}
@@ -151,7 +152,7 @@ public final class TuningOpModes {
                     @Override public void setVelocity(double angularRate, AngleUnit unit) {
                     }
                     @Override public double getVelocity() {
-                        return md.localizer.getVelocity().linearVel.y * 25.4 * PinpointLocalizer.TICKS_PER_MM;
+                        return md.localizer.velY() * PinpointLocalizer.TICKS_PER_MM;
                     }
                     @Override public double getVelocity(AngleUnit unit) {return 0;}
                     @Override public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
@@ -190,6 +191,7 @@ public final class TuningOpModes {
 
                     @Override
                     public int getCurrentPosition() {
+                        md.updatePoseEstimate();
                         return md.localizer.rawEncoderY();
                     }
                     @Override public void setMode(RunMode mode) {}@Override public RunMode getMode() {return null;}@Override public void setDirection(Direction direction) {}@Override public Direction getDirection() {return null;}@Override public void setPower(double power) {}@Override public double getPower() {return 0;}@Override public Manufacturer getManufacturer() {return null;}@Override public String getDeviceName() {return "";}@Override public String getConnectionInfo() {return "";}@Override public int getVersion() {return 0;}@Override public void resetDeviceConfigurationForOpMode() {}@Override public void close() {}
@@ -276,7 +278,7 @@ public final class TuningOpModes {
         manager.register(metaForClass(ForwardRampLogger.class), new ForwardRampLogger(dvf));
         manager.register(metaForClass(LateralPushTest.class), new LateralPushTest(dvf));
         manager.register(metaForClass(LateralRampLogger.class), new LateralRampLogger(dvf));
-//        manager.register(metaForClass(ManualFeedforwardTuner.class), new ManualFeedforwardTuner(dvf));
+        manager.register(metaForClass(ManualFeedforwardTuner.class), new ManualFeedforwardTuner(dvf));
         manager.register(metaForClass(MecanumMotorDirectionDebugger.class), new MecanumMotorDirectionDebugger(dvf));
         manager.register(metaForClass(DeadWheelDirectionDebugger.class), new DeadWheelDirectionDebugger(dvf));
 
@@ -289,7 +291,7 @@ public final class TuningOpModes {
                     AngularRampLogger.class,
                     ForwardRampLogger.class,
                     LateralRampLogger.class,
-//                    ManualFeedforwardTuner.class,
+                    ManualFeedforwardTuner.class,
                     MecanumMotorDirectionDebugger.class,
                     ManualFeedbackTuner.class
             )) {

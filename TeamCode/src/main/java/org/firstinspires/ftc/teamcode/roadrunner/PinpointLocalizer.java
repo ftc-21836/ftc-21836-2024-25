@@ -97,6 +97,15 @@ public final class PinpointLocalizer {
     public int rawEncoderY() {
         return pinpoint.getEncoderY() * (Y_POD_DIRECTION == REVERSED ? -1 : 1);
     }
+
+    public double velX() {
+        return pinpoint.getVelX();
+    }
+
+    public double velY() {
+        return pinpoint.getVelY();
+    }
+
     public void setHeading(double radians) {
         pinpoint.setHeading(radians);
     }
