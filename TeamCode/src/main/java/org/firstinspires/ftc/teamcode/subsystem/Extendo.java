@@ -22,8 +22,6 @@ import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.control.motion.State;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
 
-import java.util.random.RandomGenerator;
-
 @Config
 public final class Extendo {
 
