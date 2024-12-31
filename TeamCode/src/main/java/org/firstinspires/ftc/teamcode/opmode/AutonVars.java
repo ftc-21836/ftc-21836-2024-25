@@ -6,6 +6,7 @@ import static java.lang.Math.toRadians;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import org.firstinspires.ftc.teamcode.subsystem.Extendo;
 
 @Config
 public final class AutonVars {
@@ -21,22 +22,21 @@ public final class AutonVars {
             WAIT_SCORE_CHAMBER = 0.5,
             WAIT_POST_INTAKING = 0.5,
             WAIT_EXTEND_SPEC_PRELOAD = 2,
-            LIFT_PARK_LEFT = 3,
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
-            EXTEND_SAMPLE_3 = 300,
+            EXTEND_SAMPLE_3 = 410,
             DISTANCE_BETWEEN_SPECIMENS = 2;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
             sample2 = new EditablePose(-58.5, sample1.y, sample1.heading),
             sample3 = new EditablePose(-68.75, sample1.y, sample1.heading),
-            basket = new EditablePose(-56, -56, PI / 4),
+            basket = new EditablePose(-56.75, -56.75, PI / 4),
             intaking1 = new EditablePose(-50, -48, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-48, -49, 2 * PI / 3),
             aroundBeamParkLeft = new EditablePose(-40, -25, 0),
-            parkLeft = new EditablePose(-25, -11, 0),
+            parkLeft = new EditablePose(-23.5, -11, 0),
             chamber0 = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
             chamberLeft = new EditablePose(-chamber0.x, chamber0.y, chamber0.heading),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),

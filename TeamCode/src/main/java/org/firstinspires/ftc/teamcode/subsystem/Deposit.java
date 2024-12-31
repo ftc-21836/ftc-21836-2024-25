@@ -99,6 +99,11 @@ public final class Deposit {
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
         claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
+
+        if (level1Ascent) {
+            arm.postAscent();
+            level1Ascent = false;
+        }
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
@@ -149,7 +154,8 @@ public final class Deposit {
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
-        Arm.Position armPosition = state == HAS_SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE ? Arm.INTAKING : state.armPosition;
+        boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
+        Arm.Position armPosition = level1Ascent ? Arm.ASCENT : obsZone ? Arm.INTAKING : state.armPosition;
 
         boolean movingToUnderhand = armPosition == Arm.INTAKING;
         boolean armWouldHitDrivetrain = belowSafeHeight && movingToUnderhand;
@@ -176,6 +182,13 @@ public final class Deposit {
         );
     }
 
+    private static boolean level1Ascent = false;
+
+    public void level1Ascent() {
+        level1Ascent = true;
+        lift.setTarget(0);
+    }
+
     public void preloadSpecimen() {
         Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
@@ -184,15 +197,15 @@ public final class Deposit {
 
     // when does the intake need to move out of the way
     boolean requestingIntakeToMove() {
-        return lift.getPosition() < HEIGHT_ABOVE_INTAKE && !arm.atPosition(Arm.TRANSFER);
+        return lift.getPosition() < HEIGHT_ABOVE_INTAKE && !arm.atPosition(Arm.TRANSFER) && !arm.reachedTarget();
     }
 
     boolean readyToTransfer() {
         return state == RETRACTED && arm.atPosition(Arm.TRANSFER) && !lift.isExtended();
     }
 
-    public boolean reachedTarget() {
-        return arm.reachedTarget() && abs(lift.getTarget() - lift.getPosition()) < Lift.HEIGHT_RETRACTED_THRESHOLD;
+    public boolean reachedTarget(Arm.Position position, double liftTarget) {
+        return arm.atPosition(position) && abs(liftTarget - lift.getPosition()) < Lift.HEIGHT_RETRACTED_THRESHOLD;
     }
 
     public void setPosition(Position position) {

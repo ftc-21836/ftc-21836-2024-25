@@ -19,13 +19,14 @@ public final class Arm {
             TIME_RETRACTED_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_WRIST_FREE = 0.2,
             TIME_INTAKING_TO_SPEC = 0.65,
-            TIME_SCORING_SPEC_TO_RETRACTED = 0.35;
+            TIME_SPEC_TO_RETRACTED = 0.35;
 
     public static Arm.Position
             INTAKING =  new Arm.Position(285, 0, "INTAKING"),
             TRANSFER =  new Arm.Position(85, 305, "TRANSFER"),
             POST_INTAKING =  new Arm.Position(355, 75, "POST INTAKING AVOID WALL"),
             SPECIMEN =  new Arm.Position(275, 240, "SPECIMEN"),
+            ASCENT = new Arm.Position(285, 250, "ASCENT"),
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
@@ -46,18 +47,26 @@ public final class Arm {
         run();
     }
 
+    void postAscent() {
+        lastTarget = ASCENT;
+    }
+
     private double timeToReachTarget() {
         return
                 target == lastTarget ?      0 :
                 target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
-                target == startPos ?        0 :
+                target == ASCENT ?          TIME_INTAKING_TO_SPEC :
+                target == startPos ?
+                         lastTarget == ASCENT ?     TIME_SPEC_TO_RETRACTED :
+                                                    0 :
                 target == TRANSFER ?
+                        lastTarget == ASCENT ?      TIME_SPEC_TO_RETRACTED :
                         lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
                         lastTarget == SAMPLE ?      TIME_RETRACTED_TO_SAMPLE :
                         lastTarget == startPos ?    0 :
-                                                    TIME_SCORING_SPEC_TO_RETRACTED :
+                                                    TIME_SPEC_TO_RETRACTED :
                 1;
     }
 

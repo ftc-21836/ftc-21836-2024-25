@@ -49,7 +49,7 @@ public final class TestAprilTagDetector extends LinearOpMode {
         while (opModeInInit()) {
             camera.run();
             camera.printTagIsVisible();
-            camera.printDetectedTag();
+            camera.printDetections();
             mTelemetry.update();
         }
 

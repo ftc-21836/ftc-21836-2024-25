@@ -70,8 +70,7 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
-        robot.drivetrain.localizer.trackHeadingOnly(true);
-        robot.drivetrain.localizer.setHeading(pose.heading.toDouble());
+        robot.drivetrain.trackHeadingOnly = true;
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
@@ -103,7 +102,7 @@ public final class MainTeleOp extends LinearOpMode {
                     break;
             }
 
-            robot.drivetrain.setHeadingFromStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
+            robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
@@ -116,7 +115,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((useFieldCentric ? "Field centric" : "ROBOT CENTRIC") + " driving" + selection.markIf(EDITING_FIELD_CENTRIC));
             mTelemetry.addLine();
-            mTelemetry.addData("Start heading (deg)", toDegrees(robot.drivetrain.pose.heading.toDouble()));
+            mTelemetry.addData("Heading (deg, set with right stick)", toDegrees(robot.drivetrain.pose.heading.toDouble()));
 
             mTelemetry.update();
         }
@@ -150,7 +149,7 @@ public final class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
                 // SET HEADING:
-                robot.drivetrain.setHeadingFromStick(rightX, gamepadEx1.getRightY());
+                robot.drivetrain.setHeadingWithStick(rightX, gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
             } else {

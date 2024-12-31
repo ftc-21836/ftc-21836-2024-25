@@ -12,7 +12,6 @@ import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_1;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_2;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_3;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.LENGTH_ROBOT;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.LIFT_PARK_LEFT;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_HALF_FIELD;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_TILE;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_BASKET;
@@ -53,11 +52,15 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
+
+import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -75,6 +78,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import org.firstinspires.ftc.teamcode.subsystem.Arm;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 @Config
@@ -179,17 +184,9 @@ public final class MainAuton extends LinearOpMode {
                 specimenSide || specimenPreload ? PI / 2 : 0
         );
 
-        robot.drivetrain.localizer.setPosition(startPose);
+        robot.drivetrain.pinpoint.setPositionRR(startPose);
 
         TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(startPose);
-
-        Action scoreSpecimen = new SequentialAction(
-                new SleepAction(WAIT_APPROACH_CHAMBER),
-                telemetryPacket -> !robot.deposit.reachedTarget(), // wait until deposit in position
-                new InstantAction(robot.deposit::triggerClaw),
-                telemetryPacket -> robot.deposit.hasSample(), // wait until spec scored
-                new SleepAction(WAIT_SCORE_CHAMBER)
-        );
 
         if (specimenSide) {
 
@@ -197,7 +194,7 @@ public final class MainAuton extends LinearOpMode {
             builder = builder
                     .waitSeconds(partnerWait)
                     .strafeTo(chamber0.toVector2d())
-                    .stopAndAdd(scoreSpecimen)
+                    .stopAndAdd(scoreSpecimen(robot))
             ;
 
             mTelemetry.addLine(genLog += "\n> Score preloaded specimen");
@@ -221,19 +218,17 @@ public final class MainAuton extends LinearOpMode {
                 mTelemetry.addLine(genLog += "\n> Push samples");
                 mTelemetry.update();
 
-                Action intakeSpec = new SequentialAction(
-                        new InstantAction(robot.deposit::triggerClaw),
-                        telemetryPacket -> !robot.deposit.specimenIntaked(),
-                        new InstantAction(() -> robot.deposit.setPosition(HIGH))
-                );
-
                 /// Cycle specimens
                 for (int i = 0; i < cycles; i++) {
                     builder = builder
-                            .stopAndAdd(intakeSpec)
+                            .stopAndAdd(new SequentialAction(
+                                    new InstantAction(robot.deposit::triggerClaw),
+                                    telemetryPacket -> !robot.deposit.specimenIntaked(),
+                                    new InstantAction(() -> robot.deposit.setPosition(HIGH))
+                            ))
                             .setTangent(PI / 2)
                             .splineToConstantHeading(new Vector2d(chamber0.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamber0.y), chamber0.heading)
-                            .stopAndAdd(scoreSpecimen)
+                            .stopAndAdd(scoreSpecimen(robot))
                             .afterTime(0, robot.deposit::triggerClaw)
                             .setTangent(- PI / 2)
                     ;
@@ -255,33 +250,22 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.update();
 
         } else {
-            Action scoreSample = new SequentialAction(
-                    new SleepAction(WAIT_APPROACH_BASKET),
-                    telemetryPacket -> !robot.deposit.reachedTarget(),
-                    new InstantAction(robot.deposit::triggerClaw),
-                    new SleepAction(WAIT_SCORE_BASKET)
-            );
-
-            Action raiseLift = new SequentialAction(
-                    telemetryPacket -> !robot.deposit.hasSample(),
-                    new InstantAction(() -> robot.deposit.setPosition(HIGH))
-            );
 
             if (specimenPreload) {
                 /// Score preloaded specimen
                 builder = builder
                         .waitSeconds(partnerWait)
                         .strafeTo(chamberLeft.toVector2d())
-                        .stopAndAdd(scoreSpecimen)
+                        .stopAndAdd(scoreSpecimen(robot))
                 ;
 
                 mTelemetry.addLine(genLog += "\n> Score preloaded specimen");
             } else {
                 /// Score preloaded sample
                 builder = builder
-                        .afterTime(0, raiseLift)
+                        .afterTime(0, raiseLift(robot))
                         .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                        .stopAndAdd(scoreSample)
+                        .stopAndAdd(scoreSample(robot))
                 ;
 
                 mTelemetry.addLine(genLog += "\n> Score preloaded sample");
@@ -322,22 +306,17 @@ public final class MainAuton extends LinearOpMode {
                         .stopAndAdd(telemetryPacket -> robot.getSample() == null)
 
                         /// Score
-                        .afterTime(0, raiseLift)
+                        .afterTime(0, raiseLift(robot))
                         .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                        .stopAndAdd(scoreSample)
+                        .stopAndAdd(scoreSample(robot))
                 ;
 
                 mTelemetry.addLine(genLog += "\n> Sample cycle " + (i + 1));
                 mTelemetry.update();
             }
 
-            /// Raise lift for level 1 ascent
-            builder = builder
-                    .afterTime(0, () -> {
-                         robot.deposit.triggerClaw();
-                         robot.deposit.triggerClaw();
-                         robot.deposit.lift.setTarget(LIFT_PARK_LEFT);
-                    });
+            /// Raise arm for level 1 ascent
+            builder = builder.afterTime(0, robot.deposit::level1Ascent);
 
             mTelemetry.addLine(genLog += "\n> Raise lift for level 1 ascent");
             mTelemetry.update();
@@ -367,10 +346,11 @@ public final class MainAuton extends LinearOpMode {
                         telemetryPacket -> {
                             pose = robot.drivetrain.pose;
                             robot.run();
-                            robot.printTelemetry();
-                            mTelemetry.update();
+                            robot.printTelemetry(); // telemetry
+                            mTelemetry.update();    // telemetry
                             return opModeIsActive();
-                        } : telemetryPacket -> {
+                        } :
+                        telemetryPacket -> {
                             pose = robot.drivetrain.pose;
                             robot.run();
                             return opModeIsActive();
@@ -378,6 +358,8 @@ public final class MainAuton extends LinearOpMode {
         );
 
         mTelemetry.addLine(genLog);
+        mTelemetry.addLine();
+        mTelemetry.addLine();
         mTelemetry.addLine("TRAJECTORY GENERATED:");
         mTelemetry.addLine();
         mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
@@ -393,6 +375,33 @@ public final class MainAuton extends LinearOpMode {
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         Actions.runBlocking(auton);
+    }
+
+    private static Action scoreSpecimen(Robot robot) {
+        return new SequentialAction(
+                new SleepAction(WAIT_APPROACH_CHAMBER),
+                telemetryPacket -> !robot.deposit.reachedTarget(Arm.SPECIMEN, HEIGHT_CHAMBER_HIGH), // wait until deposit in position
+                new InstantAction(robot.deposit::triggerClaw),
+                telemetryPacket -> robot.deposit.hasSample(), // wait until spec scored
+                new SleepAction(WAIT_SCORE_CHAMBER)
+        );
+    }
+
+    private static Action raiseLift(Robot robot) {
+        return new SequentialAction(
+                telemetryPacket -> !robot.deposit.hasSample(),
+                new SleepAction(Intake.TIME_TRANSFER),
+                new InstantAction(() -> robot.deposit.setPosition(HIGH))
+        );
+    }
+
+    private static Action scoreSample(Robot robot) {
+        return new SequentialAction(
+                new SleepAction(WAIT_APPROACH_BASKET),
+                telemetryPacket -> !robot.deposit.reachedTarget(Arm.SAMPLE, HEIGHT_BASKET_HIGH),
+                new InstantAction(robot.deposit::triggerClaw),
+                new SleepAction(WAIT_SCORE_BASKET)
+        );
     }
 
 }

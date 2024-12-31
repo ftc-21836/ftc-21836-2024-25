@@ -23,15 +23,14 @@ public class AprilTagDetector {
             CAMERA_CX = 402.145,
             CAMERA_CY = 221.506;
 
-    private AprilTagDetection detectedTag = null;
-
-    private final OpenCvCamera camera;
-
-    private final AprilTagDetectionPipeline pipeline;
+    private ArrayList<AprilTagDetection> detections = new ArrayList<>();
 
     private int[] targetIDs;
 
-    private boolean tagVisible = false;
+    private final OpenCvCamera camera;
+    private final AprilTagDetectionPipeline pipeline;
+
+    private volatile boolean isOpen = false;
 
     /**
      * @param hardwareMap     {@link HardwareMap} passed in from the opmode
@@ -55,6 +54,7 @@ public class AprilTagDetector {
             @Override
             public void onOpened() {
                 camera.startStreaming(800, 448, cameraRotation);
+                isOpen = true;
             }
 
             @Override
@@ -71,32 +71,23 @@ public class AprilTagDetector {
 
     /**
      * Gets detections from pipeline<p>
-     * Use {@link #isTagVisible()} ()} and {@link #getDetectedTag()}
+     * Use {@link #isTagVisible()} ()} and {@link #getDetections()}
      */
     public void run() {
-        ArrayList<AprilTagDetection> detections = pipeline.getLatestDetections();
-        if (detections.isEmpty()) {
-            tagVisible = false;
-            return;
-        }
-        for (AprilTagDetection detection : detections) {
-            for (int tagId : targetIDs) {
-                if (detection.id == tagId) {
-                    detectedTag = detection;
-                    tagVisible = true;
-                    return;
-                }
-            }
-        }
-        tagVisible = false;
+        detections = pipeline.getLatestDetections();
+        detections.removeIf(tag -> {
+            for (int ids : targetIDs)
+                if (tag.id == ids) return false; // don't remove from detections
+            return true; // remove from detections, this tag isn't one of our targets
+        });
     }
 
     public boolean isTagVisible() {
-        return tagVisible;
+        return !detections.isEmpty();
     }
 
-    public AprilTagDetection getDetectedTag() {
-        return detectedTag;
+    public ArrayList<AprilTagDetection> getDetections() {
+        return detections;
     }
 
     /**
@@ -108,18 +99,20 @@ public class AprilTagDetector {
     }
 
     /**
-     * Prints last {@link #detectedTag} to telemetry <p>
+     * Prints last {@link #detections} to telemetry <p>
      * telemetry.update() should be called after this method
      */
-    public void printDetectedTag() {
-        AprilTagDetection tag = getDetectedTag();
-        mTelemetry.addData("A tag has", tag == null ? "never been detected" : "been detected: " + tag.id);
+    public void printDetections() {
+        for (AprilTagDetection tag : getDetections()) {
+            mTelemetry.addData("Tag visible:", tag.id);
+        }
     }
 
     /**
      * Closes the camera
      */
     public void stop() {
+        while (!isOpen) {}
         camera.stopStreaming();
         camera.closeCameraDevice();
     }

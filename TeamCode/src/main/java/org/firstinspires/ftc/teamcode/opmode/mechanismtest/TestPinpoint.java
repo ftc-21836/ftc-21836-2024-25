@@ -22,25 +22,13 @@
 
 package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
-import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.TICKS_PER_MM;
-import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.X_POD_DIRECTION;
-import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.X_POD_OFFSET;
-import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.Y_POD_DIRECTION;
-import static org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer.Y_POD_OFFSET;
-import static java.lang.Math.toDegrees;
-
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver;
-import org.firstinspires.ftc.teamcode.roadrunner.Drawing;
-import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 
 import java.util.Locale;
 
@@ -70,10 +58,14 @@ For support, contact tech@gobilda.com
 -Ethan Doak
  */
 
-@TeleOp(name="goBILDA® PinPoint Odometry Example", group="Linear OpMode")
+@TeleOp(name="goBILDA® PinPoint Odometry Example", group = "Single mechanism test")
 //@Disabled
-
 public class TestPinpoint extends LinearOpMode {
+
+    GoBildaPinpointDriverRR odo; // Declare OpMode member for the Odometry Computer
+
+    double oldTime = 0;
+
 
     @Override
     public void runOpMode() {
@@ -81,8 +73,7 @@ public class TestPinpoint extends LinearOpMode {
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
 
-        // Declare OpMode member for the Odometry Computer
-        GoBildaPinpointDriver odo = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+        odo = hardwareMap.get(GoBildaPinpointDriverRR.class,"pinpoint");
 
         /*
         Set the odometry pod positions relative to the point that the odometry computer tracks around.
@@ -92,7 +83,7 @@ public class TestPinpoint extends LinearOpMode {
         the tracking point the Y (strafe) odometry pod is. forward of center is a positive number,
         backwards is a negative number.
          */
-        odo.setOffsets(X_POD_OFFSET, Y_POD_OFFSET);
+        odo.setOffsets(PinpointDrive.PINPOINT_CONFIG.xOffset, PinpointDrive.PINPOINT_CONFIG.yOffset);
 
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -100,7 +91,7 @@ public class TestPinpoint extends LinearOpMode {
         If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
         number of ticks per mm of your odometry pod.
          */
-        odo.setEncoderResolution(TICKS_PER_MM);
+        odo.setEncoderResolution(PinpointDrive.PINPOINT_CONFIG.encoderResolution);
         //odo.setEncoderResolution(13.26291192);
 
 
@@ -109,7 +100,7 @@ public class TestPinpoint extends LinearOpMode {
         increase when you move the robot forward. And the Y (strafe) pod should increase when
         you move the robot to the left.
          */
-        odo.setEncoderDirections(X_POD_DIRECTION, Y_POD_DIRECTION);
+        odo.setEncoderDirections(PinpointDrive.PINPOINT_CONFIG.xDirection, PinpointDrive.PINPOINT_CONFIG.yDirection);
 
 
         /*
@@ -139,22 +130,16 @@ public class TestPinpoint extends LinearOpMode {
         // Wait for the game to start (driver presses START)
         waitForStart();
         resetRuntime();
-        double oldTime = 0;
+
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
             /*
-            Request an update from the Pinpoint odometry computer. This checks almost all outputs
+            Request a bulk update from the Pinpoint odometry computer. This checks almost all outputs
             from the device in a single I2C read.
              */
             odo.update();
-
-            /*
-            Optionally, you can update only the heading of the device. This takes less time to read, but will not
-            pull any other data. Only the heading (which you can pull with getHeading() or in getPosition().
-             */
-            //odo.update(GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING);
 
 
             if (gamepad1.a){
@@ -190,32 +175,22 @@ public class TestPinpoint extends LinearOpMode {
 
 
             /*
-            gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
+            gets the current Position (x & y in inches, and heading in radians) of the robot, and prints it.
              */
-            Pose2D pos = odo.getPosition();
+            Pose2d pos = odo.getPositionRR();
+            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.position.x, pos.position.y, pos.heading.toDouble());
+            telemetry.addData("Position", data);
 
-            telemetry.addData("x", pos.getX(DistanceUnit.MM));
-            telemetry.addData("y", pos.getY(DistanceUnit.MM));
-            telemetry.addData("heading (deg)", pos.getHeading(AngleUnit.DEGREES));
-
-            Pose2d pose = new Pose2d(
-                    pos.getX(DistanceUnit.INCH),
-                    pos.getY(DistanceUnit.INCH),
-                    pos.getHeading(AngleUnit.RADIANS)
-            );
-
-            TelemetryPacket packet = new TelemetryPacket();
-            packet.fieldOverlay().setStroke("#3F51B5");
-            Drawing.drawRobot(packet.fieldOverlay(), pose);
-            FtcDashboard.getInstance().sendTelemetryPacket(packet);
 
             /*
-            gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
+            gets the current Velocity (x & y in inches/sec and heading in radians/sec) and prints it.
              */
-            Pose2D vel = odo.getVelocity();
-            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
+            PoseVelocity2d vel = odo.getVelocityRR();
+            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.linearVel.x, vel.linearVel.y, vel.angVel);
             telemetry.addData("Velocity", velocity);
 
+            telemetry.addData("X Encoder:", odo.getEncoderX()); //gets the raw data from the X encoder
+            telemetry.addData("Y Encoder:",odo.getEncoderY()); //gets the raw data from the Y encoder
 
             /*
             Gets the Pinpoint device status. Pinpoint can reflect a few states. But we'll primarily see
