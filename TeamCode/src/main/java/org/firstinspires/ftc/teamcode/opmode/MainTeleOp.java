@@ -71,7 +71,6 @@ public final class MainTeleOp extends LinearOpMode {
 
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.trackHeadingOnly = true;
-        robot.drivetrain.setHeading(pose.heading.toDouble());
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
@@ -116,7 +115,7 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((useFieldCentric ? "Field centric" : "ROBOT CENTRIC") + " driving" + selection.markIf(EDITING_FIELD_CENTRIC));
             mTelemetry.addLine();
-            mTelemetry.addData("Start heading (deg)", toDegrees(robot.drivetrain.pose.heading.toDouble()));
+            mTelemetry.addData("Heading (deg, set with right stick)", toDegrees(robot.drivetrain.pose.heading.toDouble()));
 
             mTelemetry.update();
         }
