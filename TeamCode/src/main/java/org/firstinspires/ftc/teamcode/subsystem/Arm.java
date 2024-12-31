@@ -19,7 +19,7 @@ public final class Arm {
             TIME_RETRACTED_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_WRIST_FREE = 0.2,
             TIME_INTAKING_TO_SPEC = 0.65,
-            TIME_SCORING_SPEC_TO_RETRACTED = 0.35;
+            TIME_SPEC_TO_RETRACTED = 0.35;
 
     public static Arm.Position
             INTAKING =  new Arm.Position(285, 0, "INTAKING"),
@@ -57,7 +57,7 @@ public final class Arm {
                         lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
                         lastTarget == SAMPLE ?      TIME_RETRACTED_TO_SAMPLE :
                         lastTarget == startPos ?    0 :
-                                                    TIME_SCORING_SPEC_TO_RETRACTED :
+                                                    TIME_SPEC_TO_RETRACTED :
                 1;
     }
 
