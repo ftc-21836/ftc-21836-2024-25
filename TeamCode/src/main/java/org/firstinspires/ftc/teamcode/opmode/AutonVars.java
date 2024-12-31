@@ -24,7 +24,7 @@ public final class AutonVars {
             WAIT_EXTEND_SPEC_PRELOAD = 2,
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
-            EXTEND_SAMPLE_3 = 300,
+            EXTEND_SAMPLE_3 = 410,
             DISTANCE_BETWEEN_SPECIMENS = 2;
 
     public static EditablePose
