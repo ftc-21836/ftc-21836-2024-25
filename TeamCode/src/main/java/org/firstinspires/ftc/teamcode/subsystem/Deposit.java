@@ -149,7 +149,8 @@ public final class Deposit {
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
-        Arm.Position armPosition = state == HAS_SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE ? Arm.INTAKING : state.armPosition;
+        boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
+        Arm.Position armPosition = obsZone ? Arm.INTAKING : state.armPosition;
 
         boolean movingToUnderhand = armPosition == Arm.INTAKING;
         boolean armWouldHitDrivetrain = belowSafeHeight && movingToUnderhand;
