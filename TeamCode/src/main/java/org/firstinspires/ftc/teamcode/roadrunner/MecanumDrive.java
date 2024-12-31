@@ -168,7 +168,7 @@ public final class MecanumDrive {
         // drive model parameters
         public double inPerTick = PinpointLocalizer.INCH_PER_MM / PinpointLocalizer.TICKS_PER_MM;
         public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 14.47 * PinpointLocalizer.INCH_PER_MM * PinpointLocalizer.TICKS_PER_MM;
+        public double trackWidthTicks = 14.47 / inPerTick;
 
         // feedforward parameters (in tick units)
         public double kS = 0;
