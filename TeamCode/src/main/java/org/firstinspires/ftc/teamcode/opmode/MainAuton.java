@@ -7,6 +7,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.DISTANCE_BETWEEN_SPECIMENS;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_1;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_2;
@@ -16,7 +17,7 @@ import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_HALF_FIELD;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_TILE;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_BASKET;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_CHAMBER;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_EXTEND_SPEC_PRELOAD;
+import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_DROP_TO_EXTEND;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_POST_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_BASKET;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_CHAMBER;
@@ -55,12 +56,9 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
-
-import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -289,16 +287,15 @@ public final class MainAuton extends LinearOpMode {
                 builder = builder
 
                         /// Intake
-                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, new SequentialAction(
-                                new InstantAction(() -> {
-                                    robot.intake.extendo.setTarget(millimeters);
-                                    robot.intake.runRoller(0.8);
-                                }),
+                        .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
+                        .afterTime(0, new SequentialAction(
+                                new InstantAction(() -> robot.intake.runRoller(0.8)),
+                                new SleepAction(WAIT_DROP_TO_EXTEND),
+                                new InstantAction(() -> robot.intake.extendo.setTarget(millimeters)),
                                 telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
                                 new SleepAction(WAIT_POST_INTAKING),
                                 new InstantAction(() -> robot.intake.runRoller(0))
                         ))
-                        .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, () -> {
                              if (!robot.intake.hasSample()) robot.intake.runRoller(1);
                         })

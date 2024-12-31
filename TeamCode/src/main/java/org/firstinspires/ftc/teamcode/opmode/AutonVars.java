@@ -6,7 +6,6 @@ import static java.lang.Math.toRadians;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
-import org.firstinspires.ftc.teamcode.subsystem.Extendo;
 
 @Config
 public final class AutonVars {
@@ -20,6 +19,7 @@ public final class AutonVars {
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_SCORE_BASKET = 1.5,
             WAIT_SCORE_CHAMBER = 0.5,
+            WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_POST_INTAKING = 0.5,
             WAIT_EXTEND_SPEC_PRELOAD = 2,
             EXTEND_SAMPLE_1 = 300,
