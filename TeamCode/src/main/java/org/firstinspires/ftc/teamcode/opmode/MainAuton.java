@@ -297,7 +297,7 @@ public final class MainAuton extends LinearOpMode {
                         /// Intake
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, new SequentialAction(
-                                telemetryPacket -> robot.intake.hasSample() || robot.intake.extendo.getPosition() < millimeters - 5,
+                                telemetryPacket -> !robot.intake.hasSample() && robot.intake.extendo.getPosition() < millimeters - 5,
                                 new InstantAction(() -> {
                                     if (!robot.intake.hasSample()) robot.intake.runRoller(1);
                                 })
