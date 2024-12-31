@@ -99,6 +99,11 @@ public final class Deposit {
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
         claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
+
+        if (level1Ascent) {
+            arm.postAscent();
+            level1Ascent = false;
+        }
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
@@ -150,7 +155,7 @@ public final class Deposit {
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        Arm.Position armPosition = obsZone ? Arm.INTAKING : state.armPosition;
+        Arm.Position armPosition = level1Ascent ? Arm.ASCENT : obsZone ? Arm.INTAKING : state.armPosition;
 
         boolean movingToUnderhand = armPosition == Arm.INTAKING;
         boolean armWouldHitDrivetrain = belowSafeHeight && movingToUnderhand;
@@ -175,6 +180,12 @@ public final class Deposit {
                         ANGLE_CLAW_TRANSFER :
                         ANGLE_CLAW_OPEN
         );
+    }
+
+    private static boolean level1Ascent = false;
+
+    public void level1Ascent() {
+        level1Ascent = true;
     }
 
     public void preloadSpecimen() {

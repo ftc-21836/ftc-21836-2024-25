@@ -331,13 +331,8 @@ public final class MainAuton extends LinearOpMode {
                 mTelemetry.update();
             }
 
-            /// Raise lift for level 1 ascent
-            builder = builder
-                    .afterTime(0, () -> {
-                         robot.deposit.triggerClaw();
-                         robot.deposit.triggerClaw();
-                         robot.deposit.lift.setTarget(LIFT_PARK_LEFT);
-                    });
+            /// Raise arm for level 1 ascent
+            builder = builder.afterTime(0, robot.deposit::level1Ascent);
 
             mTelemetry.addLine(genLog += "\n> Raise lift for level 1 ascent");
             mTelemetry.update();
