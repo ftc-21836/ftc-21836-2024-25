@@ -75,6 +75,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
@@ -170,6 +171,13 @@ public final class MainAuton extends LinearOpMode {
 
             mTelemetry.update();
         }
+
+        gamepad1.setLedColor(
+                isRedAlliance ? 1 : 0,
+                0,
+                !isRedAlliance ? 1 : 0,
+                Gamepad.LED_DURATION_CONTINUOUS
+        );
 
         boolean specimenPreload = !specimenSide && robot.deposit.specimenIntaked();
 
