@@ -186,6 +186,7 @@ public final class Deposit {
 
     public void level1Ascent() {
         level1Ascent = true;
+        lift.setTarget(0);
     }
 
     public void preloadSpecimen() {
@@ -203,8 +204,8 @@ public final class Deposit {
         return state == RETRACTED && arm.atPosition(Arm.TRANSFER) && !lift.isExtended();
     }
 
-    public boolean reachedTarget() {
-        return arm.reachedTarget() && abs(lift.getTarget() - lift.getPosition()) < Lift.HEIGHT_RETRACTED_THRESHOLD;
+    public boolean reachedTarget(Arm.Position position, double liftTarget) {
+        return arm.atPosition(position) && abs(liftTarget - lift.getPosition()) < Lift.HEIGHT_RETRACTED_THRESHOLD;
     }
 
     public void setPosition(Position position) {

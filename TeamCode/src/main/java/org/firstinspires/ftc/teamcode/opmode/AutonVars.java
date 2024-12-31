@@ -6,6 +6,7 @@ import static java.lang.Math.toRadians;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import org.firstinspires.ftc.teamcode.subsystem.Extendo;
 
 @Config
 public final class AutonVars {
@@ -21,7 +22,6 @@ public final class AutonVars {
             WAIT_SCORE_CHAMBER = 0.5,
             WAIT_POST_INTAKING = 0.5,
             WAIT_EXTEND_SPEC_PRELOAD = 2,
-            LIFT_PARK_LEFT = 3,
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 300,
@@ -31,7 +31,7 @@ public final class AutonVars {
             sample1 = new EditablePose(-48, -27.75, PI / 2),
             sample2 = new EditablePose(-58.5, sample1.y, sample1.heading),
             sample3 = new EditablePose(-68.75, sample1.y, sample1.heading),
-            basket = new EditablePose(-57, -57, PI / 4),
+            basket = new EditablePose(-56.75, -56.75, PI / 4),
             intaking1 = new EditablePose(-50, -48, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-48, -49, 2 * PI / 3),
