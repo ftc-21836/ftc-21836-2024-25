@@ -296,9 +296,14 @@ public final class MainAuton extends LinearOpMode {
                                 new SleepAction(WAIT_POST_INTAKING),
                                 new InstantAction(() -> robot.intake.runRoller(0))
                         ))
-                        .afterTime(0, () -> {
-                             if (!robot.intake.hasSample()) robot.intake.runRoller(1);
-                        })
+                        .afterTime(0, new SequentialAction(
+                                telemetryPacket -> {
+                                    return robot.intake.extendo.getPosition() < millimeters - 5;
+                                },
+                                new InstantAction(() -> {
+                                     if (!robot.intake.hasSample()) robot.intake.runRoller(1);
+                                })
+                        ))
                         // wait for intake to get sample:
                         .stopAndAdd(telemetryPacket -> robot.getSample() == null)
 

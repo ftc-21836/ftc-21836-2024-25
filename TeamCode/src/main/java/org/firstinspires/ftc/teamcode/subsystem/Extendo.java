@@ -118,7 +118,7 @@ public final class Extendo {
         mTelemetry.addData("Encoder (rad)", motor.encoder.getDistance());
     }
 
-    double getPosition() {
+    public double getPosition() {
         return position;
     }
 
