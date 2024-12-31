@@ -15,9 +15,9 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_S
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
 import static java.lang.Math.abs;
@@ -26,6 +26,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @Config
@@ -43,7 +44,7 @@ public final class Deposit {
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_ARM_SAFE = 7,
-            HEIGHT_OBSERVATION_ZONE = 0,
+            HEIGHT_OBSERVATION_ZONE = 7,
             HEIGHT_BASKET_LOW = 0,
             HEIGHT_BASKET_HIGH = 18,
             HEIGHT_INTAKING_SPECIMEN = 7,
@@ -148,12 +149,14 @@ public final class Deposit {
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 
-        boolean movingToUnderhand = state.armPosition == Arm.INTAKING;
+        Arm.Position armPosition = state == HAS_SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE ? Arm.INTAKING : state.armPosition;
+
+        boolean movingToUnderhand = armPosition == Arm.INTAKING;
         boolean armWouldHitDrivetrain = belowSafeHeight && movingToUnderhand;
 
         boolean armCanMove = !armWouldHitDrivetrain && (aboveIntake || intakeClear);
 
-        arm.setTarget(state.armPosition);
+        arm.setTarget(armPosition);
         if (armCanMove) arm.run();
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
@@ -196,9 +199,6 @@ public final class Deposit {
 
         switch (state) {
 
-            case INTAKING_SPECIMEN:
-                if (position != FLOOR) break;
-                state = RETRACTED;
             case RETRACTED:
 
                 if (position == FLOOR) {
@@ -217,11 +217,21 @@ public final class Deposit {
 
                 break;
 
+            case INTAKING_SPECIMEN:
+                if (position != FLOOR) break;
             case GRABBING_SPECIMEN:
             case RAISING_SPECIMEN:
             case HAS_SPECIMEN:
             case SCORING_SPECIMEN:
             case RELEASING_SPECIMEN:
+
+                if (position == FLOOR) {
+
+                    while (state != RETRACTED) {
+                        triggerClaw();
+                    }
+                    break;
+                }
 
                 lift.setTarget(position == HIGH ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
 
@@ -315,7 +325,7 @@ public final class Deposit {
         if (sample == null || hasSample() || state != RETRACTED) return;
         this.sample = sample;
         state = HAS_SAMPLE;
-        setPosition(FLOOR);
+        setPosition(LOW);
         claw.turnToAngle(ANGLE_CLAW_TRANSFERRED);
     }
 

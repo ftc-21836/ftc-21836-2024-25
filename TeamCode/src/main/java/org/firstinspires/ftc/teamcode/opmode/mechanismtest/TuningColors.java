@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
-import org.firstinspires.ftc.teamcode.subsystem.Sample;
+import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
 @TeleOp(group = "Single mechanism test")

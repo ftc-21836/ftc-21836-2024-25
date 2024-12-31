@@ -54,11 +54,12 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -67,6 +68,7 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -75,24 +77,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
+@Config
 @Autonomous(preselectTeleOp = "MainTeleOp")
 public final class MainAuton extends LinearOpMode {
 
-    private Action asyncIntakeSequence(Robot robot, double extension) {
-        return new SequentialAction(
-                new InstantAction(() -> {
-                     robot.intake.extendo.setTarget(extension);
-                     robot.intake.runRoller(0.8);
-                }),
-                telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
-                new SleepAction(WAIT_POST_INTAKING),
-                new InstantAction(() -> robot.intake.runRoller(0))
-        );
-    }
-
-    private Pose2d chamber(int id) {
-        return new Pose2d(chamber0.x - id * DISTANCE_BETWEEN_SPECIMENS, chamber0.y, chamber0.heading);
-    }
+    public static boolean TELEMETRY = false;
 
     enum AutonConfig {
         EDITING_ALLIANCE,
@@ -163,17 +152,25 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
             mTelemetry.addLine();
             mTelemetry.addLine();
-            printConfig(selection, specimenSide, cycles, partnerWait);
+            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+            mTelemetry.addLine();
+            mTelemetry.addLine((specimenSide ? "RIGHT (SPECIMEN-SIDE)" : "LEFT (SAMPLE-SIDE)") + selection.markIf(EDITING_SIDE));
+            mTelemetry.addLine();
+            mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
+            mTelemetry.addLine();
+            mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            mTelemetry.addLine();
+            mTelemetry.addLine(cycles + " cycles" + selection.markIf(EDITING_CYCLES));
+            mTelemetry.addLine();
+            mTelemetry.addData("Wait before scoring specimen preload (sec)", partnerWait + selection.markIf(EDITING_WAIT));
 
             mTelemetry.update();
         }
 
         boolean specimenPreload = !specimenSide && robot.deposit.specimenIntaked();
 
-        mTelemetry.addLine("CONFIRMED:");
-        mTelemetry.addLine();
-        mTelemetry.addLine();
-        printConfig(selection, specimenSide, cycles, partnerWait);
+        String genLog = "GENERATING TRAJECTORY...";
+        mTelemetry.addLine(genLog);
         mTelemetry.update();
 
         Pose2d startPose = new Pose2d(
@@ -198,9 +195,13 @@ public final class MainAuton extends LinearOpMode {
 
             /// Score preloaded specimen
             builder = builder
+                    .waitSeconds(partnerWait)
                     .strafeTo(chamber0.toVector2d())
                     .stopAndAdd(scoreSpecimen)
             ;
+
+            mTelemetry.addLine(genLog += "\n> Score preloaded specimen");
+            mTelemetry.update();
 
             if (cycles > 0) {
 
@@ -217,6 +218,9 @@ public final class MainAuton extends LinearOpMode {
                         .splineToConstantHeading(intakingFirstSpec.toVector2d(), intakingFirstSpec.heading)
                 ;
 
+                mTelemetry.addLine(genLog += "\n> Push samples");
+                mTelemetry.update();
+
                 Action intakeSpec = new SequentialAction(
                         new InstantAction(robot.deposit::triggerClaw),
                         telemetryPacket -> !robot.deposit.specimenIntaked(),
@@ -228,7 +232,7 @@ public final class MainAuton extends LinearOpMode {
                     builder = builder
                             .stopAndAdd(intakeSpec)
                             .setTangent(PI / 2)
-                            .splineToConstantHeading(chamber(i + 1).position, PI / 2)
+                            .splineToConstantHeading(new Vector2d(chamber0.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamber0.y), chamber0.heading)
                             .stopAndAdd(scoreSpecimen)
                             .afterTime(0, robot.deposit::triggerClaw)
                             .setTangent(- PI / 2)
@@ -236,6 +240,9 @@ public final class MainAuton extends LinearOpMode {
                     if (i < cycles - 1) builder = builder
                             .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
                     ;
+
+                    mTelemetry.addLine(genLog += "\n> Specimen cycle " + (i + 1));
+                    mTelemetry.update();
                 }
 
 
@@ -243,6 +250,9 @@ public final class MainAuton extends LinearOpMode {
 
             /// Park in observation zone
             builder = builder.strafeTo(parkRight.toVector2d());
+
+            mTelemetry.addLine(genLog += "\n> Park in observation zone");
+            mTelemetry.update();
 
         } else {
             Action scoreSample = new SequentialAction(
@@ -264,6 +274,8 @@ public final class MainAuton extends LinearOpMode {
                         .strafeTo(chamberLeft.toVector2d())
                         .stopAndAdd(scoreSpecimen)
                 ;
+
+                mTelemetry.addLine(genLog += "\n> Score preloaded specimen");
             } else {
                 /// Score preloaded sample
                 builder = builder
@@ -271,7 +283,10 @@ public final class MainAuton extends LinearOpMode {
                         .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                         .stopAndAdd(scoreSample)
                 ;
+
+                mTelemetry.addLine(genLog += "\n> Score preloaded sample");
             }
+            mTelemetry.update();
 
             double[] extendoMMs = {EXTEND_SAMPLE_1, EXTEND_SAMPLE_2, EXTEND_SAMPLE_3};
             EditablePose[] intakingPositions = {intaking1, intaking2, intaking3};
@@ -290,9 +305,14 @@ public final class MainAuton extends LinearOpMode {
                 builder = builder
 
                         /// Intake
-                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, asyncIntakeSequence(
-                                robot,
-                                millimeters
+                        .afterTime(i == 0 && specimenPreload ? WAIT_EXTEND_SPEC_PRELOAD : 0, new SequentialAction(
+                                new InstantAction(() -> {
+                                    robot.intake.extendo.setTarget(millimeters);
+                                    robot.intake.runRoller(0.8);
+                                }),
+                                telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
+                                new SleepAction(WAIT_POST_INTAKING),
+                                new InstantAction(() -> robot.intake.runRoller(0))
                         ))
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, () -> {
@@ -306,9 +326,12 @@ public final class MainAuton extends LinearOpMode {
                         .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                         .stopAndAdd(scoreSample)
                 ;
+
+                mTelemetry.addLine(genLog += "\n> Sample cycle " + (i + 1));
+                mTelemetry.update();
             }
 
-            /// Level 1 ascent (left park)
+            /// Raise lift for level 1 ascent
             builder = builder
                     .afterTime(0, () -> {
                          robot.deposit.triggerClaw();
@@ -316,6 +339,10 @@ public final class MainAuton extends LinearOpMode {
                          robot.deposit.lift.setTarget(LIFT_PARK_LEFT);
                     });
 
+            mTelemetry.addLine(genLog += "\n> Raise lift for level 1 ascent");
+            mTelemetry.update();
+
+            /// Drive to level 1 ascent location
             if (specimenPreload && cycles == 0)
                 builder = builder
                         .setTangent(- 5 * PI / 6)
@@ -323,38 +350,49 @@ public final class MainAuton extends LinearOpMode {
                         .splineToConstantHeading(parkLeft.toVector2d(), parkLeft.heading)
                 ;
             else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
+
+            mTelemetry.addLine(genLog += "\n> Drive to level 1 ascent location");
+            mTelemetry.update();
         }
 
-        Action trajectory = builder.build();
+        // Parallel action to bulk read, update trajectory, and update robot (robot.run())
+        ParallelAction auton = new ParallelAction(
+                telemetryPacket -> {
+                    robot.bulkReader.bulkRead();
+                    return opModeIsActive();
+                },
+                builder.build(),
+                // only print telemetry if enabled from dashboard
+                TELEMETRY ?
+                        telemetryPacket -> {
+                            pose = robot.drivetrain.pose;
+                            robot.run();
+                            robot.printTelemetry();
+                            mTelemetry.update();
+                            return opModeIsActive();
+                        } : telemetryPacket -> {
+                            pose = robot.drivetrain.pose;
+                            robot.run();
+                            return opModeIsActive();
+                        }
+        );
+
+        mTelemetry.addLine(genLog);
+        mTelemetry.addLine("TRAJECTORY GENERATED:");
+        mTelemetry.addLine();
+        mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+        mTelemetry.addLine();
+        mTelemetry.addLine(specimenSide ?
+                "Right side specimen preload" + (cycles > 0 ? " and " + cycles + " specimens from floor" : "") :
+                "Left side " + (specimenPreload ? "specimen" : "sample") + " preload" + (cycles > 0 ? " and " + cycles + " samples from floor" : "")
+        );
+        mTelemetry.update();
 
         waitForStart();
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        Actions.runBlocking(new ParallelAction(
-                telemetryPacket -> {
-                    pose = robot.drivetrain.pose;
-                    robot.bulkReader.bulkRead();
-                    robot.run();
-                    robot.printTelemetry();
-                    mTelemetry.update();
-                    return opModeIsActive();
-                },
-                trajectory
-        ));
+        Actions.runBlocking(auton);
     }
 
-    private void printConfig(AutonConfig selection, boolean specimenSide, int cycles, double partnerWait) {
-        mTelemetry.addLine((isRedAlliance ? "RED " : "BLUE ") + selection.markIf(EDITING_ALLIANCE));
-        mTelemetry.addLine();
-        mTelemetry.addLine((specimenSide ? "RIGHT (SPECIMEN-SIDE)" : "LEFT (SAMPLE-SIDE)") + " side" + selection.markIf(EDITING_SIDE));
-        mTelemetry.addLine();
-        mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
-        mTelemetry.addLine();
-        mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
-        mTelemetry.addLine();
-        mTelemetry.addLine(cycles + "cycles" + selection.markIf(EDITING_CYCLES));
-        mTelemetry.addLine();
-        mTelemetry.addLine("Pause after spike: " + partnerWait + selection.markIf(EDITING_WAIT));
-    }
 }

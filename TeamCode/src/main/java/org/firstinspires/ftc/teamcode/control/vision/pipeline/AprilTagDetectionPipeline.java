@@ -49,12 +49,12 @@ public class AprilTagDetectionPipeline extends OpenCvPipeline {
     Mat cameraMatrix;
 
     final static Scalar
-            aqua = new Scalar(7, 197, 235, 255),
-            blue = new Scalar(0, 0, 255, 255),
-            red = new Scalar(255, 0, 0, 255),
-            green = new Scalar(0, 255, 0, 255),
-            yellow = new Scalar(255, 255, 0, 255),
-            white = new Scalar(255, 255, 255, 255),
+            aqua = new Scalar(7, 197, 235),
+            blue = new Scalar(0, 0, 255),
+            red = new Scalar(255, 0, 0),
+            green = new Scalar(0, 255, 0),
+            yellow = new Scalar(255, 255, 0),
+            white = new Scalar(255, 255, 255),
             lavender = new Scalar(236, 140, 255),
             black = new Scalar(0, 0, 0),
             gray = new Scalar(40, 40, 40);

@@ -8,23 +8,23 @@ import static org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDrive
 import static java.lang.Math.PI;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.DualNum;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Time;
-import com.acmerobotics.roadrunner.Twist2dDual;
-import com.acmerobotics.roadrunner.Vector2dDual;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.control.motion.GoBildaPinpointDriver;
 
 @Config
-public final class PinpointLocalizer implements Localizer {
+public final class PinpointLocalizer {
+
+    public static final double INCH_PER_MM = 1 / 25.4;
 
     public static double TICKS_PER_MM = 8192 / (PI * 38);
 
-    public static double X_POD_OFFSET = -12000; // y position of the forward (x) encoder (in tick units)
-    public static double Y_POD_OFFSET = -3268.070848297075; // x position of the perpendicular (y) encoder (in tick units)
+    public static double X_POD_OFFSET = 173.42500; // y position of the forward (x) encoder (in millimeters)
+    public static double Y_POD_OFFSET = -23.07899; // x position of the perpendicular (y) encoder (in millimeters)
 
     public static GoBildaPinpointDriver.EncoderDirection
             X_POD_DIRECTION = REVERSED,
@@ -41,46 +41,39 @@ public final class PinpointLocalizer implements Localizer {
         pinpoint.setEncoderResolution(TICKS_PER_MM);
         pinpoint.setEncoderDirections(X_POD_DIRECTION, Y_POD_DIRECTION);
 
-        reset();
-    }
-
-    public void reset() {
         pinpoint.resetPosAndIMU();
+
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public Twist2dDual<Time> update() {
+    public void update() {
 
-        if (trackHeadingOnly) pinpoint.update(ONLY_UPDATE_HEADING);
-        else pinpoint.update();
+        if (trackHeadingOnly)
+            pinpoint.update(ONLY_UPDATE_HEADING);
+        else
+            pinpoint.update();
 
-        Pose2D velocity = pinpoint.getVelocity();
-
-        return new Twist2dDual<>(
-                new Vector2dDual<>(
-                        new DualNum<Time>(new double[] {
-                                0,
-                                velocity.getX(INCH),
-                        }),
-                        new DualNum<Time>(new double[] {
-                                0,
-                                velocity.getY(INCH),
-                        })
-                ),
-                new DualNum<>(new double[] {
-                        0,
-                        velocity.getHeading(RADIANS)
-                })
-        );
     }
 
     public Pose2d getPosition() {
-
-        Pose2D position = pinpoint.getPosition();
-
         return new Pose2d(
-                position.getX(INCH),
-                position.getY(INCH),
-                position.getHeading(RADIANS)
+                pinpoint.getPosX() * INCH_PER_MM,
+                pinpoint.getPosY() * INCH_PER_MM,
+                pinpoint.getHeading()
+        );
+    }
+
+    public PoseVelocity2d getVelocity() {
+        return new PoseVelocity2d(
+                new Vector2d(
+                        pinpoint.getVelX() * INCH_PER_MM,
+                        pinpoint.getVelY() * INCH_PER_MM
+                ),
+                pinpoint.getHeadingVelocity()
         );
     }
 
@@ -99,10 +92,10 @@ public final class PinpointLocalizer implements Localizer {
     }
 
     public int rawEncoderX() {
-        return pinpoint.getEncoderX();
+        return pinpoint.getEncoderX() * (X_POD_DIRECTION == REVERSED ? -1 : 1);
     }
     public int rawEncoderY() {
-        return pinpoint.getEncoderY();
+        return pinpoint.getEncoderY() * (Y_POD_DIRECTION == REVERSED ? -1 : 1);
     }
     public void setHeading(double radians) {
         pinpoint.setHeading(radians);

@@ -8,7 +8,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_STICK_BUTTON;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
@@ -16,7 +15,6 @@ import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDIT
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
@@ -24,9 +22,10 @@ import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
+import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -37,7 +36,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
-import org.firstinspires.ftc.teamcode.subsystem.Sample;
+import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 
 @TeleOp
 public final class MainTeleOp extends LinearOpMode {
@@ -62,28 +61,24 @@ public final class MainTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ElapsedTime loopTimer = new ElapsedTime(), matchTimer = new ElapsedTime();
+        ElapsedTime matchTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
         boolean rumbledClimb = false, rumbledSample = false;
 
-        Gamepad.RumbleEffect sampleRumble = new Gamepad.RumbleEffect.Builder()
-                .addStep(1, 1, 100)
-                .addStep(0, 0, 100)
-                .addStep(1, 1, 100)
-                .build();
-
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.localizer.trackHeadingOnly(true);
+        robot.drivetrain.localizer.setHeading(pose.heading.toDouble());
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
         TeleOpConfig selection = EDITING_ALLIANCE;
 
         boolean slowModeLocked = false, useFieldCentric = true;
+
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
@@ -108,6 +103,9 @@ public final class MainTeleOp extends LinearOpMode {
                     break;
             }
 
+            robot.drivetrain.setHeadingFromStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
+            robot.drivetrain.updatePoseEstimate();
+
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
@@ -117,23 +115,24 @@ public final class MainTeleOp extends LinearOpMode {
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();
             mTelemetry.addLine((useFieldCentric ? "Field centric" : "ROBOT CENTRIC") + " driving" + selection.markIf(EDITING_FIELD_CENTRIC));
+            mTelemetry.addLine();
+            mTelemetry.addData("Start heading (deg)", toDegrees(robot.drivetrain.pose.heading.toDouble()));
 
             mTelemetry.update();
         }
 
-        robot.drivetrain.localizer.setPosition(pose);
+// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         robot.intake.setAlliance(isRedAlliance);
         robot.deposit.setAlliance(isRedAlliance);
 
         matchTimer.reset();
 
-// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
         // Control loop:
         while (opModeIsActive()) {
             // Read sensors + gamepads:
-            robot.readSensors();
+            robot.bulkReader.bulkRead();
+            robot.drivetrain.updatePoseEstimate();
             gamepadEx1.readButtons();
 
             double rightX = gamepadEx1.getRightX();
@@ -149,7 +148,6 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.intake.runRoller(0);
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
-                if (gamepadEx1.wasJustPressed(RIGHT_STICK_BUTTON))  robot.drivetrain.localizer.reset();
 
                 // SET HEADING:
                 robot.drivetrain.setHeadingFromStick(rightX, gamepadEx1.getRightY());
@@ -190,20 +188,17 @@ public final class MainTeleOp extends LinearOpMode {
 
             robot.run();
 
-            mTelemetry.addData("LOOP TIME", loopTimer.seconds());
-            loopTimer.reset();
-            divider();
             robot.printTelemetry();
             mTelemetry.update();
 
             if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
-                gamepad1.rumble(1, 1, 1500);
+                gamepad1.rumble(1, 1, 2000);
                 rumbledClimb = true;
             }
 
             if (!robot.intake.hasSample()) rumbledSample = false;
             else if (!gamepad1.isRumbling() && !rumbledSample) {
-                gamepad1.runRumbleEffect(sampleRumble);
+                gamepad1.rumble(1, 1, 100);
                 rumbledSample = true;
             }
 

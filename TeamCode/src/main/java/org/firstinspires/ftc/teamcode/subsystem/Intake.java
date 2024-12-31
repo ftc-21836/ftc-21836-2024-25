@@ -10,9 +10,9 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETR
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.subsystem.Sample.RED;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static java.lang.Math.abs;
 
@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
+import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
@@ -39,10 +40,10 @@ public final class Intake {
 
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 1.5,
-            TIME_BUCKET_SEMI_RETRACT = 0.5,
-            TIME_PRE_TRANSFER = 0.25,
-            TIME_TRANSFER = 0.25,
-            TIME_POST_TRANSFER = 0.25,
+            TIME_BUCKET_SEMI_RETRACT = 0.2,
+            TIME_PRE_TRANSFER = 0.15,
+            TIME_TRANSFER = 0.15,
+            TIME_REVERSING = 0.25,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
@@ -236,7 +237,7 @@ public final class Intake {
 
             case RETRACTED:
 
-                if (timer.seconds() >= TIME_POST_TRANSFER) rollerSpeed = SPEED_RETRACTED;
+                if (extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR) rollerSpeed = SPEED_RETRACTED;
 
                 break;
         }
