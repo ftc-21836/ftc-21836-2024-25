@@ -102,7 +102,7 @@ public final class MainTeleOp extends LinearOpMode {
                     break;
             }
 
-            robot.drivetrain.setHeadingFromStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
+            robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
@@ -149,7 +149,7 @@ public final class MainTeleOp extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
                 // SET HEADING:
-                robot.drivetrain.setHeadingFromStick(rightX, gamepadEx1.getRightY());
+                robot.drivetrain.setHeadingWithStick(rightX, gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
             } else {

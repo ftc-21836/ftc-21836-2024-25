@@ -178,7 +178,7 @@ public class PinpointDrive extends MecanumDrive {
         ));
     }
 
-    public void setHeadingFromStick(double x, double y) {
+    public void setHeadingWithStick(double x, double y) {
         if (x*x + y*y >= 0.64) setHeading(-atan2(y, x));
     }
 
