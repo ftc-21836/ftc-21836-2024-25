@@ -9,11 +9,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
 
 public final class Robot {
 
-    public final MecanumDrive drivetrain;
+    public final PinpointDrive drivetrain;
     public final Intake intake;
     public final Deposit deposit;
     public final Climber climber;
@@ -23,7 +24,7 @@ public final class Robot {
 
     public Robot(HardwareMap hardwareMap, Pose2d startPose) {
 
-        drivetrain = new MecanumDrive(hardwareMap, startPose);
+        drivetrain = new PinpointDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
         intake = new Intake(hardwareMap);
         deposit = new Deposit(hardwareMap);

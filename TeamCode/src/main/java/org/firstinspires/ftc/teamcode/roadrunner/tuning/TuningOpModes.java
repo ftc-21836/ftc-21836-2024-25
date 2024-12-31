@@ -4,34 +4,15 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.reflection.ReflectionConfig;
 import com.acmerobotics.roadrunner.MotorFeedforward;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ftc.AngularRampLogger;
-import com.acmerobotics.roadrunner.ftc.DeadWheelDirectionDebugger;
-import com.acmerobotics.roadrunner.ftc.DriveType;
-import com.acmerobotics.roadrunner.ftc.DriveView;
-import com.acmerobotics.roadrunner.ftc.DriveViewFactory;
-import com.acmerobotics.roadrunner.ftc.Encoder;
-import com.acmerobotics.roadrunner.ftc.ForwardPushTest;
-import com.acmerobotics.roadrunner.ftc.ForwardRampLogger;
-import com.acmerobotics.roadrunner.ftc.LateralPushTest;
-import com.acmerobotics.roadrunner.ftc.LateralRampLogger;
-import com.acmerobotics.roadrunner.ftc.ManualFeedforwardTuner;
-import com.acmerobotics.roadrunner.ftc.MecanumMotorDirectionDebugger;
-import com.acmerobotics.roadrunner.ftc.RawEncoder;
+import com.acmerobotics.roadrunner.ftc.*;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegistrar;
-import com.qualcomm.robotcore.hardware.DcMotorController;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.PinpointLocalizer;
+import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.TankDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.ThreeDeadWheelLocalizer;
 import org.firstinspires.ftc.teamcode.roadrunner.TwoDeadWheelLocalizer;
@@ -41,8 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public final class TuningOpModes {
-    // TODO: change this to TankDrive.class if you're using tank
-    public static final Class<?> DRIVE_CLASS = MecanumDrive.class;
+    public static final Class<?> DRIVE_CLASS = PinpointDrive.class; // TODO: change to your drive class i.e. PinpointDrive if using pinpoint
 
     public static final String GROUP = "quickstart";
     public static final boolean DISABLED = false;
@@ -62,143 +42,65 @@ public final class TuningOpModes {
         if (DISABLED) return;
 
         DriveViewFactory dvf;
-        if (DRIVE_CLASS.equals(MecanumDrive.class)) {
+        if (DRIVE_CLASS.equals(PinpointDrive.class)) {
+                dvf = hardwareMap -> {
+                    PinpointDrive pd = new PinpointDrive(hardwareMap, new Pose2d(0, 0, 0));
+
+                    List<Encoder> leftEncs = new ArrayList<>(), rightEncs = new ArrayList<>();
+                    List<Encoder> parEncs = new ArrayList<>(), perpEncs = new ArrayList<>();
+                    parEncs.add(new PinpointEncoder(pd.pinpoint,false, pd.leftBack.motor));
+                    perpEncs.add(new PinpointEncoder(pd.pinpoint,true, pd.leftBack.motor));
+
+                    return new DriveView(
+                            DriveType.MECANUM,
+                            MecanumDrive.PARAMS.inPerTick,
+                            MecanumDrive.PARAMS.maxWheelVel,
+                            MecanumDrive.PARAMS.minProfileAccel,
+                            MecanumDrive.PARAMS.maxProfileAccel,
+                            hardwareMap.getAll(LynxModule.class),
+                            Arrays.asList(
+                                    pd.leftFront.motor,
+                                    pd.leftBack.motor
+                            ),
+                            Arrays.asList(
+                                    pd.rightFront.motor,
+                                    pd.rightBack.motor
+                            ),
+                            leftEncs,
+                            rightEncs,
+                            parEncs,
+                            perpEncs,
+                            pd.lazyImu,
+                            pd.voltageSensor,
+                            () -> new MotorFeedforward(MecanumDrive.PARAMS.kS,
+                                    MecanumDrive.PARAMS.kV / MecanumDrive.PARAMS.inPerTick,
+                                    MecanumDrive.PARAMS.kA / MecanumDrive.PARAMS.inPerTick)
+                    );
+                };
+        } else if (DRIVE_CLASS.equals(MecanumDrive.class)) {
             dvf = hardwareMap -> {
                 MecanumDrive md = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
                 List<Encoder> leftEncs = new ArrayList<>(), rightEncs = new ArrayList<>();
                 List<Encoder> parEncs = new ArrayList<>(), perpEncs = new ArrayList<>();
-//                if (md.localizer instanceof MecanumDrive.DriveLocalizer) {
-//                    MecanumDrive.DriveLocalizer dl = (MecanumDrive.DriveLocalizer) md.localizer;
-//                    leftEncs.add(dl.leftFront);
-//                    leftEncs.add(dl.leftBack);
-//                    rightEncs.add(dl.rightFront);
-//                    rightEncs.add(dl.rightBack);
-//                } else if (md.localizer instanceof ThreeDeadWheelLocalizer) {
-//                    ThreeDeadWheelLocalizer dl = (ThreeDeadWheelLocalizer) md.localizer;
-//                    parEncs.add(dl.par0);
-//                    parEncs.add(dl.par1);
-//                    perpEncs.add(dl.perp);
-//                } else if (md.localizer instanceof TwoDeadWheelLocalizer) {
-//                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) md.localizer;
-//                    parEncs.add(dl.par);
-//                    perpEncs.add(dl.perp);
-//                } else {
-//                    throw new RuntimeException("unknown localizer: " + md.localizer.getClass().getName());
-//                }
-                RawEncoder forward = new RawEncoder(new DcMotorEx() {
-                    @Override public void setMotorEnable() {
+                if (md.localizer instanceof MecanumDrive.DriveLocalizer) {
+                    MecanumDrive.DriveLocalizer dl = (MecanumDrive.DriveLocalizer) md.localizer;
+                    leftEncs.add(dl.leftFront);
+                    leftEncs.add(dl.leftBack);
+                    rightEncs.add(dl.rightFront);
+                    rightEncs.add(dl.rightBack);
+                } else if (md.localizer instanceof ThreeDeadWheelLocalizer) {
+                    ThreeDeadWheelLocalizer dl = (ThreeDeadWheelLocalizer) md.localizer;
+                    parEncs.add(dl.par0);
+                    parEncs.add(dl.par1);
+                    perpEncs.add(dl.perp);
+                } else if (md.localizer instanceof TwoDeadWheelLocalizer) {
+                    TwoDeadWheelLocalizer dl = (TwoDeadWheelLocalizer) md.localizer;
+                    parEncs.add(dl.par);
+                    perpEncs.add(dl.perp);
+                } else {
+                    throw new RuntimeException("unknown localizer: " + md.localizer.getClass().getName());
                 }
-                @Override public void setMotorDisable() {
-                }
-                @Override public boolean isMotorEnabled() {return false;}
-                    @Override public void setVelocity(double angularRate) {
-                }
-                @Override public void setVelocity(double angularRate, AngleUnit unit) {
-                }
-                @Override public double getVelocity() {
-                    return md.localizer.velX() * PinpointLocalizer.TICKS_PER_MM;
-                }
-                @Override public double getVelocity(AngleUnit unit) {return 0;}
-                @Override public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
-                }
-                @Override public void setPIDFCoefficients(RunMode mode, PIDFCoefficients pidfCoefficients) throws UnsupportedOperationException {
-                }
-                @Override public void setVelocityPIDFCoefficients(double p, double i, double d, double f) {
-                }
-                @Override public void setPositionPIDFCoefficients(double p) {
-                }
-                @Override public PIDCoefficients getPIDCoefficients(RunMode mode) {return null;}
-                    @Override public PIDFCoefficients getPIDFCoefficients(RunMode mode) {return null;}
-                    @Override public void setTargetPositionTolerance(int tolerance) {
-                }
-                @Override public int getTargetPositionTolerance() {return 0;}
-                    @Override public double getCurrent(CurrentUnit unit) {return 0;}
-                    @Override public double getCurrentAlert(CurrentUnit unit) {return 0;}
-                    @Override public void setCurrentAlert(double current, CurrentUnit unit) {
-                }
-                @Override public boolean isOverCurrent() {return false;}
-                    @Override public MotorConfigurationType getMotorType() {return null;}
-                    @Override public void setMotorType(MotorConfigurationType motorType) {
-                }
-                @Override public DcMotorController getController() {return md.rightBack.motor.getController();}
-                    @Override public int getPortNumber() {return 0;}
-                    @Override public void setZeroPowerBehavior(ZeroPowerBehavior zeroPowerBehavior) {
-                }
-                @Override public ZeroPowerBehavior getZeroPowerBehavior() {return null;}
-                    @Override public void setPowerFloat() {
-                }
-                @Override public boolean getPowerFloat() {return false;}
-                    @Override public void setTargetPosition(int position) {
-                }
-                @Override public int getTargetPosition() {return 0;}
-                    @Override public boolean isBusy() {return false;}
-
-                    @Override
-                    public int getCurrentPosition() {
-                        md.localizer.update();
-                        return md.localizer.rawEncoderX();
-                    }
-                    @Override public void setMode(RunMode mode) {}@Override public RunMode getMode() {return null;}@Override public void setDirection(Direction direction) {}@Override public Direction getDirection() {return null;}@Override public void setPower(double power) {}@Override public double getPower() {return 0;}@Override public Manufacturer getManufacturer() {return null;}@Override public String getDeviceName() {return "";}@Override public String getConnectionInfo() {return "";}@Override public int getVersion() {return 0;}@Override public void resetDeviceConfigurationForOpMode() {}@Override public void close() {}
-                });
-                RawEncoder perp = new RawEncoder(new DcMotorEx() {
-                    @Override public void setMotorEnable() {
-                    }
-                    @Override public void setMotorDisable() {
-                    }
-                    @Override public boolean isMotorEnabled() {return false;}
-                    @Override public void setVelocity(double angularRate) {
-                    }
-                    @Override public void setVelocity(double angularRate, AngleUnit unit) {
-                    }
-                    @Override public double getVelocity() {
-                        return md.localizer.velY() * PinpointLocalizer.TICKS_PER_MM;
-                    }
-                    @Override public double getVelocity(AngleUnit unit) {return 0;}
-                    @Override public void setPIDCoefficients(RunMode mode, PIDCoefficients pidCoefficients) {
-                    }
-                    @Override public void setPIDFCoefficients(RunMode mode, PIDFCoefficients pidfCoefficients) throws UnsupportedOperationException {
-                    }
-                    @Override public void setVelocityPIDFCoefficients(double p, double i, double d, double f) {
-                    }
-                    @Override public void setPositionPIDFCoefficients(double p) {
-                    }
-                    @Override public PIDCoefficients getPIDCoefficients(RunMode mode) {return null;}
-                    @Override public PIDFCoefficients getPIDFCoefficients(RunMode mode) {return null;}
-                    @Override public void setTargetPositionTolerance(int tolerance) {
-                    }
-                    @Override public int getTargetPositionTolerance() {return 0;}
-                    @Override public double getCurrent(CurrentUnit unit) {return 0;}
-                    @Override public double getCurrentAlert(CurrentUnit unit) {return 0;}
-                    @Override public void setCurrentAlert(double current, CurrentUnit unit) {
-                    }
-                    @Override public boolean isOverCurrent() {return false;}
-                    @Override public MotorConfigurationType getMotorType() {return null;}
-                    @Override public void setMotorType(MotorConfigurationType motorType) {
-                    }
-                    @Override public DcMotorController getController() {return md.rightFront.motor.getController();}
-                    @Override public int getPortNumber() {return 0;}
-                    @Override public void setZeroPowerBehavior(ZeroPowerBehavior zeroPowerBehavior) {
-                    }
-                    @Override public ZeroPowerBehavior getZeroPowerBehavior() {return null;}
-                    @Override public void setPowerFloat() {
-                    }
-                    @Override public boolean getPowerFloat() {return false;}
-                    @Override public void setTargetPosition(int position) {
-                    }
-                    @Override public int getTargetPosition() {return 0;}
-                    @Override public boolean isBusy() {return false;}
-
-                    @Override
-                    public int getCurrentPosition() {
-                        md.localizer.update();
-                        return md.localizer.rawEncoderY();
-                    }
-                    @Override public void setMode(RunMode mode) {}@Override public RunMode getMode() {return null;}@Override public void setDirection(Direction direction) {}@Override public Direction getDirection() {return null;}@Override public void setPower(double power) {}@Override public double getPower() {return 0;}@Override public Manufacturer getManufacturer() {return null;}@Override public String getDeviceName() {return "";}@Override public String getConnectionInfo() {return "";}@Override public int getVersion() {return 0;}@Override public void resetDeviceConfigurationForOpMode() {}@Override public void close() {}
-                });
-
-                parEncs.add(forward);
-                perpEncs.add(perp);
 
                 return new DriveView(
                     DriveType.MECANUM,
@@ -282,9 +184,9 @@ public final class TuningOpModes {
         manager.register(metaForClass(MecanumMotorDirectionDebugger.class), new MecanumMotorDirectionDebugger(dvf));
         manager.register(metaForClass(DeadWheelDirectionDebugger.class), new DeadWheelDirectionDebugger(dvf));
 
-//        manager.register(metaForClass(ManualFeedbackTuner.class), ManualFeedbackTuner.class);
-//        manager.register(metaForClass(SplineTest.class), SplineTest.class);
-//        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
+        manager.register(metaForClass(ManualFeedbackTuner.class), ManualFeedbackTuner.class);
+        manager.register(metaForClass(SplineTest.class), SplineTest.class);
+        manager.register(metaForClass(LocalizationTest.class), LocalizationTest.class);
 
         FtcDashboard.getInstance().withConfigRoot(configRoot -> {
             for (Class<?> c : Arrays.asList(

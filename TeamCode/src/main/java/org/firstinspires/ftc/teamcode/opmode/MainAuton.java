@@ -179,7 +179,7 @@ public final class MainAuton extends LinearOpMode {
                 specimenSide || specimenPreload ? PI / 2 : 0
         );
 
-        robot.drivetrain.localizer.setPosition(startPose);
+        robot.drivetrain.pinpoint.setPositionRR(startPose);
 
         TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(startPose);
 
