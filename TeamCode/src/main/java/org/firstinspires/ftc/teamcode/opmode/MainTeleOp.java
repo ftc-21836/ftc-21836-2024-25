@@ -70,8 +70,8 @@ public final class MainTeleOp extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
-        robot.drivetrain.localizer.trackHeadingOnly(true);
-        robot.drivetrain.localizer.setHeading(pose.heading.toDouble());
+        robot.drivetrain.trackHeadingOnly = true;
+        robot.drivetrain.setHeading(pose.heading.toDouble());
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 

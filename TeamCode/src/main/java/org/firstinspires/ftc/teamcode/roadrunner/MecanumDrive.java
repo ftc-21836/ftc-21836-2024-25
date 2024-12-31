@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.roadrunner;
 
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static java.lang.Math.PI;
-import static java.lang.Math.atan2;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
@@ -68,7 +67,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Config
-public final class MecanumDrive {
+public class MecanumDrive {
 
     public static double SLOW_FACTOR = 0.3;
 
@@ -142,10 +141,6 @@ public final class MecanumDrive {
         ));
     }
 
-    public void setHeadingFromStick(double x, double y) {
-        if (x*x + y*y >= 0.64) localizer.setHeading(-atan2(y, x));
-    }
-
     public void printTelemetry() {
         double heading = pose.heading.toDouble();
         mTelemetry.addLine("DRIVETRAIN:");
@@ -166,23 +161,23 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
         // drive model parameters
-        public double inPerTick = PinpointLocalizer.INCH_PER_MM / PinpointLocalizer.TICKS_PER_MM;
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 14.47 / inPerTick;
+        public double inPerTick = 1; // If you're using OTOS/Pinpoint leave this at 1 (all values will be in inches, 1 tick = 1 inch)
+        public double lateralInPerTick = inPerTick; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
+        public double trackWidthTicks = 0;
 
         // feedforward parameters (in tick units)
         public double kS = 0;
-        public double kV = 0.00009;
-        public double kA = 0.000025;
+        public double kV = 0;
+        public double kA = 0;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
-        public double minProfileAccel = -50;
+        public double minProfileAccel = -30;
         public double maxProfileAccel = 50;
 
         // turn profile parameters (in radians)
-        public double maxAngVel = 5.3; // shared with path
-        public double maxAngAccel = 20;
+        public double maxAngVel = PI; // shared with path
+        public double maxAngAccel = PI;
 
         // path controller gains
         public double axialGain = 0;
@@ -213,12 +208,12 @@ public final class MecanumDrive {
 
     public final VoltageSensor voltageSensor;
 
-    public final LazyImu lazyImu;
+    public LazyImu lazyImu;
 
-    public final PinpointLocalizer localizer;
+    public final Localizer localizer;
     public Pose2d pose;
 
-    private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
+    public final LinkedList<Pose2d> poseHistory = new LinkedList<>();
 
     private final DownsampledWriter estimatedPoseWriter = new DownsampledWriter("ESTIMATED_POSE", 50_000_000);
     private final DownsampledWriter targetPoseWriter = new DownsampledWriter("TARGET_POSE", 50_000_000);
@@ -229,7 +224,7 @@ public final class MecanumDrive {
         public final Encoder leftFront, leftBack, rightBack, rightFront;
         public final IMU imu;
 
-        private int lastLeftFrontPos, lastLeftBackPos, lastRightBackPos, lastRightFrontPos;
+        private double lastLeftFrontPos, lastLeftBackPos, lastRightBackPos, lastRightFrontPos;
         private Rotation2d lastHeading;
         private boolean initialized;
 
@@ -310,6 +305,7 @@ public final class MecanumDrive {
     }
 
     public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
+        this.pose = pose;
 
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
@@ -340,8 +336,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new PinpointLocalizer(hardwareMap);
-        this.pose = pose;
+        localizer = new DriveLocalizer();
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
@@ -545,8 +540,8 @@ public final class MecanumDrive {
     }
 
     public PoseVelocity2d updatePoseEstimate() {
-        localizer.update();
-        pose = localizer.getPosition();
+        Twist2dDual<Time> twist = localizer.update();
+        pose = pose.plus(twist.value());
 
         poseHistory.add(pose);
         while (poseHistory.size() > 100) {
@@ -555,7 +550,7 @@ public final class MecanumDrive {
 
         estimatedPoseWriter.write(new PoseMessage(pose));
 
-        return localizer.getVelocity();
+        return twist.velocity().value();
     }
 
     private void drawPoseHistory(Canvas c) {
