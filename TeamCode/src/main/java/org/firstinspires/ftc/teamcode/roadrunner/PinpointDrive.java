@@ -81,7 +81,7 @@ public class PinpointDrive extends MecanumDrive {
         public boolean usePinpointIMUForTuning = true;
     }
 
-    public static Params PARAMS = new Params();
+    public static Params PINPOINT_CONFIG = new Params();
     public GoBildaPinpointDriverRR pinpoint;
     private Pose2d lastPinpointPose = pose;
     
@@ -89,18 +89,18 @@ public class PinpointDrive extends MecanumDrive {
 
     public PinpointDrive(HardwareMap hardwareMap, Pose2d pose) {
         super(hardwareMap, pose);
-        FlightRecorder.write("PINPOINT_PARAMS",PARAMS);
-        pinpoint = hardwareMap.get(GoBildaPinpointDriverRR.class,PARAMS.pinpointDeviceName);
+        FlightRecorder.write("PINPOINT_PARAMS", PINPOINT_CONFIG);
+        pinpoint = hardwareMap.get(GoBildaPinpointDriverRR.class, PINPOINT_CONFIG.pinpointDeviceName);
 
-        if (PARAMS.usePinpointIMUForTuning) {
-            lazyImu = new LazyImu(hardwareMap, PARAMS.pinpointDeviceName, new RevHubOrientationOnRobot(zyxOrientation(0, 0, 0)));
+        if (PINPOINT_CONFIG.usePinpointIMUForTuning) {
+            lazyImu = new LazyImu(hardwareMap, PINPOINT_CONFIG.pinpointDeviceName, new RevHubOrientationOnRobot(zyxOrientation(0, 0, 0)));
         }
 
-        pinpoint.setOffsets(PARAMS.xOffset, PARAMS.yOffset);
+        pinpoint.setOffsets(PINPOINT_CONFIG.xOffset, PINPOINT_CONFIG.yOffset);
 
-        pinpoint.setEncoderResolution(PARAMS.encoderResolution);
+        pinpoint.setEncoderResolution(PINPOINT_CONFIG.encoderResolution);
 
-        pinpoint.setEncoderDirections(PARAMS.xDirection, PARAMS.yDirection);
+        pinpoint.setEncoderDirections(PINPOINT_CONFIG.xDirection, PINPOINT_CONFIG.yDirection);
 
         /*
         Before running the robot, recalibrate the IMU. This needs to happen when the robot is stationary

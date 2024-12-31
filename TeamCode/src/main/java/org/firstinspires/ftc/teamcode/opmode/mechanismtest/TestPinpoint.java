@@ -24,7 +24,6 @@ package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
-import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver;
 import com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -84,7 +83,7 @@ public class TestPinpoint extends LinearOpMode {
         the tracking point the Y (strafe) odometry pod is. forward of center is a positive number,
         backwards is a negative number.
          */
-        odo.setOffsets(PinpointDrive.PARAMS.xOffset, PinpointDrive.PARAMS.yOffset);
+        odo.setOffsets(PinpointDrive.PINPOINT_CONFIG.xOffset, PinpointDrive.PINPOINT_CONFIG.yOffset);
 
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -92,7 +91,7 @@ public class TestPinpoint extends LinearOpMode {
         If you're using another kind of odometry pod, uncomment setEncoderResolution and input the
         number of ticks per mm of your odometry pod.
          */
-        odo.setEncoderResolution(PinpointDrive.PARAMS.encoderResolution);
+        odo.setEncoderResolution(PinpointDrive.PINPOINT_CONFIG.encoderResolution);
         //odo.setEncoderResolution(13.26291192);
 
 
@@ -101,7 +100,7 @@ public class TestPinpoint extends LinearOpMode {
         increase when you move the robot forward. And the Y (strafe) pod should increase when
         you move the robot to the left.
          */
-        odo.setEncoderDirections(PinpointDrive.PARAMS.xDirection, PinpointDrive.PARAMS.yDirection);
+        odo.setEncoderDirections(PinpointDrive.PINPOINT_CONFIG.xDirection, PinpointDrive.PINPOINT_CONFIG.yDirection);
 
 
         /*
