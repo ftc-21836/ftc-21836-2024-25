@@ -15,6 +15,7 @@ import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_3;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.LENGTH_ROBOT;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_HALF_FIELD;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_TILE;
+import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_BASKET;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_CHAMBER;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_DROP_TO_EXTEND;
@@ -289,23 +290,19 @@ public final class MainAuton extends LinearOpMode {
                         /// Intake
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, new SequentialAction(
-                                new InstantAction(() -> robot.intake.runRoller(0.8)),
+                                telemetryPacket -> robot.intake.hasSample() || robot.intake.extendo.getPosition() < millimeters - 5,
+                                new InstantAction(() -> {
+                                    if (!robot.intake.hasSample()) robot.intake.runRoller(1);
+                                })
+                        ))
+                        .stopAndAdd(new SequentialAction(
+                                new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
                                 new SleepAction(WAIT_DROP_TO_EXTEND),
                                 new InstantAction(() -> robot.intake.extendo.setTarget(millimeters)),
                                 telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
                                 new SleepAction(WAIT_POST_INTAKING),
                                 new InstantAction(() -> robot.intake.runRoller(0))
                         ))
-                        .afterTime(0, new SequentialAction(
-                                telemetryPacket -> {
-                                    return robot.intake.extendo.getPosition() < millimeters - 5;
-                                },
-                                new InstantAction(() -> {
-                                     if (!robot.intake.hasSample()) robot.intake.runRoller(1);
-                                })
-                        ))
-                        // wait for intake to get sample:
-                        .stopAndAdd(telemetryPacket -> robot.getSample() == null)
 
                         /// Score
                         .afterTime(0, raiseLift(robot))

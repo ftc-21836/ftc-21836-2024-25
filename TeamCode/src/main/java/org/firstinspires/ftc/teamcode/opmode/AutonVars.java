@@ -21,7 +21,7 @@ public final class AutonVars {
             WAIT_SCORE_CHAMBER = 0.5,
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_POST_INTAKING = 0.5,
-            WAIT_EXTEND_SPEC_PRELOAD = 2,
+            SPEED_INTAKING = 0.8,
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
