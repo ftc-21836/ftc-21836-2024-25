@@ -173,8 +173,7 @@ public class PinpointDrive extends MecanumDrive {
 
     public void setHeading(double radians) {
         pinpoint.setPositionRR(new Pose2d(
-                pinpoint.getPositionRR().position.x,
-                pinpoint.getPositionRR().position.y,
+                pinpoint.getPositionRR().position,
                 radians
         ));
     }
