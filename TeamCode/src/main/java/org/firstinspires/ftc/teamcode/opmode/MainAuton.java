@@ -323,7 +323,7 @@ public final class MainAuton extends LinearOpMode {
             /// Raise arm for level 1 ascent
             builder = builder.afterTime(0, robot.deposit::level1Ascent);
 
-            mTelemetry.addLine("Raise lift for level 1 ascent");
+            mTelemetry.addLine("> Raise lift for level 1 ascent");
 
             /// Drive to level 1 ascent location
             if (specimenPreload && cycles == 0)
@@ -334,7 +334,7 @@ public final class MainAuton extends LinearOpMode {
                 ;
             else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
 
-            mTelemetry.addLine("Drive to level 1 ascent location");
+            mTelemetry.addLine("> Drive to level 1 ascent location");
         }
 
         // Parallel action to bulk read, update trajectory, and update robot (robot.run())
