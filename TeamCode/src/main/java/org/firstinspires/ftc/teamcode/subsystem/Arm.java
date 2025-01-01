@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.level1Ascent;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
 import androidx.annotation.NonNull;
@@ -36,7 +37,7 @@ public final class Arm {
     }
 
     private final Arm.Position startPos = new Position(TRANSFER.left + 1, TRANSFER.right - 1, "START POSITION");
-    private Arm.Position target = TRANSFER, lastTarget = TRANSFER;
+    private Arm.Position target = TRANSFER, lastTarget = level1Ascent ? ASCENT : TRANSFER;
     private final CachedSimpleServo rServo, lServo;
 
     public Arm(HardwareMap hardwareMap) {
@@ -44,11 +45,7 @@ public final class Arm {
         lServo = getAxon(hardwareMap, "arm left").reversed();
 
         setTarget(startPos);
-        run();
-    }
-
-    void postAscent() {
-        lastTarget = ASCENT;
+        if (!level1Ascent) run();
     }
 
     private double timeToReachTarget() {

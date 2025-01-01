@@ -100,10 +100,7 @@ public final class Deposit {
         claw = getGBServo(hardwareMap, "claw").reversed();
         claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
 
-        if (level1Ascent) {
-            arm.postAscent();
-            level1Ascent = false;
-        }
+        level1Ascent = false;
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
@@ -182,7 +179,7 @@ public final class Deposit {
         );
     }
 
-    private static boolean level1Ascent = false;
+    static boolean level1Ascent = false;
 
     public void level1Ascent() {
         level1Ascent = true;
