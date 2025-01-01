@@ -102,7 +102,7 @@ public final class Arm {
     }
 
     boolean collidingWithIntake() {
-        return !reachedTarget() || target == SPECIMEN;
+        return !reachedTarget();
     }
 
     public void printTelemetry() {
