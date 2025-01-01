@@ -182,6 +182,9 @@ public final class MainAuton extends LinearOpMode {
         boolean specimenPreload = !specimenSide && robot.deposit.specimenIntaked();
 
         mTelemetry.addLine("GENERATING TRAJECTORY...");
+        mTelemetry.update();
+
+        mTelemetry.addLine("TRAJECTORY GENERATED:");
         mTelemetry.addLine();
         mTelemetry.addLine("> " + (isRedAlliance ? "Red" : "Blue") + " alliance");
 
@@ -360,9 +363,6 @@ public final class MainAuton extends LinearOpMode {
                         }
         );
 
-        mTelemetry.addLine();
-        mTelemetry.addLine("TRAJECTORY GENERATED");
-        mTelemetry.addLine("(Press play to run autonomous)");
         mTelemetry.update();
 
         waitForStart();
