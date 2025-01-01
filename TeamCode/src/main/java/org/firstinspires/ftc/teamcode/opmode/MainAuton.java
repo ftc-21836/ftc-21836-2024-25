@@ -187,6 +187,8 @@ public final class MainAuton extends LinearOpMode {
         mTelemetry.addLine("TRAJECTORY GENERATED:");
         mTelemetry.addLine();
         mTelemetry.addLine("> " + (isRedAlliance ? "Red" : "Blue") + " alliance");
+        robot.intake.setAlliance(isRedAlliance);
+        robot.deposit.setAlliance(isRedAlliance);
 
         Pose2d startPose = new Pose2d(
                 specimenSide ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
