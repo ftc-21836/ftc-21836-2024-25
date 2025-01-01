@@ -101,10 +101,6 @@ public final class Arm {
         lServo.turnToAngle(target.left);
     }
 
-    boolean collidingWithIntake() {
-        return !reachedTarget();
-    }
-
     public void printTelemetry() {
         mTelemetry.addLine("ARM:");
         mTelemetry.addLine();
