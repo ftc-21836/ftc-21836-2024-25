@@ -300,6 +300,7 @@ public final class MainAuton extends LinearOpMode {
                 builder = builder
 
                         /// Intake
+                        .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, new SequentialAction(
                                 telemetryPacket -> !robot.intake.hasSample() && robot.intake.extendo.getPosition() < millimeters - 5,
@@ -308,8 +309,6 @@ public final class MainAuton extends LinearOpMode {
                                 })
                         ))
                         .stopAndAdd(new SequentialAction(
-                                new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
-                                new SleepAction(WAIT_DROP_TO_EXTEND),
                                 new InstantAction(() -> robot.intake.extendo.setTarget(millimeters)),
                                 telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
                                 new SleepAction(WAIT_POST_INTAKING),
