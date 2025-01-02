@@ -16,7 +16,8 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Arm {
 
     public static double
-            TIME_RETRACTED_TO_SAMPLE = 0.45,
+            TIME_RETRACTED_TO_SAMPLE = 0.8,
+            TIME_SAMPLE_TO_RETRACTED = 0.4,
             TIME_RETRACTED_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_WRIST_FREE = 0.2,
             TIME_INTAKING_TO_SPEC = 0.65,
@@ -56,12 +57,11 @@ public final class Arm {
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
                 target == ASCENT ?          TIME_INTAKING_TO_SPEC :
                 target == startPos ?
-                         lastTarget == ASCENT ?     TIME_SPEC_TO_RETRACTED :
+                        lastTarget == ASCENT ?      TIME_SPEC_TO_RETRACTED :
                                                     0 :
                 target == TRANSFER ?
-                        lastTarget == ASCENT ?      TIME_SPEC_TO_RETRACTED :
                         lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
-                        lastTarget == SAMPLE ?      TIME_RETRACTED_TO_SAMPLE :
+                        lastTarget == SAMPLE ?      TIME_SAMPLE_TO_RETRACTED :
                         lastTarget == startPos ?    0 :
                                                     TIME_SPEC_TO_RETRACTED :
                 1;
