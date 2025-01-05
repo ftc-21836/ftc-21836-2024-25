@@ -43,8 +43,6 @@ public final class Arm {
     public Arm(HardwareMap hardwareMap) {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
-
-        if (!level1Ascent) run();
     }
 
     private double timeToReachTarget() {
