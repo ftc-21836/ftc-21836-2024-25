@@ -100,10 +100,7 @@ public final class Deposit {
         claw = getGBServo(hardwareMap, "claw").reversed();
         claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
 
-        if (level1Ascent) {
-            arm.postAscent();
-            level1Ascent = false;
-        }
+        level1Ascent = false;
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
@@ -166,7 +163,7 @@ public final class Deposit {
         if (armCanMove) arm.run();
 
         boolean crushingArm = belowSafeHeight && liftLowering && arm.isUnderhand();
-        boolean liftCanMove = !crushingArm && (aboveIntake || !arm.collidingWithIntake() || intakeClear);
+        boolean liftCanMove = !crushingArm && (aboveIntake || arm.reachedTarget() || intakeClear);
 
         lift.run(liftCanMove, climbing);
 
@@ -182,7 +179,7 @@ public final class Deposit {
         );
     }
 
-    private static boolean level1Ascent = false;
+    static boolean level1Ascent = false;
 
     public void level1Ascent() {
         level1Ascent = true;
@@ -197,7 +194,7 @@ public final class Deposit {
 
     // when does the intake need to move out of the way
     boolean requestingIntakeToMove() {
-        return lift.getPosition() < HEIGHT_ABOVE_INTAKE && !arm.atPosition(Arm.TRANSFER) && !arm.reachedTarget();
+        return lift.getPosition() < HEIGHT_ABOVE_INTAKE && !arm.reachedTarget();
     }
 
     boolean readyToTransfer() {
