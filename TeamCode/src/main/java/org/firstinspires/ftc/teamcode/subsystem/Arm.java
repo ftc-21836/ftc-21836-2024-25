@@ -32,7 +32,7 @@ public final class Arm {
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
-    private boolean startedTiming = true;
+    private boolean startedTiming = false;
     private double getTimeTraveled() {
         return startedTiming ? timer.seconds() : 0;
     }
