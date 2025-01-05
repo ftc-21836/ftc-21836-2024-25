@@ -96,7 +96,6 @@ public final class Deposit {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
-        claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
 
         level1Ascent = false;
     }
