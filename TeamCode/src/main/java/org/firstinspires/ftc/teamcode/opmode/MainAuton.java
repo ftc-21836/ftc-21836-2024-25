@@ -18,6 +18,7 @@ import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_TILE;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_BASKET;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_CHAMBER;
+import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_DROP_TO_EXTEND;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_POST_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_BASKET;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_CHAMBER;
@@ -289,6 +290,8 @@ public final class MainAuton extends LinearOpMode {
             /// Cycle samples off the floor
             for (int i = 0; i < min(3, cycles); i++) {
 
+                boolean firstAfterSpec = i == 0 && specimenPreload;
+
                 double millimeters = extendoMMs[i];
                 EditablePose intakingPos = intakingPositions[i];
                 EditablePose samplePos = samplePositions[i];
@@ -296,17 +299,25 @@ public final class MainAuton extends LinearOpMode {
                 // Calculate angle to point intake at floor sample
                 intakingPos.heading = atan2(samplePos.y - intakingPos.y, samplePos.x - intakingPos.x);
 
-                builder = builder
+                if (!firstAfterSpec) {
+                    builder = builder
+                            .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING));
+                }
 
-                        /// Intake
-                        .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                builder = builder
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, new SequentialAction(
                                 telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(millimeters)),
                                 new InstantAction(() -> {
                                     if (!robot.intake.hasSample()) robot.intake.runRoller(1);
                                 })
-                        ))
+                        ));
+
+                if (firstAfterSpec) builder = builder
+                        .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                        .waitSeconds(WAIT_DROP_TO_EXTEND);
+
+                builder = builder
                         .stopAndAdd(new SequentialAction(
                                 new InstantAction(() -> robot.intake.extendo.setTarget(millimeters)),
                                 telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample

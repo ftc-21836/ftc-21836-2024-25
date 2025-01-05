@@ -24,7 +24,8 @@ public final class AutonVars {
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_POST_INTAKING = 0.5,
             WAIT_SCORE_BASKET = 0.25,
-            WAIT_SCORE_CHAMBER = 0.5;
+            WAIT_SCORE_CHAMBER = 0.5,
+            WAIT_DROP_TO_EXTEND = 0.75;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
