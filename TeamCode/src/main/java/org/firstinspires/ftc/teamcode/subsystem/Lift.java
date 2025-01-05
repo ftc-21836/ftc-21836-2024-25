@@ -4,6 +4,8 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 
+import static java.lang.Math.abs;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -24,7 +26,7 @@ public final class Lift {
     public static double
             kG = 0.125,
             INCHES_PER_TICK = 0.0088581424,
-            HEIGHT_RETRACTED_THRESHOLD = 0.5,
+            POSITION_TOLERANCE = 0.25,
             MAX_VOLTAGE = 13;
 
     // Motors and variables to manage their readings:
@@ -64,7 +66,7 @@ public final class Lift {
     }
 
     boolean isExtended() {
-        return getPosition() > HEIGHT_RETRACTED_THRESHOLD;
+        return getPosition() > POSITION_TOLERANCE;
     }
 
     public void runManual(double power) {
@@ -117,6 +119,10 @@ public final class Lift {
 
     public void setTarget(double inches) {
         target = inches;
+    }
+
+    public boolean atPosition(double liftTarget) {
+        return abs(liftTarget - getPosition()) < Lift.POSITION_TOLERANCE;
     }
 
 }

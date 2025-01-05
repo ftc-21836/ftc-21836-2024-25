@@ -18,7 +18,6 @@ import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_TILE;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_BASKET;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_CHAMBER;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_DROP_TO_EXTEND;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_POST_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_BASKET;
 import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_CHAMBER;
@@ -376,7 +375,7 @@ public final class MainAuton extends LinearOpMode {
     private static Action scoreSpecimen(Robot robot) {
         return new SequentialAction(
                 new SleepAction(WAIT_APPROACH_CHAMBER),
-                telemetryPacket -> !robot.deposit.reachedTarget(Arm.SPECIMEN, HEIGHT_CHAMBER_HIGH), // wait until deposit in position
+                telemetryPacket -> robot.deposit.movingToPosition(Arm.SPECIMEN, HEIGHT_CHAMBER_HIGH), // wait until deposit in position
                 new InstantAction(robot.deposit::triggerClaw),
                 telemetryPacket -> robot.deposit.hasSample(), // wait until spec scored
                 new SleepAction(WAIT_SCORE_CHAMBER)
@@ -394,7 +393,7 @@ public final class MainAuton extends LinearOpMode {
     private static Action scoreSample(Robot robot) {
         return new SequentialAction(
                 new SleepAction(WAIT_APPROACH_BASKET),
-                telemetryPacket -> !robot.deposit.reachedTarget(Arm.SAMPLE, HEIGHT_BASKET_HIGH),
+                telemetryPacket -> robot.deposit.movingToPosition(Arm.SAMPLE, HEIGHT_BASKET_HIGH),
                 new InstantAction(robot.deposit::triggerClaw),
                 new SleepAction(WAIT_SCORE_BASKET)
         );

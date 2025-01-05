@@ -19,7 +19,6 @@ public final class AutonVars {
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_SCORE_BASKET = 0.4,
             WAIT_SCORE_CHAMBER = 0.5,
-            WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_POST_INTAKING = 0.75,
             SPEED_INTAKING = 0.875,
             EXTEND_SAMPLE_1 = 300,
