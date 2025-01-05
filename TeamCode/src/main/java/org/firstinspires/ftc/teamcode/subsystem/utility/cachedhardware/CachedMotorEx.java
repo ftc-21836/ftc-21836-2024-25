@@ -19,7 +19,7 @@ public final class CachedMotorEx extends MotorEx {
         super(hMap, id, cpr, rpm);
     }
 
-    private double lastPower = 0;
+    private double lastPower = Double.NaN;
 
     public void set(double power) {
         if (power == lastPower) return;
