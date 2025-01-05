@@ -32,9 +32,9 @@ public final class Arm {
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
-    private boolean startedTiming = false;
+    private boolean movingToTarget = false;
     private double getTimeTraveled() {
-        return startedTiming ? timer.seconds() : 0;
+        return movingToTarget ? timer.seconds() : 0;
     }
 
     private Arm.Position target = TRANSFER, lastTarget = level1Ascent ? ASCENT : TRANSFER;
@@ -75,15 +75,12 @@ public final class Arm {
         if (this.target == target) return;
         lastTarget = this.target;
         this.target = target;
-        startedTiming = false;
+        movingToTarget = false;
     }
 
     public void run() {
 
-        if (!startedTiming) {
-            timer.reset();
-            startedTiming = true;
-        }
+        if (!movingToTarget) timer.reset();
 
         Position target = this.target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
                                 Arm.POST_INTAKING :
@@ -91,6 +88,7 @@ public final class Arm {
 
         rServo.turnToAngle(target.right);
         lServo.turnToAngle(target.left);
+        movingToTarget = true;
     }
 
     public void printTelemetry() {
