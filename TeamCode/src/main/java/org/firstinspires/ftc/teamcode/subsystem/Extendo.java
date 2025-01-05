@@ -7,6 +7,7 @@ import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
 import static java.lang.Double.max;
 import static java.lang.Math.PI;
+import static java.lang.Math.abs;
 import static java.lang.Math.asin;
 import static java.lang.Math.atan;
 import static java.lang.Math.cos;
@@ -33,7 +34,7 @@ public final class Extendo {
             LENGTH_INTERFACING = 10,
             LENGTH_BUCKET_DOWN = 50,
             LENGTH_DEPOSIT_CLEAR = 100,
-            LENGTH_DEPOSIT_CLEAR_TOLERANCE = 15,
+            POSITION_TOLERANCE = 15,
             LENGTH_EXTENDED = Math.MM_EXTENSION,
             kS = 0;
 
@@ -73,7 +74,7 @@ public final class Extendo {
     public void run(boolean canRetract, boolean bucketDown) {
 
         double setpoint =
-                !canRetract ?   max(getTarget(), LENGTH_DEPOSIT_CLEAR + LENGTH_DEPOSIT_CLEAR_TOLERANCE) :
+                !canRetract ?   max(getTarget(), LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE) :
                 bucketDown ?    max (getTarget(), LENGTH_BUCKET_DOWN) :
                                 getTarget();
 
@@ -128,6 +129,10 @@ public final class Extendo {
 
     public void setTarget(double millimeters) {
         target = clip(millimeters, 0, LENGTH_EXTENDED);
+    }
+
+    public boolean atPosition(double target) {
+        return abs(target - getPosition()) < POSITION_TOLERANCE;
     }
 
     public void setWithTouchpad(double x) {
