@@ -18,7 +18,7 @@ public final class Arm {
     public static double
             TIME_RETRACTED_TO_SAMPLE = 0.8,
             TIME_SAMPLE_TO_RETRACTED = 0.4,
-            TIME_RETRACTED_TO_INTAKING = 0.65,
+            TIME_TRANSFER_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_WRIST_FREE = 0.2,
             TIME_INTAKING_TO_SPEC = 0.65,
             TIME_SPEC_TO_RETRACTED = 0.35;
@@ -50,12 +50,12 @@ public final class Arm {
     private double timeToReachTarget() {
         return
                 target == lastTarget ?      0 :
-                target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
+                target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
                 target == ASCENT ?          TIME_INTAKING_TO_SPEC :
                 target == TRANSFER ?
-                        lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
+                        lastTarget == INTAKING ?    TIME_TRANSFER_TO_INTAKING :
                         lastTarget == SAMPLE ?      TIME_SAMPLE_TO_RETRACTED :
                                                     TIME_SPEC_TO_RETRACTED :
                 1;
@@ -66,7 +66,7 @@ public final class Arm {
     }
 
     boolean isUnderhand() {
-        return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_RETRACTED_TO_INTAKING);
+        return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_TRANSFER_TO_INTAKING);
     }
 
     boolean atPosition(Position position) {
