@@ -77,7 +77,7 @@ public final class Deposit {
     }
 
     public final Lift lift;
-    private final Arm arm;
+    public final Arm arm;
     private final CachedSimpleServo claw;
 
     private final ElapsedTime timer = new ElapsedTime();
@@ -197,10 +197,6 @@ public final class Deposit {
 
     boolean readyToTransfer() {
         return state == RETRACTED && arm.atPosition(Arm.TRANSFER) && !lift.isExtended();
-    }
-
-    public boolean movingToPosition(Arm.Position position, double height) {
-        return !arm.atPosition(position) || !lift.atPosition(height);
     }
 
     public void setPosition(Position position) {

@@ -67,7 +67,7 @@ public final class Arm {
         return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_TRANSFER_TO_INTAKING);
     }
 
-    boolean atPosition(Position position) {
+    public boolean atPosition(Position position) {
         return this.target == position && reachedTarget();
     }
 
