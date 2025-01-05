@@ -28,7 +28,7 @@ public final class CachedSimpleServo extends SimpleServo {
         return this;
     }
 
-    private double lastDegrees = 0;
+    private double lastDegrees = Double.NaN;
 
     public void turnToAngle(double degrees) {
         if (degrees == lastDegrees) return;

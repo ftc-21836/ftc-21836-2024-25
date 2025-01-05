@@ -18,7 +18,7 @@ public final class Arm {
     public static double
             TIME_RETRACTED_TO_SAMPLE = 0.8,
             TIME_SAMPLE_TO_RETRACTED = 0.4,
-            TIME_RETRACTED_TO_INTAKING = 0.65,
+            TIME_TRANSFER_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_WRIST_FREE = 0.2,
             TIME_INTAKING_TO_SPEC = 0.65,
             TIME_SPEC_TO_RETRACTED = 0.35;
@@ -32,37 +32,29 @@ public final class Arm {
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
-    private boolean startedTiming = true;
+    private boolean movingToTarget = false;
     private double getTimeTraveled() {
-        return startedTiming ? timer.seconds() : 0;
+        return movingToTarget ? timer.seconds() : 0;
     }
 
-    private final Arm.Position startPos = new Position(TRANSFER.left + 1, TRANSFER.right - 1, "START POSITION");
     private Arm.Position target = TRANSFER, lastTarget = level1Ascent ? ASCENT : TRANSFER;
     private final CachedSimpleServo rServo, lServo;
 
     public Arm(HardwareMap hardwareMap) {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
-
-        setTarget(startPos);
-        if (!level1Ascent) run();
     }
 
     private double timeToReachTarget() {
         return
                 target == lastTarget ?      0 :
-                target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
+                target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
                 target == ASCENT ?          TIME_INTAKING_TO_SPEC :
-                target == startPos ?
-                        lastTarget == ASCENT ?      TIME_SPEC_TO_RETRACTED :
-                                                    0 :
                 target == TRANSFER ?
-                        lastTarget == INTAKING ?    TIME_RETRACTED_TO_INTAKING :
+                        lastTarget == INTAKING ?    TIME_TRANSFER_TO_INTAKING :
                         lastTarget == SAMPLE ?      TIME_SAMPLE_TO_RETRACTED :
-                        lastTarget == startPos ?    0 :
                                                     TIME_SPEC_TO_RETRACTED :
                 1;
     }
@@ -72,26 +64,23 @@ public final class Arm {
     }
 
     boolean isUnderhand() {
-        return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_RETRACTED_TO_INTAKING);
+        return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_TRANSFER_TO_INTAKING);
     }
 
-    boolean atPosition(Position position) {
-        return (this.target == position || (position == TRANSFER && target == startPos)) && reachedTarget();
+    public boolean atPosition(Position position) {
+        return this.target == position && reachedTarget();
     }
 
     public void setTarget(Arm.Position target) {
         if (this.target == target) return;
         lastTarget = this.target;
         this.target = target;
-        startedTiming = false;
+        movingToTarget = false;
     }
 
     public void run() {
 
-        if (!startedTiming) {
-            timer.reset();
-            startedTiming = true;
-        }
+        if (!movingToTarget) timer.reset();
 
         Position target = this.target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
                                 Arm.POST_INTAKING :
@@ -99,6 +88,7 @@ public final class Arm {
 
         rServo.turnToAngle(target.right);
         lServo.turnToAngle(target.left);
+        movingToTarget = true;
     }
 
     public void printTelemetry() {

@@ -6,7 +6,7 @@ public final class CachedDcMotorEx {
 
     public final DcMotorEx motor;
 
-    private double lastPower = 0;
+    private double lastPower = Double.NaN;
 
     public CachedDcMotorEx(DcMotorEx motor) {
         this.motor = motor;

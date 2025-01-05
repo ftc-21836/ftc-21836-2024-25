@@ -20,8 +20,6 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUT
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
-import static java.lang.Math.abs;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -79,7 +77,7 @@ public final class Deposit {
     }
 
     public final Lift lift;
-    private final Arm arm;
+    public final Arm arm;
     private final CachedSimpleServo claw;
 
     private final ElapsedTime timer = new ElapsedTime();
@@ -98,7 +96,6 @@ public final class Deposit {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
-        claw.turnToAngle(ANGLE_CLAW_TRANSFER + 1);
 
         level1Ascent = false;
     }
@@ -199,10 +196,6 @@ public final class Deposit {
 
     boolean readyToTransfer() {
         return state == RETRACTED && arm.atPosition(Arm.TRANSFER) && !lift.isExtended();
-    }
-
-    public boolean reachedTarget(Arm.Position position, double liftTarget) {
-        return arm.atPosition(position) && abs(liftTarget - lift.getPosition()) < Lift.HEIGHT_RETRACTED_THRESHOLD;
     }
 
     public void setPosition(Position position) {
