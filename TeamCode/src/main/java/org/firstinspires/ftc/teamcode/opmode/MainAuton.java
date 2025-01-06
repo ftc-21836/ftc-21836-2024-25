@@ -61,6 +61,8 @@ import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Action;
@@ -274,11 +276,7 @@ public final class MainAuton extends LinearOpMode {
                 mTelemetry.addLine("> Score preloaded specimen");
             } else {
                 /// Score preloaded sample
-                builder = builder
-                        .afterTime(0, raiseLift(robot))
-                        .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                        .stopAndAdd(scoreSample(robot))
-                ;
+                builder = scoreSample(builder, robot);
 
                 mTelemetry.addLine("> Score preloaded sample");
             }
@@ -299,11 +297,13 @@ public final class MainAuton extends LinearOpMode {
                 // Calculate angle to point intake at floor sample
                 intakingPos.heading = atan2(samplePos.y - intakingPos.y, samplePos.x - intakingPos.x);
 
+                /// Drop bucket now (if not specimen preload)
                 if (!firstAfterSpec) {
                     builder = builder
                             .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING));
                 }
 
+                /// Drive to intaking position
                 builder = builder
                         .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
                         .afterTime(0, new SequentialAction(
@@ -313,21 +313,20 @@ public final class MainAuton extends LinearOpMode {
                                 })
                         ));
 
+                /// Drop bucket after reaching pos (if specimen preload)
                 if (firstAfterSpec) builder = builder
                         .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                         .waitSeconds(WAIT_DROP_TO_EXTEND);
 
+                /// Intaking sample
                 builder = builder
                         .afterTime(0, () -> robot.intake.extendo.setTarget(millimeters))
                         .stopAndAdd(telemetryPacket -> !robot.intake.hasSample()) // wait until intake gets a sample
                         .waitSeconds(WAIT_POST_INTAKING)
-                        .afterTime(0, () -> robot.intake.runRoller(0))
+                        .afterTime(0, () -> robot.intake.runRoller(0));
 
-                        /// Score
-                        .afterTime(0, raiseLift(robot))
-                        .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                        .stopAndAdd(scoreSample(robot))
-                ;
+                /// Score
+                builder = scoreSample(builder, robot);
 
                 mTelemetry.addLine("> Sample cycle " + (i + 1));
             }
@@ -381,6 +380,21 @@ public final class MainAuton extends LinearOpMode {
         Actions.runBlocking(auton);
     }
 
+    private static TrajectoryActionBuilder scoreSample(TrajectoryActionBuilder builder, Robot robot) {
+        return builder
+                .afterTime(0, new SequentialAction(
+                        telemetryPacket -> !robot.deposit.hasSample(),
+                        new SleepAction(Intake.TIME_TRANSFER),
+                        new InstantAction(() -> robot.deposit.setPosition(HIGH))
+                ))
+                .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                .waitSeconds(WAIT_APPROACH_BASKET)
+                .stopAndAdd(telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)))
+                .afterTime(0, robot.deposit::triggerClaw)
+                .waitSeconds(WAIT_SCORE_BASKET)
+        ;
+    }
+
     private static Action scoreSpecimen(Robot robot) {
         return new SequentialAction(
                 new SleepAction(WAIT_APPROACH_CHAMBER),
@@ -388,23 +402,6 @@ public final class MainAuton extends LinearOpMode {
                 new InstantAction(robot.deposit::triggerClaw),
                 telemetryPacket -> robot.deposit.hasSample(), // wait until spec scored
                 new SleepAction(WAIT_SCORE_CHAMBER)
-        );
-    }
-
-    private static Action raiseLift(Robot robot) {
-        return new SequentialAction(
-                telemetryPacket -> !robot.deposit.hasSample(),
-                new SleepAction(Intake.TIME_TRANSFER),
-                new InstantAction(() -> robot.deposit.setPosition(HIGH))
-        );
-    }
-
-    private static Action scoreSample(Robot robot) {
-        return new SequentialAction(
-                new SleepAction(WAIT_APPROACH_BASKET),
-                telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)),
-                new InstantAction(robot.deposit::triggerClaw),
-                new SleepAction(WAIT_SCORE_BASKET)
         );
     }
 
