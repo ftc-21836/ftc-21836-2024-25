@@ -33,7 +33,6 @@ public final class Deposit {
     public static double
             ANGLE_CLAW_OPEN = 70,
             ANGLE_CLAW_TRANSFER = 60,
-            ANGLE_CLAW_TRANSFERRED = 30,
             ANGLE_CLAW_CLOSED = 25,
 
             TIME_SAMPLE_RELEASE = 0.5,
@@ -164,15 +163,10 @@ public final class Deposit {
 
         lift.run(liftCanMove, climbing);
 
-        boolean intakePullingAwayPostTransfer = state == HAS_SAMPLE && arm.atPosition(Arm.TRANSFER) && !lift.isExtended() && !intakeClear;
         claw.turnToAngle(
-                hasSample() ?
-                        intakePullingAwayPostTransfer ?
-                                ANGLE_CLAW_TRANSFERRED :
-                                ANGLE_CLAW_CLOSED :
-                state == RETRACTED ?
-                        ANGLE_CLAW_TRANSFER :
-                        ANGLE_CLAW_OPEN
+                hasSample() ?   ANGLE_CLAW_CLOSED :
+                state == RETRACTED ?    ANGLE_CLAW_TRANSFER :
+                                        ANGLE_CLAW_OPEN
         );
     }
 
@@ -329,7 +323,7 @@ public final class Deposit {
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(LOW);
-        claw.turnToAngle(ANGLE_CLAW_TRANSFERRED);
+        claw.turnToAngle(ANGLE_CLAW_CLOSED);
     }
 
     void printTelemetry() {
