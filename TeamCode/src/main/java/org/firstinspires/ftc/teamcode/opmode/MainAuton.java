@@ -8,42 +8,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.DISTANCE_BETWEEN_SPECIMENS;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_1;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_2;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.EXTEND_SAMPLE_3;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.LENGTH_ROBOT;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_HALF_FIELD;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SIZE_TILE;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.SPEED_INTAKING;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_BASKET;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_APPROACH_CHAMBER;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_DROP_TO_EXTEND;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_POST_INTAKING;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_BASKET;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WAIT_SCORE_CHAMBER;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.WIDTH_ROBOT;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.aroundBeamParkLeft;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.aroundBeamPushing;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.basket;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.chamber0;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.chamberLeft;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intaking1;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intaking2;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intaking3;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intakingFirstSpec;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.intakingSpec;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.parkLeft;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.parkRight;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.pushed1;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.pushed2;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.pushed3;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.pushing1;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.pushing2;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.pushing3;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.sample1;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.sample2;
-import static org.firstinspires.ftc.teamcode.opmode.AutonVars.sample3;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_CYCLES;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_SIDE;
@@ -60,8 +24,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
-
-import androidx.annotation.NonNull;
+import static java.lang.Math.toRadians;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -89,6 +52,46 @@ import org.firstinspires.ftc.teamcode.subsystem.Robot;
 public final class MainAuton extends LinearOpMode {
 
     public static boolean TELEMETRY = false;
+
+    public static double
+            LENGTH_ROBOT = 17.30327,
+            WIDTH_ROBOT = 16.42126,
+            SIZE_HALF_FIELD = 70.5,
+            SIZE_TILE = 23.625,
+            DISTANCE_BETWEEN_SPECIMENS = 2,
+            EXTEND_SAMPLE_1 = 300,
+            EXTEND_SAMPLE_2 = 300,
+            EXTEND_SAMPLE_3 = 410,
+            SPEED_INTAKING = 0.875,
+            WAIT_APPROACH_BASKET = 0,
+            WAIT_APPROACH_CHAMBER = 0,
+            WAIT_POST_INTAKING = 0.5,
+            WAIT_SCORE_BASKET = 0.25,
+            WAIT_SCORE_CHAMBER = 0.5,
+            WAIT_DROP_TO_EXTEND = 0.75;
+
+    public static EditablePose
+            sample1 = new EditablePose(-48, -27.75, PI / 2),
+            sample2 = new EditablePose(-58, -27.75, sample1.heading),
+            sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
+            basket = new EditablePose(-57, -57, PI / 4),
+            intaking1 = new EditablePose(-50, -48, toRadians(84.36)),
+            intaking2 = new EditablePose(-54, -45, toRadians(105)),
+            intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
+            aroundBeamParkLeft = new EditablePose(-40, -25, 0),
+            parkLeft = new EditablePose(-23.5, -11, 0),
+            chamber0 = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
+            chamberLeft = new EditablePose(-chamber0.x, chamber0.y, chamber0.heading),
+            aroundBeamPushing = new EditablePose(35, -30, PI / 2),
+            pushing1 = new EditablePose(46, -13, toRadians(-80)),
+            pushing2 = new EditablePose(55, pushing1.y, toRadians(-70)),
+            pushing3 = new EditablePose(62, pushing1.y, - PI / 2),
+            pushed1 = new EditablePose(pushing1.x, -50, toRadians(110)),
+            pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
+            pushed3 = new EditablePose(pushing3.x, pushed1.y, - PI / 2),
+            intakingSpec = new EditablePose(36, -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5, PI / 2),
+            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading),
+            parkRight = new EditablePose(36, -60, PI / 2);
 
     enum AutonConfig {
         EDITING_ALLIANCE,
