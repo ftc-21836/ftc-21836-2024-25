@@ -10,6 +10,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTO
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TELEMETRY;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
@@ -155,6 +156,8 @@ public final class MainTeleOp extends LinearOpMode {
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
+                if (gamepadEx1.wasJustPressed(X))                   TELEMETRY = !TELEMETRY;
+
                 // SET HEADING:
                 robot.drivetrain.setHeadingWithStick(rightX, gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
@@ -194,8 +197,10 @@ public final class MainTeleOp extends LinearOpMode {
 
             robot.run();
 
-            robot.printTelemetry();
-            mTelemetry.update();
+            if (TELEMETRY) {
+                robot.printTelemetry();
+                mTelemetry.update();
+            }
 
             if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
                 gamepad1.rumble(1, 1, 2000);
