@@ -212,6 +212,7 @@ public final class MainAuton extends LinearOpMode {
 
             /// Score preloaded specimen
             builder = builder
+                    .afterTime(0, () -> robot.deposit.setPosition(HIGH))
                     .waitSeconds(partnerWait)
                     .strafeTo(chamber0.toVector2d())
                     .stopAndAdd(scoreSpecimen(robot))
@@ -271,6 +272,7 @@ public final class MainAuton extends LinearOpMode {
             if (specimenPreload) {
                 /// Score preloaded specimen
                 builder = builder
+                        .afterTime(0, () -> robot.deposit.setPosition(HIGH))
                         .waitSeconds(partnerWait)
                         .strafeTo(chamberLeft.toVector2d())
                         .stopAndAdd(scoreSpecimen(robot))
