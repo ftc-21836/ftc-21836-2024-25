@@ -15,10 +15,9 @@ import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDIT
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.isRedAlliance;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
@@ -51,7 +50,8 @@ public final class MainTeleOp extends LinearOpMode {
         public static final TeleOpConfig[] selections = values();
 
         public TeleOpConfig plus(int i) {
-            return selections[(int) loopMod(ordinal() + i, selections.length)];
+            int max = selections.length;
+            return selections[((ordinal() + i) % max + max) % max];
         }
         public String markIf(TeleOpConfig s) {
             return this == s ? " <" : "";

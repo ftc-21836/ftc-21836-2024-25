@@ -14,10 +14,6 @@ import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITIN
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.PRELOAD_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
@@ -52,6 +48,14 @@ import org.firstinspires.ftc.teamcode.subsystem.Robot;
 public final class MainAuton extends LinearOpMode {
 
     public static boolean TELEMETRY = false;
+
+    public static MultipleTelemetry mTelemetry;
+
+    public static void divider() {
+        mTelemetry.addLine();
+        mTelemetry.addLine("--------------------------------------------------------------------------");
+        mTelemetry.addLine();
+    }
 
     public static double
             LENGTH_ROBOT = 17.30327,
@@ -94,6 +98,9 @@ public final class MainAuton extends LinearOpMode {
             intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading),
             parkRight = new EditablePose(36, -60, PI / 2);
 
+    static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
+    static boolean isRedAlliance = false;
+
     enum AutonConfig {
         EDITING_ALLIANCE,
         EDITING_SIDE,
@@ -105,7 +112,8 @@ public final class MainAuton extends LinearOpMode {
         public static final AutonConfig[] selections = values();
 
         public AutonConfig plus(int i) {
-            return selections[(int) loopMod(ordinal() + i, selections.length)];
+            int max = selections.length;
+            return selections[((ordinal() + i) % max + max) % max];
         }
         public String markIf(AutonConfig s) {
             return this == s ? " <" : "";
@@ -196,15 +204,15 @@ public final class MainAuton extends LinearOpMode {
         robot.intake.setAlliance(isRedAlliance);
         robot.deposit.setAlliance(isRedAlliance);
 
-        Pose2d startPose = new Pose2d(
+        pose = new Pose2d(
                 specimenSide ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
                 0.5 * (specimenSide || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
                 specimenSide || specimenPreload ? PI / 2 : 0
         );
 
-        robot.drivetrain.pinpoint.setPositionRR(startPose);
+        robot.drivetrain.pinpoint.setPositionRR(pose);
 
-        TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(startPose);
+        TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
         if (specimenSide) {
 

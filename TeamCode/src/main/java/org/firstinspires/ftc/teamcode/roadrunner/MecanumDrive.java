@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;

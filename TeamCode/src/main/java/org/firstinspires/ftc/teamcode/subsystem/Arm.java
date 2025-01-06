@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.level1Ascent;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 

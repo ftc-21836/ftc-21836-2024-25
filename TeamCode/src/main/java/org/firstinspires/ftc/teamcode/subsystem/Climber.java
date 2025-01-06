@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.ACTIVE_HOOKS_EXTENDING;
 import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.INACTIVE;
 import static org.firstinspires.ftc.teamcode.subsystem.Climber.State.PASSIVE_HOOKS_EXTENDING;

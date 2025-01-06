@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.divider;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
 
