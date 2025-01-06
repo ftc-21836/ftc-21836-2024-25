@@ -63,6 +63,7 @@ public final class MainAuton extends LinearOpMode {
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
             SPEED_INTAKING = 0.875,
+            WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_POST_INTAKING = 0.5,
@@ -238,11 +239,10 @@ public final class MainAuton extends LinearOpMode {
                 /// Cycle specimens
                 for (int i = 0; i < cycles; i++) {
                     builder = builder
-                            .stopAndAdd(new SequentialAction(
-                                    new InstantAction(robot.deposit::triggerClaw),
-                                    telemetryPacket -> !robot.deposit.specimenIntaked(),
-                                    new InstantAction(() -> robot.deposit.setPosition(HIGH))
-                            ))
+                            .waitSeconds(WAIT_APPROACH_WALL)
+                            .afterTime(0, robot.deposit::triggerClaw)
+                            .stopAndAdd(telemetryPacket -> !robot.deposit.specimenIntaked())
+                            .afterTime(0, () -> robot.deposit.setPosition(HIGH))
                             .setTangent(PI / 2)
                             .splineToConstantHeading(new Vector2d(chamber0.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamber0.y), chamber0.heading)
                             .stopAndAdd(scoreSpecimen(robot))
