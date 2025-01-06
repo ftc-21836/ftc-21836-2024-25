@@ -298,10 +298,8 @@ public final class MainAuton extends LinearOpMode {
                 intakingPos.heading = atan2(samplePos.y - intakingPos.y, samplePos.x - intakingPos.x);
 
                 /// Drop bucket now (if not specimen preload)
-                if (!firstAfterSpec) {
-                    builder = builder
-                            .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING));
-                }
+                if (!firstAfterSpec) builder = builder
+                        .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING));
 
                 /// Drive to intaking position
                 builder = builder
