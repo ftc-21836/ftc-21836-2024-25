@@ -318,12 +318,10 @@ public final class MainAuton extends LinearOpMode {
                         .waitSeconds(WAIT_DROP_TO_EXTEND);
 
                 builder = builder
-                        .stopAndAdd(new SequentialAction(
-                                new InstantAction(() -> robot.intake.extendo.setTarget(millimeters)),
-                                telemetryPacket -> !robot.intake.hasSample(), // wait until intake gets a sample
-                                new SleepAction(WAIT_POST_INTAKING),
-                                new InstantAction(() -> robot.intake.runRoller(0))
-                        ))
+                        .afterTime(0, () -> robot.intake.extendo.setTarget(millimeters))
+                        .stopAndAdd(telemetryPacket -> !robot.intake.hasSample()) // wait until intake gets a sample
+                        .waitSeconds(WAIT_POST_INTAKING)
+                        .afterTime(0, () -> robot.intake.runRoller(0))
 
                         /// Score
                         .afterTime(0, raiseLift(robot))
