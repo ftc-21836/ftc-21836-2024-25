@@ -51,7 +51,7 @@ public final class Arm {
                 target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
-                target == ASCENT ?          TIME_INTAKING_TO_SPEC :
+                target == ASCENT ?          0 :
                 target == TRANSFER ?
                         lastTarget == INTAKING ?    TIME_TRANSFER_TO_INTAKING :
                         lastTarget == SAMPLE ?      TIME_SAMPLE_TO_RETRACTED :
