@@ -279,7 +279,7 @@ public final class MainAuton extends LinearOpMode {
                 mTelemetry.addLine("> Score preloaded specimen");
             } else {
                 /// Score preloaded sample
-                builder = scoreSample(builder, robot);
+                builder = driveAndScoreSample(builder, robot);
 
                 mTelemetry.addLine("> Score preloaded sample");
             }
@@ -327,7 +327,7 @@ public final class MainAuton extends LinearOpMode {
                         .afterTime(0, () -> robot.intake.runRoller(0));
 
                 /// Score
-                builder = scoreSample(builder, robot);
+                builder = driveAndScoreSample(builder, robot);
 
                 mTelemetry.addLine("> Sample cycle " + (i + 1));
             }
@@ -381,7 +381,7 @@ public final class MainAuton extends LinearOpMode {
         Actions.runBlocking(auton);
     }
 
-    private static TrajectoryActionBuilder scoreSample(TrajectoryActionBuilder builder, Robot robot) {
+    private static TrajectoryActionBuilder driveAndScoreSample(TrajectoryActionBuilder builder, Robot robot) {
         return builder
                 .afterTime(0, new SequentialAction(
                         telemetryPacket -> !robot.deposit.hasSample(),
