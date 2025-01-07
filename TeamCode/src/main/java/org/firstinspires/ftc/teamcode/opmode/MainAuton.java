@@ -213,8 +213,6 @@ public final class MainAuton extends LinearOpMode {
                 specimenSide || specimenPreload ? PI / 2 : 0
         );
 
-        robot.drivetrain.pinpoint.setPositionRR(pose);
-
         TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
         if (specimenSide) {
@@ -393,6 +391,8 @@ public final class MainAuton extends LinearOpMode {
         waitForStart();
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        robot.drivetrain.pinpoint.setPositionRR(pose);
 
         Actions.runBlocking(auton);
     }
