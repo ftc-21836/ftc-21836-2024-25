@@ -91,12 +91,12 @@ public final class Deposit {
 
     private double releaseSpecimenHeight = HEIGHT_CHAMBER_LOW + HEIGHT_OFFSET_SPECIMEN_SCORED;
 
+    public static boolean level1Ascent = false;
+
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
         claw = getGBServo(hardwareMap, "claw").reversed();
-
-        level1Ascent = false;
     }
 
     void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
@@ -168,13 +168,6 @@ public final class Deposit {
                 state == RETRACTED ?    ANGLE_CLAW_TRANSFER :
                                         ANGLE_CLAW_OPEN
         );
-    }
-
-    static boolean level1Ascent = false;
-
-    public void level1Ascent() {
-        level1Ascent = true;
-        lift.setTarget(0);
     }
 
     public void preloadSpecimen() {

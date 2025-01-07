@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
+import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
@@ -122,6 +123,8 @@ public final class MainAuton extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        Deposit.level1Ascent = false;
 
         // Initialize multiple telemetry outputs:
         mTelemetry = new MultipleTelemetry(telemetry);
@@ -343,7 +346,10 @@ public final class MainAuton extends LinearOpMode {
             }
 
             /// Raise arm for level 1 ascent
-            builder = builder.afterTime(0, robot.deposit::level1Ascent);
+            builder = builder.afterTime(0, () -> {
+                Deposit.level1Ascent = true;
+                robot.deposit.lift.setTarget(0);
+            });
 
             mTelemetry.addLine("> Raise lift for level 1 ascent");
 
