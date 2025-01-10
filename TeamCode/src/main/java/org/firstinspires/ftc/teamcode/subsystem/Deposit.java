@@ -271,7 +271,7 @@ public final class Deposit {
             case GRABBING_SPECIMEN:
 
                 state = RAISING_SPECIMEN;
-                setPosition(LOW);
+                setPosition(HIGH);
                 timer.reset();
 
                 break;
@@ -326,7 +326,7 @@ public final class Deposit {
         if (sample == null || hasSample() || state != RETRACTED) return;
         this.sample = sample;
         state = HAS_SAMPLE;
-        setPosition(LOW);
+        setPosition(HIGH);
         claw.turnToAngle(ANGLE_CLAW_CLOSED);
     }
 
