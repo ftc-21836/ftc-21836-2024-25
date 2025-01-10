@@ -58,7 +58,5 @@ public final class Robot {
         intake.printTelemetry();
         divider();
         deposit.printTelemetry();
-        divider();
-        climber.printTelemetry();
     }
 }
