@@ -45,10 +45,6 @@ public final class Robot {
                                         null;
     }
 
-    public boolean requestingSlowMode() {
-        return false;
-    }
-
     public void printTelemetry() {
         mTelemetry.addData("LOOP TIME", loopTimer.seconds());
         loopTimer.reset();

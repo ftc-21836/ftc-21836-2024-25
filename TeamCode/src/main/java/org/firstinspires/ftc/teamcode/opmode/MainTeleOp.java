@@ -190,7 +190,7 @@ public final class MainTeleOp extends LinearOpMode {
                         leftX,
                         leftY,
                         rightX,
-                        slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
+                        slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
                         useFieldCentric
                 );
 
