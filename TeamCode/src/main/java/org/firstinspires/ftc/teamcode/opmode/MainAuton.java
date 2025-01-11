@@ -46,8 +46,6 @@ import org.firstinspires.ftc.teamcode.subsystem.Robot;
 @Autonomous(preselectTeleOp = "MainTeleOp")
 public final class MainAuton extends LinearOpMode {
 
-    public static boolean TELEMETRY = false;
-
     public static MultipleTelemetry mTelemetry;
 
     public static void divider() {
@@ -367,20 +365,11 @@ public final class MainAuton extends LinearOpMode {
                     return opModeIsActive();
                 },
                 builder.build(),
-                // only print telemetry if enabled from dashboard
-                TELEMETRY ?
-                        telemetryPacket -> {
-                            pose = robot.drivetrain.pose;
-                            robot.run();
-                            robot.printTelemetry(); // telemetry
-                            mTelemetry.update();    // telemetry
-                            return opModeIsActive();
-                        } :
-                        telemetryPacket -> {
-                            pose = robot.drivetrain.pose;
-                            robot.run();
-                            return opModeIsActive();
-                        }
+                telemetryPacket -> {
+                    pose = robot.drivetrain.pose;
+                    robot.run();
+                    return opModeIsActive();
+                }
         );
 
         mTelemetry.update();
