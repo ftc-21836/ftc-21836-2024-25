@@ -153,9 +153,9 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
+                robot.intake.runRoller(0);
                 robot.intake.extendo.runManual(triggers);
                 robot.deposit.lift.runManual(leftY);
-                robot.intake.runRoller(0);
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
@@ -165,26 +165,9 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                if (gamepad1.touchpad_finger_1) {
-                    robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
-                }
+                robot.intake.runRoller(triggers);
                 robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
-                robot.intake.runRoller(triggers);
-
-                if (gamepadEx1.wasJustPressed(B))                   robot.intake.toggle();
-                if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
-
-                if (!robot.climber.isActive()) {
-
-                    if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
-                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
-                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
-                    else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
-
-                    if (gamepadEx1.wasJustPressed(X))               robot.deposit.triggerClaw();
-
-                } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
                 robot.drivetrain.run(
                         leftX,
@@ -195,6 +178,24 @@ public final class MainTeleOp extends LinearOpMode {
                 );
 
             }
+
+            if (gamepad1.touchpad_finger_1) {
+                robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
+            }
+
+            if (gamepadEx1.wasJustPressed(B))                   robot.intake.toggle();
+            if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
+
+            if (!robot.climber.isActive()) {
+
+                if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
+                else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
+                else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
+                else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
+
+                if (gamepadEx1.wasJustPressed(X))               robot.deposit.triggerClaw();
+
+            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
             robot.run();
 
