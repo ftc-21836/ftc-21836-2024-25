@@ -142,14 +142,13 @@ public final class Intake {
         );
 
         roller = hardwareMap.get(CRServo.class, "intake");
-//        roller.setDirection(REVERSE);
 
         colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
     }
 
-    void run(boolean climbing, Deposit deposit) {
+    void run(Deposit deposit) {
 
         switch (state) {
 
@@ -254,7 +253,7 @@ public final class Intake {
 
         boolean bucketDown = bucket.isActivated() && ANGLE_BUCKET_EXTENDED > 0.5 * (ANGLE_BUCKET_OVER_BARRIER + ANGLE_BUCKET_INTAKING_NEAR);
 
-        extendo.run(!deposit.requestingIntakeToMove() || climbing || state == TRANSFERRING, bucketDown);
+        extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING, bucketDown);
 
         roller.setPower(deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
     }

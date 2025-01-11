@@ -99,7 +99,7 @@ public final class Deposit {
         claw = getGBServo(hardwareMap, "claw").reversed();
     }
 
-    void run(boolean intakeHasSample, boolean climbing, boolean intakeClear) {
+    void run(Intake intake, boolean climbing) {
 
         // home arm when climbing begins
         if (climbing) state = RETRACTED;
@@ -116,7 +116,7 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                if (intakeHasSample) setPosition(FLOOR);
+                if (intake.hasSample()) setPosition(FLOOR);
                 break;
 
             case GRABBING_SPECIMEN:
@@ -144,6 +144,7 @@ public final class Deposit {
         }
 
         boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
+        boolean intakeClear = intake.clearOfDeposit();
         boolean belowSafeHeight = lift.getPosition() < HEIGHT_ARM_SAFE;
         boolean liftLowering = lift.getTarget() < lift.getPosition();
 

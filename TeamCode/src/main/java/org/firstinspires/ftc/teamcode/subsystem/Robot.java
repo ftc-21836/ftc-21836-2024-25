@@ -22,7 +22,6 @@ public final class Robot {
     private final ElapsedTime loopTimer = new ElapsedTime();
 
     public Robot(HardwareMap hardwareMap, Pose2d startPose) {
-
         drivetrain = new PinpointDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
         intake = new Intake(hardwareMap);
@@ -31,10 +30,8 @@ public final class Robot {
     }
 
     public void run() {
-
-        intake.run(climber.isActive(), deposit);
-        deposit.run(intake.hasSample(), climber.isActive(), intake.clearOfDeposit());
-
+        intake.run(deposit);
+        deposit.run(intake, climber.isActive());
         climber.run();
     }
 
