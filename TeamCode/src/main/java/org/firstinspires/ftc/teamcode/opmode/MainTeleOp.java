@@ -66,7 +66,7 @@ public final class MainTeleOp extends LinearOpMode {
         ElapsedTime matchTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
-        double CLIMB_TIME = TELE - 15; // 15 seconds for climb
+        double CLIMB_TIME = TELE - 10; // 15 seconds for climb
         boolean rumbledClimb = false, rumbledSample = false;
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
