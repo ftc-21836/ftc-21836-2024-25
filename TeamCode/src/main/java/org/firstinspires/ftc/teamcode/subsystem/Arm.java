@@ -93,21 +93,18 @@ public final class Arm {
 
         } else {
 
-            // We don't want the arm to go back to level 1 ascent position when teleop begins
-            // The arm should stay off until intake extends and arm "canMove" to retracted position
-            // Returning early so the servos don't get a command = arm stays off/loose
+            // Servos should be off/loose when teleop begins (after level 1 ascent)
             if (lastTarget == ASCENT) return;
 
             setpoint = this.lastTarget;
         }
 
         // Override wrist angle for 0.2ish seconds so specimen doesn't get stuck on wall
-        Position adjustedSetpoint = setpoint == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
-                                Arm.POST_INTAKING :
-                                setpoint;
+        if (setpoint == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE)
+            setpoint = POST_INTAKING;
 
-        rServo.turnToAngle(adjustedSetpoint.right);
-        lServo.turnToAngle(adjustedSetpoint.left);
+        rServo.turnToAngle(setpoint.right);
+        lServo.turnToAngle(setpoint.left);
 
     }
 
