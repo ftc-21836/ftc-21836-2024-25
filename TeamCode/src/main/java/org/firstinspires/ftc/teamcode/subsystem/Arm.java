@@ -100,7 +100,7 @@ public final class Arm {
         }
 
         // Override wrist angle for 0.2ish seconds so specimen doesn't get stuck on wall
-        if (setpoint == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE)
+        if (setpoint == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE)
             setpoint = POST_INTAKING;
 
         rServo.turnToAngle(setpoint.right);
