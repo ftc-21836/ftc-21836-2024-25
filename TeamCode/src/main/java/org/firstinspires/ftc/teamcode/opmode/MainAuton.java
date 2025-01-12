@@ -74,10 +74,12 @@ public final class MainAuton extends LinearOpMode {
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
+            sample1SpecPreload = new EditablePose(-50, -27.75, PI / 2),
             sample2 = new EditablePose(-58, -27.75, sample1.heading),
             sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
             basket = new EditablePose(-57.5, -57.5, PI / 4),
             intaking1 = new EditablePose(-50, -46, toRadians(84.36)),
+            intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
             aroundBeamParkLeft = new EditablePose(-40, -25, 0),
@@ -293,6 +295,11 @@ public final class MainAuton extends LinearOpMode {
             double[] extendoMMs = {EXTEND_SAMPLE_1, EXTEND_SAMPLE_2, EXTEND_SAMPLE_3};
             EditablePose[] intakingPositions = {intaking1, intaking2, intaking3};
             EditablePose[] samplePositions = {sample1, sample2, sample3};
+
+            if (specimenPreload) {
+                intakingPositions[0] = intaking1SpecPreload;
+                samplePositions[0] = sample1SpecPreload;
+            }
 
             /// Cycle samples off the floor
             for (int i = 0; i < min(3, cycles); i++) {
