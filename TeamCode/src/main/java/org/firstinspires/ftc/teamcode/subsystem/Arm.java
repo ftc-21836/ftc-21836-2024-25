@@ -84,8 +84,10 @@ public final class Arm {
 
         if (canMove || movingToTarget) {
 
-            if (!movingToTarget) timer.reset();
-            movingToTarget = true;
+            if (!movingToTarget) {
+                timer.reset();
+                movingToTarget = true;
+            }
 
             setpoint = this.target;
 
