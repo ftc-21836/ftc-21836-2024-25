@@ -80,14 +80,14 @@ public final class Arm {
 
     public void run(boolean canMove) {
 
-        Position target;
+        Position setpoint;
 
         if (canMove || movingToTarget) {
 
             if (!movingToTarget) timer.reset();
             movingToTarget = true;
 
-            target = this.target;
+            setpoint = this.target;
 
         } else {
 
@@ -96,15 +96,16 @@ public final class Arm {
             // Returning early so the servos don't get a command = arm stays off/loose
             if (lastTarget == ASCENT) return;
 
-            target = this.lastTarget;
+            setpoint = this.lastTarget;
         }
 
-        Position setpoint = target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
+        // Override wrist angle for 0.2ish seconds so specimen doesn't get stuck on wall
+        Position adjustedSetpoint = setpoint == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
                                 Arm.POST_INTAKING :
-                                target;
+                                setpoint;
 
-        rServo.turnToAngle(setpoint.right);
-        lServo.turnToAngle(setpoint.left);
+        rServo.turnToAngle(adjustedSetpoint.right);
+        lServo.turnToAngle(adjustedSetpoint.left);
 
     }
 
