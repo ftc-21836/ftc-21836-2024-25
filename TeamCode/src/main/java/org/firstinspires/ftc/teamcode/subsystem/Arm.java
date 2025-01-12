@@ -71,10 +71,10 @@ public final class Arm {
         return this.target == position && reachedTarget();
     }
 
-    public void setTarget(Arm.Position target) {
-        if (this.target == target) return;
-        lastTarget = this.target;
-        this.target = target;
+    public void setTarget(Arm.Position newTarget) {
+        if (newTarget == target) return;
+        lastTarget = target;
+        target = newTarget;
         movingToTarget = false;
     }
 
@@ -89,14 +89,14 @@ public final class Arm {
                 movingToTarget = true;
             }
 
-            setpoint = this.target;
+            setpoint = target;
 
         } else {
 
             // Servos should be off/loose when teleop begins (after level 1 ascent)
             if (lastTarget == ASCENT) return;
 
-            setpoint = this.lastTarget;
+            setpoint = lastTarget;
         }
 
         // Override wrist angle for 0.2ish seconds so specimen doesn't get stuck on wall
