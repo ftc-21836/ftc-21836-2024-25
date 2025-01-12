@@ -5,9 +5,11 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.divider;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystem.Arm.ASCENT;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPECIMEN;
@@ -65,6 +67,10 @@ public final class TuningArm extends LinearOpMode {
             }
             if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) {
                 arm.setTarget(TRANSFER);
+                timer.reset();
+            }
+            if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) {
+                arm.setTarget(ASCENT);
                 timer.reset();
             }
 
