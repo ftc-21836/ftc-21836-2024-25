@@ -78,17 +78,34 @@ public final class Arm {
         movingToTarget = false;
     }
 
-    public void run() {
+    public void run(boolean canMove) {
 
-        if (!movingToTarget) timer.reset();
+        Position target;
 
-        Position target = this.target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
+        if (canMove || movingToTarget) {
+
+            if (!movingToTarget) timer.reset();
+            movingToTarget = true;
+
+            target = this.target;
+
+        } else {
+
+            // We don't want the arm to go back to level 1 ascent position when teleop begins
+            // The arm should stay off until intake extends and arm "canMove" to retracted position
+            // Returning early so the servos don't get a command = arm stays off/loose
+            if (lastTarget == ASCENT) return;
+
+            target = this.lastTarget;
+        }
+
+        Position setpoint = target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
                                 Arm.POST_INTAKING :
-                                this.target;
+                                target;
 
-        rServo.turnToAngle(target.right);
-        lServo.turnToAngle(target.left);
-        movingToTarget = true;
+        rServo.turnToAngle(setpoint.right);
+        lServo.turnToAngle(setpoint.left);
+
     }
 
     public void printTelemetry() {
