@@ -183,7 +183,7 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
 
-            if (gamepadEx1.wasJustPressed(B))                   robot.intake.toggle();
+            if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
             if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
 
             if (!robot.climber.isActive()) {
@@ -193,7 +193,7 @@ public final class MainTeleOp extends LinearOpMode {
                 else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
                 else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
 
-                if (gamepadEx1.wasJustPressed(X))               robot.deposit.triggerClaw();
+                if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
 
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
