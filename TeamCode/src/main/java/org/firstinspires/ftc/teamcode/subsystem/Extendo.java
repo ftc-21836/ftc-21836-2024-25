@@ -54,17 +54,9 @@ public final class Extendo {
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
         motor.encoder.setDirection(REVERSE);
         motor.encoder.setDistancePerPulse(2 * PI / motor.getCPR());
+        motor.encoder.reset();
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
-
-        reset();
-    }
-
-    private void reset() {
-        controller.reset();
-        motor.encoder.reset();
-        position = 0;
-        setTarget(0);
     }
 
     public void runManual(double power) {
@@ -73,21 +65,20 @@ public final class Extendo {
 
     public void run(boolean canRetract, boolean bucketDown) {
 
-        double setpoint =
-                !canRetract ?   max(getTarget(), LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE) :
-                bucketDown ?    max (getTarget(), LENGTH_BUCKET_DOWN) :
-                                getTarget();
+        double setpoint = max(getTarget(),
+                !canRetract ?   LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE :
+                bucketDown ?    LENGTH_BUCKET_DOWN :
+                                0
+        );
 
         // When the magnet hits
-        if (setpoint == 0 && !isExtended() && manualPower <= 0) reset();
-
-        double radians = motor.encoder.getDistance();
-
-        if (radians > 0) {
-            position = Math.millimeters(radians + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
-        } else {
+        if (setpoint == 0 && !isExtended() && manualPower <= 0) {
+            controller.reset();
             motor.encoder.reset();
             position = 0;
+            setTarget(0);
+        } else {
+            position = Math.millimeters(max(0, motor.encoder.getDistance()) + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
         }
 
         if (manualPower != 0) {
