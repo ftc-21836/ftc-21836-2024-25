@@ -172,10 +172,9 @@ public final class Deposit {
     }
 
     public void preloadSpecimen() {
-        Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
-        while (state != endState) triggerClaw();
-        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_TRANSFER);
-        arm.setTarget(state.armPosition);
+        while (state != HAS_SPECIMEN) triggerClaw();
+        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+        arm.setTarget(Arm.SPECIMEN);
         arm.run(true);
     }
 
