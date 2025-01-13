@@ -102,8 +102,10 @@ public final class Deposit {
     void run(Intake intake, boolean climbing) {
 
         // home arm when climbing begins
-        if (climbing) state = RETRACTED;
-        else switch (state) {
+        if (climbing) {
+            state = RETRACTED;
+            sample = null;
+        } else switch (state) {
 
             case SAMPLE_FALLING:
 
