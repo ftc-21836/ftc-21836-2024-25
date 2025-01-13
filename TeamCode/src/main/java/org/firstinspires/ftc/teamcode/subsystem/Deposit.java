@@ -175,6 +175,8 @@ public final class Deposit {
         Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
         while (state != endState) triggerClaw();
         claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_TRANSFER);
+        arm.setTarget(state.armPosition);
+        arm.run(true);
     }
 
     // when does the intake need to move out of the way
