@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
@@ -15,10 +16,9 @@ import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDIT
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.loopMod;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.pose;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.isRedAlliance;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 
@@ -51,7 +52,8 @@ public final class MainTeleOp extends LinearOpMode {
         public static final TeleOpConfig[] selections = values();
 
         public TeleOpConfig plus(int i) {
-            return selections[(int) loopMod(ordinal() + i, selections.length)];
+            int max = selections.length;
+            return selections[((ordinal() + i) % max + max) % max];
         }
         public String markIf(TeleOpConfig s) {
             return this == s ? " <" : "";
@@ -64,13 +66,15 @@ public final class MainTeleOp extends LinearOpMode {
         ElapsedTime matchTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
-        double CLIMB_TIME = TELE - 15; // 15 seconds for climb
+        double CLIMB_TIME = TELE - 10; // 15 seconds for climb
         boolean rumbledClimb = false, rumbledSample = false;
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.trackHeadingOnly = true;
+
+        Deposit.level1Ascent = false;
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
@@ -149,9 +153,9 @@ public final class MainTeleOp extends LinearOpMode {
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
+                robot.intake.runRoller(0);
                 robot.intake.extendo.runManual(triggers);
                 robot.deposit.lift.runManual(leftY);
-                robot.intake.runRoller(0);
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
@@ -161,41 +165,44 @@ public final class MainTeleOp extends LinearOpMode {
 
             } else {
 
-                if (gamepad1.touchpad_finger_1) {
-                    robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
-                }
+                robot.intake.runRoller(triggers);
                 robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
-                robot.intake.runRoller(triggers);
-
-                if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
-                if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
-
-                if (!robot.climber.isActive()) {
-
-                    if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
-                    else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
-                    else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
-                    else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
-
-                    if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
-
-                } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
                 robot.drivetrain.run(
                         leftX,
                         leftY,
                         rightX,
-                        slowModeLocked || robot.requestingSlowMode() || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
+                        slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
                         useFieldCentric
                 );
 
             }
 
+            if (gamepad1.touchpad_finger_1) {
+                robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
+            }
+
+            if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
+            if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
+
+            if (!robot.climber.isActive()) {
+
+                if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
+                else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
+                else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
+                else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
+
+                if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
+
+            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
+
             robot.run();
 
-            robot.printTelemetry();
-            mTelemetry.update();
+            if (gamepadEx1.isDown(A)) {
+                robot.printTelemetry();
+                mTelemetry.update();
+            }
 
             if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
                 gamepad1.rumble(1, 1, 2000);

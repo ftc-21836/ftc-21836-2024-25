@@ -5,9 +5,11 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.divider;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystem.Arm.ASCENT;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPECIMEN;
@@ -67,10 +69,14 @@ public final class TuningArm extends LinearOpMode {
                 arm.setTarget(TRANSFER);
                 timer.reset();
             }
+            if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) {
+                arm.setTarget(ASCENT);
+                timer.reset();
+            }
 
             if (gamepadEx1.wasJustPressed(X)) seconds = timer.seconds();
 
-            arm.run();
+            arm.run(true);
 
             if (gamepadEx1.wasJustPressed(B)) closed = !closed;
             claw.turnToAngle(closed ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);

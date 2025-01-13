@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.control.gainmatrix
 
-import org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry
+import org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry
 import kotlin.math.max
 import kotlin.math.min
 

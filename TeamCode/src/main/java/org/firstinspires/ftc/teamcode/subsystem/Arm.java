@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.level1Ascent;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
@@ -51,7 +51,7 @@ public final class Arm {
                 target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
-                target == ASCENT ?          TIME_INTAKING_TO_SPEC :
+                target == ASCENT ?          0 :
                 target == TRANSFER ?
                         lastTarget == INTAKING ?    TIME_TRANSFER_TO_INTAKING :
                         lastTarget == SAMPLE ?      TIME_SAMPLE_TO_RETRACTED :
@@ -71,24 +71,41 @@ public final class Arm {
         return this.target == position && reachedTarget();
     }
 
-    public void setTarget(Arm.Position target) {
-        if (this.target == target) return;
-        lastTarget = this.target;
-        this.target = target;
+    public void setTarget(Arm.Position newTarget) {
+        if (newTarget == target) return;
+        lastTarget = target;
+        target = newTarget;
         movingToTarget = false;
     }
 
-    public void run() {
+    public void run(boolean canMove) {
 
-        if (!movingToTarget) timer.reset();
+        Position setpoint;
 
-        Position target = this.target == SPECIMEN && getTimeTraveled() <= TIME_INTAKING_TO_WRIST_FREE ?
-                                Arm.POST_INTAKING :
-                                this.target;
+        if (canMove || movingToTarget) {
 
-        rServo.turnToAngle(target.right);
-        lServo.turnToAngle(target.left);
-        movingToTarget = true;
+            if (!movingToTarget) {
+                timer.reset();
+                movingToTarget = true;
+            }
+
+            setpoint = target;
+
+        } else {
+
+            // Servos should be off/loose when teleop begins (after level 1 ascent)
+            if (lastTarget == ASCENT) return;
+
+            setpoint = lastTarget;
+        }
+
+        // Override wrist angle for 0.2ish seconds so specimen doesn't get stuck on wall
+        if (setpoint == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE)
+            setpoint = POST_INTAKING;
+
+        rServo.turnToAngle(setpoint.right);
+        lServo.turnToAngle(setpoint.left);
+
     }
 
     public void printTelemetry() {

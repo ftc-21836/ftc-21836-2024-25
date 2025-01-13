@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.divider;
-import static org.firstinspires.ftc.teamcode.opmode.OpModeVars.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.divider;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
 
@@ -23,7 +22,6 @@ public final class Robot {
     private final ElapsedTime loopTimer = new ElapsedTime();
 
     public Robot(HardwareMap hardwareMap, Pose2d startPose) {
-
         drivetrain = new PinpointDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
         intake = new Intake(hardwareMap);
@@ -32,10 +30,8 @@ public final class Robot {
     }
 
     public void run() {
-
-        intake.run(climber.isActive(), deposit);
-        deposit.run(intake.hasSample(), climber.isActive(), intake.clearOfDeposit());
-
+        intake.run(deposit);
+        deposit.run(intake, climber.isActive());
         climber.run();
     }
 
@@ -44,10 +40,6 @@ public final class Robot {
                 intake.hasSample() ?    intake.getSample() :
                 deposit.hasSample() ?   deposit.getSample() :
                                         null;
-    }
-
-    public boolean requestingSlowMode() {
-        return false;
     }
 
     public void printTelemetry() {
@@ -59,7 +51,5 @@ public final class Robot {
         intake.printTelemetry();
         divider();
         deposit.printTelemetry();
-        divider();
-        climber.printTelemetry();
     }
 }
