@@ -43,9 +43,9 @@ import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 public final class MainTeleOp extends LinearOpMode {
 
     enum TeleOpConfig {
-        EDITING_ALLIANCE,
         PRELOAD_SAMPLE,
         PRELOAD_SPECIMEN,
+        EDITING_ALLIANCE,
         EDITING_SLOW_LOCK,
         EDITING_FIELD_CENTRIC;
 
@@ -78,31 +78,44 @@ public final class MainTeleOp extends LinearOpMode {
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
-        TeleOpConfig selection = EDITING_ALLIANCE;
+        TeleOpConfig selection = PRELOAD_SAMPLE;
 
         boolean slowModeLocked = false, useFieldCentric = true;
+
+        boolean preloaded = false;
 
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(DPAD_UP))   selection = selection.plus(-1);
-            if (gamepadEx1.wasJustPressed(DPAD_DOWN)) selection = selection.plus(1);
+            if (gamepadEx1.wasJustPressed(DPAD_UP)) {
+                selection = selection.plus(preloaded && selection == EDITING_ALLIANCE ? -3 : -1);
+            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                selection = selection.plus(preloaded && selection == EDITING_FIELD_CENTRIC ? 3 : 1);
+            }
 
-            if (gamepadEx1.wasJustPressed(X)) switch (selection) {
-                case EDITING_ALLIANCE:
-                    isRedAlliance = !isRedAlliance;
-                    break;
+            switch (selection) {
                 case PRELOAD_SAMPLE:
-                    robot.deposit.transfer(NEUTRAL);
+                    if (gamepadEx1.wasJustPressed(X)) {
+                        robot.deposit.transfer(NEUTRAL);
+                        preloaded = true;
+                        selection = selection.plus(2);
+                    }
                     break;
                 case PRELOAD_SPECIMEN:
-                    robot.deposit.preloadSpecimen();
+                    if (gamepadEx1.wasJustPressed(X)) {
+                        robot.deposit.preloadSpecimen();
+                        preloaded = true;
+                        selection = selection.plus(1);
+                    }
+                    break;
+                case EDITING_ALLIANCE:
+                    if (gamepadEx1.wasJustPressed(X)) isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_SLOW_LOCK:
-                    slowModeLocked = !slowModeLocked;
+                    if (gamepadEx1.wasJustPressed(X)) slowModeLocked = !slowModeLocked;
                     break;
                 case EDITING_FIELD_CENTRIC:
-                    useFieldCentric = !useFieldCentric;
+                    if (gamepadEx1.wasJustPressed(X)) useFieldCentric = !useFieldCentric;
                     break;
             }
 
@@ -116,11 +129,11 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-            mTelemetry.addLine();
             mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
             mTelemetry.addLine();
             mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            mTelemetry.addLine();
+            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();

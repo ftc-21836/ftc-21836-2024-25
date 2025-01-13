@@ -101,10 +101,10 @@ public final class MainAuton extends LinearOpMode {
     static boolean isRedAlliance = false;
 
     enum AutonConfig {
-        EDITING_ALLIANCE,
-        EDITING_SIDE,
         PRELOAD_SAMPLE,
         PRELOAD_SPECIMEN,
+        EDITING_ALLIANCE,
+        EDITING_SIDE,
         EDITING_CYCLES,
         EDITING_WAIT;
 
@@ -133,40 +133,53 @@ public final class MainAuton extends LinearOpMode {
         // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
-        AutonConfig selection = EDITING_ALLIANCE;
+        AutonConfig selection = PRELOAD_SAMPLE;
 
         boolean specimenSide = false;
         double partnerWait = 0;
         int cycles = 3;
 
+        boolean preloaded = false;
+
         // Get gamepad 1 button input and save alliance and side for autonomous configuration:
         while (opModeInInit() && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(DPAD_UP))   selection = selection.plus(-1);
-            if (gamepadEx1.wasJustPressed(DPAD_DOWN)) selection = selection.plus(1);
-
-            if (gamepadEx1.wasJustPressed(X)) switch (selection) {
-                case EDITING_ALLIANCE:
-                    isRedAlliance = !isRedAlliance;
-                    break;
-                case EDITING_SIDE:
-                    specimenSide = !specimenSide;
-                    break;
-                case PRELOAD_SAMPLE:
-                    robot.deposit.transfer(NEUTRAL);
-                    break;
-                case PRELOAD_SPECIMEN:
-                    robot.deposit.preloadSpecimen();
-                    break;
+            if (gamepadEx1.wasJustPressed(DPAD_UP)) {
+                selection = selection.plus(preloaded && selection == EDITING_ALLIANCE ? -3 : -1);
+            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                selection = selection.plus(preloaded && selection == EDITING_WAIT ? 3 : 1);
             }
 
-            if (selection == EDITING_CYCLES) {
-                if (gamepadEx1.wasJustPressed(Y)) cycles++;
-                if (gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
-            } else if (selection == EDITING_WAIT) {
-                if (gamepadEx1.wasJustPressed(Y)) partnerWait++;
-                if (gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
+            switch (selection) {
+                case PRELOAD_SAMPLE:
+                    if (gamepadEx1.wasJustPressed(X)) {
+                        robot.deposit.transfer(NEUTRAL);
+                        preloaded = true;
+                        selection = selection.plus(2);
+                    }
+                    break;
+                case PRELOAD_SPECIMEN:
+                    if (gamepadEx1.wasJustPressed(X)) {
+                        robot.deposit.preloadSpecimen();
+                        preloaded = true;
+                        selection = selection.plus(1);
+                    }
+                    break;
+                case EDITING_ALLIANCE:
+                    if (gamepadEx1.wasJustPressed(X)) isRedAlliance = !isRedAlliance;
+                    break;
+                case EDITING_SIDE:
+                    if (gamepadEx1.wasJustPressed(X)) specimenSide = !specimenSide;
+                    break;
+                case EDITING_CYCLES:
+                    if (gamepadEx1.wasJustPressed(Y)) cycles++;
+                    if (gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
+                    break;
+                case EDITING_WAIT:
+                    if (gamepadEx1.wasJustPressed(Y)) partnerWait++;
+                    if (gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
+                    break;
             }
 
             gamepad1.setLedColor(
@@ -179,13 +192,13 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
             mTelemetry.addLine();
             mTelemetry.addLine();
-            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-            mTelemetry.addLine();
-            mTelemetry.addLine((specimenSide ? "RIGHT (SPECIMEN-SIDE)" : "LEFT (SAMPLE-SIDE)") + selection.markIf(EDITING_SIDE));
-            mTelemetry.addLine();
             mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
             mTelemetry.addLine();
             mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            mTelemetry.addLine();
+            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+            mTelemetry.addLine();
+            mTelemetry.addLine((specimenSide ? "RIGHT (OBSERVATION-SIDE)" : "LEFT (BASKET-SIDE)") + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
             mTelemetry.addLine(cycles + " cycles" + selection.markIf(EDITING_CYCLES));
             mTelemetry.addLine();
@@ -215,7 +228,7 @@ public final class MainAuton extends LinearOpMode {
 
         if (specimenSide) {
 
-            mTelemetry.addLine("> Right side");
+            mTelemetry.addLine("> Right side (observation zone)");
 
             /// Score preloaded specimen
             builder = builder
@@ -272,7 +285,7 @@ public final class MainAuton extends LinearOpMode {
 
         } else {
 
-            mTelemetry.addLine("> Left side");
+            mTelemetry.addLine("> Left side (near basket)");
 
             if (specimenPreload) {
                 /// Score preloaded specimen
