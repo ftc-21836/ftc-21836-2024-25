@@ -258,10 +258,10 @@ public final class MainAuton extends LinearOpMode {
                             .setTangent(PI / 2)
                             .splineToConstantHeading(new Vector2d(chamber0.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamber0.y), chamber0.heading)
                             .stopAndAdd(scoreSpecimen(robot))
-                            .afterTime(0, robot.deposit::triggerClaw)
-                            .setTangent(- PI / 2)
                     ;
                     if (i < cycles - 1) builder = builder
+                            .afterTime(0, robot.deposit::triggerClaw)
+                            .setTangent(- PI / 2)
                             .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
                     ;
 
