@@ -159,7 +159,10 @@ public final class Intake {
 
             case INTAKING:
 
-                if (sampleLost(INTAKING)) break;
+                if (sampleLost(INTAKING)) {
+                    if (rollerSpeed == 0) setExtended(false);
+                    break;
+                }
 
                 if (sample == badSample) {
 
