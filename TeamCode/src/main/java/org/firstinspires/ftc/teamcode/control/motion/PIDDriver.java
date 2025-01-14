@@ -57,7 +57,7 @@ public final class PIDDriver {
         output.drivePower = new EditablePose(
                 x,
                 y * STRAFE_MULTIPLIER,
-                rot
+                -rot
         );
 
         output.withinError = abs(xError) <= admissibleError.x &&
