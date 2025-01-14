@@ -164,7 +164,7 @@ public final class MainTeleOp extends LinearOpMode {
 
                 robot.intake.runRoller(0);
                 robot.intake.extendo.runManual(triggers);
-                robot.deposit.lift.runManual(gamepadEx1.getLeftY());
+                robot.deposit.lift.runManual(gamepadEx1.getLeftY() * (gamepadEx1.isDown(RIGHT_BUMPER) ? 0.3 : 1));
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
