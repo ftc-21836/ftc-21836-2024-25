@@ -344,10 +344,6 @@ public final class Intake {
         }
     }
 
-    public void toggle() {
-        setExtended(state == RETRACTED);
-    }
-
     void printTelemetry() {
         mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? sample + " sample" : "empty"));
         hsv.toTelemetry();

@@ -158,22 +158,18 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.updatePoseEstimate();
             gamepadEx1.readButtons();
 
-            double rightX = gamepadEx1.getRightX();
-            double leftX = gamepadEx1.getLeftX();
-            double leftY = gamepadEx1.getLeftY();
-
             double triggers = gamepad1.right_trigger - gamepad1.left_trigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
                 robot.intake.runRoller(0);
                 robot.intake.extendo.runManual(triggers);
-                robot.deposit.lift.runManual(leftY);
+                robot.deposit.lift.runManual(gamepadEx1.getLeftY());
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
                 // SET HEADING:
-                robot.drivetrain.setHeadingWithStick(rightX, gamepadEx1.getRightY());
+                robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
             } else {
@@ -183,9 +179,9 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.deposit.lift.runManual(0);
 
                 robot.drivetrain.run(
-                        leftX,
-                        leftY,
-                        rightX,
+                        gamepadEx1.getLeftX(),
+                        gamepadEx1.getLeftY(),
+                        gamepadEx1.getRightX(),
                         slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
                         useFieldCentric
                 );
@@ -196,7 +192,6 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
 
-            if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
             if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
 
             if (!robot.climber.isActive()) {
