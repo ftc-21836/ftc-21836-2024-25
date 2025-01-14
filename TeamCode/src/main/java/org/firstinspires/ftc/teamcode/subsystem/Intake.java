@@ -332,7 +332,6 @@ public final class Intake {
 
                 }
 
-                extendo.setExtended(false);
                 state = RETRACTED;
                 bucket.setActivated(false);
                 rollerSpeed = SPEED_RETRACTED;
