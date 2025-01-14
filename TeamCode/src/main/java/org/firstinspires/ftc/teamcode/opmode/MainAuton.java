@@ -242,18 +242,11 @@ public final class MainAuton extends LinearOpMode {
             if (cycles > 0) {
 
                 /// Push samples
-                builder = builder
-                        .setTangent(-PI / 2)
-                        .splineToConstantHeading(aroundBeamPushing.toVector2d(), aroundBeamPushing.heading)
-                        .splineToConstantHeading(pushing1.toVector2d(), pushing1.heading)
-                        .splineToConstantHeading(pushed1.toVector2d(), pushed1.heading)
-                        .splineToConstantHeading(pushing2.toVector2d(), pushing2.heading)
-                        .splineToConstantHeading(pushed2.toVector2d(), pushed2.heading)
-                        .splineToConstantHeading(pushing3.toVector2d(), pushing3.heading)
-                        .splineToConstantHeading(pushed3.toVector2d(), pushed3.heading)
-                        .splineToConstantHeading(intakingFirstSpec.toVector2d(), intakingFirstSpec.heading)
-                ;
-
+                builder = builder.setTangent(-PI / 2);
+                EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3, intakingFirstSpec};
+                for (EditablePose pose : pushingPoses) {
+                    builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
+                }
                 mTelemetry.addLine("> Push samples");
 
                 /// Cycle specimens
