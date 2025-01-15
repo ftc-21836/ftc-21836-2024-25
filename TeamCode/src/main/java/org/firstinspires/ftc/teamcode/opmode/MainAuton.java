@@ -82,7 +82,7 @@ public final class MainAuton extends LinearOpMode {
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
             aroundBeamParkLeft = new EditablePose(-40, -25, 0),
-            parkLeft = new EditablePose(-23.5, -11, 0),
+            parkLeft = new EditablePose(-22, -11, 0),
             chamber0 = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
             chamberLeft = new EditablePose(-chamber0.x, chamber0.y, chamber0.heading),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
