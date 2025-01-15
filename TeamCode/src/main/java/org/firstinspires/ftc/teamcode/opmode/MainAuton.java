@@ -12,8 +12,7 @@ import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITIN
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_CYCLES;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_WAIT;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.PRELOAD_SAMPLE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.PRELOAD_SPECIMEN;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.PRELOAD_TYPE;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static java.lang.Math.PI;
@@ -101,8 +100,7 @@ public final class MainAuton extends LinearOpMode {
     static boolean isRedAlliance = false;
 
     enum AutonConfig {
-        PRELOAD_SAMPLE,
-        PRELOAD_SPECIMEN,
+        PRELOAD_TYPE,
         EDITING_ALLIANCE,
         EDITING_SIDE,
         EDITING_CYCLES,
@@ -133,38 +131,23 @@ public final class MainAuton extends LinearOpMode {
         // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
-        AutonConfig selection = PRELOAD_SAMPLE;
+        AutonConfig selection = PRELOAD_TYPE;
 
         boolean specimenSide = false;
         double partnerWait = 0;
         int cycles = 3;
-
-        boolean preloaded = false;
+        boolean specimenPreload = false;
 
         // Get gamepad 1 button input and save alliance and side for autonomous configuration:
         while (opModeInInit() && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(DPAD_UP)) {
-                selection = selection.plus(preloaded && selection == EDITING_ALLIANCE ? -3 : -1);
-            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-                selection = selection.plus(preloaded && selection == EDITING_WAIT ? 3 : 1);
-            }
+            if (gamepadEx1.wasJustPressed(DPAD_UP))         selection = selection.plus(-1);
+            else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  selection = selection.plus(1);
 
             switch (selection) {
-                case PRELOAD_SAMPLE:
-                    if (gamepadEx1.wasJustPressed(X)) {
-                        robot.deposit.transfer(NEUTRAL);
-                        preloaded = true;
-                        selection = selection.plus(2);
-                    }
-                    break;
-                case PRELOAD_SPECIMEN:
-                    if (gamepadEx1.wasJustPressed(X)) {
-                        robot.deposit.preloadSpecimen();
-                        preloaded = true;
-                        selection = selection.plus(1);
-                    }
+                case PRELOAD_TYPE:
+                    if (gamepadEx1.wasJustPressed(X) && !specimenSide) specimenPreload = !specimenPreload;
                     break;
                 case EDITING_ALLIANCE:
                     if (gamepadEx1.wasJustPressed(X)) isRedAlliance = !isRedAlliance;
@@ -189,12 +172,10 @@ public final class MainAuton extends LinearOpMode {
                     Gamepad.LED_DURATION_CONTINUOUS
             );
 
-            mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
+            mTelemetry.addLine("Press both shoulder buttons to PRELOAD!");
             mTelemetry.addLine();
             mTelemetry.addLine();
-            mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
-            mTelemetry.addLine();
-            mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            mTelemetry.addLine("Preloading a " + (specimenSide || specimenPreload ? "specimen" : "sample") + selection.markIf(PRELOAD_TYPE));
             mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
@@ -207,7 +188,10 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.update();
         }
 
-        boolean specimenPreload = !specimenSide && robot.deposit.specimenIntaked();
+        specimenPreload = specimenSide || specimenPreload;
+
+        if (specimenPreload) robot.deposit.preloadSpecimen();
+        else robot.deposit.transfer(NEUTRAL);
 
         mTelemetry.addLine("GENERATING TRAJECTORY...");
         mTelemetry.update();
@@ -220,8 +204,8 @@ public final class MainAuton extends LinearOpMode {
 
         pose = new Pose2d(
                 specimenSide ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
-                0.5 * (specimenSide || specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                specimenSide || specimenPreload ? PI / 2 : 0
+                0.5 * (specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
+                specimenPreload ? PI / 2 : 0
         );
 
         TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
