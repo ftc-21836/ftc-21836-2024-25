@@ -33,10 +33,10 @@ public final class Intake {
     public static double
 
             ANGLE_BUCKET_RETRACTED = 7.5,
-            ANGLE_BUCKET_PRE_TRANSFER = ANGLE_BUCKET_RETRACTED,
+            ANGLE_BUCKET_PRE_TRANSFER = 25,
             ANGLE_BUCKET_OVER_BARRIER = 140,
             ANGLE_BUCKET_INTAKING_NEAR = 213,
-            ANGLE_BUCKET_INTAKING_FAR = ANGLE_BUCKET_INTAKING_NEAR,
+            ANGLE_BUCKET_INTAKING_FAR = 213,
 
             TIME_EJECTING = 0.5,
             TIME_SAMPLE_SETTLING = 1.5,
