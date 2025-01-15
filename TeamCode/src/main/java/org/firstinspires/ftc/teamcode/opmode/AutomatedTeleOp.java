@@ -14,7 +14,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.basket;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.intakingSpec;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.isRedAlliance;
@@ -63,6 +62,7 @@ public final class AutomatedTeleOp extends LinearOpMode {
         Deposit.level1Ascent = false;
 
         PIDDriver driver = new PIDDriver();
+        EditablePose basket = MainAuton.basket, chamber = chamberRight, obsZone = intakingSpec;
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
@@ -167,13 +167,14 @@ public final class AutomatedTeleOp extends LinearOpMode {
                 robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
 
-                if (gamepadEx1.isDown(X)) {
+                boolean hasSpecimen = robot.deposit.hasSpecimen();
+                boolean intaking = robot.deposit.intaking();
 
-                    boolean hasSpecimen = robot.deposit.specimenIntaked();
+                if (gamepadEx1.isDown(X) && (hasSpecimen || intaking || robot.deposit.basketReady())) {
 
                     EditablePose output = driver.driveTo(
                             new EditablePose(robot.drivetrain.pose),
-                            robot.getSample() == null ? intakingSpec : hasSpecimen ? chamberRight : basket
+                            intaking ? obsZone : hasSpecimen ? chamber : basket
                     ).drivePower;
 
                     robot.drivetrain.run(
@@ -207,7 +208,12 @@ public final class AutomatedTeleOp extends LinearOpMode {
                 else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
                 else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
 
-                if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
+                if (gamepadEx1.wasJustPressed(B)) {
+                    if (robot.deposit.intaking()) obsZone = new EditablePose(robot.drivetrain.pose);
+                    else if (robot.deposit.hasSpecimen()) chamber = new EditablePose(robot.drivetrain.pose);
+                    else if (robot.deposit.basketReady()) basket = new EditablePose(robot.drivetrain.pose);
+                    robot.deposit.triggerClaw();
+                }
 
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 

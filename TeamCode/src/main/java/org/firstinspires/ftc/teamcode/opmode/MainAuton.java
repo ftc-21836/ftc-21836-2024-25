@@ -239,7 +239,7 @@ public final class MainAuton extends LinearOpMode {
                     builder = builder
                             .waitSeconds(WAIT_APPROACH_WALL)
                             .afterTime(0, robot.deposit::triggerClaw)
-                            .stopAndAdd(telemetryPacket -> !robot.deposit.specimenIntaked())
+                            .stopAndAdd(telemetryPacket -> !robot.deposit.hasSpecimen())
                             .setTangent(PI / 2)
                             .splineToConstantHeading(new Vector2d(chamberRight.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), chamberRight.heading)
                             .stopAndAdd(scoreSpecimen(robot))

@@ -174,7 +174,7 @@ public final class Deposit {
     }
 
     public void preloadSpecimen() {
-        while (!specimenIntaked()) triggerClaw();
+        while (!hasSpecimen()) triggerClaw();
         arm.setTarget(Arm.SPECIMEN);
         arm.run(true);
         closeClaw();
@@ -322,8 +322,16 @@ public final class Deposit {
         return sample != null;
     }
 
-    public boolean specimenIntaked() {
+    public boolean basketReady() {
+        return state == HAS_SAMPLE;
+    }
+
+    public boolean hasSpecimen() {
         return state == HAS_SPECIMEN;
+    }
+
+    public boolean intaking() {
+        return state == INTAKING_SPECIMEN;
     }
 
     Sample getSample() {
