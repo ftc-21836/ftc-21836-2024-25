@@ -177,6 +177,7 @@ public final class Deposit {
         while (!specimenIntaked()) triggerClaw();
         arm.setTarget(Arm.SPECIMEN);
         arm.run(true);
+        closeClaw();
     }
 
     public void closeClaw() {
