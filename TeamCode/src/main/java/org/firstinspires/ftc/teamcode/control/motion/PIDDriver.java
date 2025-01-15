@@ -13,13 +13,13 @@ public final class PIDDriver {
 
     public static PIDGains
             xyGains = new PIDGains(
-                    0,
+            0.0175,
                     0,
                     0,
                     1
             ),
             rotGains = new PIDGains(
-                    0,
+                    1.25,
                     0,
                     0,
                     1
