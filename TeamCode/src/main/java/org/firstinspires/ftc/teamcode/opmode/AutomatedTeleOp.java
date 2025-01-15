@@ -63,7 +63,6 @@ public final class AutomatedTeleOp extends LinearOpMode {
         Deposit.level1Ascent = false;
 
         PIDDriver driver = new PIDDriver();
-        EditablePose ignoreX = new EditablePose(0, 1, 1);
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
