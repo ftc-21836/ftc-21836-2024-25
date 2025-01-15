@@ -174,10 +174,13 @@ public final class Deposit {
     }
 
     public void preloadSpecimen() {
-        while (state != HAS_SPECIMEN) triggerClaw();
-        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+        while (!specimenIntaked()) triggerClaw();
         arm.setTarget(Arm.SPECIMEN);
         arm.run(true);
+    }
+
+    public void closeClaw() {
+        claw.turnToAngle(ANGLE_CLAW_CLOSED);
     }
 
     // when does the intake need to move out of the way
@@ -331,7 +334,7 @@ public final class Deposit {
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(HIGH);
-        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+        closeClaw();
     }
 
     void printTelemetry() {
