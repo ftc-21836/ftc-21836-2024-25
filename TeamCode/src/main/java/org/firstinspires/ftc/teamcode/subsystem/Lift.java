@@ -77,9 +77,7 @@ public final class Lift {
 
         position = 0.5 * (motors[0].encoder.getDistance() + motors[1].encoder.getDistance());
 
-        double voltageScalar = MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
-
-        double kG = !isExtended() || climbing ? 0 : Lift.kG * voltageScalar;
+        double kG = !isExtended() || climbing ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
         double output;
 
         if (manualPower != 0) {

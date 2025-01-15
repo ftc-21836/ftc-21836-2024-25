@@ -17,6 +17,7 @@ import static java.lang.Math.sqrt;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
@@ -43,10 +44,12 @@ public final class Extendo {
     private final CachedMotorEx motor;
     private final PIDController controller = new PIDController();
     private final TouchSensor extendoSensor;
+    private final VoltageSensor batteryVoltageSensor;
 
     private double position, target, manualPower;
 
     public Extendo(HardwareMap hardwareMap) {
+        this.batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         motor = new CachedMotorEx(hardwareMap, "extendo", RPM_117);
         motor.setInverted(true);
@@ -96,7 +99,7 @@ public final class Extendo {
         controller.setTarget(new State(setpoint));
 
         double power = controller.calculate(new State(getPosition()));
-        double slideBindingFF = power <= 0 ? 0 : getPosition() * kS;
+        double slideBindingFF = power <= 0 ? 0 : getPosition() * kS / batteryVoltageSensor.getVoltage();
 
         motor.set(power + slideBindingFF);
     }
