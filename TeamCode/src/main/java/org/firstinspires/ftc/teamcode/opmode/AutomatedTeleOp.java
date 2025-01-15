@@ -209,9 +209,15 @@ public final class AutomatedTeleOp extends LinearOpMode {
                 else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
 
                 if (gamepadEx1.wasJustPressed(B)) {
-                    if (robot.deposit.intaking()) obsZone = new EditablePose(robot.drivetrain.pose);
-                    else if (robot.deposit.hasSpecimen()) chamber = new EditablePose(robot.drivetrain.pose);
-                    else if (robot.deposit.basketReady()) basket = new EditablePose(robot.drivetrain.pose);
+                    if (robot.deposit.intaking()) {
+                        obsZone.x = robot.drivetrain.pose.position.x;
+                        obsZone.y = robot.drivetrain.pose.position.y;
+                    } else if (robot.deposit.hasSpecimen()) {
+                        chamber.y = robot.drivetrain.pose.position.y;
+                    } else if (robot.deposit.basketReady()) {
+                        basket.x = robot.drivetrain.pose.position.x;
+                        basket.y = robot.drivetrain.pose.position.y;
+                    }
                     robot.deposit.triggerClaw();
                 }
 
