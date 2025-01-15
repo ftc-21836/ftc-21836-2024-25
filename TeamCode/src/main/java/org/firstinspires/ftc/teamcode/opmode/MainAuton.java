@@ -12,7 +12,7 @@ import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITIN
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_CYCLES;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_WAIT;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.PRELOAD_TYPE;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static java.lang.Math.PI;
@@ -100,9 +100,9 @@ public final class MainAuton extends LinearOpMode {
     static boolean isRedAlliance = false;
 
     enum AutonConfig {
-        PRELOAD_TYPE,
         EDITING_ALLIANCE,
         EDITING_SIDE,
+        EDITING_PRELOAD,
         EDITING_CYCLES,
         EDITING_WAIT;
 
@@ -131,7 +131,7 @@ public final class MainAuton extends LinearOpMode {
         // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
-        AutonConfig selection = PRELOAD_TYPE;
+        AutonConfig selection = EDITING_ALLIANCE;
 
         boolean specimenSide = false;
         double partnerWait = 0;
@@ -146,14 +146,14 @@ public final class MainAuton extends LinearOpMode {
             else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  selection = selection.plus(1);
 
             switch (selection) {
-                case PRELOAD_TYPE:
-                    if (gamepadEx1.wasJustPressed(X) && !specimenSide) specimenPreload = !specimenPreload;
-                    break;
                 case EDITING_ALLIANCE:
                     if (gamepadEx1.wasJustPressed(X)) isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_SIDE:
                     if (gamepadEx1.wasJustPressed(X)) specimenSide = !specimenSide;
+                    break;
+                case EDITING_PRELOAD:
+                    if (gamepadEx1.wasJustPressed(X) && !specimenSide) specimenPreload = !specimenPreload;
                     break;
                 case EDITING_CYCLES:
                     if (gamepadEx1.wasJustPressed(Y)) cycles++;
@@ -175,11 +175,11 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine("Press both shoulder buttons to PRELOAD!");
             mTelemetry.addLine();
             mTelemetry.addLine();
-            mTelemetry.addLine("Preloading a " + (specimenSide || specimenPreload ? "specimen" : "sample") + selection.markIf(PRELOAD_TYPE));
-            mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addLine((specimenSide ? "RIGHT (OBSERVATION-SIDE)" : "LEFT (BASKET-SIDE)") + selection.markIf(EDITING_SIDE));
+            mTelemetry.addLine();
+            mTelemetry.addLine("Preloading a " + (specimenSide || specimenPreload ? "specimen" : "sample") + selection.markIf(EDITING_PRELOAD));
             mTelemetry.addLine();
             mTelemetry.addLine(cycles + " cycles" + selection.markIf(EDITING_CYCLES));
             mTelemetry.addLine();
