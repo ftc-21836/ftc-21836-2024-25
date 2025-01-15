@@ -73,7 +73,7 @@ public final class MainAuton extends LinearOpMode {
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
-            sample1SpecPreload = new EditablePose(-50, -27.75, PI / 2),
+            sample1SpecPreload = new EditablePose(-50, -27.75, sample1.heading),
             sample2 = new EditablePose(-58, -27.75, sample1.heading),
             sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
             basket = new EditablePose(-57.5, -57.5, PI / 4),
@@ -83,15 +83,15 @@ public final class MainAuton extends LinearOpMode {
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
             aroundBeamParkLeft = new EditablePose(-40, -25, 0),
             parkLeft = new EditablePose(-22, -11, 0),
-            chamber0 = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
-            chamberLeft = new EditablePose(-chamber0.x, chamber0.y, chamber0.heading),
+            chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
+            chamberLeft = new EditablePose(-chamberRight.x, chamberRight.y, chamberRight.heading),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
-            pushing2 = new EditablePose(55, pushing1.y, toRadians(-70)),
-            pushing3 = new EditablePose(62, pushing1.y, - PI / 2),
-            pushed1 = new EditablePose(pushing1.x, -50, toRadians(110)),
-            pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
-            pushed3 = new EditablePose(pushing3.x, pushed1.y, - PI / 2),
+            pushing2 = new EditablePose(55, -13, toRadians(-70)),
+            pushing3 = new EditablePose(62, -13, - PI / 2),
+            pushed1 = new EditablePose(46, -50, toRadians(110)),
+            pushed2 = new EditablePose(55, -50, toRadians(110)),
+            pushed3 = new EditablePose(62, -50, - PI / 2),
             intakingSpec = new EditablePose(36, -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5, PI / 2),
             intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading),
             parkRight = new EditablePose(36, -60, PI / 2);
@@ -204,7 +204,7 @@ public final class MainAuton extends LinearOpMode {
         robot.deposit.setAlliance(isRedAlliance);
 
         pose = new Pose2d(
-                specimenSide ? chamber0.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
+                specimenSide ? chamberRight.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
                 0.5 * (specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
                 specimenPreload ? PI / 2 : 0
         );
@@ -218,7 +218,7 @@ public final class MainAuton extends LinearOpMode {
             /// Score preloaded specimen
             builder = builder
                     .waitSeconds(partnerWait)
-                    .strafeTo(chamber0.toVector2d())
+                    .strafeTo(chamberRight.toVector2d())
                     .stopAndAdd(scoreSpecimen(robot))
             ;
 
@@ -241,7 +241,7 @@ public final class MainAuton extends LinearOpMode {
                             .afterTime(0, robot.deposit::triggerClaw)
                             .stopAndAdd(telemetryPacket -> !robot.deposit.specimenIntaked())
                             .setTangent(PI / 2)
-                            .splineToConstantHeading(new Vector2d(chamber0.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamber0.y), chamber0.heading)
+                            .splineToConstantHeading(new Vector2d(chamberRight.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), chamberRight.heading)
                             .stopAndAdd(scoreSpecimen(robot))
                     ;
                     if (i < cycles - 1) builder = builder

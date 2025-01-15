@@ -15,7 +15,7 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.basket;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.chamber0;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.intakingSpec;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
@@ -173,7 +173,7 @@ public final class AutomatedTeleOp extends LinearOpMode {
 
                     EditablePose output = driver.driveTo(
                             new EditablePose(robot.drivetrain.pose),
-                            robot.getSample() == null ? intakingSpec : hasSpecimen ? chamber0 : basket
+                            robot.getSample() == null ? intakingSpec : hasSpecimen ? chamberRight : basket
                     ).drivePower;
 
                     robot.drivetrain.run(
