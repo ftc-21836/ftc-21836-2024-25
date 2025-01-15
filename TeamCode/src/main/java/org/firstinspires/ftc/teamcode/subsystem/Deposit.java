@@ -40,11 +40,11 @@ public final class Deposit {
             TIME_SPEC_RELEASE = 0.5,
 
             HEIGHT_ABOVE_INTAKE = 10,
-            HEIGHT_ARM_SAFE = 7,
+            HEIGHT_ARM_SAFE = 6,
             HEIGHT_OBSERVATION_ZONE = 7,
             HEIGHT_BASKET_LOW = 0,
             HEIGHT_BASKET_HIGH = 18,
-            HEIGHT_INTAKING_SPECIMEN = 7,
+            HEIGHT_INTAKING_SPECIMEN = 6.5,
             HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
             HEIGHT_CHAMBER_HIGH = 9,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
