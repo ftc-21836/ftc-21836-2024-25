@@ -342,7 +342,7 @@ public final class MainAuton extends LinearOpMode {
                 robot.deposit.lift.setTarget(0);
             });
 
-            mTelemetry.addLine("> Raise lift for level 1 ascent");
+            mTelemetry.addLine("> Raise arm for level 1 ascent");
 
             /// Drive to level 1 ascent location
             if (specimenPreload && cycles == 0)
