@@ -11,6 +11,8 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTO
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.basket;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.intakingSpec;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
@@ -35,6 +37,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
@@ -73,6 +77,8 @@ public final class MainTeleOp extends LinearOpMode {
 
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.trackHeadingOnly = true;
+
+        PIDDriver driver = new PIDDriver();
 
         Deposit.level1Ascent = false;
 
@@ -181,7 +187,12 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.drivetrain.run(
                         gamepadEx1.getLeftX(),
                         gamepadEx1.getLeftY(),
-                        gamepadEx1.getRightX(),
+                        gamepadEx1.isDown(X) ?
+                                driver.driveTo(
+                                        new EditablePose(robot.drivetrain.pose),
+                                        robot.deposit.basketReady() ? basket : intakingSpec
+                                ).drivePower.heading :
+                                gamepadEx1.getRightX(),
                         slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
                         useFieldCentric
                 );
