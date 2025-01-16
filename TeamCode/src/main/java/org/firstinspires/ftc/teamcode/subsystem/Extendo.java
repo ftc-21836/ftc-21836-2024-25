@@ -28,7 +28,6 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMot
 public final class Extendo {
 
     public static double
-            SCALAR_MANUAL_SPEED = 1.0,
             SPEED_RETRACTION = -0.75,
             TOUCHPAD_RANGE = 0.9,
             LENGTH_RETRACTING = 20,
@@ -44,12 +43,10 @@ public final class Extendo {
     private final CachedMotorEx motor;
     private final PIDController controller = new PIDController();
     private final TouchSensor extendoSensor;
-    private final VoltageSensor batteryVoltageSensor;
 
     private double position, target, manualPower;
 
     public Extendo(HardwareMap hardwareMap) {
-        this.batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         motor = new CachedMotorEx(hardwareMap, "extendo", RPM_117);
         motor.setInverted(true);
@@ -63,7 +60,7 @@ public final class Extendo {
     }
 
     public void runManual(double power) {
-        this.manualPower = power * SCALAR_MANUAL_SPEED;
+        this.manualPower = power;
     }
 
     public void run(boolean canRetract, boolean bucketDown) {
@@ -98,10 +95,7 @@ public final class Extendo {
         controller.setGains(pidGains);
         controller.setTarget(new State(setpoint));
 
-        double power = controller.calculate(new State(getPosition()));
-        double slideBindingFF = power <= 0 ? 0 : getPosition() * kS / batteryVoltageSensor.getVoltage();
-
-        motor.set(power + slideBindingFF);
+        motor.set(controller.calculate(new State(getPosition())));
     }
 
     public void printTelemetry() {
