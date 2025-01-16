@@ -184,6 +184,8 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
 
+                if (gamepadEx1.wasJustPressed(X)) driver.reset();
+
                 robot.drivetrain.run(
                         gamepadEx1.getLeftX(),
                         gamepadEx1.getLeftY(),

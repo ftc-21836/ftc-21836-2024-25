@@ -34,6 +34,12 @@ public final class PIDDriver {
             yController = new PIDController(),
             rotController = new PIDController();
 
+    public void reset() {
+        xController.reset();
+        yController.reset();
+        rotController.reset();
+    }
+
     public DriverOutput driveTo(EditablePose current, EditablePose target) {
 
         double xError = target.x - current.x;
