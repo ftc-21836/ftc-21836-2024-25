@@ -38,7 +38,7 @@ public final class Extendo {
             LENGTH_EXTENDED = Math.MM_EXTENSION,
             kS = 0;
 
-    public static PIDGains pidGains = new PIDGains(0.015);
+    public static PIDGains pidGains = new PIDGains(0.015, 0.01);
 
     private final CachedMotorEx motor;
     private final PIDController controller = new PIDController();
