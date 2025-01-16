@@ -247,6 +247,11 @@ public final class MainAuton extends LinearOpMode {
 
                 /// Cycle specimens
                 for (int i = 0; i < cycles; i++) {
+                    if (i > 0) builder = builder
+                            .afterTime(0, robot.deposit::triggerClaw)
+                            .setTangent(- PI / 2)
+                            .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
+                    ;
                     builder = builder
                             .waitSeconds(WAIT_APPROACH_WALL)
                             .afterTime(0, robot.deposit::triggerClaw)
@@ -254,11 +259,6 @@ public final class MainAuton extends LinearOpMode {
                             .setTangent(PI / 2)
                             .splineToConstantHeading(new Vector2d(chamberRight.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), chamberRight.heading)
                             .stopAndAdd(scoreSpecimen(robot))
-                    ;
-                    if (i < cycles - 1) builder = builder
-                            .afterTime(0, robot.deposit::triggerClaw)
-                            .setTangent(- PI / 2)
-                            .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
                     ;
 
                     mTelemetry.addLine("> Specimen cycle " + (i + 1));
