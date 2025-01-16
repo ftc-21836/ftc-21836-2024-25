@@ -186,8 +186,10 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((specimenSide ? "RIGHT (OBSERVATION-SIDE)" : "LEFT (BASKET-SIDE)") + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
-            mTelemetry.addLine("Preloading a " + (specimenSide || specimenPreload ? "specimen" : "sample") + selection.markIf(EDITING_PRELOAD));
-            mTelemetry.addLine();
+            if (!specimenSide) {
+                mTelemetry.addLine("Preloading a " + (specimenPreload ? "specimen" : "sample") + selection.markIf(EDITING_PRELOAD));
+                mTelemetry.addLine();
+            }
             mTelemetry.addLine(cycles + " cycles" + selection.markIf(EDITING_CYCLES));
             mTelemetry.addLine();
             mTelemetry.addData("Wait before scoring specimen preload (sec)", partnerWait + selection.markIf(EDITING_WAIT));
