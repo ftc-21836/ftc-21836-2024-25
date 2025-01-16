@@ -246,7 +246,7 @@ public final class MainAuton extends LinearOpMode {
                 mTelemetry.addLine("> Push samples");
 
                 /// Cycle specimens
-                for (int i = 0; i < cycles; i++) {
+                for (int i = 0; i < min(4, cycles); i++) {
                     if (i > 0) builder = builder
                             .afterTime(0, robot.deposit::triggerClaw)
                             .setTangent(- PI / 2)
