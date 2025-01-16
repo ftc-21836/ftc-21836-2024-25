@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Deposit {
 
     public static double
-            ANGLE_CLAW_OPEN = 80,
+            ANGLE_CLAW_OPEN = 70,
             ANGLE_CLAW_TRANSFER = 60,
             ANGLE_CLAW_CLOSED = 25,
 
