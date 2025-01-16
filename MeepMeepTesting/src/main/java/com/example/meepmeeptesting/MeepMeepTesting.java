@@ -127,7 +127,7 @@ public class MeepMeepTesting {
                 };
 
                 /// Cycle specimens
-                for (int i = 0; i < min(4, cycles); i++) {
+                for (int i = 0; i < min(chamberXs.length, cycles); i++) {
                     if (i > 0) builder = builder
 //                            .afterTime(0, robot.deposit::triggerClaw)
                             .setTangent(- PI / 2)
@@ -185,7 +185,7 @@ public class MeepMeepTesting {
             }
 
             /// Cycle samples off the floor
-            for (int i = 0; i < min(3, cycles); i++) {
+            for (int i = 0; i < min(intakingPositions.length, cycles); i++) {
 
                 boolean firstAfterSpec = i == 0 && specimenPreload;
 
