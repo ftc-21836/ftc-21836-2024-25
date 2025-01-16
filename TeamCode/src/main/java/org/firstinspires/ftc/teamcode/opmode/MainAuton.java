@@ -179,7 +179,7 @@ public final class MainAuton extends LinearOpMode {
                     Gamepad.LED_DURATION_CONTINUOUS
             );
 
-            mTelemetry.addLine("Press both shoulder buttons to PRELOAD!");
+            mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
