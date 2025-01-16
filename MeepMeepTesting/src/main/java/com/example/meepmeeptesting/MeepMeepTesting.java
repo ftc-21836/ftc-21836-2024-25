@@ -34,7 +34,11 @@ public class MeepMeepTesting {
             WAIT_POST_INTAKING = 0.5,
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.5,
-            WAIT_DROP_TO_EXTEND = 0.75;
+            WAIT_DROP_TO_EXTEND = 0.75,
+            X_OFFSET_CHAMBER_1 = 1,
+            X_OFFSET_CHAMBER_2 = -1,
+            X_OFFSET_CHAMBER_3 = -2,
+            X_OFFSET_CHAMBER_4 = -3;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
@@ -115,6 +119,13 @@ public class MeepMeepTesting {
                 }
 //                mTelemetry.addLine("> Push samples");
 
+                double[] chamberXs = {
+                        X_OFFSET_CHAMBER_1,
+                        X_OFFSET_CHAMBER_2,
+                        X_OFFSET_CHAMBER_3,
+                        X_OFFSET_CHAMBER_4,
+                };
+
                 /// Cycle specimens
                 for (int i = 0; i < min(4, cycles); i++) {
                     if (i > 0) builder = builder
@@ -127,7 +138,7 @@ public class MeepMeepTesting {
 //                            .afterTime(0, robot.deposit::triggerClaw)
 //                            .stopAndAdd(telemetryPacket -> !robot.deposit.hasSpecimen())
                             .setTangent(PI / 2)
-                            .splineToConstantHeading(new Vector2d(chamberRight.x - (i + 1) * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), chamberRight.heading)
+                            .splineToConstantHeading(new Vector2d(chamberRight.x + chamberXs[i] * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), chamberRight.heading)
                             .stopAndAdd(scoreSpecimen())
                     ;
 
