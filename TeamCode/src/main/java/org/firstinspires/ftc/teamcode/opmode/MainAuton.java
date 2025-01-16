@@ -143,8 +143,14 @@ public final class MainAuton extends LinearOpMode {
         while (opModeInInit() && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(DPAD_UP))         selection = selection.plus(-1);
-            else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  selection = selection.plus(1);
+            if (gamepadEx1.wasJustPressed(DPAD_UP)) {
+                selection = selection.plus(-1);
+                if (specimenSide && selection == EDITING_PRELOAD) selection = selection.plus(-1);
+            }
+            else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                selection = selection.plus(1);
+                if (specimenSide && selection == EDITING_PRELOAD) selection = selection.plus(1);
+            }
 
             switch (selection) {
                 case EDITING_ALLIANCE:
