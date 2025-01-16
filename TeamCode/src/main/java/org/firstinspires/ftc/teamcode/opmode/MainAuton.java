@@ -235,7 +235,10 @@ public final class MainAuton extends LinearOpMode {
             if (cycles > 0) {
 
                 /// Push samples
-                builder = builder.setTangent(-PI / 2);
+                builder = builder
+                        .afterTime(0, robot.deposit::triggerClaw)
+                        .setTangent(- PI / 2);
+                
                 EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3, intakingFirstSpec};
                 for (EditablePose pose : pushingPoses) {
                     builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
