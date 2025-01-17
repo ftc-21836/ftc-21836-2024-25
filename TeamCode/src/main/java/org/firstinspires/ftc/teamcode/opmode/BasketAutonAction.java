@@ -9,6 +9,9 @@ import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCOR
 import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCORING_1;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCORING_2;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SWEEPING;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_1;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_2;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_3;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MAX;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MIN;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.SPEED_INTAKING;
@@ -123,6 +126,9 @@ class BasketAutonAction implements Action {
         switch (state) {
             case PRELOAD_AND_1:
 
+                if (robot.intake.extendo.atPosition(EXTEND_SAMPLE_1))
+                    robot.intake.runRoller(1);
+
                 // Sample intaked
                 if (!hasSample) {
 
@@ -153,6 +159,9 @@ class BasketAutonAction implements Action {
                 break;
             case INTAKING_2:
 
+                if (robot.intake.extendo.atPosition(EXTEND_SAMPLE_2))
+                    robot.intake.runRoller(1);
+
                 // Sample intaked
                 if (!hasSample) {
 
@@ -182,6 +191,9 @@ class BasketAutonAction implements Action {
                 }
                 break;
             case INTAKING_3:
+
+                if (robot.intake.extendo.atPosition(EXTEND_SAMPLE_3))
+                    robot.intake.runRoller(1);
 
                 // Sample intaked
                 if (!hasSample) {
