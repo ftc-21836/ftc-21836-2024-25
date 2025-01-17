@@ -11,6 +11,7 @@ import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCOR
 import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SWEEPING;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MAX;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MIN;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_EXTEND_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_SCORE;
@@ -26,6 +27,8 @@ import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystem.Extendo;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 import java.util.ArrayList;
@@ -225,6 +228,8 @@ class BasketAutonAction implements Action {
             case SWEEPING:
 
                 if (remaining < TIME_SCORE) {
+                    robot.intake.runRoller(0);
+                    robot.intake.extendo.setExtended(false);
                     activeTraj = subPark;
                     state = PARKING;
                     break;
@@ -237,6 +242,7 @@ class BasketAutonAction implements Action {
                     robot.intake.extendo.setTarget(
                             EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * remaining / TIME_EXTEND_CYCLE)) / 2
                     );
+                    if (robot.intake.extendo.getPosition() >= EXTEND_SUB_MIN - Extendo.POSITION_TOLERANCE) robot.intake.runRoller(SPEED_INTAKING);
 
                     timer.reset();
 
