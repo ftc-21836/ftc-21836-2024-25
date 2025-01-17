@@ -76,7 +76,7 @@ public final class MainAuton extends LinearOpMode {
             TIME_EXTEND_CYCLE = 2,
             SPEED_SWEEPING_SUB = 4,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
-            SPEED_INCHING = 5,
+            SPEED_INCHING = 2.5,
             SPEED_INCHING_TURNING = 0.5,
             SPEED_INTAKING = 0.875,
             WAIT_APPROACH_WALL = 0,
@@ -86,6 +86,7 @@ public final class MainAuton extends LinearOpMode {
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
+            WAIT_INTAKE_RETRACT = 0.75,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
@@ -413,7 +414,7 @@ public final class MainAuton extends LinearOpMode {
                         Deposit.level1Ascent = true;
                         robot.deposit.lift.setTarget(0);
                     })
-                    .afterTime(0.65, () -> robot.intake.extendo.setExtended(false))
+                    .afterTime(1, () -> robot.intake.extendo.setExtended(false))
                     .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading);
 
             TrajectoryActionBuilder park = robot.drivetrain.actionBuilder(basket.toPose2d())
@@ -445,6 +446,7 @@ public final class MainAuton extends LinearOpMode {
                 );
                 scores.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
                         .setTangent(PI + sweptSub.heading)
+                        .waitSeconds(WAIT_INTAKE_RETRACT)
                         .splineTo(basket.toVector2d(), PI + basket.heading)
                         .stopAndAdd(scoreSample(robot))
                         .build()
