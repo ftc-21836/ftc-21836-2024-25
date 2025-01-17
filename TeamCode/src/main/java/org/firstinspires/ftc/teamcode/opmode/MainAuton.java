@@ -232,9 +232,11 @@ public final class MainAuton extends LinearOpMode {
                 specimenPreload ? PI / 2 : 0
         );
 
-        TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
+        Action trajectory;
 
         if (specimenSide) {
+
+            TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
             mTelemetry.addLine("> Right side (observation zone)");
 
@@ -294,7 +296,11 @@ public final class MainAuton extends LinearOpMode {
 
             mTelemetry.addLine("> Park in observation zone");
 
+            trajectory = builder.build();
+
         } else {
+
+            TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
             mTelemetry.addLine("> Left side (near basket)");
 
@@ -418,6 +424,8 @@ public final class MainAuton extends LinearOpMode {
             else builder = builder.splineTo(parkLeft.toVector2d(), parkLeft.heading);
 
             mTelemetry.addLine("> Drive to level 1 ascent location");
+
+            trajectory = builder.build();
         }
 
         // Parallel action to bulk read, update trajectory, and update robot (robot.run())
@@ -426,7 +434,7 @@ public final class MainAuton extends LinearOpMode {
                     robot.bulkReader.bulkRead();
                     return opModeIsActive();
                 },
-                builder.build(),
+                trajectory,
                 telemetryPacket -> {
                     pose = robot.drivetrain.pose;
                     robot.run();
