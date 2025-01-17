@@ -347,6 +347,7 @@ public final class MainAuton extends LinearOpMode {
 
             preloadAnd1 = preloadAnd1
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_1))
+                    .stopAndAdd(t -> !robot.intake.extendo.atPosition(EXTEND_SAMPLE_1))
                     .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
@@ -362,12 +363,14 @@ public final class MainAuton extends LinearOpMode {
                     .setTangent(i1.heading + PI)
                     .splineToSplineHeading(intaking2.toPose2d(), intaking2.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
+                    .stopAndAdd(t -> !robot.intake.extendo.atPosition(EXTEND_SAMPLE_2))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
+                    .stopAndAdd(t -> !robot.intake.extendo.atPosition(EXTEND_SAMPLE_2))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
@@ -382,12 +385,14 @@ public final class MainAuton extends LinearOpMode {
                     .setTangent(intaking2.heading + PI)
                     .splineToSplineHeading(intaking3.toPose2d(), intaking3.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_3))
+                    .stopAndAdd(t -> !robot.intake.extendo.atPosition(EXTEND_SAMPLE_3))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_3))
+                    .stopAndAdd(t -> !robot.intake.extendo.atPosition(EXTEND_SAMPLE_3))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
