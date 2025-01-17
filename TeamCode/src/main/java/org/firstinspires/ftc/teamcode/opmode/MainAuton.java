@@ -444,11 +444,7 @@ public final class MainAuton extends LinearOpMode {
 
         mTelemetry.update();
 
-        while (opModeInInit()) {
-            if (specimenPreload) robot.deposit.arm.run(true);
-        }
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
+        waitForStart(); //------------------------------------------------------------------------------------------------------------------------------------------
 
         robot.drivetrain.pinpoint.setPositionRR(pose);
 
