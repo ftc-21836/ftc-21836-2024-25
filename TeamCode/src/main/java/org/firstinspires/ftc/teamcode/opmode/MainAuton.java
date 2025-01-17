@@ -91,14 +91,13 @@ public final class MainAuton extends LinearOpMode {
             chamberLeft = new EditablePose(-chamberRight.x, chamberRight.y, chamberRight.heading),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
-            pushing2 = new EditablePose(57, -13, toRadians(-70)),
-            pushing3 = new EditablePose(62, -13, - PI / 2),
-            pushed1 = new EditablePose(46, -50, toRadians(110)),
-            pushed2 = new EditablePose(pushing2.x, -50, toRadians(110)),
-            pushed3 = new EditablePose(62, -50, - PI / 2),
+            pushing2 = new EditablePose(57, pushing1.y, toRadians(-70)),
+            pushing3 = new EditablePose(63, pushing1.y, - PI / 2),
+            pushed1 = new EditablePose(pushing1.x, -46, toRadians(110)),
+            pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
+            pushed3 = new EditablePose(pushing3.x, pushed1.y, - PI / 2),
             intakingSpec = new EditablePose(36, -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5, PI / 2),
-            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading),
-            parkRight = new EditablePose(36, -60, PI / 2);
+            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading);
 
     static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
     static boolean isRedAlliance = false;
@@ -279,7 +278,7 @@ public final class MainAuton extends LinearOpMode {
             }
 
             /// Park in observation zone
-            builder = builder.strafeTo(parkRight.toVector2d());
+            builder = builder.strafeTo(intakingSpec.toVector2d());
 
             mTelemetry.addLine("> Park in observation zone");
 
