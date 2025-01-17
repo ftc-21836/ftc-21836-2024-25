@@ -68,8 +68,9 @@ public final class MainAuton extends LinearOpMode {
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
-            EXTEND_SUB_START = 200,
-            EXTEND_SUB = 350,
+            EXTEND_SUB_MIN = 200,
+            EXTEND_SUB_MAX = 350,
+            TIME_EXTEND_CYCLE = 1,
             SPEED_SWEEPING_SUB = 20,
             SPEED_SWEEPING_SUB_TURNING = PI / 2,
             SPEED_INTAKING = 0.875,
@@ -322,68 +323,86 @@ public final class MainAuton extends LinearOpMode {
                 mTelemetry.addLine("> Score preloaded sample");
             }
 
-            double[] extendoMMs = {EXTEND_SAMPLE_1, EXTEND_SAMPLE_2, EXTEND_SAMPLE_3};
-            EditablePose[] intakingPositions = {intaking1, intaking2, intaking3};
-            EditablePose[] samplePositions = {sample1, sample2, sample3};
 
-            if (specimenPreload) {
-                intakingPositions[0] = intaking1SpecPreload;
-                samplePositions[0] = sample1SpecPreload;
-            }
+            EditablePose i1 = specimenPreload ? intaking1SpecPreload : intaking1;
+            EditablePose s1 = specimenPreload ? sample1SpecPreload : sample1;
 
             /// Cycle samples off the floor
-            for (int i = 0; i < min(3, cycles); i++) {
 
-                boolean firstAfterSpec = i == 0 && specimenPreload;
+            // Calculate angle to point intake at floor sample
+            i1.heading = atan2(s1.y - i1.y, s1.x - i1.x);
 
-                double millimeters = extendoMMs[i];
-                EditablePose intakingPos = intakingPositions[i];
-                EditablePose samplePos = samplePositions[i];
-
-                // Calculate angle to point intake at floor sample
-                intakingPos.heading = atan2(samplePos.y - intakingPos.y, samplePos.x - intakingPos.x);
-
-                /// Drop bucket now (if not specimen preload)
-                if (!firstAfterSpec) builder = builder
-                        .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING));
-
-                /// Drive to intaking position
+            if (specimenPreload) {
+                /// Drop bucket after reaching pos
                 builder = builder
-                        .strafeToSplineHeading(intakingPos.toVector2d(), intakingPos.heading)
-                        .afterTime(0, new SequentialAction(
-                                telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(millimeters)),
-                                new InstantAction(() -> {
-                                    if (!robot.intake.hasSample()) robot.intake.runRoller(1);
-                                })
-                        ));
-
-                /// Drop bucket after reaching pos (if specimen preload)
-                if (firstAfterSpec) builder = builder
+                        .strafeToSplineHeading(i1.toVector2d(), i1.heading)
                         .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                         .waitSeconds(WAIT_DROP_TO_EXTEND);
-
-                /// Intaking sample
+            } else {
+                /// Drop bucket now
                 builder = builder
-                        .afterTime(0, () -> robot.intake.extendo.setTarget(millimeters))
-                        .stopAndAdd(telemetryPacket -> !robot.intake.hasSample()) // wait until intake gets a sample
-                        .waitSeconds(WAIT_POST_INTAKING)
-                        .afterTime(0, () -> robot.intake.runRoller(0))
-                /// Score
-                        .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                        .stopAndAdd(scoreSample(robot));
-
-                mTelemetry.addLine("> Floor sample " + (i + 1));
+                        .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                        .splineTo(i1.toVector2d(), i1.heading);
             }
 
-            for (int i = 0; i < max(0, cycles - 3); i++) {
+            /// Intaking sample
+            builder = builder
+                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_1))
+                    .stopAndAdd(telemetryPacket -> !robot.intake.hasSample()) // wait until intake gets a sample
+                    .waitSeconds(WAIT_POST_INTAKING)
+                    .afterTime(0, () -> robot.intake.runRoller(0))
+                    /// Score
+                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .stopAndAdd(scoreSample(robot));
 
+            mTelemetry.addLine("> Floor sample 1");
+
+
+
+            // Calculate angle to point intake at floor sample
+            intaking2.heading = atan2(sample2.y - intaking2.y, sample2.x - intaking2.x);
+
+            /// Drive to intaking position
+            builder = builder
+                    .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
+            /// Intaking sample
+                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
+                    .stopAndAdd(telemetryPacket -> !robot.intake.hasSample()) // wait until intake gets a sample
+                    .waitSeconds(WAIT_POST_INTAKING)
+                    .afterTime(0, () -> robot.intake.runRoller(0))
+                    /// Score
+                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .stopAndAdd(scoreSample(robot));
+
+            mTelemetry.addLine("> Floor sample 2");
+
+
+
+            // Calculate angle to point intake at floor sample
+            intaking3.heading = atan2(sample3.y - intaking3.y, sample3.x - intaking3.x);
+
+            /// Drive to intaking position
+            builder = builder
+                    .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
+            /// Intaking sample
+                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_3))
+                    .stopAndAdd(telemetryPacket -> !robot.intake.hasSample()) // wait until intake gets a sample
+                    .waitSeconds(WAIT_POST_INTAKING)
+                    .afterTime(0, () -> robot.intake.runRoller(0))
+                    /// Score
+                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .stopAndAdd(scoreSample(robot));
+
+            mTelemetry.addLine("> Floor sample 3");
+
+            for (int i = 0; i < max(0, cycles - 3); i++) {
                 builder = builder
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_START))
-                        .stopAndAdd(telemetryPacket -> !robot.intake.extendo.atPosition(EXTEND_SUB))
+                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
+                        .stopAndAdd(telemetryPacket -> !robot.intake.extendo.atPosition(EXTEND_SUB_MAX))
                         .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                         .waitSeconds(WAIT_DROP_TO_EXTEND)
-                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB))
+                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MAX))
                         .strafeToSplineHeading(sweptSub.toVector2d(), sweptSub.heading, new MinVelConstraint(Arrays.asList(
                                 new TranslationalVelConstraint(SPEED_SWEEPING_SUB),
                                 new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
@@ -401,7 +420,6 @@ public final class MainAuton extends LinearOpMode {
                         })
                         .waitSeconds(WAIT_SCORE_BASKET)
                 ;
-
                 mTelemetry.addLine("> Submersible sample " + (i + 1));
 
             }
