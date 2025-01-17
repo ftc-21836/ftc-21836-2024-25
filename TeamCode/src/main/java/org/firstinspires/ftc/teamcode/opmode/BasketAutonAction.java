@@ -116,9 +116,9 @@ class BasketAutonAction implements Action {
 
         double remaining = 30 - matchTimer.seconds();
 
-        boolean trajDone = !activeTraj.run(p);
-
         boolean hasSample = robot.intake.hasSample();
+
+        boolean trajDone = (state != SWEEPING || !hasSample) && !activeTraj.run(p);
 
         switch (state) {
             case PRELOAD_AND_1:

@@ -426,6 +426,7 @@ public final class MainAuton extends LinearOpMode {
 
             for (int i = 0; i < 6; i++) {
                 toSubs.add(robot.drivetrain.actionBuilder(basket.toPose2d())
+                        .setTangent(basket.heading)
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
                         .build()
                 );
