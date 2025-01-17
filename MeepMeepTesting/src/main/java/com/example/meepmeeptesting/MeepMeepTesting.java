@@ -2,19 +2,25 @@ package com.example.meepmeeptesting;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
 
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.InstantAction;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
+
+import java.util.Arrays;
 
 public class MeepMeepTesting {
 
@@ -27,6 +33,10 @@ public class MeepMeepTesting {
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
+            EXTEND_SUB_START = 200,
+            EXTEND_SUB = 350,
+            SPEED_SWEEPING_SUB = 20,
+            SPEED_SWEEPING_SUB_TURNING = PI / 2,
             SPEED_INTAKING = 0.875,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
@@ -50,6 +60,8 @@ public class MeepMeepTesting {
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
+            intakingSub = new EditablePose(-22, -11, 0),
+            sweptSub = new EditablePose(-28, 0, PI / 4),
             aroundBeamParkLeft = new EditablePose(-40, -25, 0),
             parkLeft = new EditablePose(-22, -11, 0),
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
@@ -70,10 +82,10 @@ public class MeepMeepTesting {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(720);
 
-        boolean specimenSide = true;
+        boolean specimenSide = false;
         double partnerWait = 0;
-        int cycles = 4;
-        boolean specimenPreload = true;
+        int cycles = 3;
+        boolean specimenPreload = false;
 
         specimenPreload = specimenSide || specimenPreload;
 
@@ -184,7 +196,7 @@ public class MeepMeepTesting {
             }
 
             /// Cycle samples off the floor
-            for (int i = 0; i < min(intakingPositions.length, cycles); i++) {
+            for (int i = 0; i < min(3, cycles); i++) {
 
                 boolean firstAfterSpec = i == 0 && specimenPreload;
 
@@ -226,6 +238,37 @@ public class MeepMeepTesting {
                         .stopAndAdd(scoreSample());
 
 //                mTelemetry.addLine("> Sample cycle " + (i + 1));
+            }
+
+            for (int i = 0; i < max(0, cycles - 3); i++) {
+
+                builder = builder
+                        .splineTo(intakingSub.toVector2d(), intakingSub.heading)
+//                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_START))
+//                        .stopAndAdd(telemetryPacket -> !robot.intake.extendo.atPosition(EXTEND_SUB))
+//                        .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                        .waitSeconds(WAIT_DROP_TO_EXTEND)
+//                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB))
+                        .strafeToSplineHeading(sweptSub.toVector2d(), sweptSub.heading, new MinVelConstraint(Arrays.asList(
+                                new TranslationalVelConstraint(SPEED_SWEEPING_SUB),
+                                new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
+                        )))
+                        .afterTime(0, () -> {
+//                            robot.intake.runRoller(0);
+//                            if (!robot.intake.hasSample()) robot.intake.extendo.setExtended(false);
+                        })
+                        .setTangent(PI + sweptSub.heading)
+                        .splineTo(basket.toVector2d(), PI + basket.heading)
+                        .waitSeconds(WAIT_APPROACH_BASKET)
+//                        .stopAndAdd(telemetryPacket -> robot.getSample() != null && !(robot.deposit.arm.atPosition(Arm.SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)))
+                        .afterTime(0, () -> {
+//                            if (robot.getSample() != null) robot.deposit.triggerClaw();
+                        })
+                        .waitSeconds(WAIT_SCORE_BASKET)
+                ;
+
+//                mTelemetry.addLine("> Submersible sample " + (i + 1));
+
             }
 
             /// Raise arm for level 1 ascent
