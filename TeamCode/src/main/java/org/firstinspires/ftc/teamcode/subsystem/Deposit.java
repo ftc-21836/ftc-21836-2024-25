@@ -175,7 +175,7 @@ public final class Deposit {
 
     public void preloadSpecimen() {
         while (!hasSpecimen()) triggerClaw();
-        arm.setTarget(Arm.SPECIMEN);
+        arm.setTarget(Arm.PRELOADED);
         arm.run(true);
         closeClaw();
     }
