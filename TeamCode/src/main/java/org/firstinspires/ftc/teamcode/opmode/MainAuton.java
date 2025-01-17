@@ -73,7 +73,7 @@ public final class MainAuton extends LinearOpMode {
             EXTEND_SAMPLE_3 = 410,
             EXTEND_SUB_MIN = 100,
             EXTEND_SUB_MAX = 400,
-            TIME_EXTEND_CYCLE = 0.5,
+            TIME_EXTEND_CYCLE = 2,
             SPEED_SWEEPING_SUB = 4,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 5,
