@@ -20,7 +20,7 @@ public final class PIDDriver {
             ),
             rotGains = new PIDGains(
                     1.25,
-                    0,
+                    0.75,
                     0,
                     1
             );
