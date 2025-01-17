@@ -68,7 +68,7 @@ public final class MainAuton extends LinearOpMode {
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_POST_INTAKING = 0.5,
             WAIT_SCORE_BASKET = 0.25,
-            WAIT_SCORE_CHAMBER = 0.5,
+            WAIT_SCORE_CHAMBER = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
