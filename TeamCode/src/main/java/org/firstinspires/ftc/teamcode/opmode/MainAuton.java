@@ -74,10 +74,10 @@ public final class MainAuton extends LinearOpMode {
             EXTEND_SUB_MIN = 100,
             EXTEND_SUB_MAX = 400,
             TIME_EXTEND_CYCLE = 1,
-            SPEED_SWEEPING_SUB = 5,
-            SPEED_SWEEPING_SUB_TURNING = PI / 4,
+            SPEED_SWEEPING_SUB = 4,
+            SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 5,
-            SPEED_INCHING_TURNING = PI / 4,
+            SPEED_INCHING_TURNING = 0.5,
             SPEED_INTAKING = 0.875,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
@@ -91,7 +91,7 @@ public final class MainAuton extends LinearOpMode {
             X_OFFSET_CHAMBER_3 = -2,
             X_OFFSET_CHAMBER_4 = -3,
             Y_INCHING_FORWARD_WHEN_INTAKING = 5,
-            TIME_CYCLE = 6,
+            TIME_CYCLE = 9,
             TIME_SCORE = 3;
 
     public static EditablePose
@@ -440,6 +440,7 @@ public final class MainAuton extends LinearOpMode {
                 scores.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
                         .setTangent(PI + sweptSub.heading)
                         .splineTo(basket.toVector2d(), PI + basket.heading)
+                        .stopAndAdd(scoreSample(robot))
                         .build()
                 );
             }
