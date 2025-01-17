@@ -17,6 +17,7 @@ import static java.lang.Math.sqrt;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
@@ -27,7 +28,6 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMot
 public final class Extendo {
 
     public static double
-            SCALAR_MANUAL_SPEED = 1.0,
             SPEED_RETRACTION = -0.75,
             TOUCHPAD_RANGE = 0.9,
             LENGTH_RETRACTING = 20,
@@ -38,7 +38,7 @@ public final class Extendo {
             LENGTH_EXTENDED = Math.MM_EXTENSION,
             kS = 0;
 
-    public static PIDGains pidGains = new PIDGains(0.015);
+    public static PIDGains pidGains = new PIDGains(0.015, 0.01);
 
     private final CachedMotorEx motor;
     private final PIDController controller = new PIDController();
@@ -54,40 +54,31 @@ public final class Extendo {
         motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
         motor.encoder.setDirection(REVERSE);
         motor.encoder.setDistancePerPulse(2 * PI / motor.getCPR());
+        motor.encoder.reset();
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
-
-        reset();
-    }
-
-    private void reset() {
-        controller.reset();
-        motor.encoder.reset();
-        position = 0;
-        setTarget(0);
     }
 
     public void runManual(double power) {
-        this.manualPower = power * SCALAR_MANUAL_SPEED;
+        this.manualPower = power;
     }
 
     public void run(boolean canRetract, boolean bucketDown) {
 
-        double setpoint =
-                !canRetract ?   max(getTarget(), LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE) :
-                bucketDown ?    max (getTarget(), LENGTH_BUCKET_DOWN) :
-                                getTarget();
+        double setpoint = max(getTarget(),
+                !canRetract ?   LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE :
+                bucketDown ?    LENGTH_BUCKET_DOWN :
+                                0
+        );
 
         // When the magnet hits
-        if (setpoint == 0 && !isExtended() && manualPower <= 0) reset();
-
-        double radians = motor.encoder.getDistance();
-
-        if (radians > 0) {
-            position = Math.millimeters(radians + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
-        } else {
+        if (setpoint == 0 && !isExtended() && manualPower <= 0) {
+            controller.reset();
             motor.encoder.reset();
             position = 0;
+            setTarget(0);
+        } else {
+            position = Math.millimeters(max(0, motor.encoder.getDistance()) + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
         }
 
         if (manualPower != 0) {
@@ -104,10 +95,7 @@ public final class Extendo {
         controller.setGains(pidGains);
         controller.setTarget(new State(setpoint));
 
-        double power = controller.calculate(new State(getPosition()));
-        double slideBindingFF = power <= 0 ? 0 : getPosition() * kS;
-
-        motor.set(power + slideBindingFF);
+        motor.set(controller.calculate(new State(getPosition())));
     }
 
     public void printTelemetry() {

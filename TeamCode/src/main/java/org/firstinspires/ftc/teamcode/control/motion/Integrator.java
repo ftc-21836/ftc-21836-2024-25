@@ -25,5 +25,6 @@ public final class Integrator {
 
     public void reset() {
         integral = 0.0;
+        timer.reset();
     }
 }

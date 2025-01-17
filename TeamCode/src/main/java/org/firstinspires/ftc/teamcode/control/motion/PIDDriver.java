@@ -13,14 +13,14 @@ public final class PIDDriver {
 
     public static PIDGains
             xyGains = new PIDGains(
-                    0,
+            0.0175,
                     0,
                     0,
                     1
             ),
             rotGains = new PIDGains(
-                    0,
-                    0,
+                    1.25,
+                    0.75,
                     0,
                     1
             );
@@ -33,6 +33,12 @@ public final class PIDDriver {
             xController = new PIDController(),
             yController = new PIDController(),
             rotController = new PIDController();
+
+    public void reset() {
+        xController.reset();
+        yController.reset();
+        rotController.reset();
+    }
 
     public DriverOutput driveTo(EditablePose current, EditablePose target) {
 
@@ -57,7 +63,7 @@ public final class PIDDriver {
         output.drivePower = new EditablePose(
                 x,
                 y * STRAFE_MULTIPLIER,
-                rot
+                -rot
         );
 
         output.withinError = abs(xError) <= admissibleError.x &&

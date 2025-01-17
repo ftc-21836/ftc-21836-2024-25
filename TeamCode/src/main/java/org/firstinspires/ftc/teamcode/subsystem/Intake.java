@@ -159,7 +159,10 @@ public final class Intake {
 
             case INTAKING:
 
-                if (sampleLost(INTAKING)) break;
+                if (sampleLost(INTAKING)) {
+                    if (rollerSpeed == 0) setExtended(false);
+                    break;
+                }
 
                 if (sample == badSample) {
 
@@ -236,7 +239,7 @@ public final class Intake {
 
             case RETRACTED:
 
-                if (extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR) rollerSpeed = SPEED_RETRACTED;
+                if (clearOfDeposit()) rollerSpeed = SPEED_RETRACTED;
 
                 break;
         }
@@ -332,7 +335,6 @@ public final class Intake {
 
                 }
 
-                extendo.setExtended(false);
                 state = RETRACTED;
                 bucket.setActivated(false);
                 rollerSpeed = SPEED_RETRACTED;
@@ -340,10 +342,6 @@ public final class Intake {
                 break;
 
         }
-    }
-
-    public void toggle() {
-        setExtended(state == RETRACTED);
     }
 
     void printTelemetry() {

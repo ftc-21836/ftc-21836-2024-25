@@ -40,16 +40,16 @@ public final class Deposit {
             TIME_SPEC_RELEASE = 0.5,
 
             HEIGHT_ABOVE_INTAKE = 10,
-            HEIGHT_ARM_SAFE = 7,
+            HEIGHT_ARM_SAFE = 6,
             HEIGHT_OBSERVATION_ZONE = 7,
             HEIGHT_BASKET_LOW = 0,
             HEIGHT_BASKET_HIGH = 18,
-            HEIGHT_INTAKING_SPECIMEN = 7,
+            HEIGHT_INTAKING_SPECIMEN = 6.5,
             HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
-            HEIGHT_CHAMBER_HIGH = 9,
+            HEIGHT_CHAMBER_HIGH = 9.5,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
-            HEIGHT_OFFSET_SPECIMEN_SCORED = 8,
-            HEIGHT_OFFSET_SPECIMEN_SCORING = 10;
+            HEIGHT_OFFSET_SPECIMEN_SCORED = 10,
+            HEIGHT_OFFSET_SPECIMEN_SCORING = 11;
 
     enum State {
         RETRACTED           (Arm.TRANSFER),
@@ -102,8 +102,10 @@ public final class Deposit {
     void run(Intake intake, boolean climbing) {
 
         // home arm when climbing begins
-        if (climbing) state = RETRACTED;
-        else switch (state) {
+        if (climbing) {
+            state = RETRACTED;
+            sample = null;
+        } else switch (state) {
 
             case SAMPLE_FALLING:
 
@@ -172,9 +174,14 @@ public final class Deposit {
     }
 
     public void preloadSpecimen() {
-        Deposit.State endState = hasSample() ? RETRACTED : HAS_SPECIMEN;
-        while (state != endState) triggerClaw();
-        claw.turnToAngle(hasSample() ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_TRANSFER);
+        while (!hasSpecimen()) triggerClaw();
+        arm.setTarget(Arm.PRELOADED);
+        arm.run(true);
+        closeClaw();
+    }
+
+    public void closeClaw() {
+        claw.turnToAngle(ANGLE_CLAW_CLOSED);
     }
 
     // when does the intake need to move out of the way
@@ -315,8 +322,16 @@ public final class Deposit {
         return sample != null;
     }
 
-    public boolean specimenIntaked() {
+    public boolean basketReady() {
+        return state == HAS_SAMPLE;
+    }
+
+    public boolean hasSpecimen() {
         return state == HAS_SPECIMEN;
+    }
+
+    public boolean intaking() {
+        return state == INTAKING_SPECIMEN;
     }
 
     Sample getSample() {
@@ -328,7 +343,7 @@ public final class Deposit {
         this.sample = sample;
         state = HAS_SAMPLE;
         setPosition(HIGH);
-        claw.turnToAngle(ANGLE_CLAW_CLOSED);
+        closeClaw();
     }
 
     void printTelemetry() {

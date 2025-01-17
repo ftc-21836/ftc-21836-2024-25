@@ -11,6 +11,8 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTO
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.basket;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.intakingSpec;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
@@ -35,6 +37,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
@@ -43,9 +47,9 @@ import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 public final class MainTeleOp extends LinearOpMode {
 
     enum TeleOpConfig {
-        EDITING_ALLIANCE,
         PRELOAD_SAMPLE,
         PRELOAD_SPECIMEN,
+        EDITING_ALLIANCE,
         EDITING_SLOW_LOCK,
         EDITING_FIELD_CENTRIC;
 
@@ -74,35 +78,50 @@ public final class MainTeleOp extends LinearOpMode {
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.trackHeadingOnly = true;
 
+        PIDDriver driver = new PIDDriver();
+
         Deposit.level1Ascent = false;
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
-        TeleOpConfig selection = EDITING_ALLIANCE;
+        TeleOpConfig selection = PRELOAD_SAMPLE;
 
         boolean slowModeLocked = false, useFieldCentric = true;
+
+        boolean preloaded = false;
 
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(DPAD_UP))   selection = selection.plus(-1);
-            if (gamepadEx1.wasJustPressed(DPAD_DOWN)) selection = selection.plus(1);
+            if (gamepadEx1.wasJustPressed(DPAD_UP)) {
+                selection = selection.plus(preloaded && selection == EDITING_ALLIANCE ? -3 : -1);
+            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                selection = selection.plus(preloaded && selection == EDITING_FIELD_CENTRIC ? 3 : 1);
+            }
 
-            if (gamepadEx1.wasJustPressed(X)) switch (selection) {
-                case EDITING_ALLIANCE:
-                    isRedAlliance = !isRedAlliance;
-                    break;
+            switch (selection) {
                 case PRELOAD_SAMPLE:
-                    robot.deposit.transfer(NEUTRAL);
+                    if (gamepadEx1.wasJustPressed(X)) {
+                        robot.deposit.transfer(NEUTRAL);
+                        preloaded = true;
+                        selection = selection.plus(2);
+                    }
                     break;
                 case PRELOAD_SPECIMEN:
-                    robot.deposit.preloadSpecimen();
+                    if (gamepadEx1.wasJustPressed(X)) {
+                        robot.deposit.preloadSpecimen();
+                        preloaded = true;
+                        selection = selection.plus(1);
+                    }
+                    break;
+                case EDITING_ALLIANCE:
+                    if (gamepadEx1.wasJustPressed(X)) isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_SLOW_LOCK:
-                    slowModeLocked = !slowModeLocked;
+                    if (gamepadEx1.wasJustPressed(X)) slowModeLocked = !slowModeLocked;
                     break;
                 case EDITING_FIELD_CENTRIC:
-                    useFieldCentric = !useFieldCentric;
+                    if (gamepadEx1.wasJustPressed(X)) useFieldCentric = !useFieldCentric;
                     break;
             }
 
@@ -116,11 +135,11 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-            mTelemetry.addLine();
             mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
             mTelemetry.addLine();
             mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            mTelemetry.addLine();
+            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));
             mTelemetry.addLine();
@@ -145,22 +164,18 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.updatePoseEstimate();
             gamepadEx1.readButtons();
 
-            double rightX = gamepadEx1.getRightX();
-            double leftX = gamepadEx1.getLeftX();
-            double leftY = gamepadEx1.getLeftY();
-
             double triggers = gamepad1.right_trigger - gamepad1.left_trigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
                 robot.intake.runRoller(0);
                 robot.intake.extendo.runManual(triggers);
-                robot.deposit.lift.runManual(leftY);
+                robot.deposit.lift.runManual(gamepadEx1.getLeftY() * (gamepadEx1.isDown(RIGHT_BUMPER) ? 0.3 : 1));
                 
                 if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
 
                 // SET HEADING:
-                robot.drivetrain.setHeadingWithStick(rightX, gamepadEx1.getRightY());
+                robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
             } else {
@@ -169,10 +184,17 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
 
+                if (gamepadEx1.wasJustPressed(X)) driver.reset();
+
                 robot.drivetrain.run(
-                        leftX,
-                        leftY,
-                        rightX,
+                        gamepadEx1.getLeftX(),
+                        gamepadEx1.getLeftY(),
+                        gamepadEx1.isDown(X) ?
+                                driver.driveTo(
+                                        new EditablePose(robot.drivetrain.pose),
+                                        robot.deposit.basketReady() ? basket : intakingSpec
+                                ).drivePower.heading :
+                                gamepadEx1.getRightX(),
                         slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
                         useFieldCentric
                 );
@@ -183,7 +205,6 @@ public final class MainTeleOp extends LinearOpMode {
                 robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
 
-            if (gamepadEx1.wasJustPressed(X))                   robot.intake.toggle();
             if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
 
             if (!robot.climber.isActive()) {
