@@ -11,7 +11,9 @@ import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCOR
 import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SWEEPING;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MAX;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MIN;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_EXTEND_CYCLE;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_SCORE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.WAIT_POST_INTAKING;
 
 import static java.lang.Math.PI;
@@ -47,10 +49,10 @@ class BasketAutonAction implements Action {
     private ElapsedTime matchTimer = null;
     private final ElapsedTime timer = new ElapsedTime(), extendoTimer = new ElapsedTime();
 
-    private MecanumDrive.FollowTrajectoryAction activeTraj;
+    private Action activeTraj;
 
     private final Robot robot;
-    private final MecanumDrive.FollowTrajectoryAction
+    private final Action
             score1,
             intake2,
             score2,
@@ -62,33 +64,31 @@ class BasketAutonAction implements Action {
             i3ToSub,
             subPark;
 
-    private final ArrayList<MecanumDrive.FollowTrajectoryAction>
+    private final ArrayList<Action>
             toSubs,
             sweepLefts,
             sweepRights,
             scores;
 
-    private final double scoreTime, cycleTime;
-
     private boolean sweepingLeft = true;
 
     BasketAutonAction(
             Robot robot,
-            MecanumDrive.FollowTrajectoryAction preloadAnd1,
-            MecanumDrive.FollowTrajectoryAction score1,
-            MecanumDrive.FollowTrajectoryAction intake2,
-            MecanumDrive.FollowTrajectoryAction score2,
-            MecanumDrive.FollowTrajectoryAction intake3,
-            MecanumDrive.FollowTrajectoryAction score3,
-            MecanumDrive.FollowTrajectoryAction park,
-            MecanumDrive.FollowTrajectoryAction i1To2,
-            MecanumDrive.FollowTrajectoryAction i2To3,
-            MecanumDrive.FollowTrajectoryAction i3ToSub,
-            MecanumDrive.FollowTrajectoryAction subPark,
-            ArrayList<MecanumDrive.FollowTrajectoryAction> toSubs,
-            ArrayList<MecanumDrive.FollowTrajectoryAction> sweepLefts,
-            ArrayList<MecanumDrive.FollowTrajectoryAction> sweepRights,
-            ArrayList<MecanumDrive.FollowTrajectoryAction> scores
+            Action preloadAnd1,
+            Action score1,
+            Action intake2,
+            Action score2,
+            Action intake3,
+            Action score3,
+            Action park,
+            Action i1To2,
+            Action i2To3,
+            Action i3ToSub,
+            Action subPark,
+            ArrayList<Action> toSubs,
+            ArrayList<Action> sweepLefts,
+            ArrayList<Action> sweepRights,
+            ArrayList<Action> scores
     ) {
         this.robot = robot;
         activeTraj = preloadAnd1;
@@ -106,16 +106,12 @@ class BasketAutonAction implements Action {
         this.sweepLefts = sweepLefts;
         this.sweepRights = sweepRights;
         this.scores = scores;
-
-        scoreTime = scores.get(0).timeTrajectory.duration;
-        cycleTime = toSubs.get(0).timeTrajectory.duration + sweepLefts.get(0).timeTrajectory.duration + scoreTime;
-
     }
 
     public boolean run(@NonNull TelemetryPacket p) {
         if (matchTimer == null) matchTimer = new ElapsedTime();
 
-        double t = 30 - matchTimer.seconds();
+        double remaining = 30 - matchTimer.seconds();
 
         boolean trajDone = !activeTraj.run(p);
 
@@ -208,7 +204,7 @@ class BasketAutonAction implements Action {
 
             case SCORING:
                 if (trajDone) {
-                    if (t < cycleTime) {
+                    if (remaining < TIME_CYCLE) {
                         activeTraj = park;
                         state = PARKING;
                     } else {
@@ -228,7 +224,7 @@ class BasketAutonAction implements Action {
                 break;
             case SWEEPING:
 
-                if (t < scoreTime) {
+                if (remaining < TIME_SCORE) {
                     activeTraj = subPark;
                     state = PARKING;
                     break;
@@ -239,7 +235,7 @@ class BasketAutonAction implements Action {
 
                     /// <a href="https://www.desmos.com/calculator/iazwdw6hky">Graph</a>
                     robot.intake.extendo.setTarget(
-                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * t / TIME_EXTEND_CYCLE)) / 2
+                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * remaining / TIME_EXTEND_CYCLE)) / 2
                     );
 
                     timer.reset();

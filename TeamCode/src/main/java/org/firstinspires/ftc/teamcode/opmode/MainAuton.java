@@ -71,11 +71,13 @@ public final class MainAuton extends LinearOpMode {
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
-            EXTEND_SUB_MIN = 200,
-            EXTEND_SUB_MAX = 350,
+            EXTEND_SUB_MIN = 100,
+            EXTEND_SUB_MAX = 400,
             TIME_EXTEND_CYCLE = 1,
-            SPEED_SWEEPING_SUB = 20,
-            SPEED_SWEEPING_SUB_TURNING = PI / 2,
+            SPEED_SWEEPING_SUB = 5,
+            SPEED_SWEEPING_SUB_TURNING = PI / 4,
+            SPEED_INCHING = 5,
+            SPEED_INCHING_TURNING = PI / 4,
             SPEED_INTAKING = 0.875,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
@@ -88,7 +90,9 @@ public final class MainAuton extends LinearOpMode {
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
             X_OFFSET_CHAMBER_4 = -3,
-            Y_INCHING_FORWARD_WHEN_INTAKING = 3;
+            Y_INCHING_FORWARD_WHEN_INTAKING = 5,
+            TIME_CYCLE = 6,
+            TIME_SCORE = 3;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
@@ -307,7 +311,12 @@ public final class MainAuton extends LinearOpMode {
 
             mTelemetry.addLine("> Left side (near basket)");
 
-            MinVelConstraint minVelConstraint = new MinVelConstraint(Arrays.asList(
+            MinVelConstraint inchingConstraint = new MinVelConstraint(Arrays.asList(
+                    new TranslationalVelConstraint(SPEED_INCHING),
+                    new AngularVelConstraint(SPEED_INCHING_TURNING)
+            ));
+
+            MinVelConstraint sweepConstraint = new MinVelConstraint(Arrays.asList(
                     new TranslationalVelConstraint(SPEED_SWEEPING_SUB),
                     new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
             ));
@@ -338,7 +347,7 @@ public final class MainAuton extends LinearOpMode {
 
             preloadAnd1 = preloadAnd1
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_1))
-                    .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, minVelConstraint);
+                    .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
                     /// Score
@@ -353,13 +362,13 @@ public final class MainAuton extends LinearOpMode {
                     .setTangent(i1.heading + PI)
                     .splineToSplineHeading(intaking2.toPose2d(), intaking2.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
-                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, minVelConstraint);
+                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
-                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, minVelConstraint);
+                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
@@ -373,13 +382,13 @@ public final class MainAuton extends LinearOpMode {
                     .setTangent(intaking2.heading + PI)
                     .splineToSplineHeading(intaking3.toPose2d(), intaking3.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_3))
-                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, minVelConstraint);
+                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_3))
-                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, minVelConstraint);
+                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
 
             TrajectoryActionBuilder score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
@@ -409,26 +418,26 @@ public final class MainAuton extends LinearOpMode {
                     })
                     .splineTo(parkLeft.toVector2d(), parkLeft.heading);
 
-            ArrayList<MecanumDrive.FollowTrajectoryAction>
+            ArrayList<Action>
                     toSubs = new ArrayList<>(),
                     sweepLefts = new ArrayList<>(),
                     sweepRights = new ArrayList<>(),
                     scores = new ArrayList<>();
 
             for (int i = 0; i < 6; i++) {
-                toSubs.add((MecanumDrive.FollowTrajectoryAction) robot.drivetrain.actionBuilder(basket.toPose2d())
+                toSubs.add(robot.drivetrain.actionBuilder(basket.toPose2d())
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
                         .build()
                 );
-                sweepLefts.add((MecanumDrive.FollowTrajectoryAction) robot.drivetrain.actionBuilder(intakingSub.toPose2d())
-                        .strafeToSplineHeading(sweptSub.toVector2d(), sweptSub.heading, minVelConstraint)
+                sweepLefts.add(robot.drivetrain.actionBuilder(intakingSub.toPose2d())
+                        .strafeToSplineHeading(sweptSub.toVector2d(), sweptSub.heading, sweepConstraint)
                         .build()
                 );
-                sweepRights.add((MecanumDrive.FollowTrajectoryAction) robot.drivetrain.actionBuilder(sweptSub.toPose2d())
-                        .strafeToSplineHeading(intakingSub.toVector2d(), intakingSub.heading, minVelConstraint)
+                sweepRights.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
+                        .strafeToSplineHeading(intakingSub.toVector2d(), intakingSub.heading, sweepConstraint)
                         .build()
                 );
-                scores.add((MecanumDrive.FollowTrajectoryAction) robot.drivetrain.actionBuilder(sweptSub.toPose2d())
+                scores.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
                         .setTangent(PI + sweptSub.heading)
                         .splineTo(basket.toVector2d(), PI + basket.heading)
                         .build()
@@ -437,17 +446,17 @@ public final class MainAuton extends LinearOpMode {
 
             trajectory = new BasketAutonAction(
                     robot,
-                    (MecanumDrive.FollowTrajectoryAction) preloadAnd1.build(),
-                    (MecanumDrive.FollowTrajectoryAction) score1.build(),
-                    (MecanumDrive.FollowTrajectoryAction) intake2.build(),
-                    (MecanumDrive.FollowTrajectoryAction) score2.build(),
-                    (MecanumDrive.FollowTrajectoryAction) intake3.build(),
-                    (MecanumDrive.FollowTrajectoryAction) score3.build(),
-                    (MecanumDrive.FollowTrajectoryAction) park.build(),
-                    (MecanumDrive.FollowTrajectoryAction) i1To2.build(),
-                    (MecanumDrive.FollowTrajectoryAction) i2To3.build(),
-                    (MecanumDrive.FollowTrajectoryAction) i3ToSub.build(),
-                    (MecanumDrive.FollowTrajectoryAction) subPark.build(),
+                    preloadAnd1.build(),
+                    score1.build(),
+                    intake2.build(),
+                    score2.build(),
+                    intake3.build(),
+                    score3.build(),
+                    park.build(),
+                    i1To2.build(),
+                    i2To3.build(),
+                    i3ToSub.build(),
+                    subPark.build(),
                     toSubs,
                     sweepLefts,
                     sweepRights,
