@@ -29,7 +29,8 @@ public final class Arm {
             POST_INTAKING =  new Arm.Position(355, 75, "POST INTAKING AVOID WALL"),
             SPECIMEN =  new Arm.Position(275, 240, "SPECIMEN"),
             ASCENT = new Arm.Position(285, 250, "ASCENT"),
-            SAMPLE =    new Arm.Position(355, 355, "SAMPLE");
+            SAMPLE =    new Arm.Position(355, 355, "SAMPLE"),
+            PRELOADED = new Arm.Position(300, 215, "PRELOADED");
 
     private final ElapsedTime timer = new ElapsedTime();
     private boolean movingToTarget = false;
@@ -48,8 +49,11 @@ public final class Arm {
     private double timeToReachTarget() {
         return
                 target == lastTarget ?      0 :
+                target == PRELOADED ?       0 :
                 target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
-                target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
+                target == SPECIMEN ?
+                        lastTarget == PRELOADED ?   0 :
+                                                    TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
                 target == ASCENT ?          0 :
                 target == TRANSFER ?
@@ -100,7 +104,7 @@ public final class Arm {
         }
 
         // Override wrist angle for 0.2ish seconds so specimen doesn't get stuck on wall
-        if (setpoint == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE)
+        if (setpoint == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE && lastTarget != PRELOADED)
             setpoint = POST_INTAKING;
 
         rServo.turnToAngle(setpoint.right);
