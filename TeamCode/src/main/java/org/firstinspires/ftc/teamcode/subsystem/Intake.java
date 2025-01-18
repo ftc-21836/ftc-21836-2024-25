@@ -148,7 +148,7 @@ public final class Intake {
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
     }
 
-    void run(Deposit deposit) {
+    void run(Deposit deposit, boolean climbing) {
 
         switch (state) {
 
@@ -258,7 +258,7 @@ public final class Intake {
 
         extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING, bucketDown);
 
-        roller.setPower(deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
+        roller.setPower(climbing ? 0 : deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
     }
 
     public void transfer(Deposit deposit, Sample sample) {

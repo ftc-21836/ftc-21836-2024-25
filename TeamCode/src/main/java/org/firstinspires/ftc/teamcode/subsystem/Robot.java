@@ -30,7 +30,7 @@ public final class Robot {
     }
 
     public void run() {
-        intake.run(deposit);
+        intake.run(deposit, climber.isActive());
         deposit.run(intake, climber.isActive());
         climber.run();
     }
