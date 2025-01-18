@@ -93,7 +93,9 @@ public final class MainAuton extends LinearOpMode {
             X_OFFSET_CHAMBER_4 = -3,
             Y_INCHING_FORWARD_WHEN_INTAKING = 5,
             TIME_CYCLE = 9,
-            TIME_SCORE = 3;
+            TIME_SCORE = 3,
+            INCREMENT_LOWERING_BUCKET = 0.001,
+            LENGTH_START_DROPPING_BUCKET = 50;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
