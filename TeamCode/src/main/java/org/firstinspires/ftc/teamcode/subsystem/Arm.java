@@ -30,7 +30,7 @@ public final class Arm {
             SPECIMEN =  new Arm.Position(275, 240, "SPECIMEN"),
             ASCENT = new Arm.Position(285, 250, "ASCENT"),
             SAMPLE =    new Arm.Position(355, 355, "SAMPLE"),
-            PRELOADED = new Arm.Position(300, 215, "PRELOADED");
+            PRELOADED = new Arm.Position(140, 320, "PRELOADED");
 
     private final ElapsedTime timer = new ElapsedTime();
     private boolean movingToTarget = false;
