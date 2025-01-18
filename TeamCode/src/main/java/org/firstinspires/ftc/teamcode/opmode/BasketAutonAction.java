@@ -242,8 +242,6 @@ class BasketAutonAction implements Action {
             case SWEEPING:
 
                 if (remaining < TIME_SCORE) {
-                    robot.intake.runRoller(0);
-                    robot.intake.extendo.setExtended(false);
                     activeTraj = subPark;
                     state = PARKING;
                     break;
