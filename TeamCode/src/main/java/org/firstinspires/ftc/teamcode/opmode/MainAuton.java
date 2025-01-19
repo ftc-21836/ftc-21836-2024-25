@@ -173,12 +173,19 @@ public final class MainAuton extends LinearOpMode {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(DPAD_UP)) {
-                selection = selection.plus(-1);
-                if (specimenSide && selection == EDITING_PRELOAD) selection = selection.plus(-1);
-            }
-            else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-                selection = selection.plus(1);
-                if (specimenSide && selection == EDITING_PRELOAD) selection = selection.plus(1);
+                do selection = selection.plus(-1);
+                while (
+                        selection == EDITING_PRELOAD && specimenSide ||
+                        selection == EDITING_CYCLES && !specimenSide ||
+                        selection == EDITING_WAIT && !specimenSide && !specimenPreload
+                );
+            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                do selection = selection.plus(1);
+                while (
+                        selection == EDITING_PRELOAD && specimenSide ||
+                        selection == EDITING_CYCLES && !specimenSide ||
+                        selection == EDITING_WAIT && !specimenSide && !specimenPreload
+                );
             }
 
             switch (selection) {
@@ -189,15 +196,15 @@ public final class MainAuton extends LinearOpMode {
                     if (gamepadEx1.wasJustPressed(X)) specimenSide = !specimenSide;
                     break;
                 case EDITING_PRELOAD:
-                    if (gamepadEx1.wasJustPressed(X) && !specimenSide) specimenPreload = !specimenPreload;
+                    if (!specimenSide && gamepadEx1.wasJustPressed(X)) specimenPreload = !specimenPreload;
                     break;
                 case EDITING_CYCLES:
-                    if (gamepadEx1.wasJustPressed(Y)) cycles++;
-                    if (gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
+                    if (specimenSide && gamepadEx1.wasJustPressed(Y)) cycles++;
+                    if (specimenSide && gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
                     break;
                 case EDITING_WAIT:
-                    if (gamepadEx1.wasJustPressed(Y)) partnerWait++;
-                    if (gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
+                    if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(Y)) partnerWait++;
+                    if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
                     break;
             }
 
@@ -215,13 +222,15 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine();
             mTelemetry.addLine((specimenSide ? "RIGHT (OBSERVATION-SIDE)" : "LEFT (BASKET-SIDE)") + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
-            if (!specimenSide) {
-                mTelemetry.addLine("Preloading a " + (specimenPreload ? "specimen" : "sample") + selection.markIf(EDITING_PRELOAD));
+            mTelemetry.addLine(
+                    specimenSide ?
+                            cycles + " cycles" + selection.markIf(EDITING_CYCLES) :
+                            "Preloading a " + (specimenPreload ? "specimen" : "sample") + selection.markIf(EDITING_PRELOAD)
+            );
+            if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
+                mTelemetry.addData("Wait before scoring specimen preload (sec)", partnerWait + selection.markIf(EDITING_WAIT));
             }
-            mTelemetry.addLine(cycles + " cycles" + selection.markIf(EDITING_CYCLES));
-            mTelemetry.addLine();
-            mTelemetry.addData("Wait before scoring specimen preload (sec)", partnerWait + selection.markIf(EDITING_WAIT));
 
             mTelemetry.update();
         }
