@@ -405,8 +405,10 @@ public final class MainAuton extends LinearOpMode {
             TrajectoryActionBuilder i3ToSub = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
                     )
-                    .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setExtended(false);
+                        robot.intake.runRoller(0);
+                    })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading);
 
