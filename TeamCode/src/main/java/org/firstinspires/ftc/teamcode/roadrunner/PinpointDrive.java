@@ -48,7 +48,7 @@ public class PinpointDrive extends MecanumDrive {
          */
         //These are tuned for 3110-0002-0001 Product Insight #1
         // RR localizer note: These units are MILLIMETERS
-        public double xOffset = 173.42500;
+        public double xOffset = 176.425;
         public double yOffset = -23.07899;
 
         /*
