@@ -137,7 +137,9 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            if (!preloaded) {
+            if (preloaded) {
+                mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "specimen" : "sample"));
+            } else {
                 mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
                 mTelemetry.addLine();
                 mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
