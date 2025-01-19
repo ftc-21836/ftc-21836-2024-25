@@ -202,8 +202,6 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                if (sampleLost(RETRACTED)) break;
-
                 extendo.setExtended(false);
 
                 if (bucketSensor.isPressed()) {
@@ -215,8 +213,6 @@ public final class Intake {
                 } else break;
 
             case BUCKET_SETTLING:
-
-                if (sampleLost(RETRACTED)) break;
 
                 extendo.setExtended(false);
 
