@@ -196,7 +196,7 @@ public final class MainTeleOp extends LinearOpMode {
                         gamepadEx1.isDown(X) ?
                                 driver.driveTo(
                                         new EditablePose(robot.drivetrain.pose),
-                                        robot.deposit.basketReady() ? basket : intakingSpec
+                                        robot.deposit.basketReady() || robot.intake.hasSample() ? basket : intakingSpec
                                 ).drivePower.heading :
                                 gamepadEx1.getRightX(),
                         slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
