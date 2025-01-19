@@ -39,11 +39,9 @@ public final class Intake {
             ANGLE_BUCKET_INTAKING_FAR = 213,
 
             TIME_EJECTING = 0.5,
-            TIME_SAMPLE_SETTLING = 1.5,
             TIME_BUCKET_SEMI_RETRACT = 0.2,
             TIME_PRE_TRANSFER = 0.15,
             TIME_TRANSFER = 0.15,
-            TIME_REVERSING = 0.25,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
@@ -254,9 +252,7 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        boolean bucketDown = bucket.isActivated() && ANGLE_BUCKET_EXTENDED > 0.5 * (ANGLE_BUCKET_OVER_BARRIER + ANGLE_BUCKET_INTAKING_NEAR);
-
-        extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING, bucketDown);
+        extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
 
         roller.setPower(climbing ? 0 : deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
     }
