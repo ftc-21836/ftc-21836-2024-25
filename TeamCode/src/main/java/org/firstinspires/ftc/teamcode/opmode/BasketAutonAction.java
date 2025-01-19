@@ -14,6 +14,8 @@ import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_2;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_3;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MAX;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MIN;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.INCREMENT_LOWERING_BUCKET;
+import static org.firstinspires.ftc.teamcode.opmode.MainAuton.LENGTH_START_DROPPING_BUCKET;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_EXTEND_CYCLE;
@@ -22,6 +24,7 @@ import static org.firstinspires.ftc.teamcode.opmode.MainAuton.WAIT_POST_INTAKING
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
+import static java.lang.Math.min;
 
 import androidx.annotation.NonNull;
 
@@ -29,9 +32,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.Extendo;
-import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ class BasketAutonAction implements Action {
     private State state = PRELOAD_AND_1;
 
     private ElapsedTime matchTimer = null;
-    private final ElapsedTime timer = new ElapsedTime(), extendoTimer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime(), bucketTimer = new ElapsedTime();
 
     private Action activeTraj;
 
@@ -121,7 +122,9 @@ class BasketAutonAction implements Action {
 
         boolean hasSample = robot.intake.hasSample();
 
-        boolean trajDone = (state != SWEEPING || !hasSample) && !activeTraj.run(p);
+        boolean intaking = state == PRELOAD_AND_1 || state == INTAKING_2 || state == INTAKING_3 || state == SWEEPING;
+        boolean stopMoving = intaking && hasSample;
+        boolean trajDone = !stopMoving && !activeTraj.run(p);
 
         switch (state) {
             case PRELOAD_AND_1:
@@ -234,14 +237,12 @@ class BasketAutonAction implements Action {
                     sweepingLeft = true;
                     activeTraj = sweepLefts.remove(0);
                     state = SWEEPING;
-                    extendoTimer.reset();
+                    bucketTimer.reset();
                 }
                 break;
             case SWEEPING:
 
                 if (remaining < TIME_SCORE) {
-                    robot.intake.runRoller(0);
-                    robot.intake.extendo.setExtended(false);
                     activeTraj = subPark;
                     state = PARKING;
                     break;
@@ -254,7 +255,8 @@ class BasketAutonAction implements Action {
                     robot.intake.extendo.setTarget(
                             EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * remaining / TIME_EXTEND_CYCLE)) / 2
                     );
-                    if (robot.intake.extendo.getPosition() >= EXTEND_SUB_MIN - Extendo.POSITION_TOLERANCE) robot.intake.runRoller(SPEED_INTAKING);
+                    if (robot.intake.extendo.getPosition() >= LENGTH_START_DROPPING_BUCKET)
+                        robot.intake.runRoller(min(bucketTimer.seconds() * INCREMENT_LOWERING_BUCKET, SPEED_INTAKING));
 
                     timer.reset();
 

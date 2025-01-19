@@ -74,7 +74,7 @@ public final class MainAuton extends LinearOpMode {
             EXTEND_SUB_MIN = 100,
             EXTEND_SUB_MAX = 400,
             TIME_EXTEND_CYCLE = 2,
-            SPEED_SWEEPING_SUB = 4,
+            SPEED_SWEEPING_SUB = 2.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 2.5,
             SPEED_INCHING_TURNING = 0.5,
@@ -93,14 +93,16 @@ public final class MainAuton extends LinearOpMode {
             X_OFFSET_CHAMBER_4 = -3,
             Y_INCHING_FORWARD_WHEN_INTAKING = 5,
             TIME_CYCLE = 9,
-            TIME_SCORE = 3;
+            TIME_SCORE = 3,
+            INCREMENT_LOWERING_BUCKET = 0.8,
+            LENGTH_START_DROPPING_BUCKET = 50;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
             sample1SpecPreload = new EditablePose(-50, -27.75, sample1.heading),
             sample2 = new EditablePose(-58, -27.75, sample1.heading),
             sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
-            basket = new EditablePose(-57.5, -57.5, PI / 4),
+            basket = new EditablePose(-57.625, -57.625, PI / 4),
             intaking1 = new EditablePose(-50, -46, toRadians(84.36)),
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
@@ -403,8 +405,10 @@ public final class MainAuton extends LinearOpMode {
             TrajectoryActionBuilder i3ToSub = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
                     )
-                    .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setExtended(false);
+                        robot.intake.runRoller(0);
+                    })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading);
 
@@ -489,7 +493,11 @@ public final class MainAuton extends LinearOpMode {
 
         mTelemetry.update();
 
-        waitForStart(); //------------------------------------------------------------------------------------------------------------------------------------------
+        while (opModeInInit()) {
+            if (specimenPreload) robot.deposit.arm.run(true);
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
 
         robot.drivetrain.pinpoint.setPositionRR(pose);
 
