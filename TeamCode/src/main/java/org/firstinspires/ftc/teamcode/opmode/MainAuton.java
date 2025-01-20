@@ -535,6 +535,9 @@ public final class MainAuton extends LinearOpMode {
 
     private static Action scoreSample(Robot robot) {
         return new SequentialAction(
+                new InstantAction(() -> {
+                    if (robot.getSample() == null) robot.deposit.transfer(NEUTRAL);
+                }),
                 new SleepAction(WAIT_APPROACH_BASKET),
                 telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)),
                 new InstantAction(robot.deposit::triggerClaw),
@@ -544,6 +547,9 @@ public final class MainAuton extends LinearOpMode {
 
     private static Action scoreSpecimen(Robot robot) {
         return new SequentialAction(
+                new InstantAction(() -> {
+                    if (robot.getSample() == null) while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
+                }),
                 new SleepAction(WAIT_APPROACH_CHAMBER),
                 telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPECIMEN) && robot.deposit.lift.atPosition(HEIGHT_CHAMBER_HIGH)), // wait until deposit in position
                 new InstantAction(robot.deposit::triggerClaw),
