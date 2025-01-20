@@ -137,14 +137,13 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            if (preloaded) {
-                mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "specimen" : "sample"));
-            } else {
+            if (preloaded) mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "SPECIMEN" : "SAMPLE"));
+            else {
                 mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
                 mTelemetry.addLine();
                 mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
-                mTelemetry.addLine();
             }
+            mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addData("Slow mode", (slowModeLocked ? "LOCKED" : "unlocked") + selection.markIf(EDITING_SLOW_LOCK));

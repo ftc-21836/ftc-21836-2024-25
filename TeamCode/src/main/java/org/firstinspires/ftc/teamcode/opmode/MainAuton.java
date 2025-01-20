@@ -17,7 +17,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIG
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
 
@@ -42,8 +41,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.TankDrive;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
@@ -111,7 +108,6 @@ public final class MainAuton extends LinearOpMode {
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
             intakingSub = new EditablePose(-22, -11, 0),
             sweptSub = new EditablePose(-28, 0, PI / 4),
-            aroundBeamParkLeft = new EditablePose(-40, -25, 0),
             parkLeft = new EditablePose(-22, -11, 0),
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
             chamberLeft = new EditablePose(-chamberRight.x, chamberRight.y, chamberRight.heading),
@@ -132,8 +128,8 @@ public final class MainAuton extends LinearOpMode {
         EDITING_ALLIANCE,
         EDITING_SIDE,
         EDITING_PRELOAD,
-        EDITING_CYCLES,
-        EDITING_WAIT;
+        EDITING_WAIT,
+        EDITING_CYCLES;
 
         public static final AutonConfig[] selections = values();
 
@@ -176,15 +172,15 @@ public final class MainAuton extends LinearOpMode {
                 do selection = selection.plus(-1);
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
-                        selection == EDITING_CYCLES && !specimenSide ||
-                        selection == EDITING_WAIT && !specimenSide && !specimenPreload
+                        selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_CYCLES && !specimenSide
                 );
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
                 do selection = selection.plus(1);
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
-                        selection == EDITING_CYCLES && !specimenSide ||
-                        selection == EDITING_WAIT && !specimenSide && !specimenPreload
+                        selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_CYCLES && !specimenSide
                 );
             }
 
@@ -198,13 +194,13 @@ public final class MainAuton extends LinearOpMode {
                 case EDITING_PRELOAD:
                     if (!specimenSide && gamepadEx1.wasJustPressed(X)) specimenPreload = !specimenPreload;
                     break;
-                case EDITING_CYCLES:
-                    if (specimenSide && gamepadEx1.wasJustPressed(Y)) cycles++;
-                    if (specimenSide && gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
-                    break;
                 case EDITING_WAIT:
                     if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(Y)) partnerWait++;
                     if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
+                    break;
+                case EDITING_CYCLES:
+                    if (specimenSide && gamepadEx1.wasJustPressed(Y)) cycles++;
+                    if (specimenSide && gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
                     break;
             }
 
@@ -221,15 +217,17 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addLine((specimenSide ? "RIGHT (OBSERVATION-SIDE)" : "LEFT (BASKET-SIDE)") + selection.markIf(EDITING_SIDE));
-            mTelemetry.addLine();
-            mTelemetry.addLine(
-                    specimenSide ?
-                            cycles + " cycles" + selection.markIf(EDITING_CYCLES) :
-                            "Preloading a " + (specimenPreload ? "specimen" : "sample") + selection.markIf(EDITING_PRELOAD)
-            );
+            if (!specimenSide) {
+                mTelemetry.addLine();
+                mTelemetry.addLine((specimenPreload ? "SPECIMEN" : "SAMPLE") + " preload" + selection.markIf(EDITING_PRELOAD));
+            }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
-                mTelemetry.addData("Wait before scoring specimen preload (sec)", partnerWait + selection.markIf(EDITING_WAIT));
+                mTelemetry.addLine("Wait " + partnerWait + " second" + (partnerWait == 1 ? "" : "s") + " before scoring specimen preload" + selection.markIf(EDITING_WAIT));
+            }
+            if (specimenSide) {
+                mTelemetry.addLine();
+                mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
             }
 
             mTelemetry.update();
