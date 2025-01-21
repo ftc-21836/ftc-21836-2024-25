@@ -520,9 +520,11 @@ public final class MainAuton extends LinearOpMode {
 
         mTelemetry.update();
 
-        while (opModeInInit()) {
-            if (specimenPreload) robot.deposit.arm.run(true);
-        }
+        if (specimenPreload) {
+            while (opModeInInit()) {
+                robot.deposit.arm.run(true);
+            }
+        } else waitForStart();
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
