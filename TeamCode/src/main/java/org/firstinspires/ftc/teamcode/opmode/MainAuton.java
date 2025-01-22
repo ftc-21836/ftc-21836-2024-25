@@ -235,8 +235,10 @@ public final class MainAuton extends LinearOpMode {
 
         specimenPreload = specimenSide || specimenPreload;
 
-        if (specimenPreload) robot.deposit.preloadSpecimen();
-        else robot.deposit.transfer(NEUTRAL);
+        if (specimenPreload)
+            robot.deposit.preloadSpecimen();
+        else
+            robot.deposit.transfer(NEUTRAL);
 
         mTelemetry.addLine("GENERATING TRAJECTORY...");
         mTelemetry.update();
@@ -247,15 +249,11 @@ public final class MainAuton extends LinearOpMode {
         robot.intake.setAlliance(isRedAlliance);
         robot.deposit.setAlliance(isRedAlliance);
 
-        pose = new Pose2d(
-                specimenSide ? chamberRight.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
-                0.5 * (specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                specimenPreload ? PI / 2 : 0
-        );
-
         Action trajectory;
 
         if (specimenSide) {
+
+            pose = new Pose2d(chamberRight.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2);
 
             TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
@@ -320,6 +318,10 @@ public final class MainAuton extends LinearOpMode {
             trajectory = builder.build();
 
         } else {
+
+            pose = specimenPreload ?
+                    new Pose2d(chamberLeft.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2) :
+                    new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
 
             mTelemetry.addLine("> Left side (near basket)");
 
