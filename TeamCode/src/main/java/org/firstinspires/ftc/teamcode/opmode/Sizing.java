@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.pose;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.pose;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;

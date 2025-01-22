@@ -1,26 +1,26 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.DRIVING_TO_SUB;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.INTAKING_2;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.INTAKING_3;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.PARKING;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.PRELOAD_AND_1;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCORING;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCORING_1;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SCORING_2;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAutonAction.State.SWEEPING;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_1;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_2;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SAMPLE_3;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MAX;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.EXTEND_SUB_MIN;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.INCREMENT_LOWERING_BUCKET;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.LENGTH_START_DROPPING_BUCKET;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.SPEED_INTAKING;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_CYCLE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_EXTEND_CYCLE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.TIME_SCORE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.WAIT_POST_INTAKING;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.DRIVING_TO_SUB;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_2;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_3;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.PARKING;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.PRELOAD_AND_1;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING_1;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING_2;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SWEEPING;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_1;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_2;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_3;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SUB_MAX;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SUB_MIN;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.INCREMENT_LOWERING_BUCKET;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.LENGTH_START_DROPPING_BUCKET;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_CYCLE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_EXTEND_CYCLE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_SCORE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -32,12 +32,11 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.subsystem.Extendo;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 import java.util.ArrayList;
 
-class BasketAutonAction implements Action {
+class BasketAuto implements Action {
 
     enum State {
         PRELOAD_AND_1,
@@ -79,7 +78,7 @@ class BasketAutonAction implements Action {
 
     private boolean sweepingLeft = true;
 
-    BasketAutonAction(
+    BasketAuto(
             Robot robot,
             Action preloadAnd1,
             Action score1,

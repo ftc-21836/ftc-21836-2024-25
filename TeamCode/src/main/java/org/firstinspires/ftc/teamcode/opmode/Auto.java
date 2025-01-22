@@ -8,11 +8,11 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_ALLIANCE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_CYCLES;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_SIDE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_WAIT;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_PRELOAD;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAIT;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static java.lang.Math.PI;
@@ -49,8 +49,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Config
-@Autonomous(preselectTeleOp = "MainTeleOp")
-public final class MainAuton extends LinearOpMode {
+@Autonomous(preselectTeleOp = "Tele")
+public final class Auto extends LinearOpMode {
 
     public static MultipleTelemetry mTelemetry;
 
@@ -496,7 +496,7 @@ public final class MainAuton extends LinearOpMode {
                 );
             }
 
-            trajectory = new BasketAutonAction(
+            trajectory = new BasketAuto(
                     robot,
                     preloadAnd1,
                     score1,
