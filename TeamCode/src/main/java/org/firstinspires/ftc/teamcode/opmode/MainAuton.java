@@ -344,7 +344,7 @@ public final class MainAuton extends LinearOpMode {
 
             ElapsedTime extendoTimer = new ElapsedTime();
 
-            TrajectoryActionBuilder preloadAnd1 = specimenPreload ?
+            Action preloadAnd1 = (specimenPreload ?
                     robot.drivetrain.actionBuilder(pose)
                             .waitSeconds(partnerWait)
                             .strafeTo(chamberLeft.toVector2d())
@@ -368,14 +368,15 @@ public final class MainAuton extends LinearOpMode {
                                 extendoTimer.reset();
                             })
                             .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
-                            .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                            .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)).build();
 
-            TrajectoryActionBuilder score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
+            Action score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
                     /// Score
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .stopAndAdd(scoreSample(robot));
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
 
-            TrajectoryActionBuilder i1To2 = robot.drivetrain.actionBuilder(
+            Action i1To2 = robot.drivetrain.actionBuilder(
                             new Pose2d(i1.x, i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, i1.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
@@ -387,9 +388,10 @@ public final class MainAuton extends LinearOpMode {
                         extendoTimer.reset();
                     })
                     .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
-                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
+            Action intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
                     .afterTime(0, () -> {
@@ -397,13 +399,15 @@ public final class MainAuton extends LinearOpMode {
                         extendoTimer.reset();
                     })
                     .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
-                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
+            Action score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .stopAndAdd(scoreSample(robot));
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
 
-            TrajectoryActionBuilder i2To3 = robot.drivetrain.actionBuilder(
+            Action i2To3 = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking2.x, intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking2.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
@@ -415,9 +419,10 @@ public final class MainAuton extends LinearOpMode {
                         extendoTimer.reset();
                     })
                     .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
-                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
+            Action intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
                     .afterTime(0, () -> {
@@ -425,13 +430,15 @@ public final class MainAuton extends LinearOpMode {
                         extendoTimer.reset();
                     })
                     .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
-                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
+            Action score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .stopAndAdd(scoreSample(robot));
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
 
-            TrajectoryActionBuilder i3ToSub = robot.drivetrain.actionBuilder(
+            Action i3ToSub = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
                     )
                     .afterTime(0, () -> {
@@ -439,23 +446,26 @@ public final class MainAuton extends LinearOpMode {
                         robot.intake.runRoller(0);
                     })
                     .setTangent(PI / 4)
-                    .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading);
+                    .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
+                    .build();
 
-            TrajectoryActionBuilder subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
+            Action subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
                     .afterTime(0, () -> {
                         robot.intake.runRoller(0);
                         Deposit.level1Ascent = true;
                         robot.deposit.lift.setTarget(0);
                     })
                     .afterTime(1, () -> robot.intake.extendo.setExtended(false))
-                    .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading);
+                    .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading)
+                    .build();
 
-            TrajectoryActionBuilder park = robot.drivetrain.actionBuilder(basket.toPose2d())
+            Action park = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
                         Deposit.level1Ascent = true;
                         robot.deposit.lift.setTarget(0);
                     })
-                    .splineTo(parkLeft.toVector2d(), parkLeft.heading);
+                    .splineTo(parkLeft.toVector2d(), parkLeft.heading)
+                    .build();
 
             ArrayList<Action>
                     toSubs = new ArrayList<>(),
@@ -488,17 +498,17 @@ public final class MainAuton extends LinearOpMode {
 
             trajectory = new BasketAutonAction(
                     robot,
-                    preloadAnd1.build(),
-                    score1.build(),
-                    intake2.build(),
-                    score2.build(),
-                    intake3.build(),
-                    score3.build(),
-                    park.build(),
-                    i1To2.build(),
-                    i2To3.build(),
-                    i3ToSub.build(),
-                    subPark.build(),
+                    preloadAnd1,
+                    score1,
+                    intake2,
+                    score2,
+                    intake3,
+                    score3,
+                    park,
+                    i1To2,
+                    i2To3,
+                    i3ToSub,
+                    subPark,
                     toSubs,
                     sweepLefts,
                     sweepRights,
