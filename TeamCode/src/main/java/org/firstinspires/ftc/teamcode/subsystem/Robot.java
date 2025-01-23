@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.divider;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -30,7 +30,7 @@ public final class Robot {
     }
 
     public void run() {
-        intake.run(deposit, climber.isActive());
+        intake.run(deposit, climber.isActive() || Deposit.level1Ascent);
         deposit.run(intake, climber.isActive());
         climber.run();
     }

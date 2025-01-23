@@ -11,16 +11,16 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTO
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.basket;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.intakingSpec;
-import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_ALLIANCE;
-import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_FIELD_CENTRIC;
-import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.EDITING_SLOW_LOCK;
-import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SAMPLE;
-import static org.firstinspires.ftc.teamcode.opmode.MainTeleOp.TeleOpConfig.PRELOAD_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.isRedAlliance;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.pose;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.intakingSpec;
+import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_ALLIANCE;
+import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_FIELD_CENTRIC;
+import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_SLOW_LOCK;
+import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.PRELOAD_SAMPLE;
+import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.PRELOAD_SPECIMEN;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.isRedAlliance;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.pose;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
@@ -44,7 +44,7 @@ import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 
 @TeleOp
-public final class MainTeleOp extends LinearOpMode {
+public final class Tele extends LinearOpMode {
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
@@ -94,9 +94,11 @@ public final class MainTeleOp extends LinearOpMode {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(DPAD_UP)) {
-                selection = selection.plus(preloaded && selection == EDITING_ALLIANCE ? -3 : -1);
+                do selection = selection.plus(-1);
+                while (preloaded && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-                selection = selection.plus(preloaded && selection == EDITING_FIELD_CENTRIC ? 3 : 1);
+                do selection = selection.plus(1);
+                while (preloaded && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             }
 
             switch (selection) {
@@ -135,9 +137,12 @@ public final class MainTeleOp extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
-            mTelemetry.addLine();
-            mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            if (preloaded) mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "SPECIMEN" : "SAMPLE"));
+            else {
+                mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
+                mTelemetry.addLine();
+                mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            }
             mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
@@ -192,7 +197,7 @@ public final class MainTeleOp extends LinearOpMode {
                         gamepadEx1.isDown(X) ?
                                 driver.driveTo(
                                         new EditablePose(robot.drivetrain.pose),
-                                        robot.deposit.basketReady() ? basket : intakingSpec
+                                        robot.deposit.basketReady() || robot.intake.hasSample() ? basket : intakingSpec
                                 ).drivePower.heading :
                                 gamepadEx1.getRightX(),
                         slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,

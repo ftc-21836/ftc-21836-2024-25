@@ -4,7 +4,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -36,7 +36,7 @@ public final class TestExtendo extends LinearOpMode {
             if (gamepadEx1.wasJustPressed(DPAD_DOWN)) extendo.setExtended(false);
             if (gamepadEx1.wasJustPressed(X)) extendo.toggle();
 
-            extendo.run(true, false);
+            extendo.run(true);
 
             extendo.printTelemetry();
             mTelemetry.update();

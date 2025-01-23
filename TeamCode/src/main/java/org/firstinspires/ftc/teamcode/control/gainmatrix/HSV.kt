@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.control.gainmatrix
 
-import org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry
+import org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry
 import org.opencv.core.Scalar
 
 data class HSV

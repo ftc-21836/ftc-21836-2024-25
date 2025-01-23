@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.divider;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SEMI_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
@@ -39,11 +39,9 @@ public final class Intake {
             ANGLE_BUCKET_INTAKING_FAR = 213,
 
             TIME_EJECTING = 0.5,
-            TIME_SAMPLE_SETTLING = 1.5,
             TIME_BUCKET_SEMI_RETRACT = 0.2,
             TIME_PRE_TRANSFER = 0.15,
             TIME_TRANSFER = 0.15,
-            TIME_REVERSING = 0.25,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
@@ -148,7 +146,7 @@ public final class Intake {
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
     }
 
-    void run(Deposit deposit, boolean climbing) {
+    void run(Deposit deposit, boolean stopRoller) {
 
         switch (state) {
 
@@ -204,8 +202,6 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                if (sampleLost(RETRACTED)) break;
-
                 extendo.setExtended(false);
 
                 if (bucketSensor.isPressed()) {
@@ -217,8 +213,6 @@ public final class Intake {
                 } else break;
 
             case BUCKET_SETTLING:
-
-                if (sampleLost(RETRACTED)) break;
 
                 extendo.setExtended(false);
 
@@ -254,11 +248,9 @@ public final class Intake {
         bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
         bucket.run();
 
-        boolean bucketDown = bucket.isActivated() && ANGLE_BUCKET_EXTENDED > 0.5 * (ANGLE_BUCKET_OVER_BARRIER + ANGLE_BUCKET_INTAKING_NEAR);
+        extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
 
-        extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING, bucketDown);
-
-        roller.setPower(climbing ? 0 : deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
+        roller.setPower(stopRoller ? 0 : deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
     }
 
     public void transfer(Deposit deposit, Sample sample) {

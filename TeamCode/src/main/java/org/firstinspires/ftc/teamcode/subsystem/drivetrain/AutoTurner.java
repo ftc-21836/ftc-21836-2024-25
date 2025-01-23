@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem.drivetrain;
 
 import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.normalizeRadians;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.config.Config;

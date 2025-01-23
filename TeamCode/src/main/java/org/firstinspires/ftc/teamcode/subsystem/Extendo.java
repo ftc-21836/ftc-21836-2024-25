@@ -4,7 +4,7 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_117;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.qualcomm.robotcore.util.Range.clip;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.mTelemetry;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static java.lang.Double.max;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
@@ -17,7 +17,6 @@ import static java.lang.Math.sqrt;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.teamcode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
@@ -32,7 +31,6 @@ public final class Extendo {
             TOUCHPAD_RANGE = 0.9,
             LENGTH_RETRACTING = 20,
             LENGTH_INTERFACING = 10,
-            LENGTH_BUCKET_DOWN = 50,
             LENGTH_DEPOSIT_CLEAR = 100,
             POSITION_TOLERANCE = 15,
             LENGTH_EXTENDED = Math.MM_EXTENSION,
@@ -63,13 +61,9 @@ public final class Extendo {
         this.manualPower = power;
     }
 
-    public void run(boolean canRetract, boolean bucketDown) {
+    public void run(boolean canRetract) {
 
-        double setpoint = max(getTarget(),
-                !canRetract ?   LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE :
-                bucketDown ?    LENGTH_BUCKET_DOWN :
-                                0
-        );
+        double setpoint = max(getTarget(), canRetract ? 0 : LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE);
 
         // When the magnet hits
         if (setpoint == 0 && !isExtended() && manualPower <= 0) {
@@ -160,7 +154,6 @@ public final class Extendo {
                 MM_EXTENSION = 410,
                 MM_EXTENDED = MM_RETRACTED + MM_EXTENSION,
                 RAD_RETRACTED = radians(MM_RETRACTED),
-                RAD_EXTENDED = radians(MM_EXTENDED),
                 NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
 
         private static double millimeters(double radians) {

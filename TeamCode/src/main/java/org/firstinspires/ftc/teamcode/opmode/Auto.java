@@ -8,16 +8,15 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_ALLIANCE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_CYCLES;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_SIDE;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_WAIT;
-import static org.firstinspires.ftc.teamcode.opmode.MainAuton.AutonConfig.EDITING_PRELOAD;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAIT;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
-import static java.lang.Math.max;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
 
@@ -39,10 +38,9 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.TankDrive;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
@@ -51,8 +49,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 @Config
-@Autonomous(preselectTeleOp = "MainTeleOp")
-public final class MainAuton extends LinearOpMode {
+@Autonomous(preselectTeleOp = "Tele")
+public final class Auto extends LinearOpMode {
 
     public static MultipleTelemetry mTelemetry;
 
@@ -87,13 +85,14 @@ public final class MainAuton extends LinearOpMode {
             WAIT_SCORE_CHAMBER = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_INTAKE_RETRACT = 0.75,
+            WAIT_EXTEND = 0.75,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
             X_OFFSET_CHAMBER_4 = -3,
             Y_INCHING_FORWARD_WHEN_INTAKING = 5,
             TIME_CYCLE = 9,
-            TIME_SCORE = 3,
+            TIME_SCORE = 4,
             INCREMENT_LOWERING_BUCKET = 0.8,
             LENGTH_START_DROPPING_BUCKET = 50;
 
@@ -109,7 +108,6 @@ public final class MainAuton extends LinearOpMode {
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
             intakingSub = new EditablePose(-22, -11, 0),
             sweptSub = new EditablePose(-28, 0, PI / 4),
-            aroundBeamParkLeft = new EditablePose(-40, -25, 0),
             parkLeft = new EditablePose(-22, -11, 0),
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
             chamberLeft = new EditablePose(-chamberRight.x, chamberRight.y, chamberRight.heading),
@@ -130,8 +128,8 @@ public final class MainAuton extends LinearOpMode {
         EDITING_ALLIANCE,
         EDITING_SIDE,
         EDITING_PRELOAD,
-        EDITING_CYCLES,
-        EDITING_WAIT;
+        EDITING_WAIT,
+        EDITING_CYCLES;
 
         public static final AutonConfig[] selections = values();
 
@@ -171,12 +169,19 @@ public final class MainAuton extends LinearOpMode {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(DPAD_UP)) {
-                selection = selection.plus(-1);
-                if (specimenSide && selection == EDITING_PRELOAD) selection = selection.plus(-1);
-            }
-            else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-                selection = selection.plus(1);
-                if (specimenSide && selection == EDITING_PRELOAD) selection = selection.plus(1);
+                do selection = selection.plus(-1);
+                while (
+                        selection == EDITING_PRELOAD && specimenSide ||
+                        selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_CYCLES && !specimenSide
+                );
+            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                do selection = selection.plus(1);
+                while (
+                        selection == EDITING_PRELOAD && specimenSide ||
+                        selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_CYCLES && !specimenSide
+                );
             }
 
             switch (selection) {
@@ -187,15 +192,15 @@ public final class MainAuton extends LinearOpMode {
                     if (gamepadEx1.wasJustPressed(X)) specimenSide = !specimenSide;
                     break;
                 case EDITING_PRELOAD:
-                    if (gamepadEx1.wasJustPressed(X) && !specimenSide) specimenPreload = !specimenPreload;
-                    break;
-                case EDITING_CYCLES:
-                    if (gamepadEx1.wasJustPressed(Y)) cycles++;
-                    if (gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
+                    if (!specimenSide && gamepadEx1.wasJustPressed(X)) specimenPreload = !specimenPreload;
                     break;
                 case EDITING_WAIT:
-                    if (gamepadEx1.wasJustPressed(Y)) partnerWait++;
-                    if (gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
+                    if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(Y)) partnerWait++;
+                    if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
+                    break;
+                case EDITING_CYCLES:
+                    if (specimenSide && gamepadEx1.wasJustPressed(Y)) cycles++;
+                    if (specimenSide && gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
                     break;
             }
 
@@ -212,22 +217,28 @@ public final class MainAuton extends LinearOpMode {
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addLine((specimenSide ? "RIGHT (OBSERVATION-SIDE)" : "LEFT (BASKET-SIDE)") + selection.markIf(EDITING_SIDE));
-            mTelemetry.addLine();
             if (!specimenSide) {
-                mTelemetry.addLine("Preloading a " + (specimenPreload ? "specimen" : "sample") + selection.markIf(EDITING_PRELOAD));
                 mTelemetry.addLine();
+                mTelemetry.addLine((specimenPreload ? "SPECIMEN" : "SAMPLE") + " preload" + selection.markIf(EDITING_PRELOAD));
             }
-            mTelemetry.addLine(cycles + " cycles" + selection.markIf(EDITING_CYCLES));
-            mTelemetry.addLine();
-            mTelemetry.addData("Wait before scoring specimen preload (sec)", partnerWait + selection.markIf(EDITING_WAIT));
+            if (specimenPreload || specimenSide) {
+                mTelemetry.addLine();
+                mTelemetry.addLine("Wait " + partnerWait + " second" + (partnerWait == 1 ? "" : "s") + " before scoring specimen preload" + selection.markIf(EDITING_WAIT));
+            }
+            if (specimenSide) {
+                mTelemetry.addLine();
+                mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
+            }
 
             mTelemetry.update();
         }
 
         specimenPreload = specimenSide || specimenPreload;
 
-        if (specimenPreload) robot.deposit.preloadSpecimen();
-        else robot.deposit.transfer(NEUTRAL);
+        if (specimenPreload)
+            robot.deposit.preloadSpecimen();
+        else
+            robot.deposit.transfer(NEUTRAL);
 
         mTelemetry.addLine("GENERATING TRAJECTORY...");
         mTelemetry.update();
@@ -238,15 +249,11 @@ public final class MainAuton extends LinearOpMode {
         robot.intake.setAlliance(isRedAlliance);
         robot.deposit.setAlliance(isRedAlliance);
 
-        pose = new Pose2d(
-                specimenSide ? chamberRight.x : specimenPreload ? chamberLeft.x : 0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE,
-                0.5 * (specimenPreload ? LENGTH_ROBOT : WIDTH_ROBOT) - SIZE_HALF_FIELD,
-                specimenPreload ? PI / 2 : 0
-        );
-
         Action trajectory;
 
         if (specimenSide) {
+
+            pose = new Pose2d(chamberRight.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2);
 
             TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
@@ -312,6 +319,10 @@ public final class MainAuton extends LinearOpMode {
 
         } else {
 
+            pose = specimenPreload ?
+                    new Pose2d(chamberLeft.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2) :
+                    new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
+
             mTelemetry.addLine("> Left side (near basket)");
 
             MinVelConstraint inchingConstraint = new MinVelConstraint(Arrays.asList(
@@ -324,8 +335,6 @@ public final class MainAuton extends LinearOpMode {
                     new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
             ));
 
-            TrajectoryActionBuilder preloadAnd1 = robot.drivetrain.actionBuilder(pose);
-
             intaking1SpecPreload.heading = atan2(sample1SpecPreload.y - intaking1SpecPreload.y, sample1SpecPreload.x - intaking1SpecPreload.x);
             intaking1.heading = atan2(sample1.y - intaking1.y, sample1.x - intaking1.x);
             intaking2.heading = atan2(sample2.y - intaking2.y, sample2.x - intaking2.x);
@@ -333,76 +342,100 @@ public final class MainAuton extends LinearOpMode {
 
             EditablePose i1 = specimenPreload ? intaking1SpecPreload : intaking1;
 
-            if (specimenPreload)
-                preloadAnd1 = preloadAnd1
-                    .waitSeconds(partnerWait)
-                    .strafeTo(chamberLeft.toVector2d())
-                    .stopAndAdd(scoreSpecimen(robot))
-                    .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                    .waitSeconds(WAIT_DROP_TO_EXTEND);
-            else
-                preloadAnd1 = preloadAnd1
-                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .stopAndAdd(scoreSample(robot))
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading);
+            ElapsedTime extendoTimer = new ElapsedTime();
 
-            preloadAnd1 = preloadAnd1
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_1))
-                    .stopAndAdd(telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
-                    .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+            Action preloadAnd1 =
+                    (specimenPreload ?
+                            robot.drivetrain.actionBuilder(pose)
+                                    .waitSeconds(partnerWait)
+                                    .strafeTo(chamberLeft.toVector2d())
+                                    .stopAndAdd(scoreSpecimen(robot))
+                                    .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)
+                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                                    .waitSeconds(WAIT_DROP_TO_EXTEND) :
+                            robot.drivetrain.actionBuilder(pose)
+                                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                                    .stopAndAdd(scoreSample(robot))
+                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading)
+                    )
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
+                        extendoTimer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
+                    .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
+            Action score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
                     /// Score
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .stopAndAdd(scoreSample(robot));
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
 
-            TrajectoryActionBuilder i1To2 = robot.drivetrain.actionBuilder(
+            Action i1To2 = robot.drivetrain.actionBuilder(
                             new Pose2d(i1.x, i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, i1.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .setTangent(i1.heading + PI)
                     .splineToSplineHeading(intaking2.toPose2d(), intaking2.heading)
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
-                    .stopAndAdd(telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
-                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
+                        extendoTimer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
+            Action intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
-                    .stopAndAdd(telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
-                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
+                        extendoTimer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
+            Action score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .stopAndAdd(scoreSample(robot));
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
 
-            TrajectoryActionBuilder i2To3 = robot.drivetrain.actionBuilder(
+            Action i2To3 = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking2.x, intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking2.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .setTangent(intaking2.heading + PI)
                     .splineToSplineHeading(intaking3.toPose2d(), intaking3.heading)
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_3))
-                    .stopAndAdd(telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
-                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
+                        extendoTimer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
+                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
+            Action intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_3))
-                    .stopAndAdd(telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
-                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint);
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
+                        extendoTimer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
+                    .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
 
-            TrajectoryActionBuilder score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
+            Action score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .stopAndAdd(scoreSample(robot));
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
 
-            TrajectoryActionBuilder i3ToSub = robot.drivetrain.actionBuilder(
+            Action i3ToSub = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
                     )
                     .afterTime(0, () -> {
@@ -410,23 +443,26 @@ public final class MainAuton extends LinearOpMode {
                         robot.intake.runRoller(0);
                     })
                     .setTangent(PI / 4)
-                    .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading);
+                    .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
+                    .build();
 
-            TrajectoryActionBuilder subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
+            Action subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
                     .afterTime(0, () -> {
                         robot.intake.runRoller(0);
                         Deposit.level1Ascent = true;
                         robot.deposit.lift.setTarget(0);
                     })
                     .afterTime(1, () -> robot.intake.extendo.setExtended(false))
-                    .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading);
+                    .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading)
+                    .build();
 
-            TrajectoryActionBuilder park = robot.drivetrain.actionBuilder(basket.toPose2d())
+            Action park = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
                         Deposit.level1Ascent = true;
                         robot.deposit.lift.setTarget(0);
                     })
-                    .splineTo(parkLeft.toVector2d(), parkLeft.heading);
+                    .splineTo(parkLeft.toVector2d(), parkLeft.heading)
+                    .build();
 
             ArrayList<Action>
                     toSubs = new ArrayList<>(),
@@ -457,19 +493,19 @@ public final class MainAuton extends LinearOpMode {
                 );
             }
 
-            trajectory = new BasketAutonAction(
+            trajectory = new BasketAuto(
                     robot,
-                    preloadAnd1.build(),
-                    score1.build(),
-                    intake2.build(),
-                    score2.build(),
-                    intake3.build(),
-                    score3.build(),
-                    park.build(),
-                    i1To2.build(),
-                    i2To3.build(),
-                    i3ToSub.build(),
-                    subPark.build(),
+                    preloadAnd1,
+                    score1,
+                    intake2,
+                    score2,
+                    intake3,
+                    score3,
+                    park,
+                    i1To2,
+                    i2To3,
+                    i3ToSub,
+                    subPark,
                     toSubs,
                     sweepLefts,
                     sweepRights,
@@ -493,9 +529,11 @@ public final class MainAuton extends LinearOpMode {
 
         mTelemetry.update();
 
-        while (opModeInInit()) {
-            if (specimenPreload) robot.deposit.arm.run(true);
-        }
+        if (specimenPreload) {
+            while (opModeInInit()) {
+                robot.deposit.arm.run(true);
+            }
+        } else waitForStart();
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -506,6 +544,9 @@ public final class MainAuton extends LinearOpMode {
 
     private static Action scoreSample(Robot robot) {
         return new SequentialAction(
+                new InstantAction(() -> {
+                    if (robot.getSample() == null) robot.deposit.transfer(NEUTRAL);
+                }),
                 new SleepAction(WAIT_APPROACH_BASKET),
                 telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)),
                 new InstantAction(robot.deposit::triggerClaw),
@@ -515,6 +556,9 @@ public final class MainAuton extends LinearOpMode {
 
     private static Action scoreSpecimen(Robot robot) {
         return new SequentialAction(
+                new InstantAction(() -> {
+                    if (robot.getSample() == null) while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
+                }),
                 new SleepAction(WAIT_APPROACH_CHAMBER),
                 telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPECIMEN) && robot.deposit.lift.atPosition(HEIGHT_CHAMBER_HIGH)), // wait until deposit in position
                 new InstantAction(robot.deposit::triggerClaw),
