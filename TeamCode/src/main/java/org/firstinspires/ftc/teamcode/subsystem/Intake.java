@@ -100,6 +100,8 @@ public final class Intake {
     private final CRServo roller;
     private double rollerSpeed;
 
+    public boolean skipBucket = false;
+
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
     private Sample sample, badSample;
@@ -179,7 +181,7 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT) state = EXTENDO_RETRACTING;
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || skipBucket) state = EXTENDO_RETRACTING;
                 else break;
 
             case EXTENDO_RETRACTING:

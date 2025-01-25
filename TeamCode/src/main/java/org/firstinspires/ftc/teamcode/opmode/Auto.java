@@ -223,7 +223,7 @@ public final class Auto extends LinearOpMode {
             }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
-                mTelemetry.addLine("Wait " + partnerWait + " second" + (partnerWait == 1 ? "" : "s") + " before scoring specimen preload" + selection.markIf(EDITING_WAIT));
+                mTelemetry.addLine("Wait " + partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
             }
             if (specimenSide) {
                 mTelemetry.addLine();
@@ -322,6 +322,8 @@ public final class Auto extends LinearOpMode {
             pose = specimenPreload ?
                     new Pose2d(chamberLeft.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2) :
                     new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
+
+            robot.intake.skipBucket = true;
 
             mTelemetry.addLine("> Left side (near basket)");
 
