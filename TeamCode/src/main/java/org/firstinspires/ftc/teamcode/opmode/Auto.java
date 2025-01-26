@@ -382,7 +382,7 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .setTangent(i1.heading + PI)
-                    .splineToSplineHeading(intaking2.toPose2d(), intaking2.heading)
+                    .splineToLinearHeading(intaking2.toPose2d(), intaking2.heading)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         extendoTimer.reset();
@@ -413,7 +413,7 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .setTangent(intaking2.heading + PI)
-                    .splineToSplineHeading(intaking3.toPose2d(), intaking3.heading)
+                    .splineToLinearHeading(intaking3.toPose2d(), intaking3.heading)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                         extendoTimer.reset();
