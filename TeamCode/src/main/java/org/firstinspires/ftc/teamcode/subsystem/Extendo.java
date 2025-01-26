@@ -29,7 +29,7 @@ public final class Extendo {
     public static double
             SPEED_RETRACTION = -0.75,
             TOUCHPAD_RANGE = 0.9,
-            LENGTH_RETRACTING = 20,
+            LENGTH_RETRACTING = 50,
             LENGTH_INTERFACING = 10,
             LENGTH_DEPOSIT_CLEAR = 100,
             POSITION_TOLERANCE = 15,
