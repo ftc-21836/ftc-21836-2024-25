@@ -43,6 +43,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 import java.util.ArrayList;
@@ -377,10 +378,11 @@ public final class Auto extends LinearOpMode {
                             new Pose2d(i1.x, i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, i1.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> robot.intake.runRoller(Intake.SPEED_EJECTING))
                     .setTangent(i1.heading + PI)
                     .splineToLinearHeading(intaking2.toPose2d(), intaking2.heading)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         extendoTimer.reset();
                     })
@@ -408,10 +410,11 @@ public final class Auto extends LinearOpMode {
                             new Pose2d(intaking2.x, intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking2.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> robot.intake.runRoller(Intake.SPEED_EJECTING))
                     .setTangent(intaking2.heading + PI)
                     .splineToLinearHeading(intaking3.toPose2d(), intaking3.heading)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                         extendoTimer.reset();
                     })
