@@ -66,11 +66,11 @@ public final class Auto extends LinearOpMode {
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
-            EXTEND_SAMPLE_1 = 410,
-            EXTEND_SAMPLE_2 = 410,
+            EXTEND_SAMPLE_1 = 300,
+            EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
             EXTEND_SUB_MIN = 100,
-            EXTEND_SUB_MAX = 410,
+            EXTEND_SUB_MAX = 400,
             TIME_EXTEND_CYCLE = 2,
             SPEED_SWEEPING_SUB = 2.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
@@ -80,7 +80,7 @@ public final class Auto extends LinearOpMode {
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
-            WAIT_POST_INTAKING = 0.2,
+            WAIT_POST_INTAKING = 0.5,
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
@@ -101,8 +101,7 @@ public final class Auto extends LinearOpMode {
             sample1SpecPreload = new EditablePose(-50, -27.75, sample1.heading),
             sample2 = new EditablePose(-58, -27.75, sample1.heading),
             sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
-            basket = new EditablePose(-57, -57, PI / 4),
-            basketFromSub = new EditablePose(-57.75, -57.75, PI / 4),
+            basket = new EditablePose(-57.625, -57.625, PI / 4),
             intaking1 = new EditablePose(-50, -46, toRadians(84.36)),
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
@@ -490,7 +489,7 @@ public final class Auto extends LinearOpMode {
                 scores.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
                         .setTangent(PI + sweptSub.heading)
                         .waitSeconds(WAIT_INTAKE_RETRACT)
-                        .splineTo(basketFromSub.toVector2d(), PI + basketFromSub.heading)
+                        .splineTo(basket.toVector2d(), PI + basket.heading)
                         .stopAndAdd(scoreSample(robot))
                         .build()
                 );
