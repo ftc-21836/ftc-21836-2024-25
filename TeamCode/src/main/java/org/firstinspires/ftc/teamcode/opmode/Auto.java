@@ -325,6 +325,7 @@ public final class Auto extends LinearOpMode {
                     new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
 
             mTelemetry.addLine("> Left side (near basket)");
+            mTelemetry.addLine("> Score preloaded " + (specimenPreload ? "specimen" : "sample"));
 
             MinVelConstraint inchingConstraint = new MinVelConstraint(Arrays.asList(
                     new TranslationalVelConstraint(SPEED_INCHING),
