@@ -43,6 +43,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 import java.util.ArrayList;
@@ -66,11 +67,11 @@ public final class Auto extends LinearOpMode {
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
-            EXTEND_SAMPLE_1 = 410,
-            EXTEND_SAMPLE_2 = 410,
+            EXTEND_SAMPLE_1 = 300,
+            EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
             EXTEND_SUB_MIN = 100,
-            EXTEND_SUB_MAX = 410,
+            EXTEND_SUB_MAX = 400,
             TIME_EXTEND_CYCLE = 2,
             SPEED_SWEEPING_SUB = 2.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
@@ -80,7 +81,7 @@ public final class Auto extends LinearOpMode {
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
-            WAIT_POST_INTAKING = 0.2,
+            WAIT_POST_INTAKING = 0.5,
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
@@ -101,8 +102,7 @@ public final class Auto extends LinearOpMode {
             sample1SpecPreload = new EditablePose(-50, -27.75, sample1.heading),
             sample2 = new EditablePose(-58, -27.75, sample1.heading),
             sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
-            basket = new EditablePose(-57, -57, PI / 4),
-            basketFromSub = new EditablePose(-57.75, -57.75, PI / 4),
+            basket = new EditablePose(-57.625, -57.625, PI / 4),
             intaking1 = new EditablePose(-50, -46, toRadians(84.36)),
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
@@ -110,7 +110,7 @@ public final class Auto extends LinearOpMode {
             intakingSub = new EditablePose(-22, -11, 0),
             sweptSub = new EditablePose(-28, 0, PI / 4),
             parkLeft = new EditablePose(-22, -11, 0),
-            chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -31.5, PI / 2),
+            chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
             chamberLeft = new EditablePose(-chamberRight.x, chamberRight.y, chamberRight.heading),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
@@ -324,8 +324,6 @@ public final class Auto extends LinearOpMode {
                     new Pose2d(chamberLeft.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2) :
                     new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
 
-            robot.intake.skipBucket = true;
-
             mTelemetry.addLine("> Left side (near basket)");
 
             MinVelConstraint inchingConstraint = new MinVelConstraint(Arrays.asList(
@@ -380,10 +378,11 @@ public final class Auto extends LinearOpMode {
                             new Pose2d(i1.x, i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, i1.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> robot.intake.runRoller(Intake.SPEED_EJECTING))
                     .setTangent(i1.heading + PI)
-                    .splineToSplineHeading(intaking2.toPose2d(), intaking2.heading)
+                    .splineToLinearHeading(intaking2.toPose2d(), intaking2.heading)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         extendoTimer.reset();
                     })
@@ -411,10 +410,11 @@ public final class Auto extends LinearOpMode {
                             new Pose2d(intaking2.x, intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking2.heading)
                     )
                     .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> robot.intake.runRoller(Intake.SPEED_EJECTING))
                     .setTangent(intaking2.heading + PI)
-                    .splineToSplineHeading(intaking3.toPose2d(), intaking3.heading)
+                    .splineToLinearHeading(intaking3.toPose2d(), intaking3.heading)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                         extendoTimer.reset();
                     })
@@ -490,7 +490,7 @@ public final class Auto extends LinearOpMode {
                 scores.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
                         .setTangent(PI + sweptSub.heading)
                         .waitSeconds(WAIT_INTAKE_RETRACT)
-                        .splineTo(basketFromSub.toVector2d(), PI + basketFromSub.heading)
+                        .splineTo(basket.toVector2d(), PI + basket.heading)
                         .stopAndAdd(scoreSample(robot))
                         .build()
                 );

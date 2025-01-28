@@ -46,7 +46,7 @@ public final class Deposit {
             HEIGHT_BASKET_HIGH = 18,
             HEIGHT_INTAKING_SPECIMEN = 6.5,
             HEIGHT_OFFSET_SPECIMEN_INTAKED = 2,
-            HEIGHT_CHAMBER_HIGH = 8.25,
+            HEIGHT_CHAMBER_HIGH = 9.5,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
             HEIGHT_OFFSET_SPECIMEN_SCORED = 10,
             HEIGHT_OFFSET_SPECIMEN_SCORING = 11;
