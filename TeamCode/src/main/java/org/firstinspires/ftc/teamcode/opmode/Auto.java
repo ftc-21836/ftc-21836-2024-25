@@ -388,8 +388,10 @@ public final class Auto extends LinearOpMode {
             Action i1To2 = robot.drivetrain.actionBuilder(
                             new Pose2d(i1.x, i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, i1.heading)
                     )
-                    .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(Intake.SPEED_EJECTING))
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setExtended(false);
+                        robot.intake.ejectSample();
+                    })
                     .setTangent(i1.heading + PI)
                     .splineToLinearHeading(intaking2.toPose2d(), intaking2.heading)
                     .afterTime(0, () -> {
@@ -420,8 +422,10 @@ public final class Auto extends LinearOpMode {
             Action i2To3 = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking2.x, intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking2.heading)
                     )
-                    .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                    .afterTime(0, () -> robot.intake.runRoller(Intake.SPEED_EJECTING))
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setExtended(false);
+                        robot.intake.ejectSample();
+                    })
                     .setTangent(intaking2.heading + PI)
                     .splineToLinearHeading(intaking3.toPose2d(), intaking3.heading)
                     .afterTime(0, () -> {
