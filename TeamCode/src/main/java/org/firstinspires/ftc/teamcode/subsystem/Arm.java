@@ -18,19 +18,21 @@ public final class Arm {
     public static double
             TIME_RETRACTED_TO_SAMPLE = 0.8,
             TIME_SAMPLE_TO_RETRACTED = 0.4,
+            TIME_SAMPLE_TO_IN_BASKET = 0.3,
             TIME_TRANSFER_TO_INTAKING = 0.65,
-            TIME_INTAKING_TO_WRIST_FREE = 0.2,
-            TIME_INTAKING_TO_SPEC = 0.65,
-            TIME_SPEC_TO_RETRACTED = 0.35;
+            TIME_INTAKING_TO_SPEC = 1,
+            TIME_SCORE_SPEC = 1,
+            TIME_SCORE_SPEC_TO_RETRACTED = 1;
 
     public static Arm.Position
-            INTAKING =  new Arm.Position(285, 0, "INTAKING"),
-            TRANSFER =  new Arm.Position(85, 305, "TRANSFER"),
-            POST_INTAKING =  new Arm.Position(355, 75, "POST INTAKING AVOID WALL"),
-            SPECIMEN =  new Arm.Position(275, 240, "SPECIMEN"),
-            ASCENT = new Arm.Position(325, 230, "ASCENT"),
-            SAMPLE =    new Arm.Position(355, 355, "SAMPLE"),
-            PRELOADED = new Arm.Position(140, 320, "PRELOADED");
+            TRANSFER =      new Arm.Position(85, 305, "TRANSFER"),
+            INTAKING =      new Arm.Position(275, 240, "INTAKING"),
+            SPECIMEN =      new Arm.Position(270, 270, "SPECIMEN"),
+            SCORING_SPEC =  new Arm.Position(270, 270, "SCORING SPEC"),
+            SPEC_PRELOAD =  new Arm.Position(275, 240, "SPEC PRELOAD"),
+            ASCENT =        new Arm.Position(325, 230, "LVL 1 ASCENT"),
+            SAMPLE =        new Arm.Position(355, 355, "SAMPLE"),
+            SCORING_SAMPLE =new Arm.Position(355, 355, "SCORING SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
     private boolean movingToTarget = false;
@@ -49,17 +51,18 @@ public final class Arm {
     private double timeToReachTarget() {
         return
                 target == lastTarget ?      0 :
-                target == PRELOADED ?       0 :
-                target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
-                target == SPECIMEN ?
-                        lastTarget == PRELOADED ?   0 :
-                                                    TIME_INTAKING_TO_SPEC :
-                target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
+                target == SPEC_PRELOAD ?    0 :
                 target == ASCENT ?          0 :
+                target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
+                target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
+                target == SCORING_SPEC ?    TIME_SCORE_SPEC :
+                target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
+                target == SCORING_SAMPLE ?  TIME_SAMPLE_TO_IN_BASKET :
                 target == TRANSFER ?
-                        lastTarget == INTAKING ?    TIME_TRANSFER_TO_INTAKING :
-                        lastTarget == SAMPLE ?      TIME_SAMPLE_TO_RETRACTED :
-                                                    TIME_SPEC_TO_RETRACTED :
+                        lastTarget == SAMPLE ?          TIME_SAMPLE_TO_RETRACTED :
+                        lastTarget == SCORING_SAMPLE ?  TIME_SAMPLE_TO_RETRACTED :
+                        lastTarget == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
+                                                        TIME_SCORE_SPEC_TO_RETRACTED :
                 1;
     }
 
@@ -67,8 +70,8 @@ public final class Arm {
         return getTimeTraveled() >= timeToReachTarget();
     }
 
-    boolean isUnderhand() {
-        return target == INTAKING || (lastTarget == INTAKING && getTimeTraveled() < TIME_TRANSFER_TO_INTAKING);
+    boolean movingNearIntake() {
+        return (target == TRANSFER || (lastTarget == TRANSFER && getTimeTraveled() < TIME_TRANSFER_TO_INTAKING)) && target != Arm.SPEC_PRELOAD;
     }
 
     public boolean atPosition(Position position) {
@@ -102,10 +105,6 @@ public final class Arm {
 
             setpoint = lastTarget;
         }
-
-        // Override wrist angle for 0.2ish seconds so specimen doesn't get stuck on wall
-        if (setpoint == SPECIMEN && timer.seconds() <= TIME_INTAKING_TO_WRIST_FREE && lastTarget != PRELOADED)
-            setpoint = POST_INTAKING;
 
         rServo.turnToAngle(setpoint.right);
         lServo.turnToAngle(setpoint.left);

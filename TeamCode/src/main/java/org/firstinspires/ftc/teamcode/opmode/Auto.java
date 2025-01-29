@@ -15,6 +15,9 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAI
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPECIMEN_SCORED;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPECIMEN_SCORING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_SPECIMEN_PRELOAD;
 import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
@@ -110,8 +113,8 @@ public final class Auto extends LinearOpMode {
             intakingSub = new EditablePose(-22, -11, 0),
             sweptSub = new EditablePose(-28, 0, PI / 4),
             parkLeft = new EditablePose(-22, -11, 0),
-            chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
-            chamberLeft = new EditablePose(-chamberRight.x, chamberRight.y, chamberRight.heading),
+            chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33,  - PI / 2),
+            chamberLeft = new EditablePose(-0.5 * WIDTH_ROBOT - 0.375, -33, PI / 2),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
             pushing2 = new EditablePose(57, pushing1.y, toRadians(-70)),
@@ -236,11 +239,6 @@ public final class Auto extends LinearOpMode {
 
         specimenPreload = specimenSide || specimenPreload;
 
-        if (specimenPreload)
-            robot.deposit.preloadSpecimen();
-        else
-            robot.deposit.transfer(NEUTRAL);
-
         mTelemetry.addLine("GENERATING TRAJECTORY...");
         mTelemetry.update();
 
@@ -254,7 +252,9 @@ public final class Auto extends LinearOpMode {
 
         if (specimenSide) {
 
-            pose = new Pose2d(chamberRight.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2);
+            while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
+
+            pose = new Pose2d(chamberRight.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, - PI / 2);
 
             TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
@@ -320,6 +320,11 @@ public final class Auto extends LinearOpMode {
 
         } else {
 
+            if (specimenPreload)
+                robot.deposit.preloadSpecimen();
+            else
+                robot.deposit.transfer(NEUTRAL);
+
             pose = specimenPreload ?
                     new Pose2d(chamberLeft.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2) :
                     new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
@@ -351,7 +356,12 @@ public final class Auto extends LinearOpMode {
                             robot.drivetrain.actionBuilder(pose)
                                     .waitSeconds(partnerWait)
                                     .strafeTo(chamberLeft.toVector2d())
-                                    .stopAndAdd(scoreSpecimen(robot))
+                                    .waitSeconds(WAIT_APPROACH_CHAMBER)
+                                    .stopAndAdd(telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPEC_PRELOAD) && robot.deposit.lift.atPosition(HEIGHT_SPECIMEN_PRELOAD))) // wait until deposit in position
+                                    .stopAndAdd(() -> robot.deposit.lift.setTarget(HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_SPECIMEN_SCORING))
+                                    .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_SPECIMEN_SCORED)
+                                    .stopAndAdd(robot.deposit::triggerClaw)
+                                    .waitSeconds(WAIT_SCORE_CHAMBER)
                                     .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)
                                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                                     .waitSeconds(WAIT_DROP_TO_EXTEND) :
@@ -533,13 +543,7 @@ public final class Auto extends LinearOpMode {
 
         mTelemetry.update();
 
-        if (specimenPreload) {
-            while (opModeInInit()) {
-                robot.deposit.arm.run(true);
-            }
-        } else waitForStart();
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
+        waitForStart(); //--------------------------------------------------------------------------------------------------------------------------
 
         robot.drivetrain.pinpoint.setPositionRR(pose);
 
