@@ -560,7 +560,7 @@ public final class Auto extends LinearOpMode {
                     if (robot.getSample() == null) robot.deposit.transfer(NEUTRAL);
                 }),
                 new SleepAction(WAIT_APPROACH_BASKET),
-                telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)),
+                telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SCORING_SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)),
                 new InstantAction(robot.deposit::triggerClaw),
                 new SleepAction(WAIT_SCORE_BASKET)
         );
