@@ -1,18 +1,24 @@
 package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_RIGHT;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.ASCENT;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SAMPLE;
+import static org.firstinspires.ftc.teamcode.subsystem.Arm.SCORING_SAMPLE;
+import static org.firstinspires.ftc.teamcode.subsystem.Arm.SCORING_SPEC;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPECIMEN;
+import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPEC_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.TRANSFER;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ANGLE_CLAW_CLOSED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ANGLE_CLAW_OPEN;
@@ -69,8 +75,20 @@ public final class TuningArm extends LinearOpMode {
                 arm.setTarget(TRANSFER);
                 timer.reset();
             }
-            if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) {
+            if (gamepadEx1.wasJustPressed(B)) {
                 arm.setTarget(ASCENT);
+                timer.reset();
+            }
+            if (gamepadEx1.wasJustPressed(Y)) {
+                arm.setTarget(SCORING_SAMPLE);
+                timer.reset();
+            }
+            if (gamepadEx1.wasJustPressed(X)) {
+                arm.setTarget(SPEC_PRELOAD);
+                timer.reset();
+            }
+            if (gamepadEx1.wasJustPressed(A)) {
+                arm.setTarget(SCORING_SPEC);
                 timer.reset();
             }
 
