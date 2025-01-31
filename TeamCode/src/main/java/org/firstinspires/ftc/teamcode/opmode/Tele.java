@@ -17,6 +17,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_AL
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_SLOW_LOCK;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.PRELOAD_SAMPLE;
+import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.PRELOAD_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.isRedAlliance;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.pose;
@@ -47,6 +48,7 @@ public final class Tele extends LinearOpMode {
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
+        PRELOAD_SPECIMEN,
         EDITING_ALLIANCE,
         EDITING_SLOW_LOCK,
         EDITING_FIELD_CENTRIC;
@@ -91,16 +93,23 @@ public final class Tele extends LinearOpMode {
 
             if (gamepadEx1.wasJustPressed(DPAD_UP)) {
                 do selection = selection.plus(-1);
-                while (robot.deposit.hasSample() && selection == PRELOAD_SAMPLE);
+                while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
                 do selection = selection.plus(1);
-                while (robot.deposit.hasSample() && selection == PRELOAD_SAMPLE);
+                while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             }
 
             switch (selection) {
                 case PRELOAD_SAMPLE:
                     if (gamepadEx1.wasJustPressed(X)) {
                         robot.deposit.transfer(NEUTRAL);
+                        selection = selection.plus(2);
+                    }
+                    break;
+                case PRELOAD_SPECIMEN:
+                    if (gamepadEx1.wasJustPressed(X)) {
+                        while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
+                        robot.deposit.closeClaw();
                         selection = selection.plus(1);
                     }
                     break;
@@ -125,7 +134,12 @@ public final class Tele extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            mTelemetry.addLine(robot.deposit.hasSample() ? "Preloaded a sample" : ("Preload sample" + selection.markIf(PRELOAD_SAMPLE)));
+            if (robot.deposit.hasSample()) mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "SPECIMEN" : "SAMPLE"));
+            else {
+                mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
+                mTelemetry.addLine();
+                mTelemetry.addLine("Preload specimen" + selection.markIf(PRELOAD_SPECIMEN));
+            }
             mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
