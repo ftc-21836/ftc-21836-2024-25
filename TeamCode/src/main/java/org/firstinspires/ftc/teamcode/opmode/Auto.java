@@ -46,7 +46,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
-import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 import java.util.ArrayList;
@@ -90,15 +89,14 @@ public final class Auto extends LinearOpMode {
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_INTAKE_RETRACT = 0.75,
             WAIT_EXTEND = 0.75,
+            WAIT_SWEEPER = 0.2,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
             X_OFFSET_CHAMBER_4 = -3,
             Y_INCHING_FORWARD_WHEN_INTAKING = 5,
             TIME_CYCLE = 9,
-            TIME_SCORE = 4,
-            INCREMENT_LOWERING_BUCKET = 0.8,
-            LENGTH_START_DROPPING_BUCKET = 50;
+            TIME_SCORE = 4;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
@@ -111,7 +109,7 @@ public final class Auto extends LinearOpMode {
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
             intakingSub = new EditablePose(-22, -11, 0),
-            sweptSub = new EditablePose(-28, 0, PI / 4),
+            sweptSub = new EditablePose(-22, 0, 0),
             parkLeft = new EditablePose(-22, -11, 0),
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33,  - PI / 2),
             chamberLeft = new EditablePose(-chamberRight.x, -33, PI / 2),
@@ -457,11 +455,17 @@ public final class Auto extends LinearOpMode {
                             new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
                     )
                     .afterTime(0, () -> {
-                        robot.intake.extendo.setExtended(false);
+                        robot.intake.extendo.setTarget(EXTEND_SUB_MIN);
                         robot.intake.runRoller(0);
                     })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
+                    .stopAndAdd(() -> robot.sweeper.setActivated(true))
+                    .waitSeconds(WAIT_SWEEPER)
+                    .stopAndAdd(() -> robot.sweeper.setActivated(false))
+                    .waitSeconds(WAIT_SWEEPER)
+                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                    .waitSeconds(WAIT_DROP_TO_EXTEND)
                     .build();
 
             Action subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
@@ -490,8 +494,15 @@ public final class Auto extends LinearOpMode {
 
             for (int i = 0; i < 6; i++) {
                 toSubs.add(robot.drivetrain.actionBuilder(basket.toPose2d())
+                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
                         .setTangent(basket.heading)
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
+                        .stopAndAdd(() -> robot.sweeper.setActivated(true))
+                        .waitSeconds(WAIT_SWEEPER)
+                        .stopAndAdd(() -> robot.sweeper.setActivated(false))
+                        .waitSeconds(WAIT_SWEEPER)
+                        .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                        .waitSeconds(WAIT_DROP_TO_EXTEND)
                         .build()
                 );
                 sweepLefts.add(robot.drivetrain.actionBuilder(intakingSub.toPose2d())

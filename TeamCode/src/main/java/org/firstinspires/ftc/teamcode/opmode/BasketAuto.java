@@ -14,9 +14,6 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_2;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_3;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SUB_MAX;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SUB_MIN;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.INCREMENT_LOWERING_BUCKET;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.LENGTH_START_DROPPING_BUCKET;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_EXTEND_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_SCORE;
@@ -53,7 +50,7 @@ class BasketAuto implements Action {
     private State state = PRELOAD_AND_1;
 
     private ElapsedTime matchTimer = null;
-    private final ElapsedTime timer = new ElapsedTime(), bucketTimer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime(), extendoTimer = new ElapsedTime();
 
     private Action activeTraj;
 
@@ -236,7 +233,7 @@ class BasketAuto implements Action {
                     sweepingLeft = true;
                     activeTraj = sweepLefts.remove(0);
                     state = INTAKING;
-                    bucketTimer.reset();
+                    extendoTimer.reset();
                 }
                 break;
             case INTAKING:
@@ -252,10 +249,8 @@ class BasketAuto implements Action {
 
                     /// <a href="https://www.desmos.com/calculator/iazwdw6hky">Graph</a>
                     robot.intake.extendo.setTarget(
-                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * remaining / TIME_EXTEND_CYCLE)) / 2
+                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
                     );
-                    if (robot.intake.extendo.getPosition() >= LENGTH_START_DROPPING_BUCKET)
-                        robot.intake.runRoller(min(bucketTimer.seconds() * INCREMENT_LOWERING_BUCKET, SPEED_INTAKING));
 
                     timer.reset();
 
