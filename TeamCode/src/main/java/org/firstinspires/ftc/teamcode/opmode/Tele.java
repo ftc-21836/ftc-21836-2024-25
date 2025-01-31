@@ -86,7 +86,7 @@ public final class Tele extends LinearOpMode {
 
         TeleOpConfig selection = PRELOAD_SAMPLE;
 
-        boolean slowModeLocked = false, useFieldCentric = true;
+        boolean slowModeLocked = false, useFieldCentric = true, doTelemetry = false;
 
         while (opModeInInit()) {
             gamepadEx1.readButtons();
@@ -180,6 +180,8 @@ public final class Tele extends LinearOpMode {
                 robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
+                if (gamepadEx1.isDown(X)) doTelemetry = !doTelemetry;
+
             } else {
 
                 robot.intake.runRoller(triggers);
@@ -222,7 +224,7 @@ public final class Tele extends LinearOpMode {
 
             robot.run();
 
-            if (gamepadEx1.isDown(A)) {
+            if (doTelemetry) {
                 robot.printTelemetry();
                 mTelemetry.update();
             }
