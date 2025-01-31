@@ -8,7 +8,7 @@ import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.PRELOAD_AND
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING_1;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING_2;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SWEEPING;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_1;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_2;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_3;
@@ -46,7 +46,7 @@ class BasketAuto implements Action {
         INTAKING_3,
         SCORING,
         DRIVING_TO_SUB,
-        SWEEPING,
+        INTAKING,
         PARKING
     }
 
@@ -121,7 +121,7 @@ class BasketAuto implements Action {
 
         boolean hasSample = robot.intake.hasSample();
 
-        boolean intaking = state == PRELOAD_AND_1 || state == INTAKING_2 || state == INTAKING_3 || state == SWEEPING;
+        boolean intaking = state == PRELOAD_AND_1 || state == INTAKING_2 || state == INTAKING_3 || state == INTAKING;
         boolean stopMoving = intaking && hasSample;
         boolean trajDone = !stopMoving && !activeTraj.run(p);
 
@@ -235,11 +235,11 @@ class BasketAuto implements Action {
                 if (trajDone) {
                     sweepingLeft = true;
                     activeTraj = sweepLefts.remove(0);
-                    state = SWEEPING;
+                    state = INTAKING;
                     bucketTimer.reset();
                 }
                 break;
-            case SWEEPING:
+            case INTAKING:
 
                 if (remaining < TIME_SCORE) {
                     activeTraj = subPark;
