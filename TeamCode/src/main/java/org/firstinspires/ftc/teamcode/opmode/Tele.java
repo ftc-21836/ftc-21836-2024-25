@@ -222,6 +222,8 @@ public final class Tele extends LinearOpMode {
 
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
+            robot.sweeper.setActivated(gamepadEx1.isDown(A));
+
             robot.run();
 
             if (doTelemetry) {
