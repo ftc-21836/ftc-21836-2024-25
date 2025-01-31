@@ -122,7 +122,7 @@ public final class Auto extends LinearOpMode {
             pushed1 = new EditablePose(pushing1.x, -46, toRadians(110)),
             pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
             pushed3 = new EditablePose(pushing3.x, pushed1.y, - PI / 2),
-            intakingSpec = new EditablePose(36, -SIZE_HALF_FIELD + LENGTH_ROBOT * 0.5, PI / 2),
+            intakingSpec = new EditablePose(36, -60, PI / 2),
             intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading);
 
     static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
