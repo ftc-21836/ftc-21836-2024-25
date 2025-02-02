@@ -25,13 +25,13 @@ public final class Arm {
             TIME_SCORE_SPEC_TO_RETRACTED = 1;
 
     public static Arm.Position
-            TRANSFER =      new Arm.Position(85, 305, "TRANSFER"),
+            TRANSFER =      new Arm.Position(115, 257, "TRANSFER"),
             INTAKING =      new Arm.Position(275, 240, "INTAKING"),
-            SPECIMEN =      new Arm.Position(270, 270, "SPECIMEN"),
-            SCORING_SPEC =  new Arm.Position(270, 270, "SCORING SPEC"),
-            SPEC_PRELOAD =  new Arm.Position(275, 240, "SPEC PRELOAD"),
-            ASCENT =        new Arm.Position(325, 230, "LVL 1 ASCENT"),
-            SAMPLE =        new Arm.Position(355, 355, "SAMPLE"),
+            SPECIMEN =      new Arm.Position(355, 355, "SPECIMEN"),
+            SCORING_SPEC =  new Arm.Position(355, 250, "SCORING SPEC"),
+            SPEC_PRELOAD =  new Arm.Position(305, 192, "SPEC PRELOAD"),
+            ASCENT =        new Arm.Position(355, 182, "LVL 1 ASCENT"),
+            SAMPLE =        new Arm.Position(330, 330, "SAMPLE"),
             SCORING_SAMPLE =new Arm.Position(355, 355, "SCORING SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();

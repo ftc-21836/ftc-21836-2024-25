@@ -92,11 +92,11 @@ public final class TuningArm extends LinearOpMode {
                 timer.reset();
             }
 
-            if (gamepadEx1.wasJustPressed(X)) seconds = timer.seconds();
+            if (gamepadEx1.wasJustPressed(LEFT_BUMPER)) seconds = timer.seconds();
 
             arm.run(true);
 
-            if (gamepadEx1.wasJustPressed(B)) closed = !closed;
+            if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) closed = !closed;
             claw.turnToAngle(closed ? ANGLE_CLAW_CLOSED: ANGLE_CLAW_OPEN);
 
             arm.printTelemetry();
