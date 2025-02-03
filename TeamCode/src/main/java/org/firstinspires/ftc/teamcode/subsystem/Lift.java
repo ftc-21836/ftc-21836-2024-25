@@ -107,7 +107,7 @@ public final class Lift {
         mTelemetry.addData("Left encoder (ticks)", motors[1].encoder.getPosition());
     }
 
-    double getPosition() {
+    public double getPosition() {
         return position;
     }
 

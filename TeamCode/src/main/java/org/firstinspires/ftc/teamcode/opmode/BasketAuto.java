@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.DRIVING_TO_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_2;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_3;
@@ -8,19 +9,16 @@ import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.PRELOAD_AND
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING_1;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SCORING_2;
-import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.SWEEPING;
+import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_1;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_2;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SAMPLE_3;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SUB_MAX;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SUB_MIN;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.INCREMENT_LOWERING_BUCKET;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.LENGTH_START_DROPPING_BUCKET;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_EXTEND_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_SCORE;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SPIKE;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -46,14 +44,14 @@ class BasketAuto implements Action {
         INTAKING_3,
         SCORING,
         DRIVING_TO_SUB,
-        SWEEPING,
+        INTAKING,
         PARKING
     }
 
     private State state = PRELOAD_AND_1;
 
     private ElapsedTime matchTimer = null;
-    private final ElapsedTime timer = new ElapsedTime(), bucketTimer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime(), extendoTimer = new ElapsedTime();
 
     private Action activeTraj;
 
@@ -121,7 +119,7 @@ class BasketAuto implements Action {
 
         boolean hasSample = robot.intake.hasSample();
 
-        boolean intaking = state == PRELOAD_AND_1 || state == INTAKING_2 || state == INTAKING_3 || state == SWEEPING;
+        boolean intaking = state == PRELOAD_AND_1 || state == INTAKING_2 || state == INTAKING_3 || state == INTAKING;
         boolean stopMoving = intaking && hasSample;
         boolean trajDone = !stopMoving && !activeTraj.run(p);
 
@@ -144,7 +142,7 @@ class BasketAuto implements Action {
 
                 } else {
                     robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING) {
+                    if (timer.seconds() >= WAIT_POST_INTAKING_SPIKE) {
                         robot.intake.runRoller(0);
                         activeTraj = score1;
                         state = SCORING_1;
@@ -177,7 +175,7 @@ class BasketAuto implements Action {
 
                 } else {
                     robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING) {
+                    if (timer.seconds() >= WAIT_POST_INTAKING_SPIKE) {
                         robot.intake.runRoller(0);
                         activeTraj = score2;
                         state = SCORING_2;
@@ -210,7 +208,7 @@ class BasketAuto implements Action {
 
                 } else {
                     robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING) {
+                    if (timer.seconds() >= WAIT_POST_INTAKING_SPIKE) {
                         robot.intake.runRoller(0);
                         activeTraj = score3;
                         state = SCORING;
@@ -235,11 +233,11 @@ class BasketAuto implements Action {
                 if (trajDone) {
                     sweepingLeft = true;
                     activeTraj = sweepLefts.remove(0);
-                    state = SWEEPING;
-                    bucketTimer.reset();
+                    state = INTAKING;
+                    extendoTimer.reset();
                 }
                 break;
-            case SWEEPING:
+            case INTAKING:
 
                 if (remaining < TIME_SCORE) {
                     activeTraj = subPark;
@@ -252,10 +250,8 @@ class BasketAuto implements Action {
 
                     /// <a href="https://www.desmos.com/calculator/iazwdw6hky">Graph</a>
                     robot.intake.extendo.setTarget(
-                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * remaining / TIME_EXTEND_CYCLE)) / 2
+                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
                     );
-                    if (robot.intake.extendo.getPosition() >= LENGTH_START_DROPPING_BUCKET)
-                        robot.intake.runRoller(min(bucketTimer.seconds() * INCREMENT_LOWERING_BUCKET, SPEED_INTAKING));
 
                     timer.reset();
 
@@ -267,7 +263,7 @@ class BasketAuto implements Action {
 
                 } else {
                     robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING) {
+                    if (timer.seconds() >= WAIT_POST_INTAKING_SUB) {
                         robot.intake.runRoller(0);
                         activeTraj = scores.remove(0);
                         state = SCORING;

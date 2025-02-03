@@ -61,7 +61,7 @@ public class MeepMeepTesting {
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
             intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
             intakingSub = new EditablePose(-22, -11, 0),
-            sweptSub = new EditablePose(-28, 0, PI / 4),
+            sweptSub = new EditablePose(-22, 0, 0),
             aroundBeamParkLeft = new EditablePose(-40, -25, 0),
             parkLeft = new EditablePose(-22, -11, 0),
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, PI / 2),
@@ -84,7 +84,7 @@ public class MeepMeepTesting {
 
         boolean specimenSide = false;
         double partnerWait = 0;
-        int cycles = 3;
+        int cycles = 5;
         boolean specimenPreload = false;
 
         specimenPreload = specimenSide || specimenPreload;

@@ -37,6 +37,7 @@ public final class Sizing extends LinearOpMode {
                     robot.intake.runRoller(0);
                 } else {
                     robot.deposit.transfer(NEUTRAL);
+                    robot.deposit.setPosition(Deposit.Position.LOW);
                     robot.intake.extendo.setExtended(true);
                     robot.intake.runRoller(0.01);
                 }

@@ -12,7 +12,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.intakingSpec;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_FIELD_CENTRIC;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_SLOW_LOCK;
@@ -86,33 +86,30 @@ public final class Tele extends LinearOpMode {
 
         TeleOpConfig selection = PRELOAD_SAMPLE;
 
-        boolean slowModeLocked = false, useFieldCentric = true;
-
-        boolean preloaded = false;
+        boolean slowModeLocked = false, useFieldCentric = true, doTelemetry = false;
 
         while (opModeInInit()) {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(DPAD_UP)) {
                 do selection = selection.plus(-1);
-                while (preloaded && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
+                while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
                 do selection = selection.plus(1);
-                while (preloaded && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
+                while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             }
 
             switch (selection) {
                 case PRELOAD_SAMPLE:
                     if (gamepadEx1.wasJustPressed(X)) {
                         robot.deposit.transfer(NEUTRAL);
-                        preloaded = true;
                         selection = selection.plus(2);
                     }
                     break;
                 case PRELOAD_SPECIMEN:
                     if (gamepadEx1.wasJustPressed(X)) {
-                        robot.deposit.preloadSpecimen();
-                        preloaded = true;
+                        while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
+                        robot.deposit.closeClaw();
                         selection = selection.plus(1);
                     }
                     break;
@@ -137,7 +134,7 @@ public final class Tele extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            if (preloaded) mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "SPECIMEN" : "SAMPLE"));
+            if (robot.deposit.hasSample()) mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "SPECIMEN" : "SAMPLE"));
             else {
                 mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
                 mTelemetry.addLine();
@@ -183,6 +180,8 @@ public final class Tele extends LinearOpMode {
                 robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
+                if (gamepadEx1.isDown(X)) doTelemetry = !doTelemetry;
+
             } else {
 
                 robot.intake.runRoller(triggers);
@@ -194,10 +193,10 @@ public final class Tele extends LinearOpMode {
                 robot.drivetrain.run(
                         gamepadEx1.getLeftX(),
                         gamepadEx1.getLeftY(),
-                        gamepadEx1.isDown(X) ?
+                        gamepadEx1.isDown(X) && (robot.deposit.basketReady() || robot.intake.hasSample() || robot.deposit.intaking())?
                                 driver.driveTo(
                                         new EditablePose(robot.drivetrain.pose),
-                                        robot.deposit.basketReady() || robot.intake.hasSample() ? basket : intakingSpec
+                                        robot.deposit.intaking() ? chamberRight : basket
                                 ).drivePower.heading :
                                 gamepadEx1.getRightX(),
                         slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
@@ -223,9 +222,11 @@ public final class Tele extends LinearOpMode {
 
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
 
+            robot.sweeper.setActivated(gamepadEx1.isDown(A));
+
             robot.run();
 
-            if (gamepadEx1.isDown(A)) {
+            if (doTelemetry) {
                 robot.printTelemetry();
                 mTelemetry.update();
             }

@@ -163,13 +163,8 @@ public final class Intake {
                 }
 
                 if (sample == badSample) {
-
-                    sample = null;
-                    rollerSpeed = SPEED_EJECTING;
-                    state = EJECTING_SAMPLE;
-                    timer.reset();
+                    ejectSample();
                     break;
-
                 }
 
                 if (rollerSpeed == 0) setExtended(false);
@@ -250,7 +245,11 @@ public final class Intake {
 
         extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
 
-        roller.setPower(stopRoller ? 0 : deposit.hasSample() && state == INTAKING ? 0 : rollerSpeed);
+        roller.setPower(
+            stopRoller || (deposit.hasSample() && state == INTAKING) ? 0 :
+            state == EJECTING_SAMPLE ? SPEED_EJECTING :
+            rollerSpeed
+        );
     }
 
     public void transfer(Deposit deposit, Sample sample) {
@@ -258,6 +257,12 @@ public final class Intake {
         deposit.transfer(sample);
         this.sample = null;
         rollerSpeed = 0;
+        timer.reset();
+    }
+
+    public void ejectSample() {
+        sample = null;
+        state = EJECTING_SAMPLE;
         timer.reset();
     }
 
