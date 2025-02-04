@@ -458,6 +458,7 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SUB_MIN);
                         robot.intake.runRoller(0);
+                        robot.intake.ejectSample();
                     })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
