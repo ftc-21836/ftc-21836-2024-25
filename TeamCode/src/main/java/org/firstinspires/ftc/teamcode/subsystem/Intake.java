@@ -119,8 +119,8 @@ public final class Intake {
     private final ElapsedTime timer = new ElapsedTime();
 
     enum State {
-        STANDBY,
         EJECTING_SAMPLE,
+        STANDBY,
         BUCKET_SEMI_RETRACTING,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
@@ -152,6 +152,14 @@ public final class Intake {
 
         switch (state) {
 
+            case EJECTING_SAMPLE:
+
+                setBucket(ANGLE_BUCKET_INTAKING);
+                roller.setPower(stopRoller ? 0 : SPEED_EJECTING);
+
+                if (timer.seconds() >= TIME_EJECTING) state = STANDBY;
+                else break;
+
             case STANDBY:
 
                 if (rollerSpeed != 0) { // intaking, trigger held down
@@ -163,12 +171,10 @@ public final class Intake {
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
                     if (getSample() == badSample) ejectSample();
-                    else break;
-                    
-                } else if (hasSample()) { // trigger released, sample acquired, initiate transfer
-                    transfer(sample);
+
                     break;
-                } else { // retracted
+                    
+                } else if (!hasSample()) { // retracted
 
                     setBucket(ANGLE_BUCKET_RETRACTED);
                     roller.setPower(
@@ -176,17 +182,10 @@ public final class Intake {
                         deposit.hasSample() && !clearOfDeposit() ? SPEED_POST_TRANSFER :
                         SPEED_RETRACTED
                     );
+
                     break;
-                }
 
-            case EJECTING_SAMPLE:
-
-                setBucket(ANGLE_BUCKET_INTAKING);
-                roller.setPower(stopRoller ? 0 : SPEED_EJECTING);
-
-                if (timer.seconds() >= TIME_EJECTING) state = STANDBY;
-                
-                break;
+                } else transfer(sample); // trigger released, sample acquired, initiate transfer
 
             case BUCKET_SEMI_RETRACTING:
 
