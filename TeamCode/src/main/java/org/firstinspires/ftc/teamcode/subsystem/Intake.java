@@ -103,10 +103,11 @@ public final class Intake {
     private HSV hsv = new HSV();
     private Sample sample, badSample;
 
-    private final CachedSimpleServo[] bucket;
+    private final CachedSimpleServo bucketR, bucketL;
 
     private void setBucket(double angle) {
-        for (CachedSimpleServo servo : bucket) servo.turnToAngle(angle);
+        bucketR.turnToAngle(angle);
+        bucketL.turnToAngle(angle);
     }
     
     private final TouchSensor bucketSensor;
@@ -135,10 +136,8 @@ public final class Intake {
 
         extendo = new Extendo(hardwareMap);
 
-        bucket = new CachedSimpleServo[]{
-                getAxon(hardwareMap, "bucket right").reversed(),
-                getAxon(hardwareMap, "bucket left")
-        };
+        bucketR = getAxon(hardwareMap, "bucket right").reversed();
+        bucketL = getAxon(hardwareMap, "bucket left");
 
         roller = hardwareMap.get(CRServo.class, "intake");
 
