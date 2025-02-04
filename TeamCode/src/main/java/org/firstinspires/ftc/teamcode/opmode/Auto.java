@@ -156,7 +156,6 @@ public final class Auto extends LinearOpMode {
         // Initialize robot:
         Robot robot = new Robot(hardwareMap, pose);
         robot.deposit.closeClaw();
-        robot.intake.trackSampleDuringTransfer = false;
 
         // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);

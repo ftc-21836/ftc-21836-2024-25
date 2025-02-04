@@ -111,8 +111,6 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
-    public boolean trackSampleDuringTransfer = true;
-
     private final ElapsedTime timer = new ElapsedTime();
 
     enum State {
@@ -148,24 +146,7 @@ public final class Intake {
 
     void run(Deposit deposit, boolean stopRoller) {
 
-        boolean lookForSample = state == INTAKING || trackSampleDuringTransfer && (state == BUCKET_SEMI_RETRACTING || state == EXTENDO_RETRACTING);
-
-        if (lookForSample) {
-            colorSensor.update();
-            sample = hsvToSample(hsv = colorSensor.getHSV());
-        }
-
-        if (lookForSample && !hasSample()) {
-
-            if (state == INTAKING && rollerSpeed == 0) {
-                state = RETRACTED;
-                rollerSpeed = SPEED_RETRACTED;
-            }
-            else state = INTAKING;
-
-            timer.reset();
-
-        } else switch (state) {
+        switch (state) {
 
             case EJECTING_SAMPLE:
 
@@ -174,15 +155,24 @@ public final class Intake {
 
             case INTAKING:
 
+                colorSensor.update();
+                sample = hsvToSample(hsv = colorSensor.getHSV());
+
                 if (getSample() == badSample) {
                     ejectSample();
                     break;
                 }
 
                 if (rollerSpeed == 0) {
-                    state = BUCKET_SEMI_RETRACTING;
-                    rollerSpeed = SPEED_HOLDING;
-                    timer.reset();
+                    if (hasSample()) {
+                        state = BUCKET_SEMI_RETRACTING;
+                        rollerSpeed = SPEED_HOLDING;
+                        timer.reset();
+                    } else {
+                        state = RETRACTED;
+                        rollerSpeed = SPEED_RETRACTED;
+                        break;
+                    }
                 } else break;
 
             case BUCKET_SEMI_RETRACTING:
