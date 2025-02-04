@@ -284,8 +284,6 @@ public final class Intake {
     }
 
     public void runRoller(double power) {
-        if (rollerSpeed == 0 && power != 0) sample = null;
-
         rollerSpeed = power;
     }
 
