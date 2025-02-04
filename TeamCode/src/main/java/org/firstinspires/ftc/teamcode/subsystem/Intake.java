@@ -181,17 +181,13 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
-
-                if (extendo.getPosition() <= Extendo.LENGTH_INTERFACING) {
+                if (extendo.getPosition() <= Extendo.LENGTH_INTERFACING)
                     rollerSpeed = SPEED_INTERFACING;
-                }
 
-                if (!extendo.isExtended() && deposit.readyToTransfer()) {
-
+                if (!extendo.isExtended() && deposit.readyToTransfer())
                     state = BUCKET_RETRACTING;
-                    timer.reset();
-
-                } else break;
+                else
+                    break;
 
             case BUCKET_RETRACTING:
 
