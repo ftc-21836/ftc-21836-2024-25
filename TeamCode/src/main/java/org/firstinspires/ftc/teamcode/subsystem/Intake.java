@@ -172,14 +172,15 @@ public final class Intake {
 
                 if (sampleLost(INTAKING)) break;
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT) state = EXTENDO_RETRACTING;
-                else break;
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT) {
+                    state = EXTENDO_RETRACTING;
+                    extendo.setExtended(false);
+                } else break;
 
             case EXTENDO_RETRACTING:
 
                 if (sampleLost(INTAKING)) break;
 
-                extendo.setExtended(false);
 
                 if (extendo.getPosition() <= Extendo.LENGTH_INTERFACING) {
                     rollerSpeed = SPEED_INTERFACING;
