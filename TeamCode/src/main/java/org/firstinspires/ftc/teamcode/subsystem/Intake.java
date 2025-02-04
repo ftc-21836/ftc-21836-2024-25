@@ -287,7 +287,7 @@ public final class Intake {
     }
 
     public void runRoller(double power) {
-        if (power != 0) {
+        if (power != 0 && state == RETRACTED) {
             state = INTAKING;
             sample = null;
         }
