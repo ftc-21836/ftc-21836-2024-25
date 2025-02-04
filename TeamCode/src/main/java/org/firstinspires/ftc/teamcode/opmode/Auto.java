@@ -19,6 +19,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPE
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPECIMEN_SCORING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_SPECIMEN_PRELOAD;
 import static java.lang.Math.PI;
+import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
@@ -91,6 +92,7 @@ public final class Auto extends LinearOpMode {
             WAIT_INTAKE_RETRACT = 0.75,
             WAIT_EXTEND = 0.75,
             WAIT_SWEEPER = 0.2,
+            LIFT_HEIGHT_TOLERANCE = 1,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
@@ -573,7 +575,7 @@ public final class Auto extends LinearOpMode {
                     if (robot.getSample() == null) robot.deposit.transfer(NEUTRAL);
                 }),
                 new SleepAction(WAIT_APPROACH_BASKET),
-                telemetryPacket -> !robot.deposit.arm.atPosition(Arm.SCORING_SAMPLE),
+                telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SCORING_SAMPLE) && abs(robot.deposit.lift.getPosition() - HEIGHT_BASKET_HIGH) <= LIFT_HEIGHT_TOLERANCE),
                 new InstantAction(robot.deposit::triggerClaw),
                 new SleepAction(WAIT_SCORE_BASKET)
         );
