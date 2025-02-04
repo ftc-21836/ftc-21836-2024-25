@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
@@ -21,6 +20,8 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SPEC_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
+import static java.lang.Math.abs;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -40,6 +41,8 @@ public final class Deposit {
             TIME_SAMPLE_RELEASE = 0.5,
             TIME_SPEC_GRAB = 0.25,
             TIME_SPEC_RELEASE = 0.5,
+
+            TOLERANCE_ARM_SCORING_POS = 2,
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_OBSERVATION_ZONE = 0.01,
@@ -140,11 +143,15 @@ public final class Deposit {
 
         }
 
-        boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
+        double liftPos = lift.getPosition();
+        boolean aboveIntake = liftPos >= HEIGHT_ABOVE_INTAKE;
         boolean intakeClear = intake.clearOfDeposit();
 
+        boolean atLowBasket = abs(liftPos - HEIGHT_BASKET_LOW) <= TOLERANCE_ARM_SCORING_POS;
+        boolean atHighBasket = abs(liftPos - HEIGHT_BASKET_HIGH) <= TOLERANCE_ARM_SCORING_POS;
+
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean atBasket = state.armPosition == Arm.SAMPLE && (lift.atPosition(HEIGHT_BASKET_HIGH) || lift.atPosition(HEIGHT_BASKET_LOW));
+        boolean atBasket = state.armPosition == Arm.SAMPLE && (atLowBasket || atHighBasket);
 
         Arm.Position armPosition =
                 level1Ascent ? Arm.ASCENT :
