@@ -24,7 +24,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
-import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
 @Config
@@ -104,7 +104,7 @@ public final class Intake {
     private HSV hsv = new HSV();
     private Sample sample, badSample;
 
-    private final SimpleServoPivot bucket;
+    private final CachedSimpleServo[] bucket;
     private final TouchSensor bucketSensor;
 
     public final Extendo extendo;
@@ -132,12 +132,10 @@ public final class Intake {
 
         extendo = new Extendo(hardwareMap);
 
-        bucket = new SimpleServoPivot(
-                ANGLE_BUCKET_RETRACTED,
-                ANGLE_BUCKET_PRE_TRANSFER,
+        bucket = new CachedSimpleServo[]{
                 getAxon(hardwareMap, "bucket right").reversed(),
                 getAxon(hardwareMap, "bucket left")
-        );
+        };
 
         roller = hardwareMap.get(CRServo.class, "intake");
 
@@ -189,7 +187,6 @@ public final class Intake {
 
                 if (!extendo.isExtended() && deposit.readyToTransfer()) {
 
-                    bucket.setActivated(false);
                     state = BUCKET_RETRACTING;
                     timer.reset();
 
@@ -235,13 +232,13 @@ public final class Intake {
 
         double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
 
-        double ANGLE_BUCKET_EXTENDED =
-                state == EJECTING_SAMPLE ? ANGLE_BUCKET_INTAKING :
-                state == INTAKING ? lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)) :
-                ANGLE_BUCKET_PRE_TRANSFER;
-
-        bucket.updateAngles(ANGLE_BUCKET_RETRACTED, ANGLE_BUCKET_EXTENDED);
-        bucket.run();
+        for (CachedSimpleServo servo : bucket) servo.turnToAngle(
+                state == EJECTING_SAMPLE ?          ANGLE_BUCKET_INTAKING :
+                state == INTAKING ?                 lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)) :
+                state == BUCKET_SEMI_RETRACTING ?   ANGLE_BUCKET_PRE_TRANSFER :
+                state == EXTENDO_RETRACTING ?       ANGLE_BUCKET_PRE_TRANSFER :
+                                                    ANGLE_BUCKET_RETRACTED
+        );
 
         extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
 
@@ -312,7 +309,6 @@ public final class Intake {
 
                 if (!extend) break;
 
-                bucket.setActivated(true);
                 state = INTAKING;
                 sample = null;
 
@@ -333,7 +329,6 @@ public final class Intake {
                 }
 
                 state = RETRACTED;
-                bucket.setActivated(false);
                 rollerSpeed = SPEED_RETRACTED;
 
                 break;
