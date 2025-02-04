@@ -111,6 +111,8 @@ public final class Intake {
 
     private Intake.State state = RETRACTED;
 
+    public boolean trackSampleDuringTransfer = true;
+
     private final ElapsedTime timer = new ElapsedTime();
 
     enum State {
@@ -146,7 +148,7 @@ public final class Intake {
 
     void run(Deposit deposit, boolean stopRoller) {
 
-        boolean lookForSample = state == INTAKING || state == BUCKET_SEMI_RETRACTING || state == EXTENDO_RETRACTING;
+        boolean lookForSample = state == INTAKING || trackSampleDuringTransfer && (state == BUCKET_SEMI_RETRACTING || state == EXTENDO_RETRACTING);
 
         if (lookForSample) {
             colorSensor.update();
