@@ -7,8 +7,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SEMI_
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.INTAKING;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.RETRACTED;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
@@ -105,23 +104,27 @@ public final class Intake {
     private Sample sample, badSample;
 
     private final CachedSimpleServo[] bucket;
+
+    private void setBucket(double angle) {
+        for (CachedSimpleServo servo : bucket) servo.turnToAngle(angle);
+    }
+    
     private final TouchSensor bucketSensor;
 
     public final Extendo extendo;
 
-    private Intake.State state = RETRACTED;
+    private Intake.State state = STANDBY;
 
     private final ElapsedTime timer = new ElapsedTime();
 
     enum State {
+        STANDBY,
         EJECTING_SAMPLE,
-        INTAKING,
         BUCKET_SEMI_RETRACTING,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
         BUCKET_SETTLING,
         TRANSFERRING,
-        RETRACTED,
     }
 
     public void setAlliance(boolean redAlliance) {
@@ -146,66 +149,88 @@ public final class Intake {
 
     void run(Deposit deposit, boolean stopRoller) {
 
+        double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
+
         switch (state) {
+
+            case STANDBY:
+
+                if (rollerSpeed != 0) { // intake trigger is held down
+
+                    setBucket(lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
+                    roller.setPower(stopRoller || deposit.hasSample() ? 0 : rollerSpeed);
+                    
+                    colorSensor.update();
+                    sample = hsvToSample(hsv = colorSensor.getHSV());
+                    
+                } else if (hasSample()) { // sample acquired, initiate transfer
+
+                    setBucket(ANGLE_BUCKET_PRE_TRANSFER);
+                    roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
+                    state = BUCKET_SEMI_RETRACTING;
+                    timer.reset();
+
+                } else { // retracted
+
+                    setBucket(ANGLE_BUCKET_RETRACTED);
+                    roller.setPower(
+                        stopRoller ? 0 : 
+                        deposit.hasSample() && !clearOfDeposit() ? SPEED_POST_TRANSFER :
+                        SPEED_RETRACTED
+                    );
+
+                }
+
+                if (getSample() == badSample) ejectSample();
+                else break;
 
             case EJECTING_SAMPLE:
 
-                if (timer.seconds() >= TIME_EJECTING) state = INTAKING;
-                else break;
+                setBucket(ANGLE_BUCKET_INTAKING);
+                roller.setPower(stopRoller ? 0 : SPEED_EJECTING);
 
-            case INTAKING:
-
-                colorSensor.update();
-                sample = hsvToSample(hsv = colorSensor.getHSV());
-
-                if (getSample() == badSample) {
-                    ejectSample();
-                    break;
-                }
-
-                if (rollerSpeed == 0) {
-                    if (hasSample()) {
-                        state = BUCKET_SEMI_RETRACTING;
-                        rollerSpeed = SPEED_HOLDING;
-                        timer.reset();
-                    } else {
-                        state = RETRACTED;
-                        rollerSpeed = SPEED_RETRACTED;
-                        break;
-                    }
-                } else break;
+                if (timer.seconds() >= TIME_EJECTING) state = STANDBY;
+                
+                break;
 
             case BUCKET_SEMI_RETRACTING:
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT) {
+                setBucket(ANGLE_BUCKET_PRE_TRANSFER);
+                roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
+
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT)
                     state = EXTENDO_RETRACTING;
-                    extendo.setExtended(false);
-                } else break;
+                else break;
 
             case EXTENDO_RETRACTING:
 
-                if (extendo.getPosition() <= Extendo.LENGTH_INTERFACING)
-                    rollerSpeed = SPEED_INTERFACING;
+                setBucket(ANGLE_BUCKET_PRE_TRANSFER);
+                roller.setPower(
+                    stopRoller ? 0 : 
+                    extendo.getPosition() > Extendo.LENGTH_INTERFACING ? SPEED_HOLDING :
+                    SPEED_INTERFACING
+                );
+                extendo.setExtended(false);
 
                 if (!extendo.isExtended() && deposit.readyToTransfer())
                     state = BUCKET_RETRACTING;
-                else
-                    break;
+                else break;
 
             case BUCKET_RETRACTING:
 
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.setPower(stopRoller ? 0 : SPEED_INTERFACING);
                 extendo.setExtended(false);
 
                 if (bucketSensor.isPressed()) {
-
-                    rollerSpeed = SPEED_PRE_TRANSFER;
                     state = BUCKET_SETTLING;
                     timer.reset();
-
                 } else break;
 
             case BUCKET_SETTLING:
 
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.setPower(stopRoller ? 0 : SPEED_PRE_TRANSFER);
                 extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_PRE_TRANSFER) transfer(deposit, getSample());
@@ -213,47 +238,22 @@ public final class Intake {
 
             case TRANSFERRING:
 
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.setPower(0);
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_TRANSFER) {
-
-                    rollerSpeed = SPEED_POST_TRANSFER;
-                    state = RETRACTED;
-                    timer.reset();
-
-                } else break;
-
-            case RETRACTED:
-
-                if (clearOfDeposit()) rollerSpeed = SPEED_RETRACTED;
-
+                if (timer.seconds() >= TIME_TRANSFER) state = STANDBY;
+                
                 break;
         }
 
-        double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
-
-        for (CachedSimpleServo servo : bucket) servo.turnToAngle(
-                state == EJECTING_SAMPLE ?          ANGLE_BUCKET_INTAKING :
-                state == INTAKING ?                 lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)) :
-                state == BUCKET_SEMI_RETRACTING ?   ANGLE_BUCKET_PRE_TRANSFER :
-                state == EXTENDO_RETRACTING ?       ANGLE_BUCKET_PRE_TRANSFER :
-                                                    ANGLE_BUCKET_RETRACTED
-        );
-
         extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
-
-        roller.setPower(
-            stopRoller || (deposit.hasSample() && state == INTAKING) ? 0 :
-            state == EJECTING_SAMPLE ? SPEED_EJECTING :
-            rollerSpeed
-        );
     }
 
     public void transfer(Deposit deposit, Sample sample) {
         state = TRANSFERRING;
         deposit.transfer(sample);
         this.sample = null;
-        rollerSpeed = 0;
         timer.reset();
     }
 
@@ -287,11 +287,9 @@ public final class Intake {
     }
 
     public void runRoller(double power) {
-        if (power != 0 && state == RETRACTED) {
-            state = INTAKING;
-            sample = null;
-        }
-        if (state == INTAKING) rollerSpeed = power;
+        if (rollerSpeed == 0 && power != 0) sample = null;
+
+        rollerSpeed = power;
     }
 
     void printTelemetry() {
