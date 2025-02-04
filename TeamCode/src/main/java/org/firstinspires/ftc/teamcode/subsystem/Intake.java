@@ -155,15 +155,21 @@ public final class Intake {
 
             case STANDBY:
 
-                if (rollerSpeed != 0) { // intake trigger is held down
+                if (rollerSpeed != 0) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
                     roller.setPower(stopRoller || deposit.hasSample() ? 0 : rollerSpeed);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
+
+                    if (getSample() == badSample) ejectSample();
+                    else break;
                     
-                } else if (!hasSample()) { // retracted
+                } else if (hasSample()) { // trigger released, sample acquired, initiate transfer
+                    transfer(sample);
+                    break;
+                } else { // retracted
 
                     setBucket(ANGLE_BUCKET_RETRACTED);
                     roller.setPower(
@@ -171,11 +177,8 @@ public final class Intake {
                         deposit.hasSample() && !clearOfDeposit() ? SPEED_POST_TRANSFER :
                         SPEED_RETRACTED
                     );
-
-                } else transfer(sample); // sample acquired, initiate transfer
-
-                if (getSample() == badSample) ejectSample();
-                else break;
+                    break;
+                }
 
             case EJECTING_SAMPLE:
 
