@@ -163,23 +163,16 @@ public final class Intake {
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
                     
-                } else if (hasSample()) { // sample acquired, initiate transfer
-
-                    setBucket(ANGLE_BUCKET_PRE_TRANSFER);
-                    roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
-                    state = BUCKET_SEMI_RETRACTING;
-                    timer.reset();
-
-                } else { // retracted
+                } else if (!hasSample()) { // retracted
 
                     setBucket(ANGLE_BUCKET_RETRACTED);
                     roller.setPower(
-                        stopRoller ? 0 : 
+                        stopRoller ? 0 :
                         deposit.hasSample() && !clearOfDeposit() ? SPEED_POST_TRANSFER :
                         SPEED_RETRACTED
                     );
 
-                }
+                } else transfer(sample); // sample acquired, initiate transfer
 
                 if (getSample() == badSample) ejectSample();
                 else break;
@@ -198,7 +191,7 @@ public final class Intake {
                 setBucket(ANGLE_BUCKET_PRE_TRANSFER);
                 roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT)
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed())
                     state = EXTENDO_RETRACTING;
                 else break;
 
@@ -233,8 +226,12 @@ public final class Intake {
                 roller.setPower(stopRoller ? 0 : SPEED_PRE_TRANSFER);
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_PRE_TRANSFER) transfer(deposit, getSample());
-                else break;
+                if (timer.seconds() >= TIME_PRE_TRANSFER) {
+                    state = TRANSFERRING;
+                    deposit.transfer(sample);
+                    sample = null;
+                    timer.reset();
+                } else break;
 
             case TRANSFERRING:
 
@@ -250,10 +247,11 @@ public final class Intake {
         extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
     }
 
-    public void transfer(Deposit deposit, Sample sample) {
-        state = TRANSFERRING;
-        deposit.transfer(sample);
-        this.sample = null;
+    public void transfer(Sample sample) {
+        this.sample = sample;
+        setBucket(ANGLE_BUCKET_PRE_TRANSFER);
+        roller.setPower(SPEED_HOLDING);
+        state = BUCKET_SEMI_RETRACTING;
         timer.reset();
     }
 
