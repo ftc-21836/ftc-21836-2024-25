@@ -250,14 +250,12 @@ public final class Intake {
 
     public void transfer(Sample sample) {
         this.sample = sample;
-        setBucket(ANGLE_BUCKET_PRE_TRANSFER);
-        roller.setPower(SPEED_HOLDING);
         state = BUCKET_SEMI_RETRACTING;
         timer.reset();
     }
 
     public void ejectSample() {
-        sample = null;
+        this.sample = null;
         state = EJECTING_SAMPLE;
         timer.reset();
     }
