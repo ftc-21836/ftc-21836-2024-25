@@ -320,7 +320,7 @@ public final class Deposit {
     }
 
     public boolean hasSample() {
-        return sample != null;
+        return getSample() != null;
     }
 
     public boolean basketReady() {
@@ -348,7 +348,7 @@ public final class Deposit {
     }
 
     void printTelemetry() {
-        String gameElement = sample + (state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? " specimen" : " sample");
+        String gameElement = getSample() + (state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? " specimen" : " sample");
         mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
         divider();
         arm.printTelemetry();

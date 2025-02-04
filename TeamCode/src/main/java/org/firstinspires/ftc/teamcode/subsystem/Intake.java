@@ -146,7 +146,24 @@ public final class Intake {
 
     void run(Deposit deposit, boolean stopRoller) {
 
-        switch (state) {
+        boolean lookForSample = state == INTAKING || state == BUCKET_SEMI_RETRACTING || state == EXTENDO_RETRACTING;
+
+        if (lookForSample) {
+            colorSensor.update();
+            sample = hsvToSample(hsv = colorSensor.getHSV());
+        }
+
+        if (lookForSample && !hasSample()) {
+
+            if (state == INTAKING && rollerSpeed == 0) {
+                state = RETRACTED;
+                rollerSpeed = SPEED_RETRACTED;
+            }
+            else state = INTAKING;
+
+            timer.reset();
+
+        } else switch (state) {
 
             case EJECTING_SAMPLE:
 
@@ -155,22 +172,18 @@ public final class Intake {
 
             case INTAKING:
 
-                if (sampleLost(INTAKING)) {
-                    if (rollerSpeed == 0) setExtended(false);
-                    break;
-                }
-
-                if (sample == badSample) {
+                if (getSample() == badSample) {
                     ejectSample();
                     break;
                 }
 
-                if (rollerSpeed == 0) setExtended(false);
-                else break;
+                if (rollerSpeed == 0) {
+                    state = BUCKET_SEMI_RETRACTING;
+                    rollerSpeed = SPEED_HOLDING;
+                    timer.reset();
+                } else break;
 
             case BUCKET_SEMI_RETRACTING:
-
-                if (sampleLost(INTAKING)) break;
 
                 if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT) {
                     state = EXTENDO_RETRACTING;
@@ -178,8 +191,6 @@ public final class Intake {
                 } else break;
 
             case EXTENDO_RETRACTING:
-
-                if (sampleLost(INTAKING)) break;
 
                 if (extendo.getPosition() <= Extendo.LENGTH_INTERFACING)
                     rollerSpeed = SPEED_INTERFACING;
@@ -205,7 +216,7 @@ public final class Intake {
 
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_PRE_TRANSFER) transfer(deposit, sample);
+                if (timer.seconds() >= TIME_PRE_TRANSFER) transfer(deposit, getSample());
                 else break;
 
             case TRANSFERRING:
@@ -260,17 +271,6 @@ public final class Intake {
         timer.reset();
     }
 
-    private boolean sampleLost(State returnTo) {
-        colorSensor.update();
-        sample = hsvToSample(hsv = colorSensor.getHSV());
-
-        if (hasSample()) return false;
-
-        state = returnTo;
-        timer.reset();
-        return true;
-    }
-
     /**
      * Interpolate between two values
      * @param start starting value, returned if t = 0
@@ -283,7 +283,7 @@ public final class Intake {
     }
 
     public boolean hasSample() {
-        return sample != null;
+        return getSample() != null;
     }
 
     Sample getSample() {
@@ -295,46 +295,15 @@ public final class Intake {
     }
 
     public void runRoller(double power) {
-        if (power != 0) setExtended(true);
+        if (power != 0) {
+            state = INTAKING;
+            sample = null;
+        }
         if (state == INTAKING) rollerSpeed = power;
     }
 
-    public void setExtended(boolean extend) {
-        switch (state) {
-
-            case RETRACTED:
-
-                if (!extend) break;
-
-                state = INTAKING;
-                sample = null;
-
-                break;
-
-            case EJECTING_SAMPLE:
-            case INTAKING:
-
-                if (extend) break;
-
-                if (hasSample()) {
-
-                    state = BUCKET_SEMI_RETRACTING;
-                    rollerSpeed = SPEED_HOLDING;
-                    timer.reset();
-                    break;
-
-                }
-
-                state = RETRACTED;
-                rollerSpeed = SPEED_RETRACTED;
-
-                break;
-
-        }
-    }
-
     void printTelemetry() {
-        mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? sample + " sample" : "empty"));
+        mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? getSample() + " sample" : "empty"));
         hsv.toTelemetry();
         divider();
         extendo.printTelemetry();
