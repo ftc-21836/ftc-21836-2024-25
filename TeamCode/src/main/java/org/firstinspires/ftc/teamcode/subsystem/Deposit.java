@@ -151,12 +151,12 @@ public final class Deposit {
         boolean atHighBasket = abs(liftPos - HEIGHT_BASKET_HIGH) <= TOLERANCE_ARM_SCORING_POS;
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean atBasket = state.armPosition == Arm.SAMPLE && (atLowBasket || atHighBasket);
+        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (atLowBasket || atHighBasket);
 
         Arm.Position armPosition =
                 level1Ascent ? Arm.ASCENT :
                 obsZone ? Arm.INTAKING :
-                atBasket ? Arm.SCORING_SAMPLE :
+                pointArmIntoBasket ? Arm.SCORING_SAMPLE :
                 state.armPosition;
 
         arm.setTarget(armPosition);
