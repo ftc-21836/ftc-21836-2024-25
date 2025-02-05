@@ -27,7 +27,7 @@ public final class Arm {
     public static Arm.Position
             TRANSFER =      new Arm.Position(15, 107, "TRANSFER"),
             INTAKING =      new Arm.Position(175, 20, "INTAKING"),
-            SPECIMEN =      new Arm.Position(255, 205, "SPECIMEN"),
+            SPECIMEN =      new Arm.Position(240, 220, "SPECIMEN"),
             SCORING_SPEC =  new Arm.Position(255, 100, "SCORING SPEC"),
             SPEC_PRELOAD =  new Arm.Position(205, 42, "SPEC PRELOAD"),
             ASCENT =        new Arm.Position(255, 32, "LVL 1 ASCENT"),
