@@ -181,7 +181,7 @@ public final class Tele extends LinearOpMode {
                 robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
-                if (gamepadEx1.isDown(X)) doTelemetry = !doTelemetry;
+                if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
 
             } else {
 
