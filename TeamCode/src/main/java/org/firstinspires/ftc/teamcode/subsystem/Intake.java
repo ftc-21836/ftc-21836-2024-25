@@ -179,7 +179,7 @@ public final class Intake {
                     setBucket(ANGLE_BUCKET_RETRACTED);
                     roller.setPower(
                         stopRoller ? 0 :
-                        deposit.hasSample() && !clearOfDeposit() ? SPEED_POST_TRANSFER :
+                        deposit.hasSample() && !clearOfDeposit() && deposit.requestingIntakeToMove() ? SPEED_POST_TRANSFER :
                         SPEED_RETRACTED
                     );
 
