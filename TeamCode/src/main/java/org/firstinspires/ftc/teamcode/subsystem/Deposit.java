@@ -140,7 +140,7 @@ public final class Deposit {
         boolean aboveIntake = liftPos >= HEIGHT_ABOVE_INTAKE;
         boolean intakeClear = intake.clearOfDeposit();
 
-        boolean atLowBasket = abs(liftPos - HEIGHT_BASKET_LOW) <= TOLERANCE_ARM_SCORING_POS;
+        boolean atLowBasket = lift.getTarget() != HEIGHT_BASKET_HIGH && abs(liftPos - HEIGHT_BASKET_LOW) <= TOLERANCE_ARM_SCORING_POS;
         boolean atHighBasket = abs(liftPos - HEIGHT_BASKET_HIGH) <= TOLERANCE_ARM_SCORING_POS;
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
