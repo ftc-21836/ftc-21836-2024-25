@@ -19,9 +19,9 @@ public final class Arm {
             TIME_RETRACTED_TO_SAMPLE = 0.8,
             TIME_SAMPLE_TO_RETRACTED = 0.4,
             TIME_SAMPLE_TO_IN_BASKET = 0.3,
-            TIME_TRANSFER_TO_INTAKING = 0.65,
+            TIME_RETRACTED_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_SPEC = 1,
-            TIME_SCORE_SPEC_TO_RETRACTED = 1;
+            TIME_SPEC_TO_RETRACTED = 0.4;
 
     public static Arm.Position
             TRANSFER =      new Arm.Position(15, 107, "TRANSFER"),
@@ -51,15 +51,15 @@ public final class Arm {
                 target == lastTarget ?      0 :
                 target == SPEC_PRELOAD ?    0 :
                 target == ASCENT ?          0 :
-                target == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
+                target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
                 target == SCORING_SAMPLE ?  TIME_SAMPLE_TO_IN_BASKET :
                 target == TRANSFER ?
                         lastTarget == SAMPLE ?          TIME_SAMPLE_TO_RETRACTED :
                         lastTarget == SCORING_SAMPLE ?  TIME_SAMPLE_TO_RETRACTED :
-                        lastTarget == INTAKING ?        TIME_TRANSFER_TO_INTAKING :
-                                                        TIME_SCORE_SPEC_TO_RETRACTED :
+                        lastTarget == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
+                                                        TIME_SPEC_TO_RETRACTED :
                 1;
     }
 
@@ -68,7 +68,7 @@ public final class Arm {
     }
 
     boolean movingNearIntake() {
-        return (target == TRANSFER || (lastTarget == TRANSFER && getTimeTraveled() < TIME_TRANSFER_TO_INTAKING)) && target != Arm.SPEC_PRELOAD;
+        return (target == TRANSFER || (lastTarget == TRANSFER && getTimeTraveled() < TIME_RETRACTED_TO_INTAKING)) && target != Arm.SPEC_PRELOAD;
     }
 
     public boolean atPosition(Position position) {
