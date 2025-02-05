@@ -27,6 +27,8 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
+import static org.firstinspires.ftc.teamcode.subsystem.Robot.HEIGHT_RUNG_LOW_CLIMB_OFFSET;
+import static org.firstinspires.ftc.teamcode.subsystem.Robot.HEIGHT_RUNG_LOW_RAISED;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -208,15 +210,23 @@ public final class Tele extends LinearOpMode {
                 robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
 
-            if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
+            if (gamepadEx1.wasJustPressed(Y)) {
+                robot.activeHooks.setActivated(true);
+                robot.deposit.lift.setTarget(
+                        robot.deposit.lift.getTarget() == HEIGHT_RUNG_LOW_RAISED ?
+                                HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET :
+                                HEIGHT_RUNG_LOW_RAISED
+                );
+            }
+
             if (gamepadEx1.wasJustPressed(B))                   robot.deposit.triggerClaw();
 
             if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
             else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
             else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
             else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-                if (robot.climber.isActive()) robot.climber.cancelClimb();
-                else robot.deposit.setPosition(FLOOR);
+                robot.activeHooks.setActivated(false);
+                robot.deposit.setPosition(FLOOR);
             }
 
             robot.sweeper.setActivated(gamepadEx1.isDown(A));

@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
@@ -19,12 +18,18 @@ public final class Robot {
 
     public static double
             ANGLE_SWEEPER_STANDBY = 0,
-            ANGLE_SWEEPER_SWEPT = 90;
+            ANGLE_SWEEPER_SWEPT = 90,
+            ANGLE_HOOKS_ACTIVE_RETRACTED = 0,
+            ANGLE_HOOKS_ACTIVE_EXTENDED = 105.4,
+
+            HEIGHT_RUNG_LOW_RAISED = 32,
+            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -12;
+
+    public final SimpleServoPivot activeHooks;
 
     public final PinpointDrive drivetrain;
     public final Intake intake;
     public final Deposit deposit;
-    public final Climber climber;
     public final SimpleServoPivot sweeper;
     public final BulkReader bulkReader;
 
@@ -35,20 +40,27 @@ public final class Robot {
         bulkReader = new BulkReader(hardwareMap);
         intake = new Intake(hardwareMap);
         deposit = new Deposit(hardwareMap);
-        climber = new Climber(hardwareMap, deposit.lift);
         sweeper = new SimpleServoPivot(
                 ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT,
                 CachedSimpleServo.getGBServo(hardwareMap, "sweeper")
         );
+
+        activeHooks = new SimpleServoPivot(
+                ANGLE_HOOKS_ACTIVE_RETRACTED, ANGLE_HOOKS_ACTIVE_EXTENDED,
+                CachedSimpleServo.getGBServo(hardwareMap, "right active hook").reversed(),
+                CachedSimpleServo.getGBServo(hardwareMap, "left active hook")
+        );
     }
 
     public void run() {
-        intake.run(deposit, climber.isActive() || Deposit.level1Ascent);
-        deposit.run(intake, climber.isActive());
-        climber.run();
+        intake.run(deposit, activeHooks.isActivated() || Deposit.level1Ascent);
+        deposit.run(intake, activeHooks.isActivated());
 
         sweeper.updateAngles(ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT);
         sweeper.run();
+
+        activeHooks.updateAngles(ANGLE_HOOKS_ACTIVE_RETRACTED, ANGLE_HOOKS_ACTIVE_EXTENDED);
+        activeHooks.run();
     }
 
     public boolean hasSample() {

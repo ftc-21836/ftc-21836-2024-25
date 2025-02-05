@@ -111,7 +111,7 @@ public final class Lift {
         return position;
     }
 
-    double getTarget() {
+    public double getTarget() {
         return target;
     }
 
