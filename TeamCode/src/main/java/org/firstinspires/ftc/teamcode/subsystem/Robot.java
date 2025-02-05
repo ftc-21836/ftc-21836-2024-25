@@ -17,8 +17,8 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Robot {
 
     public static double
-            ANGLE_SWEEPER_STANDBY = 0,
-            ANGLE_SWEEPER_SWEPT = 90,
+            ANGLE_SWEEPER_STANDBY = 6,
+            ANGLE_SWEEPER_SWEPT = 103,
             ANGLE_HOOKS_ACTIVE_RETRACTED = 0,
             ANGLE_HOOKS_ACTIVE_EXTENDED = 105.4,
 
