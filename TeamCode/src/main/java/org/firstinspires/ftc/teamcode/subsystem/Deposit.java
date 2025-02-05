@@ -164,12 +164,19 @@ public final class Deposit {
         lift.run(armCanMove || arm.reachedTarget(), climbing);
 
         claw.turnToAngle(
-                hasSample() ?
-                        state == GRABBING_SPECIMEN || (state == HAS_SPECIMEN && !arm.atPosition(Arm.SPECIMEN)) ?
-                                ANGLE_CLAW_SLIDING :
-                                ANGLE_CLAW_CLOSED :
-                state == RETRACTED ?    ANGLE_CLAW_TRANSFER :
-                                        ANGLE_CLAW_OPEN
+                state == HAS_SAMPLE ?               ANGLE_CLAW_CLOSED :
+                state == SAMPLE_FALLING ?           ANGLE_CLAW_OPEN :
+                state == INTAKING_SPECIMEN ?        ANGLE_CLAW_OPEN :
+                state == GRABBING_SPECIMEN ?        ANGLE_CLAW_SLIDING :
+                state == HAS_SPECIMEN ?             arm.atPosition(Arm.SPECIMEN) ?
+                                                        ANGLE_CLAW_CLOSED :
+                                                        ANGLE_CLAW_SLIDING :
+                state == SCORING_SPECIMEN ?         ANGLE_CLAW_CLOSED :
+                state == RELEASING_SPECIMEN ?       ANGLE_CLAW_OPEN :
+                state == SPEC_PRELOAD ?             ANGLE_CLAW_CLOSED :
+                state == RELEASING_SPEC_PRELOAD ?   ANGLE_CLAW_OPEN :
+
+                                                    ANGLE_CLAW_TRANSFER
         );
     }
 
