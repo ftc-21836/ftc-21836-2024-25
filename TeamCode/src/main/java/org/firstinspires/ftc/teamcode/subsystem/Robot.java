@@ -51,11 +51,8 @@ public final class Robot {
         sweeper.run();
     }
 
-    public Sample getSample() {
-        return
-                intake.hasSample() ?    intake.getSample() :
-                deposit.hasSample() ?   deposit.getSample() :
-                                        null;
+    public boolean hasSample() {
+        return intake.hasSample() || deposit.hasSample();
     }
 
     public void printTelemetry() {

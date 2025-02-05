@@ -247,7 +247,6 @@ public final class Auto extends LinearOpMode {
         mTelemetry.addLine();
         mTelemetry.addLine("> " + (isRedAlliance ? "Red" : "Blue") + " alliance");
         robot.intake.setAlliance(isRedAlliance);
-        robot.deposit.setAlliance(isRedAlliance);
 
         Action trajectory;
 
@@ -572,7 +571,7 @@ public final class Auto extends LinearOpMode {
     private static Action scoreSample(Robot robot) {
         return new SequentialAction(
                 new InstantAction(() -> {
-                    if (robot.getSample() == null) robot.deposit.transfer(NEUTRAL);
+                    if (!robot.hasSample()) robot.deposit.transfer(NEUTRAL);
                 }),
                 new SleepAction(WAIT_APPROACH_BASKET),
                 telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SCORING_SAMPLE) && abs(robot.deposit.lift.getPosition() - HEIGHT_BASKET_HIGH) <= LIFT_HEIGHT_TOLERANCE),
@@ -584,7 +583,7 @@ public final class Auto extends LinearOpMode {
     private static Action scoreSpecimen(Robot robot) {
         return new SequentialAction(
                 new InstantAction(() -> {
-                    if (robot.getSample() == null) while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
+                    if (!robot.hasSample()) while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
                 }),
                 new SleepAction(WAIT_APPROACH_CHAMBER),
                 telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPECIMEN) && robot.deposit.lift.atPosition(HEIGHT_CHAMBER_HIGH)), // wait until deposit in position

@@ -14,9 +14,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_S
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SPEC_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
@@ -86,13 +83,7 @@ public final class Deposit {
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    private Sample sample, specimenColor = NEUTRAL;
-
     private Deposit.State state = RETRACTED;
-
-    public void setAlliance(boolean redAlliance) {
-        specimenColor = redAlliance ? RED : BLUE;
-    }
 
     public static boolean level1Ascent = false;
 
@@ -181,7 +172,6 @@ public final class Deposit {
     }
 
     public void preloadSpecimen() {
-        sample = specimenColor;
         state = SPEC_PRELOAD;
         closeClaw();
         lift.setTarget(HEIGHT_SPECIMEN_PRELOAD);
@@ -260,7 +250,6 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
-                sample = null;
                 state = SAMPLE_FALLING;
                 timer.reset();
 
@@ -276,7 +265,6 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                sample = specimenColor;
                 state = GRABBING_SPECIMEN;
                 timer.reset();
 
@@ -298,7 +286,6 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                sample = null;
                 state = RELEASING_SPECIMEN;
                 timer.reset();
 
@@ -306,7 +293,6 @@ public final class Deposit {
 
             case SPEC_PRELOAD:
 
-                sample = null;
                 state = RELEASING_SPEC_PRELOAD;
                 timer.reset();
 
@@ -323,7 +309,12 @@ public final class Deposit {
     }
 
     public boolean hasSample() {
-        return getSample() != null;
+        return
+                state == HAS_SAMPLE ||
+                state == GRABBING_SPECIMEN ||
+                state == HAS_SPECIMEN ||
+                state == SPEC_PRELOAD ||
+                state == SCORING_SPECIMEN;
     }
 
     public boolean basketReady() {
@@ -338,20 +329,15 @@ public final class Deposit {
         return state == INTAKING_SPECIMEN;
     }
 
-    Sample getSample() {
-        return sample;
-    }
-
     public void transfer(Sample sample) {
-        if (sample == null || hasSample() || state != RETRACTED) return;
-        this.sample = sample;
+        if (sample == null || state != RETRACTED) return;
         state = HAS_SAMPLE;
         setPosition(HIGH);
         closeClaw();
     }
 
     void printTelemetry() {
-        String gameElement = getSample() + (state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? " specimen" : " sample");
+        String gameElement = state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? "has specimen" : "has sample";
         mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
         divider();
         arm.printTelemetry();

@@ -275,7 +275,7 @@ public final class Intake {
         return getSample() != null;
     }
 
-    Sample getSample() {
+    public Sample getSample() {
         return sample;
     }
 

@@ -155,7 +155,6 @@ public final class Tele extends LinearOpMode {
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         robot.intake.setAlliance(isRedAlliance);
-        robot.deposit.setAlliance(isRedAlliance);
 
         matchTimer.reset();
 
@@ -234,19 +233,22 @@ public final class Tele extends LinearOpMode {
                 rumbledClimb = true;
             }
 
-            if (!robot.intake.hasSample()) rumbledSample = false;
-            else if (!gamepad1.isRumbling() && !rumbledSample) {
-                gamepad1.rumble(1, 1, 100);
+            if (!robot.intake.hasSample()) {
+                rumbledSample = false;
+                if (!robot.deposit.hasSample()) gamepad1.setLedColor(0,0,0, Gamepad.LED_DURATION_CONTINUOUS);
+            } else if (!rumbledSample) {
+
+                Sample sample = robot.intake.getSample();
+                gamepad1.setLedColor(
+                        sample == RED || sample == NEUTRAL ? 1 : 0,
+                        sample == NEUTRAL ? 1 : 0,
+                        sample == BLUE ? 1 : 0,
+                        Gamepad.LED_DURATION_CONTINUOUS
+                );
+
+                if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 100);
                 rumbledSample = true;
             }
-
-            Sample sample = robot.getSample();
-            gamepad1.setLedColor(
-                    sample == RED || sample == NEUTRAL ? 1 : 0,
-                    sample == NEUTRAL ? 1 : 0,
-                    sample == BLUE ? 1 : 0,
-                    Gamepad.LED_DURATION_CONTINUOUS
-            );
 
         }
     }
