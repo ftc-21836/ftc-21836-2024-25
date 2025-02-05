@@ -39,7 +39,7 @@ public final class Deposit {
             TIME_SPEC_GRAB = 0.25,
             TIME_SPEC_RELEASE = 0.5,
 
-            TOLERANCE_ARM_SCORING_POS = 2,
+            TOLERANCE_ARM_SCORING_POS = 4,
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_OBSERVATION_ZONE = 0.01,
