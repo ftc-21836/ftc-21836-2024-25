@@ -15,8 +15,8 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAI
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPECIMEN_SCORED;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPECIMEN_SCORING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRELOAD_SCORED;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRELOAD_SCORING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_SPECIMEN_PRELOAD;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
@@ -358,8 +358,8 @@ public final class Auto extends LinearOpMode {
                                     .strafeTo(chamberLeft.toVector2d())
                                     .waitSeconds(WAIT_APPROACH_CHAMBER)
                                     .stopAndAdd(telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPEC_PRELOAD) && robot.deposit.lift.atPosition(HEIGHT_SPECIMEN_PRELOAD))) // wait until deposit in position
-                                    .stopAndAdd(() -> robot.deposit.lift.setTarget(HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_SPECIMEN_SCORING))
-                                    .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_SPECIMEN_SCORED)
+                                    .stopAndAdd(() -> robot.deposit.lift.setTarget(HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORING))
+                                    .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORED)
                                     .stopAndAdd(robot.deposit::triggerClaw)
                                     .waitSeconds(WAIT_SCORE_CHAMBER)
                                     .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)

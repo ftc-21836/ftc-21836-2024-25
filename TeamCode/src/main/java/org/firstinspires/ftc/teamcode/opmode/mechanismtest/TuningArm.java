@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_LEFT;
@@ -16,7 +15,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Arm.ASCENT;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SCORING_SAMPLE;
-import static org.firstinspires.ftc.teamcode.subsystem.Arm.SCORING_SPEC;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPEC_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.TRANSFER;
@@ -85,10 +83,6 @@ public final class TuningArm extends LinearOpMode {
             }
             if (gamepadEx1.wasJustPressed(X)) {
                 arm.setTarget(SPEC_PRELOAD);
-                timer.reset();
-            }
-            if (gamepadEx1.wasJustPressed(A)) {
-                arm.setTarget(SCORING_SPEC);
                 timer.reset();
             }
 

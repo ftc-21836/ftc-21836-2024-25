@@ -48,9 +48,11 @@ public final class Deposit {
             HEIGHT_INTAKING_SPECIMEN = 0,
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
+            HEIGHT_SPECIMEN_SCORED = 4.5,
+            HEIGHT_SPECIMEN_SCORING = 5.5,
             HEIGHT_SPECIMEN_PRELOAD = 9.5,
-            HEIGHT_OFFSET_SPECIMEN_SCORED = 10,
-            HEIGHT_OFFSET_SPECIMEN_SCORING = 11;
+            HEIGHT_OFFSET_PRELOAD_SCORED = 10,
+            HEIGHT_OFFSET_PRELOAD_SCORING = 11;
 
     public boolean isRetracted() {
         return state == RETRACTED;
@@ -63,8 +65,8 @@ public final class Deposit {
         INTAKING_SPECIMEN   (Arm.INTAKING),
         GRABBING_SPECIMEN   (Arm.INTAKING),
         HAS_SPECIMEN        (Arm.SPECIMEN),
-        SCORING_SPECIMEN    (Arm.SCORING_SPEC),
-        RELEASING_SPECIMEN  (Arm.SCORING_SPEC),
+        SCORING_SPECIMEN    (Arm.SPECIMEN),
+        RELEASING_SPECIMEN  (Arm.SPECIMEN),
         SPEC_PRELOAD        (Arm.SPEC_PRELOAD),
         RELEASING_SPEC_PRELOAD (Arm.SPEC_PRELOAD);
 
@@ -122,7 +124,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (arm.atPosition(Arm.SCORING_SPEC)) triggerClaw();
+                if (lift.getPosition() >= HEIGHT_SPECIMEN_SCORED) triggerClaw();
                 else break;
 
             case RELEASING_SPEC_PRELOAD:
@@ -285,6 +287,8 @@ public final class Deposit {
             case HAS_SPECIMEN:
 
                 state = SCORING_SPECIMEN;
+
+                lift.setTarget(HEIGHT_SPECIMEN_SCORING);
 
                 break;
 
