@@ -210,17 +210,15 @@ public final class Tele extends LinearOpMode {
             }
 
             if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
+            if (gamepadEx1.wasJustPressed(B))                   robot.deposit.triggerClaw();
 
-            if (!robot.climber.isActive()) {
-
-                if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
-                else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
-                else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
-                else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(NEUTRAL);
-
-                if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
-
-            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
+            else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
+            else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
+            else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                if (robot.climber.isActive()) robot.climber.cancelClimb();
+                else robot.deposit.setPosition(FLOOR);
+            }
 
             robot.sweeper.setActivated(gamepadEx1.isDown(A));
 
