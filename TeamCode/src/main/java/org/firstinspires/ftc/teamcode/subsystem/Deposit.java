@@ -43,8 +43,8 @@ public final class Deposit {
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_OBSERVATION_ZONE = 0.01,
-            HEIGHT_BASKET_LOW = 0,
-            HEIGHT_BASKET_HIGH = 18,
+            HEIGHT_BASKET_LOW = 3,
+            HEIGHT_BASKET_HIGH = 21,
             HEIGHT_INTAKING_SPECIMEN = 0,
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,

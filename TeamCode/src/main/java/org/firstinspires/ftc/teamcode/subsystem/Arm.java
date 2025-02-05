@@ -32,7 +32,7 @@ public final class Arm {
             SPEC_PRELOAD =  new Arm.Position(205, 42, "SPEC PRELOAD"),
             ASCENT =        new Arm.Position(255, 32, "LVL 1 ASCENT"),
             SAMPLE =        new Arm.Position(230, 180, "SAMPLE"),
-            SCORING_SAMPLE =new Arm.Position(255, 205, "SCORING SAMPLE");
+            SCORING_SAMPLE =new Arm.Position(220, 270, "SCORING SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
     private boolean movingToTarget = false;
