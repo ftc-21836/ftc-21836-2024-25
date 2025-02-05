@@ -101,7 +101,7 @@ public final class Intake {
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
-    private Sample sample, badSample;
+    private Sample sample, badSample = RED;
 
     private final CachedSimpleServo bucketR, bucketL;
 
