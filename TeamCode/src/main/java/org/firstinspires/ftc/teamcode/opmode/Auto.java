@@ -125,7 +125,7 @@ public final class Auto extends LinearOpMode {
             sweptSub = new EditablePose(-23, 0, 0),
             fromSub = new EditablePose(-36, -12, atan2(-12 + 48, -36 + 48)),
     
-            parkLeft = new EditablePose(-22, -11, 0),
+            parkLeft = new EditablePose(-23, -11, 0),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
     
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, - PI / 2),
