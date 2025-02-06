@@ -19,6 +19,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_EXTEND_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_SCORE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SPIKE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -252,6 +253,7 @@ class BasketAuto implements Action {
                     robot.intake.extendo.setTarget(
                             EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 + cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
                     );
+                    robot.intake.runRoller(SPEED_INTAKING);
 
                     timer.reset();
 
