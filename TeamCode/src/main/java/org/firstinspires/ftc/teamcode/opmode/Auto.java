@@ -87,7 +87,7 @@ public final class Auto extends LinearOpMode {
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_POST_INTAKING_SPIKE = 0.2,
             WAIT_POST_INTAKING_SUB = 0.5,
-            WAIT_SCORE_BASKET = 0.25,
+            WAIT_SCORE_BASKET = 0.1,
             WAIT_SCORE_CHAMBER = 0.1,
             WAIT_SCORE_SPEC_PRELOAD = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
@@ -120,7 +120,7 @@ public final class Auto extends LinearOpMode {
             intaking2 = new EditablePose(-53.02, -49.21, toRadians(105)),
             intaking3 = new EditablePose(-54, -42.5, 2 * PI / 3),
     
-            basket = new EditablePose(-56.25, -56.25, PI / 4),
+            basket = new EditablePose(-55.5, -55.5, PI / 4),
             intakingSub = new EditablePose(-22, -11, 0),
             sweptSub = new EditablePose(-22, 0, 0),
             fromSub = new EditablePose(-36, -12, atan2(-12 + 48, -36 + 48)),
