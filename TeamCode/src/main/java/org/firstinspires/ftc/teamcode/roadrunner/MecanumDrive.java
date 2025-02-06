@@ -397,8 +397,8 @@ public class MecanumDrive {
 
             Pose2d error = txWorldTarget.value().minusExp(pose);
 
-            if (t >= timeTrajectory.duration &&
-                    hypot(error.position.x, error.position.y) < admissibleError.x &&
+            if (t >= timeTrajectory.duration + 1 || t >= timeTrajectory.duration &&
+                    error.position.norm() < admissibleError.x &&
                     abs(error.heading.toDouble()) < admissibleError.heading
             ) {
                 leftFront.setPower(0);
