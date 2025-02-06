@@ -388,24 +388,17 @@ public final class Auto extends LinearOpMode {
                                     .waitSeconds(WAIT_SCORE_SPEC_PRELOAD)
                                     .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)
                                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                                    .waitSeconds(WAIT_DROP_TO_EXTEND)
-                                    .afterTime(0, () -> {
-                                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
-                                        timer.reset();
-                                    }) :
+                                    .waitSeconds(WAIT_DROP_TO_EXTEND) :
                             robot.drivetrain.actionBuilder(pose)
                                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                                     .stopAndAdd(scoreSample(robot))
-                                    .afterTime(0, new SequentialAction(
-                                        new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
-                                        new SleepAction(WAIT_DROP_TO_EXTEND),
-                                        new InstantAction(() -> {
-                                            robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
-                                            timer.reset();
-                                        })
-                                    ))
+                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading)
                     )
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
+                        timer.reset();
+                    })
                     .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
                     .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
@@ -435,15 +428,12 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, new SequentialAction(
-                        new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
-                        new SleepAction(WAIT_DROP_TO_EXTEND),
-                        new InstantAction(() -> {
-                            robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
-                            timer.reset();
-                        })
-                    ))
+                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
+                        timer.reset();
+                    })
                     .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
@@ -472,15 +462,12 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, new SequentialAction(
-                        new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
-                        new SleepAction(WAIT_DROP_TO_EXTEND),
-                        new InstantAction(() -> {
-                            robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
-                            timer.reset();
-                        })
-                    ))
+                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
+                        timer.reset();
+                    })
                     .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
