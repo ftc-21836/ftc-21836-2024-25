@@ -89,6 +89,7 @@ public final class Auto extends LinearOpMode {
             WAIT_POST_INTAKING_SUB = 0.5,
             WAIT_SCORE_BASKET = 0.1,
             WAIT_SCORE_CHAMBER = 0.75,
+            WAIT_SCORE_SPEC_PRELOAD = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_INTAKE_RETRACT = 0.75,
             WAIT_EXTEND = 0.75,
@@ -377,7 +378,7 @@ public final class Auto extends LinearOpMode {
                                     .stopAndAdd(() -> robot.deposit.lift.setTarget(HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORING))
                                     .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORED)
                                     .stopAndAdd(robot.deposit::triggerClaw)
-                                    .waitSeconds(WAIT_SCORE_CHAMBER)
+                                    .waitSeconds(WAIT_SCORE_SPEC_PRELOAD)
                                     .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)
                                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                                     .waitSeconds(WAIT_DROP_TO_EXTEND)
