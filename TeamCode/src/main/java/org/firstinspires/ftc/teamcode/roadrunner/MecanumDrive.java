@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
+import static org.firstinspires.ftc.teamcode.opmode.Auto.admissibleError;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
@@ -387,7 +388,18 @@ public class MecanumDrive {
                 t = Actions.now() - beginTs;
             }
 
-            if (t >= timeTrajectory.duration) {
+            Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
+            targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
+
+            PoseVelocity2d robotVelRobot = updatePoseEstimate();
+
+            Pose2d error = txWorldTarget.value().minusExp(pose);
+
+            if (t >= timeTrajectory.duration &&
+                    error.position.x < admissibleError.x &&
+                    error.position.y < admissibleError.y &&
+                    error.heading.toDouble() < admissibleError.heading
+            ) {
                 leftFront.setPower(0);
                 leftBack.setPower(0);
                 rightBack.setPower(0);
@@ -395,11 +407,6 @@ public class MecanumDrive {
 
                 return false;
             }
-
-            Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
-            targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
-
-            PoseVelocity2d robotVelRobot = updatePoseEstimate();
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
                     PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
@@ -430,7 +437,6 @@ public class MecanumDrive {
             p.put("y", pose.position.y);
             p.put("heading (deg)", toDegrees(pose.heading.toDouble()));
 
-            Pose2d error = txWorldTarget.value().minusExp(pose);
             p.put("xError", error.position.x);
             p.put("yError", error.position.y);
             p.put("headingError (deg)", toDegrees(error.heading.toDouble()));
