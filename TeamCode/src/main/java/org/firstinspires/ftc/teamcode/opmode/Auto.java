@@ -23,7 +23,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
-import static java.lang.Math.round;
+import static java.lang.Math.ceil;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -222,7 +222,7 @@ public final class Auto extends LinearOpMode {
                     Gamepad.LED_DURATION_CONTINUOUS
             );
 
-            mTelemetry.addLine("CONFIRMING IN " + round(5 - extendoTimer.seconds()) + " SECONDS!");
+            mTelemetry.addLine("CONFIRMING IN " + ceil(5 - extendoTimer.seconds()) + " SECONDS!");
             mTelemetry.addLine("(or press both shoulder buttons/bumpers)");
             mTelemetry.addLine();
             mTelemetry.addLine();
