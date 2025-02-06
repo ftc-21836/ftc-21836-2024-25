@@ -130,7 +130,10 @@ public final class Deposit {
             case RELEASING_SPEC_PRELOAD:
             case RELEASING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_SPEC_RELEASE) triggerClaw();
+                if (timer.seconds() >= TIME_SPEC_RELEASE) {
+                    state = RETRACTED;
+                    setPosition(FLOOR);
+                }
 
                 break;
 
@@ -261,6 +264,8 @@ public final class Deposit {
 
                 break;
 
+            case RELEASING_SPEC_PRELOAD:
+            case RELEASING_SPECIMEN:
             case SAMPLE_FALLING:
             case RETRACTED:
 
@@ -303,14 +308,6 @@ public final class Deposit {
 
                 state = RELEASING_SPEC_PRELOAD;
                 timer.reset();
-
-                break;
-
-            case RELEASING_SPEC_PRELOAD:
-            case RELEASING_SPECIMEN:
-
-                state = RETRACTED;
-                setPosition(FLOOR);
 
                 break;
         }
