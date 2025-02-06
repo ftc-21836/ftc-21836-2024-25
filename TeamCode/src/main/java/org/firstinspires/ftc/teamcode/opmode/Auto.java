@@ -78,37 +78,37 @@ public final class Auto extends LinearOpMode {
             TIME_EXTEND_CYCLE = 2,
             SPEED_SWEEPING_SUB = 2.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
-            SPEED_INCHING = 2.5,
-            SPEED_INCHING_TURNING = 0.5,
-            SPEED_INTAKING = 0.875,
+            SPEED_INCHING = 5,
+            SPEED_INCHING_TURNING = 0.75,
+            SPEED_INTAKING = 0.85,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_POST_INTAKING_SPIKE = 0.2,
             WAIT_POST_INTAKING_SUB = 0.5,
-            WAIT_SCORE_BASKET = 0.25,
+            WAIT_SCORE_BASKET = 0.1,
             WAIT_SCORE_CHAMBER = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_INTAKE_RETRACT = 0.75,
             WAIT_EXTEND = 0.75,
             WAIT_SWEEPER_EXTEND = 0.2,
             WAIT_SWEEPER_RETRACT = 0.1,
-            WAIT_EXTEND_POST_SWEEP = 0.7,
-            LIFT_HEIGHT_TOLERANCE = 1,
+            WAIT_EXTEND_POST_SWEEP = 0.75,
+            LIFT_HEIGHT_TOLERANCE = 3.75,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
             X_OFFSET_CHAMBER_4 = -3,
             Y_INCHING_FORWARD_WHEN_INTAKING = 5,
-            TIME_CYCLE = 9,
-            TIME_SCORE = 4;
+            TIME_CYCLE = 5,
+            TIME_SCORE = 2;
 
     public static EditablePose
             sample1 = new EditablePose(-48, -27.75, PI / 2),
             sample1SpecPreload = new EditablePose(-50, -27.75, sample1.heading),
             sample2 = new EditablePose(-58, -27.75, sample1.heading),
             sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
-            basket = new EditablePose(-56.75, -56.75, PI / 4),
+            basket = new EditablePose(-56.25, -56.25, PI / 4),
             intaking1 = new EditablePose(-50, -46, toRadians(84.36)),
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking2 = new EditablePose(-54, -45, toRadians(105)),
@@ -126,7 +126,8 @@ public final class Auto extends LinearOpMode {
             pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
             pushed3 = new EditablePose(pushing3.x, pushed1.y, - PI / 2),
             intakingSpec = new EditablePose(36, -60, PI / 2),
-            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading);
+            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading),
+            fromSub = new EditablePose(-36, -12, atan2(-12 + 48, -36 + 48));
 
     static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
     static boolean isRedAlliance = false;
@@ -504,11 +505,14 @@ public final class Auto extends LinearOpMode {
                         .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
                         .setTangent(basket.heading)
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                        .stopAndAdd(() -> robot.sweeper.setActivated(true))
-                        .waitSeconds(WAIT_SWEEPER_EXTEND)
-                        .stopAndAdd(() -> robot.sweeper.setActivated(false))
-                        .waitSeconds(WAIT_SWEEPER_RETRACT)
-                        .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                        .stopAndAdd(i == 0 ? new InstantAction(() -> {}) :
+                            new SequentialAction(
+                                    new InstantAction(() -> robot.sweeper.setActivated(true)),
+                                    new SleepAction(WAIT_SWEEPER_EXTEND),
+                                    new InstantAction(() -> robot.sweeper.setActivated(false)),
+                                    new SleepAction(WAIT_SWEEPER_RETRACT)
+                            )
+                        )
                         .waitSeconds(WAIT_DROP_TO_EXTEND)
                         .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
                         .waitSeconds(WAIT_EXTEND_POST_SWEEP)
@@ -522,8 +526,8 @@ public final class Auto extends LinearOpMode {
                         .strafeToSplineHeading(intakingSub.toVector2d(), intakingSub.heading, sweepConstraint)
                         .build()
                 );
-                scores.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
-                        .setTangent(PI + sweptSub.heading)
+                scores.add(robot.drivetrain.actionBuilder(fromSub.toPose2d())
+                        .setTangent(PI + fromSub.heading)
                         .waitSeconds(WAIT_INTAKE_RETRACT)
                         .splineTo(basket.toVector2d(), PI + basket.heading)
                         .stopAndAdd(scoreSample(robot))

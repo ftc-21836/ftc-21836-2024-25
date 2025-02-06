@@ -96,6 +96,8 @@ public final class Intake {
                 null;
     }
 
+    public boolean bucketRetractBeforeExtendo = true;
+
     private final CRServo roller;
     private double rollerSpeed;
 
@@ -192,7 +194,7 @@ public final class Intake {
                 setBucket(ANGLE_BUCKET_PRE_TRANSFER);
                 roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed())
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed() || !bucketRetractBeforeExtendo)
                     state = EXTENDO_RETRACTING;
                 else break;
 
