@@ -203,6 +203,7 @@ class BasketAuto implements Action {
                     // skip to sub if didn't get 3
                     if (trajDone) {
                         activeTraj = i3ToSub;
+                        toSubs.remove(0);
                         state = DRIVING_TO_SUB;
                     }
 
