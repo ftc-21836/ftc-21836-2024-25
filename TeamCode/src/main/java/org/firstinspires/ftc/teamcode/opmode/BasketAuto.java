@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
-import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.DRIVING_TO_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_2;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_3;
@@ -18,12 +17,10 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.EXTEND_SUB_MIN;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_EXTEND_CYCLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.TIME_SCORE;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SPIKE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
-import static java.lang.Math.min;
 
 import androidx.annotation.NonNull;
 
@@ -52,7 +49,7 @@ class BasketAuto implements Action {
     private State state = PRELOAD_AND_1;
 
     private ElapsedTime matchTimer = null;
-    private final ElapsedTime timer = new ElapsedTime(), extendoTimer = new ElapsedTime();
+    private final ElapsedTime extendoTimer = new ElapsedTime();
 
     private Action activeTraj;
 
@@ -131,9 +128,10 @@ class BasketAuto implements Action {
                     robot.intake.runRoller(1);
 
                 // Sample intaked
-                if (!hasSample) {
-
-                    timer.reset();
+                if (hasSample) {
+                    activeTraj = score1;
+                    state = SCORING_1;
+                } else {
 
                     // skip to 2 if didn't get 1
                     if (trajDone) {
@@ -141,13 +139,6 @@ class BasketAuto implements Action {
                         state = INTAKING_2;
                     }
 
-                } else {
-                    robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING_SPIKE) {
-                        robot.intake.runRoller(0);
-                        activeTraj = score1;
-                        state = SCORING_1;
-                    }
                 }
 
                 break;
@@ -164,9 +155,10 @@ class BasketAuto implements Action {
                     robot.intake.runRoller(1);
 
                 // Sample intaked
-                if (!hasSample) {
-
-                    timer.reset();
+                if (hasSample) {
+                    activeTraj = score2;
+                    state = SCORING_2;
+                } else {
 
                     // skip to 3 if didn't get 2
                     if (trajDone) {
@@ -174,13 +166,6 @@ class BasketAuto implements Action {
                         state = INTAKING_3;
                     }
 
-                } else {
-                    robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING_SPIKE) {
-                        robot.intake.runRoller(0);
-                        activeTraj = score2;
-                        state = SCORING_2;
-                    }
                 }
 
                 break;
@@ -197,9 +182,10 @@ class BasketAuto implements Action {
                     robot.intake.runRoller(1);
 
                 // Sample intaked
-                if (!hasSample) {
-
-                    timer.reset();
+                if (hasSample) {
+                    activeTraj = score3;
+                    state = SCORING;
+                } else {
 
                     // skip to sub if didn't get 3
                     if (trajDone) {
@@ -207,13 +193,6 @@ class BasketAuto implements Action {
                         state = DRIVING_TO_SUB;
                     }
 
-                } else {
-                    robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING_SPIKE) {
-                        robot.intake.runRoller(0);
-                        activeTraj = score3;
-                        state = SCORING;
-                    }
                 }
 
                 break;
@@ -247,7 +226,10 @@ class BasketAuto implements Action {
                 }
 
                 // Sample intaked
-                if (!hasSample) {
+                if (hasSample) {
+                    activeTraj = scores.remove(0);
+                    state = SCORING;
+                } else {
 
                     /// <a href="https://www.desmos.com/calculator/8j59t2lngb">Graph</a>
                     robot.intake.extendo.setTarget(
@@ -255,21 +237,12 @@ class BasketAuto implements Action {
                     );
                     robot.intake.runRoller(SPEED_INTAKING);
 
-                    timer.reset();
-
                     // sweep the other way
                     if (trajDone) {
                         sweepingLeft = !sweepingLeft;
                         activeTraj = (sweepingLeft ? sweepRights : sweepLefts).remove(0);
                     }
 
-                } else {
-                    robot.intake.runRoller(1);
-                    if (timer.seconds() >= WAIT_POST_INTAKING_SUB) {
-                        robot.intake.runRoller(0);
-                        activeTraj = scores.remove(0);
-                        state = SCORING;
-                    }
                 }
 
                 break;

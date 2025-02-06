@@ -407,6 +407,9 @@ public final class Auto extends LinearOpMode {
 
             Action score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
                     /// Score
+                    .afterTime(0, () -> robot.intake.runRoller(1))
+                    .waitSeconds(WAIT_POST_INTAKING_SPIKE)
+                    .afterTime(0, () -> robot.intake.runRoller(0))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
@@ -441,6 +444,9 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
+                    .afterTime(0, () -> robot.intake.runRoller(1))
+                    .waitSeconds(WAIT_POST_INTAKING_SPIKE)
+                    .afterTime(0, () -> robot.intake.runRoller(0))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
@@ -475,6 +481,9 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
+                    .afterTime(0, () -> robot.intake.runRoller(1))
+                    .waitSeconds(WAIT_POST_INTAKING_SPIKE)
+                    .afterTime(0, () -> robot.intake.runRoller(0))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
@@ -548,6 +557,9 @@ public final class Auto extends LinearOpMode {
                         .build()
                 );
                 scores.add(robot.drivetrain.actionBuilder(fromSub.toPose2d())
+                        .afterTime(0, () -> robot.intake.runRoller(1))
+                        .waitSeconds(WAIT_POST_INTAKING_SUB)
+                        .afterTime(0, () -> robot.intake.runRoller(0))
                         .setTangent(PI + fromSub.heading)
                         .waitSeconds(WAIT_INTAKE_RETRACT)
                         .splineTo(basket.toVector2d(), PI + basket.heading)
