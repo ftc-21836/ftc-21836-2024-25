@@ -183,20 +183,28 @@ public final class Auto extends LinearOpMode {
         int cycles = 3;
         boolean specimenPreload = false;
 
-        ElapsedTime extendoTimer = new ElapsedTime();
+        ElapsedTime timer = new ElapsedTime();
 
         // Get gamepad 1 button input and save alliance and side for autonomous configuration:
-        while (opModeInInit() && extendoTimer.seconds() < 5 && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
+        while (opModeInInit() && timer.seconds() < 5 && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
             gamepadEx1.readButtons();
 
-            if (gamepadEx1.wasJustPressed(DPAD_UP)) {
+            boolean up = gamepadEx1.wasJustPressed(DPAD_UP);
+            boolean down = gamepadEx1.wasJustPressed(DPAD_DOWN);
+            boolean y = gamepadEx1.wasJustPressed(Y);
+            boolean x = gamepadEx1.wasJustPressed(X);
+            boolean a = gamepadEx1.wasJustPressed(A);
+
+            if (up || down || y || a || x) timer.reset();
+
+            if (up) {
                 do selection = selection.plus(-1);
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
                         selection == EDITING_CYCLES && !specimenSide
                 );
-            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+            } else if (down) {
                 do selection = selection.plus(1);
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
@@ -207,21 +215,21 @@ public final class Auto extends LinearOpMode {
 
             switch (selection) {
                 case EDITING_ALLIANCE:
-                    if (gamepadEx1.wasJustPressed(X)) isRedAlliance = !isRedAlliance;
+                    if (x) isRedAlliance = !isRedAlliance;
                     break;
                 case EDITING_SIDE:
-                    if (gamepadEx1.wasJustPressed(X)) specimenSide = !specimenSide;
+                    if (x) specimenSide = !specimenSide;
                     break;
                 case EDITING_PRELOAD:
-                    if (!specimenSide && gamepadEx1.wasJustPressed(X)) specimenPreload = !specimenPreload;
+                    if (!specimenSide && x) specimenPreload = !specimenPreload;
                     break;
                 case EDITING_WAIT:
-                    if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(Y)) partnerWait++;
-                    if ((specimenPreload || specimenSide) && gamepadEx1.wasJustPressed(A) && partnerWait > 0) partnerWait--;
+                    if ((specimenPreload || specimenSide) && y) partnerWait++;
+                    if ((specimenPreload || specimenSide) && a && partnerWait > 0) partnerWait--;
                     break;
                 case EDITING_CYCLES:
-                    if (specimenSide && gamepadEx1.wasJustPressed(Y)) cycles++;
-                    if (specimenSide && gamepadEx1.wasJustPressed(A) && cycles > 0) cycles--;
+                    if (specimenSide && y) cycles++;
+                    if (specimenSide && a && cycles > 0) cycles--;
                     break;
             }
 
@@ -232,8 +240,7 @@ public final class Auto extends LinearOpMode {
                     Gamepad.LED_DURATION_CONTINUOUS
             );
 
-            mTelemetry.addLine("CONFIRMING IN " + ceil(5 - extendoTimer.seconds()) + " SECONDS!");
-            mTelemetry.addLine("(or press both shoulder buttons/bumpers)");
+            mTelemetry.addLine("CONFIRMING IN " + ceil(5 - timer.seconds()) + " SECONDS!");
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
@@ -384,7 +391,7 @@ public final class Auto extends LinearOpMode {
                                     .waitSeconds(WAIT_DROP_TO_EXTEND)
                                     .afterTime(0, () -> {
                                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
-                                        extendoTimer.reset();
+                                        timer.reset();
                                     }) :
                             robot.drivetrain.actionBuilder(pose)
                                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
@@ -394,12 +401,12 @@ public final class Auto extends LinearOpMode {
                                         new SleepAction(WAIT_DROP_TO_EXTEND),
                                         new InstantAction(() -> {
                                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
-                                            extendoTimer.reset();
+                                            timer.reset();
                                         })
                                     ))
                                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading)
                     )
-                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
                     .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -421,9 +428,9 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> {
                         robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
-                        extendoTimer.reset();
+                        timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -433,11 +440,11 @@ public final class Auto extends LinearOpMode {
                         new SleepAction(WAIT_DROP_TO_EXTEND),
                         new InstantAction(() -> {
                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
-                            extendoTimer.reset();
+                            timer.reset();
                         })
                     ))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
-                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -458,9 +465,9 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> {
                         robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
-                        extendoTimer.reset();
+                        timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -470,11 +477,11 @@ public final class Auto extends LinearOpMode {
                         new SleepAction(WAIT_DROP_TO_EXTEND),
                         new InstantAction(() -> {
                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
-                            extendoTimer.reset();
+                            timer.reset();
                         })
                     ))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
-                    .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
