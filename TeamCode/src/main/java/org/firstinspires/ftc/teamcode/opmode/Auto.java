@@ -71,8 +71,8 @@ public final class Auto extends LinearOpMode {
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
-            EXTEND_SAMPLE_1 = 300,
-            EXTEND_SAMPLE_2 = 300,
+            EXTEND_SAMPLE_1 = 410,
+            EXTEND_SAMPLE_2 = 410,
             EXTEND_SAMPLE_3 = 410,
             EXTEND_SUB_MIN = 60,
             EXTEND_SUB_MAX = 410,
@@ -105,30 +105,37 @@ public final class Auto extends LinearOpMode {
             TIME_SCORE = 2;
 
     public static EditablePose
-            sample1 = new EditablePose(-48, -27.75, PI / 2),
             sample1SpecPreload = new EditablePose(-50, -27.75, sample1.heading),
+            sample1 = new EditablePose(-48, -27.75, PI / 2),
             sample2 = new EditablePose(-58, -27.75, sample1.heading),
-            sample3 = new EditablePose(-68.75, -26.5, sample1.heading),
-            basket = new EditablePose(-56.25, -56.25, PI / 4),
-            intaking1 = new EditablePose(-50, -46, toRadians(84.36)),
+            sample3 = new EditablePose(-68.75, -26, sample1.heading),
+    
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
-            intaking2 = new EditablePose(-54, -45, toRadians(105)),
-            intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
+            intaking1 = new EditablePose(-50.47, -50.3, toRadians(84.36)),
+            intaking2 = new EditablePose(-53.02, -49.21, toRadians(105)),
+            intaking3 = new EditablePose(-54, -42.5, 2 * PI / 3),
+    
+            basket = new EditablePose(-56.25, -56.25, PI / 4),
             intakingSub = new EditablePose(-22, -11, 0),
             sweptSub = new EditablePose(-22, 0, 0),
+            fromSub = new EditablePose(-36, -12, atan2(-12 + 48, -36 + 48)),
+    
             parkLeft = new EditablePose(-22, -11, 0),
-            chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33,  - PI / 2),
-            chamberLeft = new EditablePose(-chamberRight.x, -33, PI / 2),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
+    
+            chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, - PI / 2),
+            chamberLeft = new EditablePose(-chamberRight.x, -33, PI / 2),
+    
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
             pushing2 = new EditablePose(57, pushing1.y, toRadians(-70)),
             pushing3 = new EditablePose(63, pushing1.y, - PI / 2),
+    
             pushed1 = new EditablePose(pushing1.x, -46, toRadians(110)),
             pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
             pushed3 = new EditablePose(pushing3.x, pushed1.y, - PI / 2),
+    
             intakingSpec = new EditablePose(36, -60, PI / 2),
-            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading),
-            fromSub = new EditablePose(-36, -12, atan2(-12 + 48, -36 + 48));
+            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading);
 
     static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
     static boolean isRedAlliance = false;
