@@ -107,10 +107,10 @@ public final class Auto extends LinearOpMode {
     /// <a href="https://www.desmos.com/calculator/1h2p9qky3g">Adjusting spikes 1 and 2</a>
     /// <a href="https://www.desmos.com/calculator/4ewmq9giq0">Visualize spike samples</a>
     public static EditablePose
-            sample1SpecPreload = new EditablePose(-50, -27.75, sample1.heading),
+            sample1SpecPreload = new EditablePose(-50, -27.75, PI / 2),
             sample1 = new EditablePose(-48, -27.75, PI / 2),
-            sample2 = new EditablePose(-58, -27.75, sample1.heading),
-            sample3 = new EditablePose(-68.75, -26, sample1.heading),
+            sample2 = new EditablePose(-58, -27.75, PI / 2),
+            sample3 = new EditablePose(-68.75, -26, PI / 2),
     
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking1 = new EditablePose(-50.47, -50.3, toRadians(84.36)),
