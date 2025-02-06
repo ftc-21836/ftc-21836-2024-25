@@ -112,13 +112,13 @@ public final class Auto extends LinearOpMode {
 
             sample1SpecPreload = new EditablePose(-50, -27.75, PI / 2),
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
-            sample2 = new EditablePose(-59.3,-29, PI / 2),
-            sample3 = new EditablePose(-68,-22, PI / 2),
+            sample2 = new EditablePose(-58.55,-27.77, PI / 2),
+            sample3 = new EditablePose(-69.2,-26.9, PI / 2),
     
             intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
             intaking1 = new EditablePose(-54,-48, toRadians(84.36)),
-            intaking2 = new EditablePose(-56.7,-48.04, toRadians(105)),
-            intaking3 = new EditablePose(-54, -43, 2 * PI / 3),
+            intaking2 = new EditablePose(-56.95,-47.74, toRadians(105)),
+            intaking3 = new EditablePose(-54.1,-43, 2 * PI / 3),
     
             basket = new EditablePose(-55.5, -55.5, PI / 4),
             intakingSub = new EditablePose(-23, -11, 0),
