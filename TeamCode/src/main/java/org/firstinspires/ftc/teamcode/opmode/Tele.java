@@ -27,6 +27,8 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
+import static org.firstinspires.ftc.teamcode.subsystem.Robot.HEIGHT_RUNG_LOW_CLIMB_OFFSET;
+import static org.firstinspires.ftc.teamcode.subsystem.Robot.HEIGHT_RUNG_LOW_RAISED;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -155,7 +157,6 @@ public final class Tele extends LinearOpMode {
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         robot.intake.setAlliance(isRedAlliance);
-        robot.deposit.setAlliance(isRedAlliance);
 
         matchTimer.reset();
 
@@ -180,7 +181,7 @@ public final class Tele extends LinearOpMode {
                 robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
-                if (gamepadEx1.isDown(X)) doTelemetry = !doTelemetry;
+                if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
 
             } else {
 
@@ -209,18 +210,24 @@ public final class Tele extends LinearOpMode {
                 robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
 
-            if (gamepadEx1.wasJustPressed(Y))                   robot.climber.climb();
+            if (gamepadEx1.wasJustPressed(Y)) {
+                robot.activeHooks.setActivated(true);
+                robot.deposit.lift.setTarget(
+                        robot.deposit.lift.getTarget() == HEIGHT_RUNG_LOW_RAISED ?
+                                HEIGHT_RUNG_LOW_RAISED + HEIGHT_RUNG_LOW_CLIMB_OFFSET :
+                                HEIGHT_RUNG_LOW_RAISED
+                );
+            }
 
-            if (!robot.climber.isActive()) {
+            if (gamepadEx1.wasJustPressed(B))                   robot.deposit.triggerClaw();
 
-                if (gamepadEx1.wasJustPressed(DPAD_UP))         robot.deposit.setPosition(HIGH);
-                else if (gamepadEx1.wasJustPressed(DPAD_LEFT))  robot.deposit.setPosition(LOW);
-                else if (gamepadEx1.wasJustPressed(DPAD_DOWN))  robot.deposit.setPosition(FLOOR);
-                else if (gamepadEx1.wasJustPressed(DPAD_RIGHT)) robot.intake.transfer(robot.deposit, NEUTRAL);
-
-                if (gamepadEx1.wasJustPressed(B))               robot.deposit.triggerClaw();
-
-            } else if (gamepadEx1.wasJustPressed(DPAD_DOWN))    robot.climber.cancelClimb();
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
+            else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
+            else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
+            else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
+                robot.activeHooks.setActivated(false);
+                robot.deposit.setPosition(FLOOR);
+            }
 
             robot.sweeper.setActivated(gamepadEx1.isDown(A));
 
@@ -236,19 +243,22 @@ public final class Tele extends LinearOpMode {
                 rumbledClimb = true;
             }
 
-            if (!robot.intake.hasSample()) rumbledSample = false;
-            else if (!gamepad1.isRumbling() && !rumbledSample) {
-                gamepad1.rumble(1, 1, 100);
+            if (!robot.intake.hasSample()) {
+                rumbledSample = false;
+                if (!robot.deposit.hasSample()) gamepad1.setLedColor(0,0,0, Gamepad.LED_DURATION_CONTINUOUS);
+            } else if (!rumbledSample) {
+
+                Sample sample = robot.intake.getSample();
+                gamepad1.setLedColor(
+                        sample == RED || sample == NEUTRAL ? 1 : 0,
+                        sample == NEUTRAL ? 1 : 0,
+                        sample == BLUE ? 1 : 0,
+                        Gamepad.LED_DURATION_CONTINUOUS
+                );
+
+                if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 100);
                 rumbledSample = true;
             }
-
-            Sample sample = robot.getSample();
-            gamepad1.setLedColor(
-                    sample == RED || sample == NEUTRAL ? 1 : 0,
-                    sample == NEUTRAL ? 1 : 0,
-                    sample == BLUE ? 1 : 0,
-                    Gamepad.LED_DURATION_CONTINUOUS
-            );
 
         }
     }

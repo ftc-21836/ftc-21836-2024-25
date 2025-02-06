@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
@@ -15,11 +14,10 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_S
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SPEC_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
+
+import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -41,16 +39,24 @@ public final class Deposit {
             TIME_SPEC_GRAB = 0.25,
             TIME_SPEC_RELEASE = 0.5,
 
+            TOLERANCE_ARM_SCORING_POS = 4,
+
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_OBSERVATION_ZONE = 0.01,
-            HEIGHT_BASKET_LOW = 0,
-            HEIGHT_BASKET_HIGH = 18,
+            HEIGHT_BASKET_LOW = 3,
+            HEIGHT_BASKET_HIGH = 21,
             HEIGHT_INTAKING_SPECIMEN = 0,
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
+            HEIGHT_SPECIMEN_SCORED = 4.5,
+            HEIGHT_SPECIMEN_SCORING = 5.5,
             HEIGHT_SPECIMEN_PRELOAD = 9.5,
-            HEIGHT_OFFSET_SPECIMEN_SCORED = 10,
-            HEIGHT_OFFSET_SPECIMEN_SCORING = 11;
+            HEIGHT_OFFSET_PRELOAD_SCORED = 10,
+            HEIGHT_OFFSET_PRELOAD_SCORING = 11;
+
+    public boolean isRetracted() {
+        return state == RETRACTED;
+    }
 
     enum State {
         RETRACTED           (Arm.TRANSFER),
@@ -59,8 +65,8 @@ public final class Deposit {
         INTAKING_SPECIMEN   (Arm.INTAKING),
         GRABBING_SPECIMEN   (Arm.INTAKING),
         HAS_SPECIMEN        (Arm.SPECIMEN),
-        SCORING_SPECIMEN    (Arm.SCORING_SPEC),
-        RELEASING_SPECIMEN  (Arm.SCORING_SPEC),
+        SCORING_SPECIMEN    (Arm.SPECIMEN),
+        RELEASING_SPECIMEN  (Arm.SPECIMEN),
         SPEC_PRELOAD        (Arm.SPEC_PRELOAD),
         RELEASING_SPEC_PRELOAD (Arm.SPEC_PRELOAD);
 
@@ -83,13 +89,7 @@ public final class Deposit {
 
     private final ElapsedTime timer = new ElapsedTime();
 
-    private Sample sample, specimenColor = NEUTRAL;
-
     private Deposit.State state = RETRACTED;
-
-    public void setAlliance(boolean redAlliance) {
-        specimenColor = redAlliance ? RED : BLUE;
-    }
 
     public static boolean level1Ascent = false;
 
@@ -101,11 +101,7 @@ public final class Deposit {
 
     void run(Intake intake, boolean climbing) {
 
-        // home arm when climbing begins
-        if (climbing) {
-            state = RETRACTED;
-            sample = null;
-        } else switch (state) {
+        switch (state) {
 
             case SAMPLE_FALLING:
 
@@ -128,7 +124,7 @@ public final class Deposit {
 
             case SCORING_SPECIMEN:
 
-                if (arm.atPosition(Arm.SCORING_SPEC)) triggerClaw();
+                if (lift.getPosition() >= HEIGHT_SPECIMEN_SCORED) triggerClaw();
                 else break;
 
             case RELEASING_SPEC_PRELOAD:
@@ -140,16 +136,20 @@ public final class Deposit {
 
         }
 
-        boolean aboveIntake = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
+        double liftPos = lift.getPosition();
+        boolean aboveIntake = liftPos >= HEIGHT_ABOVE_INTAKE;
         boolean intakeClear = intake.clearOfDeposit();
 
+        boolean atLowBasket = lift.getTarget() != HEIGHT_BASKET_HIGH && abs(liftPos - HEIGHT_BASKET_LOW) <= TOLERANCE_ARM_SCORING_POS;
+        boolean atHighBasket = abs(liftPos - HEIGHT_BASKET_HIGH) <= TOLERANCE_ARM_SCORING_POS;
+
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean atBasket = state.armPosition == Arm.SAMPLE && (lift.atPosition(HEIGHT_BASKET_HIGH) || lift.atPosition(HEIGHT_BASKET_LOW));
+        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (atLowBasket || atHighBasket);
 
         Arm.Position armPosition =
                 level1Ascent ? Arm.ASCENT :
                 obsZone ? Arm.INTAKING :
-                atBasket ? Arm.SCORING_SAMPLE :
+                pointArmIntoBasket ? Arm.SCORING_SAMPLE :
                 state.armPosition;
 
         arm.setTarget(armPosition);
@@ -161,17 +161,23 @@ public final class Deposit {
         lift.run(armCanMove || arm.reachedTarget(), climbing);
 
         claw.turnToAngle(
-                hasSample() ?
-                        state == GRABBING_SPECIMEN || (state == HAS_SPECIMEN && !arm.atPosition(Arm.SPECIMEN)) ?
-                                ANGLE_CLAW_SLIDING :
-                                ANGLE_CLAW_CLOSED :
-                state == RETRACTED ?    ANGLE_CLAW_TRANSFER :
-                                        ANGLE_CLAW_OPEN
+                state == HAS_SAMPLE ?               ANGLE_CLAW_CLOSED :
+                state == SAMPLE_FALLING ?           ANGLE_CLAW_OPEN :
+                state == INTAKING_SPECIMEN ?        ANGLE_CLAW_OPEN :
+                state == GRABBING_SPECIMEN ?        ANGLE_CLAW_SLIDING :
+                state == HAS_SPECIMEN ?             arm.atPosition(Arm.SPECIMEN) ?
+                                                        ANGLE_CLAW_CLOSED :
+                                                        ANGLE_CLAW_SLIDING :
+                state == SCORING_SPECIMEN ?         ANGLE_CLAW_CLOSED :
+                state == RELEASING_SPECIMEN ?       ANGLE_CLAW_OPEN :
+                state == SPEC_PRELOAD ?             ANGLE_CLAW_CLOSED :
+                state == RELEASING_SPEC_PRELOAD ?   ANGLE_CLAW_OPEN :
+
+                                                    ANGLE_CLAW_TRANSFER
         );
     }
 
     public void preloadSpecimen() {
-        sample = specimenColor;
         state = SPEC_PRELOAD;
         closeClaw();
         lift.setTarget(HEIGHT_SPECIMEN_PRELOAD);
@@ -250,7 +256,6 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
-                sample = null;
                 state = SAMPLE_FALLING;
                 timer.reset();
 
@@ -266,7 +271,6 @@ public final class Deposit {
 
             case INTAKING_SPECIMEN:
 
-                sample = specimenColor;
                 state = GRABBING_SPECIMEN;
                 timer.reset();
 
@@ -284,11 +288,12 @@ public final class Deposit {
 
                 state = SCORING_SPECIMEN;
 
+                lift.setTarget(HEIGHT_SPECIMEN_SCORING);
+
                 break;
 
             case SCORING_SPECIMEN:
 
-                sample = null;
                 state = RELEASING_SPECIMEN;
                 timer.reset();
 
@@ -296,7 +301,6 @@ public final class Deposit {
 
             case SPEC_PRELOAD:
 
-                sample = null;
                 state = RELEASING_SPEC_PRELOAD;
                 timer.reset();
 
@@ -313,7 +317,12 @@ public final class Deposit {
     }
 
     public boolean hasSample() {
-        return sample != null;
+        return
+                state == HAS_SAMPLE ||
+                state == GRABBING_SPECIMEN ||
+                state == HAS_SPECIMEN ||
+                state == SPEC_PRELOAD ||
+                state == SCORING_SPECIMEN;
     }
 
     public boolean basketReady() {
@@ -328,20 +337,15 @@ public final class Deposit {
         return state == INTAKING_SPECIMEN;
     }
 
-    Sample getSample() {
-        return sample;
-    }
-
     public void transfer(Sample sample) {
-        if (sample == null || hasSample() || state != RETRACTED) return;
-        this.sample = sample;
+        if (sample == null || state != RETRACTED) return;
         state = HAS_SAMPLE;
         setPosition(HIGH);
         closeClaw();
     }
 
     void printTelemetry() {
-        String gameElement = sample + (state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? " specimen" : " sample");
+        String gameElement = state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? "has specimen" : "has sample";
         mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
         divider();
         arm.printTelemetry();

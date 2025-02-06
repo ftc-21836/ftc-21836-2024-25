@@ -15,10 +15,11 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAI
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPECIMEN_SCORED;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_SPECIMEN_SCORING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRELOAD_SCORED;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRELOAD_SCORING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_SPECIMEN_PRELOAD;
 import static java.lang.Math.PI;
+import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
@@ -72,8 +73,8 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
-            EXTEND_SUB_MIN = 50,
-            EXTEND_SUB_MAX = 400,
+            EXTEND_SUB_MIN = 60,
+            EXTEND_SUB_MAX = 410,
             TIME_EXTEND_CYCLE = 2,
             SPEED_SWEEPING_SUB = 2.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
@@ -90,7 +91,10 @@ public final class Auto extends LinearOpMode {
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_INTAKE_RETRACT = 0.75,
             WAIT_EXTEND = 0.75,
-            WAIT_SWEEPER = 0.2,
+            WAIT_SWEEPER_EXTEND = 0.2,
+            WAIT_SWEEPER_RETRACT = 0.1,
+            WAIT_EXTEND_POST_SWEEP = 0.7,
+            LIFT_HEIGHT_TOLERANCE = 1,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
@@ -245,7 +249,6 @@ public final class Auto extends LinearOpMode {
         mTelemetry.addLine();
         mTelemetry.addLine("> " + (isRedAlliance ? "Red" : "Blue") + " alliance");
         robot.intake.setAlliance(isRedAlliance);
-        robot.deposit.setAlliance(isRedAlliance);
 
         Action trajectory;
 
@@ -357,8 +360,8 @@ public final class Auto extends LinearOpMode {
                                     .strafeTo(chamberLeft.toVector2d())
                                     .waitSeconds(WAIT_APPROACH_CHAMBER)
                                     .stopAndAdd(telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPEC_PRELOAD) && robot.deposit.lift.atPosition(HEIGHT_SPECIMEN_PRELOAD))) // wait until deposit in position
-                                    .stopAndAdd(() -> robot.deposit.lift.setTarget(HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_SPECIMEN_SCORING))
-                                    .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_SPECIMEN_SCORED)
+                                    .stopAndAdd(() -> robot.deposit.lift.setTarget(HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORING))
+                                    .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORED)
                                     .stopAndAdd(robot.deposit::triggerClaw)
                                     .waitSeconds(WAIT_SCORE_CHAMBER)
                                     .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)
@@ -458,15 +461,18 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SUB_MIN);
                         robot.intake.runRoller(0);
+                        robot.intake.ejectSample();
                     })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
                     .stopAndAdd(() -> robot.sweeper.setActivated(true))
-                    .waitSeconds(WAIT_SWEEPER)
+                    .waitSeconds(WAIT_SWEEPER_EXTEND)
                     .stopAndAdd(() -> robot.sweeper.setActivated(false))
-                    .waitSeconds(WAIT_SWEEPER)
+                    .waitSeconds(WAIT_SWEEPER_RETRACT)
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                    .waitSeconds(WAIT_EXTEND_POST_SWEEP)
                     .build();
 
             Action subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
@@ -499,11 +505,13 @@ public final class Auto extends LinearOpMode {
                         .setTangent(basket.heading)
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
                         .stopAndAdd(() -> robot.sweeper.setActivated(true))
-                        .waitSeconds(WAIT_SWEEPER)
+                        .waitSeconds(WAIT_SWEEPER_EXTEND)
                         .stopAndAdd(() -> robot.sweeper.setActivated(false))
-                        .waitSeconds(WAIT_SWEEPER)
+                        .waitSeconds(WAIT_SWEEPER_RETRACT)
                         .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                         .waitSeconds(WAIT_DROP_TO_EXTEND)
+                        .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                        .waitSeconds(WAIT_EXTEND_POST_SWEEP)
                         .build()
                 );
                 sweepLefts.add(robot.drivetrain.actionBuilder(intakingSub.toPose2d())
@@ -569,10 +577,10 @@ public final class Auto extends LinearOpMode {
     private static Action scoreSample(Robot robot) {
         return new SequentialAction(
                 new InstantAction(() -> {
-                    if (robot.getSample() == null) robot.deposit.transfer(NEUTRAL);
+                    if (!robot.hasSample()) robot.deposit.transfer(NEUTRAL);
                 }),
                 new SleepAction(WAIT_APPROACH_BASKET),
-                telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SCORING_SAMPLE) && robot.deposit.lift.atPosition(HEIGHT_BASKET_HIGH)),
+                telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SCORING_SAMPLE) && abs(robot.deposit.lift.getPosition() - HEIGHT_BASKET_HIGH) <= LIFT_HEIGHT_TOLERANCE),
                 new InstantAction(robot.deposit::triggerClaw),
                 new SleepAction(WAIT_SCORE_BASKET)
         );
@@ -581,7 +589,7 @@ public final class Auto extends LinearOpMode {
     private static Action scoreSpecimen(Robot robot) {
         return new SequentialAction(
                 new InstantAction(() -> {
-                    if (robot.getSample() == null) while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
+                    if (!robot.hasSample()) while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
                 }),
                 new SleepAction(WAIT_APPROACH_CHAMBER),
                 telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPECIMEN) && robot.deposit.lift.atPosition(HEIGHT_CHAMBER_HIGH)), // wait until deposit in position
