@@ -111,7 +111,7 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, toRadians(5)),
 
             sample1SpecPreload = new EditablePose(-50, -27.75, PI / 2),
-            sample1 = new EditablePose(-48, -27.75, PI / 2),
+            sample1 = new EditablePose(-49.46,-28.1, PI / 2),
             sample2 = new EditablePose(-58, -27.75, PI / 2),
             sample3 = new EditablePose(-68.75, -26, PI / 2),
     
