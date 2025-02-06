@@ -108,7 +108,7 @@ public final class Auto extends LinearOpMode {
     /// <a href="https://www.desmos.com/calculator/1h2p9qky3g">Adjusting spikes 1 and 2</a>
     /// <a href="https://www.desmos.com/calculator/4ewmq9giq0">Visualize spike samples</a>
     public static EditablePose
-            admissibleError = new EditablePose(2, 2, toRadians(10)),
+            admissibleError = new EditablePose(1, 1, toRadians(5)),
 
             sample1SpecPreload = new EditablePose(-50, -27.75, PI / 2),
             sample1 = new EditablePose(-48, -27.75, PI / 2),

@@ -3,7 +3,9 @@ package org.firstinspires.ftc.teamcode.roadrunner;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.admissibleError;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static java.lang.Math.PI;
+import static java.lang.Math.abs;
 import static java.lang.Math.cos;
+import static java.lang.Math.hypot;
 import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 
@@ -396,9 +398,8 @@ public class MecanumDrive {
             Pose2d error = txWorldTarget.value().minusExp(pose);
 
             if (t >= timeTrajectory.duration &&
-                    error.position.x < admissibleError.x &&
-                    error.position.y < admissibleError.y &&
-                    error.heading.toDouble() < admissibleError.heading
+                    hypot(error.position.x, error.position.y) < admissibleError.x &&
+                    abs(error.heading.toDouble()) < admissibleError.heading
             ) {
                 leftFront.setPower(0);
                 leftBack.setPower(0);
