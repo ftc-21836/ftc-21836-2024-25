@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_INTAKE_RETRACT_POST_SUB;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SUB;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.scoreSample;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.DRIVING_TO_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_2;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_3;
@@ -26,6 +30,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
@@ -227,7 +232,16 @@ class BasketAuto implements Action {
 
                 // Sample intaked
                 if (hasSample) {
-                    activeTraj = scores.remove(0);
+                    Pose2d pose = robot.drivetrain.pose;
+                    activeTraj = robot.drivetrain.actionBuilder(pose)
+                            .afterTime(0, () -> robot.intake.runRoller(1))
+                            .waitSeconds(WAIT_POST_INTAKING_SUB)
+                            .afterTime(0, () -> robot.intake.runRoller(0))
+                            .setTangent(PI + pose.heading.toDouble())
+                            .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
+                            .splineTo(basket.toVector2d(), PI + basket.heading)
+                            .stopAndAdd(scoreSample(robot))
+                            .build();
                     state = SCORING;
                 } else {
 

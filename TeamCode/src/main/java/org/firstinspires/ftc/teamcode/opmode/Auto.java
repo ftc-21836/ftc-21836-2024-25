@@ -91,11 +91,11 @@ public final class Auto extends LinearOpMode {
             WAIT_SCORE_CHAMBER = 0.1,
             WAIT_SCORE_SPEC_PRELOAD = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
-            WAIT_INTAKE_RETRACT = 0.75,
-            WAIT_EXTEND = 0.75,
+            WAIT_INTAKE_RETRACT_POST_SUB = 0.75,
+            WAIT_EXTEND_MAX_SPIKE = 0.75,
             WAIT_SWEEPER_EXTEND = 0.2,
-            WAIT_SWEEPER_RETRACT = 0.1,
-            WAIT_EXTEND_POST_SWEEP = 0.3,
+            WAIT_SWEEPER_RETRACT = 0,
+            WAIT_EXTEND_POST_SWEEPER = 0.3,
             LIFT_HEIGHT_TOLERANCE = 3.75,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
@@ -401,7 +401,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                         timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
                     .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -428,7 +428,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -439,7 +439,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -465,7 +465,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                         timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -476,7 +476,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                         timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
@@ -509,7 +509,7 @@ public final class Auto extends LinearOpMode {
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
                     .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                    .waitSeconds(WAIT_EXTEND_POST_SWEEP)
+                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
             Action subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
@@ -545,7 +545,7 @@ public final class Auto extends LinearOpMode {
                         .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                         .waitSeconds(i > 0 ? 0 : WAIT_DROP_TO_EXTEND)
                         .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                        .waitSeconds(i > 0 ? 0 : WAIT_EXTEND_POST_SWEEP)
+                        .waitSeconds(i > 0 ? 0 : WAIT_EXTEND_POST_SWEEPER)
                         .build()
                 );
                 sweepLefts.add(robot.drivetrain.actionBuilder(intakingSub.toPose2d())
@@ -561,7 +561,7 @@ public final class Auto extends LinearOpMode {
                         .waitSeconds(WAIT_POST_INTAKING_SUB)
                         .afterTime(0, () -> robot.intake.runRoller(0))
                         .setTangent(PI + fromSub.heading)
-                        .waitSeconds(WAIT_INTAKE_RETRACT)
+                        .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                         .splineTo(basket.toVector2d(), PI + basket.heading)
                         .stopAndAdd(scoreSample(robot))
                         .build()
@@ -611,7 +611,7 @@ public final class Auto extends LinearOpMode {
         Actions.runBlocking(auton);
     }
 
-    private static Action scoreSample(Robot robot) {
+    static Action scoreSample(Robot robot) {
         return new SequentialAction(
                 new InstantAction(() -> {
                     if (!robot.hasSample()) robot.deposit.transfer(NEUTRAL);
