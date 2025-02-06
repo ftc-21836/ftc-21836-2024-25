@@ -395,7 +395,7 @@ public final class Auto extends LinearOpMode {
                                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                                             extendoTimer.reset();
                                         })
-                                    )
+                                    ))
                                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading)
                     )
                     .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
@@ -434,7 +434,7 @@ public final class Auto extends LinearOpMode {
                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                             extendoTimer.reset();
                         })
-                    )
+                    ))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
                     .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
@@ -471,7 +471,7 @@ public final class Auto extends LinearOpMode {
                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                             extendoTimer.reset();
                         })
-                    )
+                    ))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
                     .stopAndAdd(telemetryPacket -> !(extendoTimer.seconds() >= WAIT_EXTEND || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
