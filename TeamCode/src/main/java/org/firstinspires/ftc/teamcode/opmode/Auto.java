@@ -73,8 +73,8 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_1 = 300,
             EXTEND_SAMPLE_2 = 300,
             EXTEND_SAMPLE_3 = 410,
-            EXTEND_SUB_MIN = 50,
-            EXTEND_SUB_MAX = 400,
+            EXTEND_SUB_MIN = 60,
+            EXTEND_SUB_MAX = 410,
             TIME_EXTEND_CYCLE = 2,
             SPEED_SWEEPING_SUB = 2.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
@@ -91,7 +91,9 @@ public final class Auto extends LinearOpMode {
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_INTAKE_RETRACT = 0.75,
             WAIT_EXTEND = 0.75,
-            WAIT_SWEEPER = 0.2,
+            WAIT_SWEEPER_EXTEND = 0.2,
+            WAIT_SWEEPER_RETRACT = 0.1,
+            WAIT_EXTEND_POST_SWEEP = 0.7,
             LIFT_HEIGHT_TOLERANCE = 1,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
@@ -464,11 +466,13 @@ public final class Auto extends LinearOpMode {
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
                     .stopAndAdd(() -> robot.sweeper.setActivated(true))
-                    .waitSeconds(WAIT_SWEEPER)
+                    .waitSeconds(WAIT_SWEEPER_EXTEND)
                     .stopAndAdd(() -> robot.sweeper.setActivated(false))
-                    .waitSeconds(WAIT_SWEEPER)
+                    .waitSeconds(WAIT_SWEEPER_RETRACT)
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                    .waitSeconds(WAIT_EXTEND_POST_SWEEP)
                     .build();
 
             Action subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
@@ -501,11 +505,13 @@ public final class Auto extends LinearOpMode {
                         .setTangent(basket.heading)
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
                         .stopAndAdd(() -> robot.sweeper.setActivated(true))
-                        .waitSeconds(WAIT_SWEEPER)
+                        .waitSeconds(WAIT_SWEEPER_EXTEND)
                         .stopAndAdd(() -> robot.sweeper.setActivated(false))
-                        .waitSeconds(WAIT_SWEEPER)
+                        .waitSeconds(WAIT_SWEEPER_RETRACT)
                         .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                         .waitSeconds(WAIT_DROP_TO_EXTEND)
+                        .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                        .waitSeconds(WAIT_EXTEND_POST_SWEEP)
                         .build()
                 );
                 sweepLefts.add(robot.drivetrain.actionBuilder(intakingSub.toPose2d())

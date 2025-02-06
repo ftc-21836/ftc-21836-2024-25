@@ -250,7 +250,7 @@ class BasketAuto implements Action {
 
                     /// <a href="https://www.desmos.com/calculator/iazwdw6hky">Graph</a>
                     robot.intake.extendo.setTarget(
-                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 - cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
+                            EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 + cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
                     );
 
                     timer.reset();
