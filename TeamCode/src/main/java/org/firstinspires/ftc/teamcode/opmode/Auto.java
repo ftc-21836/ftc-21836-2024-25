@@ -122,7 +122,7 @@ public final class Auto extends LinearOpMode {
     
             basket = new EditablePose(-55.5, -55.5, PI / 4),
             intakingSub = new EditablePose(-23, -11, 0),
-            sweptSub = new EditablePose(-23, 0, 0),
+            sweptSub = new EditablePose(-23, 8, 0),
             fromSub = new EditablePose(-36, -12, atan2(-12 + 48, -36 + 48)),
     
             parkLeft = new EditablePose(-23, -11, 0),
