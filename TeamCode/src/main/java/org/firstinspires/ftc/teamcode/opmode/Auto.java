@@ -172,8 +172,10 @@ public final class Auto extends LinearOpMode {
         int cycles = 3;
         boolean specimenPreload = false;
 
+        ElapsedTime extendoTimer = new ElapsedTime();
+
         // Get gamepad 1 button input and save alliance and side for autonomous configuration:
-        while (opModeInInit() && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
+        while (opModeInInit() && extendoTimer.seconds() < 5 && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(DPAD_UP)) {
@@ -219,7 +221,7 @@ public final class Auto extends LinearOpMode {
                     Gamepad.LED_DURATION_CONTINUOUS
             );
 
-            mTelemetry.addLine("Press both shoulder buttons to CONFIRM!");
+            mTelemetry.addLine("Confirming in " + extendoTimer.seconds() + " seconds!");
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
@@ -353,8 +355,6 @@ public final class Auto extends LinearOpMode {
             intaking3.heading = atan2(sample3.y - intaking3.y, sample3.x - intaking3.x);
 
             EditablePose i1 = specimenPreload ? intaking1SpecPreload : intaking1;
-
-            ElapsedTime extendoTimer = new ElapsedTime();
 
             Action preloadAnd1 =
                     (specimenPreload ?
