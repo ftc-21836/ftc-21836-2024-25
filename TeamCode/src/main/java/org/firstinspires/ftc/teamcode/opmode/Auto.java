@@ -323,6 +323,8 @@ public final class Auto extends LinearOpMode {
 
         } else {
 
+            robot.intake.retractBucketBeforeExtendo = false;
+
             if (specimenPreload)
                 robot.deposit.preloadSpecimen();
             else
