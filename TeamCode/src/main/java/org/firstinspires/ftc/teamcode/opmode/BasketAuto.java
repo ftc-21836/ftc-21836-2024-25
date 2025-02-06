@@ -248,7 +248,7 @@ class BasketAuto implements Action {
                 // Sample intaked
                 if (!hasSample) {
 
-                    /// <a href="https://www.desmos.com/calculator/iazwdw6hky">Graph</a>
+                    /// <a href="https://www.desmos.com/calculator/8j59t2lngb">Graph</a>
                     robot.intake.extendo.setTarget(
                             EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 + cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
                     );
