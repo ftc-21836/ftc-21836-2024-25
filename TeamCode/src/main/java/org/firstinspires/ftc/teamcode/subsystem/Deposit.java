@@ -35,9 +35,9 @@ public final class Deposit {
             ANGLE_CLAW_SLIDING = 40,
             ANGLE_CLAW_CLOSED = 25,
 
-            TIME_SAMPLE_RELEASE = 0.5,
+            TIME_SAMPLE_RELEASE = 0.15,
             TIME_SPEC_GRAB = 0.25,
-            TIME_SPEC_RELEASE = 0.5,
+            TIME_SPEC_RELEASE = 0.1,
 
             TOLERANCE_ARM_SCORING_POS = 4,
 
