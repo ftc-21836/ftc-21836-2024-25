@@ -505,14 +505,13 @@ public final class Auto extends LinearOpMode {
                         .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
                         .setTangent(basket.heading)
                         .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                        .stopAndAdd(i == 0 ? new InstantAction(() -> {}) :
-                            new SequentialAction(
-                                    new InstantAction(() -> robot.sweeper.setActivated(true)),
-                                    new SleepAction(WAIT_SWEEPER_EXTEND),
-                                    new InstantAction(() -> robot.sweeper.setActivated(false)),
-                                    new SleepAction(WAIT_SWEEPER_RETRACT)
-                            )
-                        )
+                        .stopAndAdd(i > 0 ? new InstantAction(() -> {}) : new SequentialAction(
+                                new InstantAction(() -> robot.sweeper.setActivated(true)),
+                                new SleepAction(WAIT_SWEEPER_EXTEND),
+                                new InstantAction(() -> robot.sweeper.setActivated(false)),
+                                new SleepAction(WAIT_SWEEPER_RETRACT)
+                        ))
+                        .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                         .waitSeconds(WAIT_DROP_TO_EXTEND)
                         .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
                         .waitSeconds(WAIT_EXTEND_POST_SWEEP)
