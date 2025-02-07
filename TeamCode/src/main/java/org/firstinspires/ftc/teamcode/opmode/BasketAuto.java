@@ -120,8 +120,6 @@ class BasketAuto implements Action {
 
         double remaining = 30 - matchTimer.seconds();
 
-        boolean hasSample = robot.intake.hasSample();
-
         boolean trajDone = !activeTraj.run(p);
 
         switch (state) {
@@ -131,7 +129,7 @@ class BasketAuto implements Action {
                     robot.intake.runRoller(1);
 
                 // Sample intaked
-                if (hasSample) {
+                if (robot.intake.hasSample()) {
                     activeTraj = score1;
                     state = SCORING_1;
                 } else {
@@ -158,7 +156,7 @@ class BasketAuto implements Action {
                     robot.intake.runRoller(1);
 
                 // Sample intaked
-                if (hasSample) {
+                if (robot.intake.hasSample()) {
                     activeTraj = score2;
                     state = SCORING_2;
                 } else {
@@ -185,7 +183,7 @@ class BasketAuto implements Action {
                     robot.intake.runRoller(1);
 
                 // Sample intaked
-                if (hasSample) {
+                if (robot.intake.hasSample()) {
                     activeTraj = score3;
                     state = SCORING;
                 } else {
@@ -229,7 +227,7 @@ class BasketAuto implements Action {
                 }
 
                 // Sample intaked
-                if (hasSample) {
+                if (robot.intake.hasSample()) {
                     Pose2d pose = robot.drivetrain.pose;
                     activeTraj = robot.drivetrain.actionBuilder(pose)
                             .afterTime(0, () -> robot.intake.runRoller(1))
