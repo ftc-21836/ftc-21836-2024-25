@@ -122,9 +122,7 @@ class BasketAuto implements Action {
 
         boolean hasSample = robot.intake.hasSample();
 
-        boolean intaking = state == PRELOAD_AND_1 || state == INTAKING_2 || state == INTAKING_3 || state == INTAKING;
-        boolean stopMoving = intaking && hasSample;
-        boolean trajDone = !stopMoving && !activeTraj.run(p);
+        boolean trajDone = !activeTraj.run(p);
 
         switch (state) {
             case PRELOAD_AND_1:
