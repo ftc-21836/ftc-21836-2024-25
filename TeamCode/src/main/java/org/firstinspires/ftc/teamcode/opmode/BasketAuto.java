@@ -192,6 +192,7 @@ class BasketAuto implements Action {
                     if (trajDone) {
                         activeTraj = i3ToSub;
                         state = DRIVING_TO_SUB;
+                        toSubs.remove(0);
                     }
 
                 }

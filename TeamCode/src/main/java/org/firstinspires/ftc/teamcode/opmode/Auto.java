@@ -537,28 +537,28 @@ public final class Auto extends LinearOpMode {
                     sweepRights = new ArrayList<>(),
                     scores = new ArrayList<>();
 
-            for (int i = 0; i < 6; i++) {
-                toSubs.add(i > 0 ?
-                        robot.drivetrain.actionBuilder(basket.toPose2d())
-                                .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
-                                .setTangent(basket.heading)
-                                .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                                .stopAndAdd(() -> {
-                                    robot.intake.runRoller(SPEED_INTAKING);
-                                    robot.intake.extendo.setExtended(true);
-                                })
-                                .build() :
+            toSubs.add(robot.drivetrain.actionBuilder(basket.toPose2d())
+                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
+                    .setTangent(basket.heading)
+                    .splineTo(intakingSub.toVector2d(), intakingSub.heading)
+                    .stopAndAdd(sweep)
+                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
+                    .build()
+            );
 
-                        robot.drivetrain.actionBuilder(basket.toPose2d())
-                                .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
-                                .setTangent(basket.heading)
-                                .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                                .stopAndAdd(sweep)
-                                .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
-                                .waitSeconds(WAIT_DROP_TO_EXTEND)
-                                .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                                .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
-                                .build()
+            for (int i = 0; i < 6; i++) {
+                toSubs.add(robot.drivetrain.actionBuilder(basket.toPose2d())
+                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
+                        .setTangent(basket.heading)
+                        .splineTo(intakingSub.toVector2d(), intakingSub.heading)
+                        .stopAndAdd(() -> {
+                            robot.intake.runRoller(SPEED_INTAKING);
+                            robot.intake.extendo.setExtended(true);
+                        })
+                        .build()
                 );
                 sweepLefts.add(robot.drivetrain.actionBuilder(intakingSub.toPose2d())
                         .strafeToSplineHeading(sweptSub.toVector2d(), sweptSub.heading, sweepConstraint)
