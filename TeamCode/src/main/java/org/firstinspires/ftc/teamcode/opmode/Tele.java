@@ -200,7 +200,7 @@ public final class Tele extends LinearOpMode {
                                         robot.deposit.intaking() ? chamberRight : basket
                                 ).drivePower.heading :
                                 gamepadEx1.getRightX(),
-                        slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
+                        slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER),
                         useFieldCentric
                 );
 
