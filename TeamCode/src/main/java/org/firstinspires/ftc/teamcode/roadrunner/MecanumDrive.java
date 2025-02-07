@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
 import static org.firstinspires.ftc.teamcode.opmode.Auto.admissibleError;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.admissibleVel;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
@@ -399,7 +400,9 @@ public class MecanumDrive {
 
             if (t >= timeTrajectory.duration + 1 || t >= timeTrajectory.duration &&
                     error.position.norm() < admissibleError.x &&
-                    abs(error.heading.toDouble()) < admissibleError.heading
+                    abs(error.heading.toDouble()) < admissibleError.heading &&
+                    robotVelRobot.linearVel.norm() < admissibleVel.x &&
+                    abs(robotVelRobot.angVel) < admissibleVel.heading
             ) {
                 leftFront.setPower(0);
                 leftBack.setPower(0);
