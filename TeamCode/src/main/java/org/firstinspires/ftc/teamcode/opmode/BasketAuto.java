@@ -121,9 +121,6 @@ class BasketAuto implements Action {
         switch (state) {
             case PRELOAD_AND_1:
 
-                if (robot.intake.extendo.atPosition(EXTEND_SAMPLE_1))
-                    robot.intake.runRoller(1);
-
                 // Sample intaked
                 if (robot.intake.hasSample()) {
                     activeTraj = score1;
@@ -143,9 +140,6 @@ class BasketAuto implements Action {
                 break;
             case INTAKING_2:
 
-                if (robot.intake.extendo.atPosition(EXTEND_SAMPLE_2))
-                    robot.intake.runRoller(1);
-
                 // Sample intaked
                 if (robot.intake.hasSample()) {
                     activeTraj = score2;
@@ -164,9 +158,6 @@ class BasketAuto implements Action {
                 }
                 break;
             case INTAKING_3:
-
-                if (robot.intake.extendo.atPosition(EXTEND_SAMPLE_3))
-                    robot.intake.runRoller(1);
 
                 // Sample intaked
                 if (robot.intake.hasSample()) {
