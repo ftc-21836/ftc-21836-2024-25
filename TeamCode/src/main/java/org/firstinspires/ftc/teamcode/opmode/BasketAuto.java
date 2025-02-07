@@ -1,9 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_DROP_TO_EXTEND;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_EXTEND_POST_SWEEPER;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_INTAKE_RETRACT_POST_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.intakingSub;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.parkLeft;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.scoreSample;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.sweptSub;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.DRIVING_TO_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_2;
 import static org.firstinspires.ftc.teamcode.opmode.BasketAuto.State.INTAKING_3;
@@ -30,12 +35,12 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
-
-import java.util.ArrayList;
 
 class BasketAuto implements Action {
 
@@ -58,6 +63,9 @@ class BasketAuto implements Action {
 
     private Action activeTraj;
 
+    private EditablePose sub = intakingSub;
+    private double subExtend = EXTEND_SUB_MAX;
+
     private final Robot robot;
     private final Action
             score1,
@@ -69,15 +77,9 @@ class BasketAuto implements Action {
             i1To2,
             i2To3,
             i3ToSub,
-            subPark;
+            toSub;
 
-    private final ArrayList<Action>
-            toSubs,
-            sweepLefts,
-            sweepRights,
-            scores;
-
-    private boolean sweepingLeft = true;
+    private final MinVelConstraint sweepConstraint;
 
     BasketAuto(
             Robot robot,
@@ -87,15 +89,12 @@ class BasketAuto implements Action {
             Action score2,
             Action intake3,
             Action score3,
-            Action park,
             Action i1To2,
             Action i2To3,
             Action i3ToSub,
-            Action subPark,
-            ArrayList<Action> toSubs,
-            ArrayList<Action> sweepLefts,
-            ArrayList<Action> sweepRights,
-            ArrayList<Action> scores
+            Action toSub,
+            Action park,
+            MinVelConstraint sweepConstraint
     ) {
         this.robot = robot;
         activeTraj = preloadAnd1;
@@ -104,15 +103,12 @@ class BasketAuto implements Action {
         this.score2 = score2;
         this.intake3 = intake3;
         this.score3 = score3;
-        this.park = park;
         this.i1To2 = i1To2;
         this.i2To3 = i2To3;
         this.i3ToSub = i3ToSub;
-        this.subPark = subPark;
-        this.toSubs = toSubs;
-        this.sweepLefts = sweepLefts;
-        this.sweepRights = sweepRights;
-        this.scores = scores;
+        this.toSub = toSub;
+        this.park = park;
+        this.sweepConstraint = sweepConstraint;
     }
 
     public boolean run(@NonNull TelemetryPacket p) {
@@ -132,14 +128,9 @@ class BasketAuto implements Action {
                 if (robot.intake.hasSample()) {
                     activeTraj = score1;
                     state = SCORING_1;
-                } else {
-
-                    // skip to 2 if didn't get 1
-                    if (trajDone) {
-                        activeTraj = i1To2;
-                        state = INTAKING_2;
-                    }
-
+                } else if (trajDone) { // skip to 2 if didn't get 1
+                    activeTraj = i1To2;
+                    state = INTAKING_2;
                 }
 
                 break;
@@ -159,14 +150,9 @@ class BasketAuto implements Action {
                 if (robot.intake.hasSample()) {
                     activeTraj = score2;
                     state = SCORING_2;
-                } else {
-
-                    // skip to 3 if didn't get 2
-                    if (trajDone) {
-                        activeTraj = i2To3;
-                        state = INTAKING_3;
-                    }
-
+                } else if (trajDone) { // skip to 3 if didn't get 2
+                    activeTraj = i2To3;
+                    state = INTAKING_3;
                 }
 
                 break;
@@ -186,15 +172,9 @@ class BasketAuto implements Action {
                 if (robot.intake.hasSample()) {
                     activeTraj = score3;
                     state = SCORING;
-                } else {
-
-                    // skip to sub if didn't get 3
-                    if (trajDone) {
-                        activeTraj = i3ToSub;
-                        state = DRIVING_TO_SUB;
-                        toSubs.remove(0);
-                    }
-
+                } else if (trajDone) { // skip to sub if didn't get 3
+                    activeTraj = i3ToSub;
+                    state = DRIVING_TO_SUB;
                 }
 
                 break;
@@ -205,7 +185,15 @@ class BasketAuto implements Action {
                         activeTraj = park;
                         state = PARKING;
                     } else {
-                        activeTraj = toSubs.remove(0);
+                        activeTraj = sub == intakingSub ? toSub :
+                                robot.drivetrain.actionBuilder(basket.toPose2d())
+                                    .setTangent(basket.heading)
+                                    .splineTo(sub.toVector2d(), sub.heading)
+                                    .afterTime(0, () -> robot.intake.extendo.setTarget(subExtend))
+                                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
+                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                                    .build();
                         state = DRIVING_TO_SUB;
                     }
                 }
@@ -213,8 +201,9 @@ class BasketAuto implements Action {
 
             case DRIVING_TO_SUB:
                 if (trajDone) {
-                    sweepingLeft = true;
-                    activeTraj = sweepLefts.remove(0);
+                    activeTraj = robot.drivetrain.actionBuilder(sub.toPose2d())
+                            .lineToY(sub.y > 0 ? intakingSub.y : sweptSub.y, sweepConstraint)
+                            .build();
                     state = INTAKING;
                     extendoTimer.reset();
                 }
@@ -222,23 +211,36 @@ class BasketAuto implements Action {
             case INTAKING:
 
                 if (remaining < TIME_SCORE) {
-                    activeTraj = subPark;
+                    activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                            .afterTime(0, () -> {
+                                robot.intake.ejectSample();
+                                robot.intake.runRoller(0);
+                                Deposit.level1Ascent = true;
+                                robot.deposit.lift.setTarget(0);
+                            })
+                            .afterTime(1, () -> robot.intake.extendo.setExtended(false))
+                            .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading)
+                            .build();
                     state = PARKING;
                     break;
                 }
 
                 // Sample intaked
                 if (robot.intake.hasSample()) {
-                    Pose2d pose = robot.drivetrain.pose;
-                    activeTraj = robot.drivetrain.actionBuilder(pose)
+
+                    sub = new EditablePose(robot.drivetrain.pose);
+                    subExtend = robot.intake.extendo.getPosition();
+
+                    activeTraj = robot.drivetrain.actionBuilder(sub.toPose2d())
                             .afterTime(0, () -> robot.intake.runRoller(1))
                             .waitSeconds(WAIT_POST_INTAKING_SUB)
                             .afterTime(0, () -> robot.intake.runRoller(0))
-                            .setTangent(PI + pose.heading.toDouble())
+                            .setTangent(PI + sub.heading)
                             .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                             .splineTo(basket.toVector2d(), PI + basket.heading)
                             .stopAndAdd(scoreSample(robot))
                             .build();
+
                     state = SCORING;
                 } else {
 
@@ -246,13 +248,11 @@ class BasketAuto implements Action {
                     robot.intake.extendo.setTarget(
                             EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 + cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
                     );
-                    robot.intake.runRoller(SPEED_INTAKING);
 
                     // sweep the other way
-                    if (trajDone) {
-                        sweepingLeft = !sweepingLeft;
-                        activeTraj = (sweepingLeft ? sweepRights : sweepLefts).remove(0);
-                    }
+                    if (trajDone) activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                            .lineToY(robot.drivetrain.pose.position.y > 0 ? intakingSub.y : sweptSub.y, sweepConstraint)
+                            .build();
 
                 }
 

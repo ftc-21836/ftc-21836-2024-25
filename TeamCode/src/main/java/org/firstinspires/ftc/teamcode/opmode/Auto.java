@@ -76,7 +76,7 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_3 = 410,
             EXTEND_SUB_MIN = 100,
             EXTEND_SUB_MAX = 410,
-            TIME_EXTEND_CYCLE = 2,
+            TIME_EXTEND_CYCLE = 1,
             SPEED_SWEEPING_SUB = 5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 5,
@@ -91,7 +91,7 @@ public final class Auto extends LinearOpMode {
             WAIT_SCORE_CHAMBER = 0.1,
             WAIT_SCORE_SPEC_PRELOAD = 0.75,
             WAIT_DROP_TO_EXTEND = 0.75,
-            WAIT_INTAKE_RETRACT_POST_SUB = 0.75,
+            WAIT_INTAKE_RETRACT_POST_SUB = 0.5,
             WAIT_EXTEND_MAX_SPIKE = 0.75,
             WAIT_SWEEPER_EXTEND = 0.2,
             WAIT_SWEEPER_RETRACT = 0,
@@ -122,11 +122,10 @@ public final class Auto extends LinearOpMode {
             intaking3 = new EditablePose(-54.1,-43, 2 * PI / 3),
     
             basket = new EditablePose(-55.5, -55.5, PI / 4),
-            intakingSub = new EditablePose(-23, -11, 0),
-            sweptSub = new EditablePose(-23, 8, 0),
-            fromSub = new EditablePose(-36, -12, atan2(-12 + 48, -36 + 48)),
+            intakingSub = new EditablePose(-22.5, -11, 0),
+            sweptSub = new EditablePose(-22.5, 8, 0),
     
-            parkLeft = new EditablePose(-23, -11, 0),
+            parkLeft = new EditablePose(-22.5, -11, 0),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
     
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, - PI / 2),
@@ -513,14 +512,15 @@ public final class Auto extends LinearOpMode {
                     .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
-            Action subPark = robot.drivetrain.actionBuilder(sweptSub.toPose2d())
-                    .afterTime(0, () -> {
-                        robot.intake.runRoller(0);
-                        Deposit.level1Ascent = true;
-                        robot.deposit.lift.setTarget(0);
-                    })
-                    .afterTime(1, () -> robot.intake.extendo.setExtended(false))
-                    .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading)
+            Action toSub = robot.drivetrain.actionBuilder(basket.toPose2d())
+                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
+                    .setTangent(basket.heading)
+                    .splineTo(intakingSub.toVector2d(), intakingSub.heading)
+                    .stopAndAdd(sweep)
+                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
             Action park = robot.drivetrain.actionBuilder(basket.toPose2d())
@@ -531,55 +531,6 @@ public final class Auto extends LinearOpMode {
                     .splineTo(parkLeft.toVector2d(), parkLeft.heading)
                     .build();
 
-            ArrayList<Action>
-                    toSubs = new ArrayList<>(),
-                    sweepLefts = new ArrayList<>(),
-                    sweepRights = new ArrayList<>(),
-                    scores = new ArrayList<>();
-
-            toSubs.add(robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
-                    .setTangent(basket.heading)
-                    .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                    .stopAndAdd(sweep)
-                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
-                    .waitSeconds(WAIT_DROP_TO_EXTEND)
-                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
-                    .build()
-            );
-
-            for (int i = 0; i < 6; i++) {
-                toSubs.add(robot.drivetrain.actionBuilder(basket.toPose2d())
-                        .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
-                        .setTangent(basket.heading)
-                        .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                        .stopAndAdd(() -> {
-                            robot.intake.runRoller(SPEED_INTAKING);
-                            robot.intake.extendo.setExtended(true);
-                        })
-                        .build()
-                );
-                sweepLefts.add(robot.drivetrain.actionBuilder(intakingSub.toPose2d())
-                        .strafeToSplineHeading(sweptSub.toVector2d(), sweptSub.heading, sweepConstraint)
-                        .build()
-                );
-                sweepRights.add(robot.drivetrain.actionBuilder(sweptSub.toPose2d())
-                        .strafeToSplineHeading(intakingSub.toVector2d(), intakingSub.heading, sweepConstraint)
-                        .build()
-                );
-                scores.add(robot.drivetrain.actionBuilder(fromSub.toPose2d())
-                        .afterTime(0, () -> robot.intake.runRoller(1))
-                        .waitSeconds(WAIT_POST_INTAKING_SUB)
-                        .afterTime(0, () -> robot.intake.runRoller(0))
-                        .setTangent(PI + fromSub.heading)
-                        .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
-                        .splineTo(basket.toVector2d(), PI + basket.heading)
-                        .stopAndAdd(scoreSample(robot))
-                        .build()
-                );
-            }
-
             trajectory = new BasketAuto(
                     robot,
                     preloadAnd1,
@@ -588,15 +539,12 @@ public final class Auto extends LinearOpMode {
                     score2,
                     intake3,
                     score3,
-                    park,
                     i1To2,
                     i2To3,
                     i3ToSub,
-                    subPark,
-                    toSubs,
-                    sweepLefts,
-                    sweepRights,
-                    scores
+                    toSub,
+                    park,
+                    sweepConstraint
             );
         }
 
