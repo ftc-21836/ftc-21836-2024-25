@@ -54,7 +54,9 @@ public final class Arm {
                 target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
-                target == SCORING_SAMPLE ?  TIME_SAMPLE_TO_IN_BASKET :
+                target == SCORING_SAMPLE ?
+                        lastTarget == SAMPLE ?          TIME_SAMPLE_TO_IN_BASKET :
+                                                        TIME_RETRACTED_TO_SAMPLE + TIME_SAMPLE_TO_IN_BASKET :
                 target == TRANSFER ?
                         lastTarget == SAMPLE ?          TIME_SAMPLE_TO_RETRACTED :
                         lastTarget == SCORING_SAMPLE ?  TIME_SAMPLE_TO_RETRACTED :
