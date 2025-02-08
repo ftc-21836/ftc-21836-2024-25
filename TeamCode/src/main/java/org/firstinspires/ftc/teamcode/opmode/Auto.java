@@ -344,6 +344,7 @@ public final class Auto extends LinearOpMode {
         } else {
 
             robot.intake.retractBucketBeforeExtendo = false;
+            robot.deposit.liftBeforePointArm = true;
 
             if (specimenPreload)
                 robot.deposit.preloadSpecimen();
@@ -485,6 +486,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
                         robot.intake.runRoller(0);
                         robot.intake.ejectSample();
+                        robot.deposit.liftBeforePointArm = false;
                     })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
@@ -496,7 +498,10 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action toSub = robot.drivetrain.actionBuilder(basket2.toPose2d())
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR))
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
+                        robot.deposit.liftBeforePointArm = false;
+                    })
                     .setTangent(basket2.heading)
                     .splineTo(intakingSub.toVector2d(), intakingSub.heading)
                     .stopAndAdd(sweep)

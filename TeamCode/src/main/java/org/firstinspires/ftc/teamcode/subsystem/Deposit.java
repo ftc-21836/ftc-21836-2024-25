@@ -93,6 +93,8 @@ public final class Deposit {
 
     public static boolean level1Ascent = false;
 
+    public boolean liftBeforePointArm = false;
+
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
@@ -147,7 +149,7 @@ public final class Deposit {
         boolean atHighBasket = abs(liftPos - HEIGHT_BASKET_HIGH) <= TOLERANCE_ARM_SCORING_POS;
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (atLowBasket || atHighBasket);
+        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (!liftBeforePointArm || atLowBasket || atHighBasket);
 
         Arm.Position armPosition =
                 level1Ascent ? Arm.ASCENT :
