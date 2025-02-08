@@ -98,7 +98,7 @@ public final class Auto extends LinearOpMode {
             DISTANCE_BETWEEN_SPECIMENS = 2,
             EXTEND_SAMPLE_1 = 410,
             EXTEND_SAMPLE_2 = 395,
-            EXTEND_SAMPLE_3 = 375,
+            EXTEND_SAMPLE_3 = 350,
             EXTEND_OVER_SUB_BAR = 80,
             EXTEND_SUB_MIN = 254,
             EXTEND_SUB_MAX = 410,
@@ -140,7 +140,7 @@ public final class Auto extends LinearOpMode {
             basket = new EditablePose(-56.5, -56.5, PI / 4),
 
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
-            sample2 = new EditablePose(-58.55,-27.77, PI / 2),
+            sample2 = new EditablePose(-58.15,-27.77, PI / 2),
             sample3 = new EditablePose(-69.2,-26, PI / 2),
 
             intaking1 = new EditablePose(-54.6,-50, toRadians(84.36)),
@@ -604,7 +604,7 @@ public final class Auto extends LinearOpMode {
                                                     .build();
                                     state = DRIVING_TO_SUB;
                                 }
-                            } else if (remaining < 0.5 && robot.deposit.hasSample()) {
+                            } else if (remaining < WAIT_SCORE_BASKET && robot.deposit.hasSample()) {
                                 robot.deposit.triggerClaw();
                                 return false;
                             }
