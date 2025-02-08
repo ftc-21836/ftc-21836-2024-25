@@ -141,7 +141,7 @@ public final class Auto extends LinearOpMode {
             basketFromSub = new EditablePose(-57.75, -55.75, 0.765),
 
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
-            sample2 = new EditablePose(-57.75,-27.77, PI / 2),
+            sample2 = new EditablePose(-57.85,-27.77, PI / 2),
             sample3 = new EditablePose(-69.2,-26, PI / 2),
 
             intaking1 = new EditablePose(-54.6,-50, toRadians(84.36)),
