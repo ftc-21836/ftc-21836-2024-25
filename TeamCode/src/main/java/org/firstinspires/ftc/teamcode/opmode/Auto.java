@@ -108,7 +108,7 @@ public final class Auto extends LinearOpMode {
             SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 5,
             SPEED_INCHING_TURNING = 0.75,
-            SPEED_INTAKING = 0.8625,
+            SPEED_INTAKING = 0.85,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
@@ -138,7 +138,7 @@ public final class Auto extends LinearOpMode {
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
             basket = new EditablePose(-57, -56, PI / 4),
-            basketFromSub = new EditablePose(-57.75, -55.75, 0.765),
+            basketFromSub = new EditablePose(-58, -58, 0.765),
 
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
             sample2 = new EditablePose(-57.85,-27.77, PI / 2),
