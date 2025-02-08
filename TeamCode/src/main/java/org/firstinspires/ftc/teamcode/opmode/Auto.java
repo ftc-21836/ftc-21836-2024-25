@@ -395,7 +395,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                         timer.reset();
                     })
-                    .waitSeconds(1)
+                    .waitSeconds(2)
                     .build();
 
             Action score1 = robot.drivetrain.actionBuilder(basket1.toPose2d())
@@ -417,7 +417,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         timer.reset();
                     })
-                    .waitSeconds(1)
+                    .waitSeconds(2)
                     .build();
 
             Action intake2 = robot.drivetrain.actionBuilder(basket2.toPose2d())
@@ -427,7 +427,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         timer.reset();
                     })
-                    .waitSeconds(1)
+                    .waitSeconds(2)
                     .build();
 
             Action score2 = robot.drivetrain.actionBuilder(basket2.toPose2d())
