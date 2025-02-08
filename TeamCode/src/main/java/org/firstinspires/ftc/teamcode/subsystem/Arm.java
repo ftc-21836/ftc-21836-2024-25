@@ -20,7 +20,7 @@ public final class Arm {
             TIME_SAMPLE_TO_RETRACTED = 0.4,
             TIME_SAMPLE_TO_IN_BASKET = 0.3,
             TIME_RETRACTED_TO_INTAKING = 0.65,
-            TIME_INTAKING_TO_SPEC = 1,
+            TIME_INTAKING_TO_SPEC = 0.5,
             TIME_SPEC_TO_RETRACTED = 0.4;
 
     public static Arm.Position
