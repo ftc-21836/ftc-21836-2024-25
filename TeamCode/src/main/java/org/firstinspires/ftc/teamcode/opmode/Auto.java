@@ -265,7 +265,7 @@ public final class Auto extends LinearOpMode {
                     Gamepad.LED_DURATION_CONTINUOUS
             );
 
-            mTelemetry.addLine("CONFIRMING IN " + ceil(5 - timer.seconds()) + " SECONDS!");
+            mTelemetry.addLine("CONFIRMING IN " + (int) ceil(5 - timer.seconds()) + " SECONDS!");
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
