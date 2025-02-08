@@ -655,7 +655,7 @@ public final class Auto extends LinearOpMode {
                                             robot.deposit.lift.setTarget(0);
                                         })
                                         .afterTime(1, () -> robot.intake.extendo.setExtended(false))
-                                        .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading)
+                                        .lineToY(parkLeft.y)
                                         .build();
                                 state = PARKING;
                                 break;
