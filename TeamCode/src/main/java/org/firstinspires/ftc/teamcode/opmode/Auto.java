@@ -612,6 +612,7 @@ public final class Auto extends LinearOpMode {
                         case DRIVING_TO_SUB:
                             if (trajDone) {
                                 activeTraj = robot.drivetrain.actionBuilder(sub.toPose2d())
+                                        .setTangent(sub.y > 0 ? - PI / 2 : PI / 2)
                                         .lineToY(sub.y > 0 ? intakingSub.y : sweptSub.y, sweepConstraint)
                                         .build();
                                 state = INTAKING;
@@ -629,6 +630,7 @@ public final class Auto extends LinearOpMode {
                                             robot.deposit.lift.setTarget(0);
                                         })
                                         .afterTime(1, () -> robot.intake.extendo.setExtended(false))
+                                        .setTangent(robot.drivetrain.pose.position.y > parkLeft.y ? - PI / 2 : PI / 2)
                                         .lineToY(parkLeft.y)
                                         .build();
                                 state = PARKING;
@@ -661,6 +663,7 @@ public final class Auto extends LinearOpMode {
 
                                 // sweep the other way
                                 if (trajDone) activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                                        .setTangent(robot.drivetrain.pose.position.y > 0 ? - PI / 2 : PI / 2)
                                         .lineToY(robot.drivetrain.pose.position.y > 0 ? intakingSub.y : sweptSub.y, sweepConstraint)
                                         .build();
 
