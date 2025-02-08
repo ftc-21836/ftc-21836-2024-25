@@ -183,7 +183,7 @@ public final class Intake {
                     roller.setPower(
                         stopRoller ? 0 :
                         deposit.hasSample() && !clearOfDeposit() && deposit.requestingIntakeToMove() ? SPEED_POST_TRANSFER :
-                        deposit.isRetracted() ? SPEED_RETRACTED : 0
+                        deposit.arm.movingNearIntake() ? SPEED_RETRACTED : 0
                     );
 
                     break;

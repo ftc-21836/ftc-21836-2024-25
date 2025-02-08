@@ -54,10 +54,6 @@ public final class Deposit {
             HEIGHT_OFFSET_PRELOAD_SCORED = 10,
             HEIGHT_OFFSET_PRELOAD_SCORING = 11;
 
-    public boolean isRetracted() {
-        return state == RETRACTED;
-    }
-
     enum State {
         RETRACTED           (Arm.TRANSFER),
         HAS_SAMPLE          (Arm.SAMPLE),
