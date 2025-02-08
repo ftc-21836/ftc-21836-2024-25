@@ -102,6 +102,7 @@ public final class Auto extends LinearOpMode {
             EXTEND_OVER_SUB_BAR = 80,
             EXTEND_SUB_MIN = 254,
             EXTEND_SUB_MAX = 410,
+            EXTEND_RETURN_OFFSET = 50,
             TIME_EXTEND_CYCLE = 1,
             SPEED_SWEEPING_SUB = 5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
@@ -112,7 +113,7 @@ public final class Auto extends LinearOpMode {
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
             WAIT_POST_INTAKING_SPIKE = 0.2,
-            WAIT_POST_INTAKING_SUB = 0.5,
+            WAIT_POST_INTAKING_SUB = 0.2,
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.1,
             WAIT_SCORE_SPEC_PRELOAD = 0.75,
@@ -134,17 +135,17 @@ public final class Auto extends LinearOpMode {
     /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
     public static EditablePose
             admissibleError = new EditablePose(1, 1, toRadians(2)),
-            admissibleVel = new EditablePose(5, 5, toRadians(30)),
+            admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
-            basket = new EditablePose(-55.5, -55.5, PI / 4),
+            basket = new EditablePose(-56.5, -56.5, PI / 4),
 
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
             sample2 = new EditablePose(-58.55,-27.77, PI / 2),
-            sample3 = new EditablePose(-69.2,-26.9, PI / 2),
+            sample3 = new EditablePose(-69.2,-26, PI / 2),
 
             intaking1 = new EditablePose(-54.6,-50, toRadians(84.36)),
             intaking2 = new EditablePose(-56.9,-49.9, toRadians(105)),
-            intaking3 = new EditablePose(-54.1,-43, 2 * PI / 3),
+            intaking3 = new EditablePose(-53.5,-43.5, 2 * PI / 3),
 
             intakingSub = new EditablePose(-22.5, -11, 0),
             sweptSub = new EditablePose(-22.5, 8, 0),
@@ -602,9 +603,7 @@ public final class Auto extends LinearOpMode {
                                                     .afterTime(0, sweep(robot))
                                                     .splineTo(sub.toVector2d(), sub.heading)
                                                     .afterTime(0, () -> robot.intake.extendo.setTarget(subExtend))
-                                                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                                                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                                                    .waitSeconds(WAIT_DROP_TO_EXTEND)
                                                     .build();
                                     state = DRIVING_TO_SUB;
                                 }
@@ -643,7 +642,7 @@ public final class Auto extends LinearOpMode {
                             if (robot.intake.hasSample()) {
 
                                 sub = new EditablePose(robot.drivetrain.pose);
-                                subExtend = robot.intake.extendo.getPosition();
+                                subExtend = robot.intake.extendo.getPosition() - EXTEND_RETURN_OFFSET;
 
                                 activeTraj = robot.drivetrain.actionBuilder(sub.toPose2d())
                                         .afterTime(0, () -> robot.intake.runRoller(1))
