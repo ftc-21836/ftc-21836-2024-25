@@ -13,6 +13,15 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYC
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.DRIVING_TO_SUB;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_2;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_3;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.PARKING;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.PRELOAD_AND_1;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_1;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_2;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRELOAD_SCORED;
@@ -21,12 +30,16 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_SPECIMEN_P
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
 import static java.lang.Math.ceil;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.InstantAction;
@@ -55,6 +68,19 @@ import java.util.Arrays;
 @Config
 @Autonomous(preselectTeleOp = "Tele")
 public final class Auto extends LinearOpMode {
+
+
+    enum State {
+        PRELOAD_AND_1,
+        SCORING_1,
+        INTAKING_2,
+        SCORING_2,
+        INTAKING_3,
+        SCORING,
+        DRIVING_TO_SUB,
+        INTAKING,
+        PARKING
+    }
 
     public static MultipleTelemetry mTelemetry;
 
@@ -519,21 +545,162 @@ public final class Auto extends LinearOpMode {
                     .splineTo(parkLeft.toVector2d(), parkLeft.heading)
                     .build();
 
-            trajectory = new BasketAuto(
-                    robot,
-                    preloadAnd1,
-                    score1,
-                    intake2,
-                    score2,
-                    intake3,
-                    score3,
-                    i1To2,
-                    i2To3,
-                    i3ToSub,
-                    toSub,
-                    park,
-                    sweepConstraint
-            );
+            trajectory = new Action() {
+
+                private State state = PRELOAD_AND_1;
+
+                private ElapsedTime matchTimer = null;
+
+                private Action activeTraj = preloadAnd1;
+
+                private EditablePose sub = intakingSub;
+                private double subExtend = EXTEND_SUB_MAX;
+
+                public boolean run(@NonNull TelemetryPacket p) {
+                    if (matchTimer == null) matchTimer = new ElapsedTime();
+
+                    double remaining = 30 - matchTimer.seconds();
+
+                    boolean trajDone = !activeTraj.run(p);
+
+                    switch (state) {
+                        case PRELOAD_AND_1:
+
+                            // Sample intaked
+                            if (robot.intake.hasSample()) {
+                                activeTraj = score1;
+                                state = SCORING_1;
+                            } else if (trajDone) { // skip to 2 if didn't get 1
+                                activeTraj = i1To2;
+                                state = INTAKING_2;
+                            }
+
+                            break;
+
+                        case SCORING_1:
+                            if (trajDone) {
+                                activeTraj = intake2;
+                                state = INTAKING_2;
+                            }
+                            break;
+                        case INTAKING_2:
+
+                            // Sample intaked
+                            if (robot.intake.hasSample()) {
+                                activeTraj = score2;
+                                state = SCORING_2;
+                            } else if (trajDone) { // skip to 3 if didn't get 2
+                                activeTraj = i2To3;
+                                state = INTAKING_3;
+                            }
+
+                            break;
+
+                        case SCORING_2:
+                            if (trajDone) {
+                                activeTraj = intake3;
+                                state = INTAKING_3;
+                            }
+                            break;
+                        case INTAKING_3:
+
+                            // Sample intaked
+                            if (robot.intake.hasSample()) {
+                                activeTraj = score3;
+                                state = SCORING;
+                            } else if (trajDone) { // skip to sub if didn't get 3
+                                activeTraj = i3ToSub;
+                                state = DRIVING_TO_SUB;
+                            }
+
+                            break;
+
+                        case SCORING:
+                            if (trajDone) {
+                                if (remaining < TIME_CYCLE) {
+                                    activeTraj = park;
+                                    state = PARKING;
+                                } else {
+                                    activeTraj = sub == intakingSub ? toSub :
+                                            robot.drivetrain.actionBuilder(basket2.toPose2d())
+                                                    .setTangent(basket2.heading)
+                                                    .splineTo(sub.toVector2d(), sub.heading)
+                                                    .afterTime(0, () -> robot.intake.extendo.setTarget(subExtend))
+                                                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
+                                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                                                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                                                    .build();
+                                    state = DRIVING_TO_SUB;
+                                }
+                            }
+                            break;
+
+                        case DRIVING_TO_SUB:
+                            if (trajDone) {
+                                activeTraj = robot.drivetrain.actionBuilder(sub.toPose2d())
+                                        .lineToY(sub.y > 0 ? intakingSub.y : sweptSub.y, sweepConstraint)
+                                        .build();
+                                state = INTAKING;
+                                timer.reset();
+                            }
+                            break;
+                        case INTAKING:
+
+                            if (remaining < TIME_SCORE) {
+                                activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                                        .afterTime(0, () -> {
+                                            robot.intake.ejectSample();
+                                            robot.intake.runRoller(0);
+                                            Deposit.level1Ascent = true;
+                                            robot.deposit.lift.setTarget(0);
+                                        })
+                                        .afterTime(1, () -> robot.intake.extendo.setExtended(false))
+                                        .strafeToSplineHeading(parkLeft.toVector2d(), parkLeft.heading)
+                                        .build();
+                                state = PARKING;
+                                break;
+                            }
+
+                            // Sample intaked
+                            if (robot.intake.hasSample()) {
+
+                                sub = new EditablePose(robot.drivetrain.pose);
+                                subExtend = robot.intake.extendo.getPosition();
+
+                                activeTraj = robot.drivetrain.actionBuilder(sub.toPose2d())
+                                        .afterTime(0, () -> robot.intake.runRoller(1))
+                                        .waitSeconds(WAIT_POST_INTAKING_SUB)
+                                        .afterTime(0, () -> robot.intake.runRoller(0))
+                                        .setTangent(PI + sub.heading)
+                                        .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
+                                        .splineTo(basket2.toVector2d(), PI + basket2.heading)
+                                        .stopAndAdd(scoreSample(robot))
+                                        .build();
+
+                                state = SCORING;
+                            } else {
+
+                                /// <a href="https://www.desmos.com/calculator/2jddu08h7f">Graph</a>
+                                robot.intake.extendo.setTarget(
+                                        EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 + cos(2 * PI * timer.seconds() / TIME_EXTEND_CYCLE)) / 2
+                                );
+
+                                // sweep the other way
+                                if (trajDone) activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                                        .lineToY(robot.drivetrain.pose.position.y > 0 ? intakingSub.y : sweptSub.y, sweepConstraint)
+                                        .build();
+
+                            }
+
+                            break;
+
+                        case PARKING:
+                            return !trajDone;
+                    }
+
+                    return true;
+                }
+            };
         }
 
         // Parallel action to bulk read, update trajectory, and update robot (robot.run())
