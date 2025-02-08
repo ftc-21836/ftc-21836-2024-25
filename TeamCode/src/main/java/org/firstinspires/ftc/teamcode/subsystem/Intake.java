@@ -40,7 +40,7 @@ public final class Intake {
 
             TIME_EJECTING = 0.5,
             TIME_BUCKET_SEMI_RETRACT = 0.2,
-            TIME_PRE_TRANSFER = 0,
+            TIME_PRE_TRANSFER = 0.15,
             TIME_TRANSFER = 0.15,
 
             SPEED_EJECTING = -0.25,
