@@ -4,7 +4,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_DROP_TO_EXTEND;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_EXTEND_POST_SWEEPER;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_INTAKE_RETRACT_POST_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_POST_INTAKING_SUB;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.basket2;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.intakingSub;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.parkLeft;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.scoreSample;
@@ -174,8 +174,8 @@ class BasketAuto implements Action {
                         state = PARKING;
                     } else {
                         activeTraj = sub == intakingSub ? toSub :
-                                robot.drivetrain.actionBuilder(basket.toPose2d())
-                                    .setTangent(basket.heading)
+                                robot.drivetrain.actionBuilder(basket2.toPose2d())
+                                    .setTangent(basket2.heading)
                                     .splineTo(sub.toVector2d(), sub.heading)
                                     .afterTime(0, () -> robot.intake.extendo.setTarget(subExtend))
                                     .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
@@ -225,7 +225,7 @@ class BasketAuto implements Action {
                             .afterTime(0, () -> robot.intake.runRoller(0))
                             .setTangent(PI + sub.heading)
                             .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
-                            .splineTo(basket.toVector2d(), PI + basket.heading)
+                            .splineTo(basket2.toVector2d(), PI + basket2.heading)
                             .stopAndAdd(scoreSample(robot))
                             .build();
 
