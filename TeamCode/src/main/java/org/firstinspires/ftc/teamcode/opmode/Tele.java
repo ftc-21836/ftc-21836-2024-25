@@ -11,7 +11,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTO
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.basket2;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_FIELD_CENTRIC;
@@ -197,7 +197,7 @@ public final class Tele extends LinearOpMode {
                         gamepadEx1.isDown(X) && (robot.deposit.basketReady() || robot.intake.hasSample() || robot.deposit.intaking())?
                                 driver.driveTo(
                                         new EditablePose(robot.drivetrain.pose),
-                                        robot.deposit.intaking() ? chamberRight : basket2
+                                        robot.deposit.intaking() ? chamberRight : basket
                                 ).drivePower.heading :
                                 gamepadEx1.getRightX(),
                         slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER),

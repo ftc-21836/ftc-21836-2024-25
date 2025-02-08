@@ -119,7 +119,7 @@ public final class Auto extends LinearOpMode {
             WAIT_DROP_TO_EXTEND = 0.75,
             WAIT_INTAKE_RETRACT_POST_SUB = 0.5,
             WAIT_EXTEND_MAX_SPIKE = 0.75,
-            WAIT_SWEEPER_EXTEND = 0.2,
+            WAIT_SWEEPER_EXTEND = 0.3,
             WAIT_SWEEPER_RETRACT = 0,
             WAIT_EXTEND_POST_SWEEPER = 0.3,
             LIFT_HEIGHT_TOLERANCE = 3.75,
@@ -131,23 +131,20 @@ public final class Auto extends LinearOpMode {
             TIME_CYCLE = 5,
             TIME_SCORE = 2;
 
-    /// <a href="https://www.desmos.com/calculator/jbeyaslvnj">Visualize spike samples</a>
+    /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
     public static EditablePose
             admissibleError = new EditablePose(1, 1, toRadians(2)),
             admissibleVel = new EditablePose(5, 5, toRadians(30)),
 
+            basket = new EditablePose(-55.5, -55.5, PI / 4),
+
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
-            sample2 = new EditablePose(-59.6,-28, PI / 2),
+            sample2 = new EditablePose(-58.55,-27.77, PI / 2),
             sample3 = new EditablePose(-69.2,-26.9, PI / 2),
 
-            intaking1 = new EditablePose(-56.6,-44.3, toRadians(126)),
-            basket1 = new EditablePose(-59.7,-50.6, toRadians(63.2589254765)),
-
-            intaking2 = new EditablePose(-63.5,-51.46, toRadians(126)),
-            basket2 = new EditablePose(-64.2,-53.35, toRadians(77.8067456095)),
-
-            intaking3 = new EditablePose(-56.6,-44.3, toRadians(126)),
-            basket3 = new EditablePose(-56.6,-56.4, toRadians(36.7271343711)),
+            intaking1 = new EditablePose(-54.6,-50, toRadians(84.36)),
+            intaking2 = new EditablePose(-56.9,-49.9, toRadians(105)),
+            intaking3 = new EditablePose(-54.1,-43, 2 * PI / 3),
 
             intakingSub = new EditablePose(-22.5, -11, 0),
             sweptSub = new EditablePose(-22.5, 8, 0),
@@ -398,8 +395,8 @@ public final class Auto extends LinearOpMode {
                     new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
             ));
 
-            intaking1.heading = basket1.heading = atan2(sample1.y - basket1.y, sample1.x - basket1.x);
-            intaking2.heading = basket2.heading = atan2(sample2.y - basket2.y, sample2.x - basket2.x);
+            intaking1.heading = atan2(sample1.y - intaking1.y, sample1.x - intaking1.x);
+            intaking2.heading = atan2(sample2.y - intaking2.y, sample2.x - intaking2.x);
             intaking3.heading = atan2(sample3.y - intaking3.y, sample3.x - intaking3.x);
 
             Action preloadAnd1 =
@@ -415,24 +412,35 @@ public final class Auto extends LinearOpMode {
                                     .waitSeconds(WAIT_SCORE_SPEC_PRELOAD)
                                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading)
                                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                                    .waitSeconds(WAIT_DROP_TO_EXTEND)
-                                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_1)) :
+                                    .waitSeconds(WAIT_DROP_TO_EXTEND) :
                             robot.drivetrain.actionBuilder(pose)
-                                    .strafeToSplineHeading(basket1.toVector2d(), basket1.heading)
-                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                                     .stopAndAdd(scoreSample(robot))
-                                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_1))
-                                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, inchingConstraint)
+                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading)
                     )
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
+                        timer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
+                    .setTangent(intaking2.heading)
+                    .lineToY(intaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
-            Action intake2 = robot.drivetrain.actionBuilder(basket1.toPose2d())
+            Action intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                    .afterTime(WAIT_DROP_TO_EXTEND, () -> robot.intake.extendo.setTarget(EXTEND_SAMPLE_2))
-                    .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading, inchingConstraint)
+                    .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
+                        timer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .setTangent(intaking2.heading)
+                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
-            Action intake3 = robot.drivetrain.actionBuilder(basket2.toPose2d())
+            Action intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading)
                     .afterTime(0, () -> {
@@ -444,16 +452,10 @@ public final class Auto extends LinearOpMode {
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
-            Action sweep = new SequentialAction(
-                    new InstantAction(() -> robot.sweeper.setActivated(true)),
-                    new SleepAction(WAIT_SWEEPER_EXTEND),
-                    new InstantAction(() -> robot.sweeper.setActivated(false)),
-                    new SleepAction(WAIT_SWEEPER_RETRACT)
-            );
-
             Action i3ToSub = robot.drivetrain.actionBuilder(
                             new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
                     )
+                    .afterTime(0.5, sweep(robot))
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
                         robot.intake.runRoller(0);
@@ -462,28 +464,29 @@ public final class Auto extends LinearOpMode {
                     })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
-                    .stopAndAdd(sweep)
+                    .stopAndAdd(sweep(robot))
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
                     .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
                     .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
-            Action toSub = robot.drivetrain.actionBuilder(basket3.toPose2d())
+            Action toSub = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
                         robot.deposit.liftBeforePointArm = false;
                     })
-                    .setTangent(basket3.heading)
+                    .afterTime(0, sweep(robot))
+                    .setTangent(basket.heading)
                     .splineTo(intakingSub.toVector2d(), intakingSub.heading)
-                    .stopAndAdd(sweep)
+                    .stopAndAdd(sweep(robot))
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
                     .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
                     .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
-            Action park = robot.drivetrain.actionBuilder(basket2.toPose2d())
+            Action park = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
                         Deposit.level1Ascent = true;
                         robot.deposit.lift.setTarget(0);
@@ -493,14 +496,14 @@ public final class Auto extends LinearOpMode {
 
             trajectory = new Action() {
 
-                private State state = PRELOAD_AND_1;
+                State state = PRELOAD_AND_1;
 
-                private ElapsedTime matchTimer = null;
+                ElapsedTime matchTimer = null;
 
-                private Action activeTraj = preloadAnd1;
+                Action activeTraj = preloadAnd1;
 
-                private EditablePose sub = intakingSub;
-                private double subExtend = EXTEND_SUB_MAX;
+                EditablePose sub = intakingSub;
+                double subExtend = EXTEND_SUB_MAX;
 
                 public boolean run(@NonNull TelemetryPacket p) {
                     if (matchTimer == null) matchTimer = new ElapsedTime();
@@ -519,7 +522,8 @@ public final class Auto extends LinearOpMode {
                                         .afterTime(0, () -> robot.intake.runRoller(1))
                                         .waitSeconds(WAIT_POST_INTAKING_SPIKE)
                                         .afterTime(0, () -> robot.intake.runRoller(0))
-                                        .strafeToSplineHeading(basket1.toVector2d(), basket1.heading)
+                                        .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                                        .afterTime(0, sweep(robot))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING_1;
@@ -546,7 +550,8 @@ public final class Auto extends LinearOpMode {
                                         .afterTime(0, () -> robot.intake.runRoller(1))
                                         .waitSeconds(WAIT_POST_INTAKING_SPIKE)
                                         .afterTime(0, () -> robot.intake.runRoller(0))
-                                        .strafeToSplineHeading(basket2.toVector2d(), basket2.heading)
+                                        .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                                        .afterTime(0, sweep(robot))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING_2;
@@ -573,7 +578,8 @@ public final class Auto extends LinearOpMode {
                                         .afterTime(0, () -> robot.intake.runRoller(1))
                                         .waitSeconds(WAIT_POST_INTAKING_SPIKE)
                                         .afterTime(0, () -> robot.intake.runRoller(0))
-                                        .strafeToSplineHeading(basket3.toVector2d(), basket3.heading)
+                                        .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                                        .afterTime(0, sweep(robot))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING;
@@ -591,8 +597,9 @@ public final class Auto extends LinearOpMode {
                                     state = PARKING;
                                 } else {
                                     activeTraj = sub == intakingSub ? toSub :
-                                            robot.drivetrain.actionBuilder(basket2.toPose2d())
-                                                    .setTangent(basket2.heading)
+                                            robot.drivetrain.actionBuilder(basket.toPose2d())
+                                                    .setTangent(basket.heading)
+                                                    .afterTime(0, sweep(robot))
                                                     .splineTo(sub.toVector2d(), sub.heading)
                                                     .afterTime(0, () -> robot.intake.extendo.setTarget(subExtend))
                                                     .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
@@ -644,7 +651,9 @@ public final class Auto extends LinearOpMode {
                                         .afterTime(0, () -> robot.intake.runRoller(0))
                                         .setTangent(PI + sub.heading)
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
-                                        .splineTo(basket2.toVector2d(), PI + basket2.heading)
+                                        .afterTime(0, () -> robot.sweeper.setActivated(true))
+                                        .splineTo(basket.toVector2d(), PI + basket.heading)
+                                        .afterTime(0, () -> robot.sweeper.setActivated(false))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
 
@@ -698,7 +707,7 @@ public final class Auto extends LinearOpMode {
         Actions.runBlocking(auton);
     }
 
-    static Action scoreSample(Robot robot) {
+    private static Action scoreSample(Robot robot) {
         return new SequentialAction(
                 new InstantAction(() -> {
                     if (!robot.hasSample()) robot.deposit.transfer(NEUTRAL);
@@ -720,6 +729,15 @@ public final class Auto extends LinearOpMode {
                 new InstantAction(robot.deposit::triggerClaw),
                 telemetryPacket -> robot.deposit.hasSample(), // wait until spec scored
                 new SleepAction(WAIT_SCORE_CHAMBER)
+        );
+    }
+
+    private static Action sweep(Robot robot) {
+        return new SequentialAction(
+                new InstantAction(() -> robot.sweeper.setActivated(true)),
+                new SleepAction(WAIT_SWEEPER_EXTEND),
+                new InstantAction(() -> robot.sweeper.setActivated(false)),
+                new SleepAction(WAIT_SWEEPER_RETRACT)
         );
     }
 
