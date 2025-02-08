@@ -73,7 +73,8 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_1 = 410,
             EXTEND_SAMPLE_2 = 395,
             EXTEND_SAMPLE_3 = 350,
-            EXTEND_SUB_MIN = 80,
+            EXTEND_OVER_SUB_BAR = 80,
+            EXTEND_SUB_MIN = 254,
             EXTEND_SUB_MAX = 410,
             TIME_EXTEND_CYCLE = 1,
             SPEED_SWEEPING_SUB = 5,
@@ -481,7 +482,7 @@ public final class Auto extends LinearOpMode {
                             new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
                     )
                     .afterTime(0, () -> {
-                        robot.intake.extendo.setTarget(EXTEND_SUB_MIN);
+                        robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
                         robot.intake.runRoller(0);
                         robot.intake.ejectSample();
                     })
@@ -495,7 +496,7 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action toSub = robot.drivetrain.actionBuilder(basket2.toPose2d())
-                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_SUB_MIN))
+                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR))
                     .setTangent(basket2.heading)
                     .splineTo(intakingSub.toVector2d(), intakingSub.heading)
                     .stopAndAdd(sweep)
