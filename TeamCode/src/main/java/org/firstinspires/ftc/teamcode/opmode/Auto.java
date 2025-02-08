@@ -524,7 +524,6 @@ public final class Auto extends LinearOpMode {
                                         .waitSeconds(WAIT_POST_INTAKING_SPIKE)
                                         .afterTime(0, () -> robot.intake.runRoller(0))
                                         .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                                        .afterTime(0, sweep(robot))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING_1;
@@ -552,7 +551,6 @@ public final class Auto extends LinearOpMode {
                                         .waitSeconds(WAIT_POST_INTAKING_SPIKE)
                                         .afterTime(0, () -> robot.intake.runRoller(0))
                                         .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                                        .afterTime(0, sweep(robot))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING_2;
@@ -580,7 +578,6 @@ public final class Auto extends LinearOpMode {
                                         .waitSeconds(WAIT_POST_INTAKING_SPIKE)
                                         .afterTime(0, () -> robot.intake.runRoller(0))
                                         .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                                        .afterTime(0, sweep(robot))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING;
@@ -651,7 +648,7 @@ public final class Auto extends LinearOpMode {
                                         .afterTime(0, () -> robot.intake.runRoller(0))
                                         .setTangent(PI + sub.heading)
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
-                                        .afterTime(0, () -> robot.sweeper.setActivated(true))
+                                        .afterDisp(12, () -> robot.sweeper.setActivated(true))
                                         .splineTo(basket.toVector2d(), PI + basket.heading)
                                         .afterTime(0, () -> robot.sweeper.setActivated(false))
                                         .stopAndAdd(scoreSample(robot))
