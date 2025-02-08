@@ -597,11 +597,18 @@ public final class Auto extends LinearOpMode {
                                 } else {
                                     activeTraj = sub == intakingSub ? toSub :
                                             robot.drivetrain.actionBuilder(basket.toPose2d())
-                                                    .setTangent(basket.heading)
+                                                    .afterTime(0, () -> {
+                                                        robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
+                                                        robot.deposit.liftBeforePointArm = false;
+                                                    })
                                                     .afterTime(0, sweep(robot))
-                                                    .splineTo(sub.toVector2d(), sub.heading)
-                                                    .afterTime(0, () -> robot.intake.extendo.setTarget(subExtend))
-                                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                                                    .setTangent(basket.heading)
+                                                    .splineTo(sweptSub.toVector2d(), sweptSub.heading)
+                                                    .stopAndAdd(sweep(robot))
+                                                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                                                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                                                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                                                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                                                     .build();
                                     state = DRIVING_TO_SUB;
                                 }
