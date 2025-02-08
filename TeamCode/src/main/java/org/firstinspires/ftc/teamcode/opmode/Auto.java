@@ -632,6 +632,8 @@ public final class Auto extends LinearOpMode {
                                             robot.deposit.lift.setTarget(0);
                                         })
                                         .afterTime(1, () -> robot.intake.extendo.setExtended(false))
+                                        .setTangent(PI / 2)
+                                        .lineToY(robot.drivetrain.pose.position.y + 0.25)
                                         .build();
                                 state = PARKING;
                                 break;
