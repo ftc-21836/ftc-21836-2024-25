@@ -104,7 +104,7 @@ public final class Auto extends LinearOpMode {
             TIME_CYCLE = 5,
             TIME_SCORE = 2;
 
-    /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
+    /// <a href="https://www.desmos.com/calculator/jbeyaslvnj">Visualize spike samples</a>
     public static EditablePose
             admissibleError = new EditablePose(1, 1, toRadians(2)),
             admissibleVel = new EditablePose(5, 5, toRadians(30)),
