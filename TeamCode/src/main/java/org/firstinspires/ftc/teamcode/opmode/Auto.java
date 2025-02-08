@@ -137,7 +137,8 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, toRadians(2)),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
-            basket = new EditablePose(-57.5, -55.5, PI / 4),
+            basket = new EditablePose(-57, -56, PI / 4),
+            basketFromSub = new EditablePose(-57.75, -55.75, 0.765),
 
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
             sample2 = new EditablePose(-57.75,-27.77, PI / 2),
@@ -649,7 +650,7 @@ public final class Auto extends LinearOpMode {
                                         .setTangent(PI + sub.heading)
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                                         .afterDisp(12, () -> robot.sweeper.setActivated(true))
-                                        .splineTo(basket.toVector2d(), PI + basket.heading)
+                                        .splineTo(basketFromSub.toVector2d(), PI + basketFromSub.heading)
                                         .afterTime(0, () -> robot.sweeper.setActivated(false))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
