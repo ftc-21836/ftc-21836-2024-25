@@ -232,7 +232,7 @@ class BasketAuto implements Action {
                     state = SCORING;
                 } else {
 
-                    /// <a href="https://www.desmos.com/calculator/8j59t2lngb">Graph</a>
+                    /// <a href="https://www.desmos.com/calculator/2jddu08h7f">Graph</a>
                     robot.intake.extendo.setTarget(
                             EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 + cos(2 * PI * extendoTimer.seconds() / TIME_EXTEND_CYCLE)) / 2
                     );
