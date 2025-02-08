@@ -607,6 +607,9 @@ public final class Auto extends LinearOpMode {
                                                     .build();
                                     state = DRIVING_TO_SUB;
                                 }
+                            } else if (remaining < 0.5 && robot.deposit.hasSample()) {
+                                robot.deposit.triggerClaw();
+                                return false;
                             }
                             break;
 
