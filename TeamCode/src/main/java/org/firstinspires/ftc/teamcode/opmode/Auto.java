@@ -50,7 +50,6 @@ import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 @Config
@@ -105,23 +104,19 @@ public final class Auto extends LinearOpMode {
             TIME_CYCLE = 5,
             TIME_SCORE = 2;
 
-    /// <a href="https://www.desmos.com/calculator/1h2p9qky3g">Adjusting spikes 1 and 2</a>
     /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
     public static EditablePose
             admissibleError = new EditablePose(1, 1, toRadians(2)),
             admissibleVel = new EditablePose(5, 5, toRadians(30)),
 
-            sample1SpecPreload = new EditablePose(-50, -27.75, PI / 2),
             sample1 = new EditablePose(-49.24,-28.3, PI / 2),
             sample2 = new EditablePose(-58.55,-27.77, PI / 2),
             sample3 = new EditablePose(-69.2,-26.9, PI / 2),
-    
-            intaking1SpecPreload = new EditablePose(-51, -46, toRadians(84.36)),
-            intaking1 = new EditablePose(-54,-48, toRadians(84.36)),
-            intaking2 = new EditablePose(-56.95,-47.74, toRadians(105)),
+
+            basket = new EditablePose(-59.5,-51.6, toRadians(66.23)),
+            intaking2 = new EditablePose(-59.3,-46.4, toRadians(105)),
             intaking3 = new EditablePose(-54.1,-43, 2 * PI / 3),
-    
-            basket = new EditablePose(-55.5, -55.5, PI / 4),
+
             intakingSub = new EditablePose(-22.5, -11, 0),
             sweptSub = new EditablePose(-22.5, 8, 0),
     
@@ -370,12 +365,9 @@ public final class Auto extends LinearOpMode {
                     new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
             ));
 
-            intaking1SpecPreload.heading = atan2(sample1SpecPreload.y - intaking1SpecPreload.y, sample1SpecPreload.x - intaking1SpecPreload.x);
-            intaking1.heading = atan2(sample1.y - intaking1.y, sample1.x - intaking1.x);
+            basket.heading = atan2(sample1.y - basket.y, sample1.x - basket.x);
             intaking2.heading = atan2(sample2.y - intaking2.y, sample2.x - intaking2.x);
             intaking3.heading = atan2(sample3.y - intaking3.y, sample3.x - intaking3.x);
-
-            EditablePose i1 = specimenPreload ? intaking1SpecPreload : intaking1;
 
             Action preloadAnd1 =
                     (specimenPreload ?
@@ -388,43 +380,39 @@ public final class Auto extends LinearOpMode {
                                     .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORED)
                                     .stopAndAdd(robot.deposit::triggerClaw)
                                     .waitSeconds(WAIT_SCORE_SPEC_PRELOAD)
-                                    .strafeToSplineHeading(intaking1SpecPreload.toVector2d(), intaking1SpecPreload.heading)
+                                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                                     .waitSeconds(WAIT_DROP_TO_EXTEND) :
                             robot.drivetrain.actionBuilder(pose)
                                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                                    .stopAndAdd(scoreSample(robot))
                                     .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading)
+                                    .stopAndAdd(scoreSample(robot))
                     )
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                         timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
-                    .lineToY(i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .waitSeconds(2)
                     .build();
 
-            Action score1 = robot.drivetrain.actionBuilder(i1.toPose2d())
+            Action score1 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     /// Score
                     .afterTime(0, () -> robot.intake.runRoller(1))
                     .waitSeconds(WAIT_POST_INTAKING_SPIKE)
                     .afterTime(0, () -> robot.intake.runRoller(0))
-                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
             Action i1To2 = robot.drivetrain.actionBuilder(
-                            new Pose2d(i1.x, i1.y + Y_INCHING_FORWARD_WHEN_INTAKING, i1.heading)
+                            new Pose2d(basket.x, basket.y + Y_INCHING_FORWARD_WHEN_INTAKING, basket.heading)
                     )
                     .afterTime(0, () -> {
                         robot.intake.extendo.setExtended(false);
                         robot.intake.ejectSample();
-                    })
-                    .setTangent(i1.heading + PI)
-                    .splineToLinearHeading(intaking2.toPose2d(), intaking2.heading)
-                    .afterTime(0, () -> {
                         robot.intake.runRoller(SPEED_INTAKING);
+                    })
+                    .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading)
+                    .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         timer.reset();
                     })
