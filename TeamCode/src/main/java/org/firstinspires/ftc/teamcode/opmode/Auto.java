@@ -493,12 +493,12 @@ public final class Auto extends LinearOpMode {
                     .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
-            Action toSub = robot.drivetrain.actionBuilder(basket2.toPose2d())
+            Action toSub = robot.drivetrain.actionBuilder(basket3.toPose2d())
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
                         robot.deposit.liftBeforePointArm = false;
                     })
-                    .setTangent(basket2.heading)
+                    .setTangent(basket3.heading)
                     .splineTo(intakingSub.toVector2d(), intakingSub.heading)
                     .stopAndAdd(sweep)
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
