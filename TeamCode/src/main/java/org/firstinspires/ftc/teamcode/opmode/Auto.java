@@ -150,6 +150,7 @@ public final class Auto extends LinearOpMode {
 
             intakingSub = new EditablePose(-22.5, -11, 0),
             sweptSub = new EditablePose(-22.5, 8, 0),
+            sub2 = new EditablePose(-22.5, 0, 0),
     
             parkLeft = new EditablePose(-22.5, -11, 0),
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
@@ -603,7 +604,7 @@ public final class Auto extends LinearOpMode {
                                                     })
                                                     .afterTime(0, sweep(robot))
                                                     .setTangent(basket.heading)
-                                                    .splineTo(sweptSub.toVector2d(), sweptSub.heading)
+                                                    .splineTo(sub2.toVector2d(), sub2.heading)
                                                     .stopAndAdd(sweep(robot))
                                                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                                                     .waitSeconds(WAIT_DROP_TO_EXTEND)
