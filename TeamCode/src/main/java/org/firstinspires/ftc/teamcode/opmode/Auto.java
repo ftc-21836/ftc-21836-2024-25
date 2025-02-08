@@ -394,8 +394,8 @@ public final class Auto extends LinearOpMode {
                     new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
             ));
 
-            basket1.heading = atan2(sample2.y - basket1.y, sample2.x - basket1.x);
-            basket2.heading = atan2(sample1.y - basket2.y, sample1.x - basket2.x);
+            basket1.heading = atan2(sample1.y - basket1.y, sample1.x - basket1.x);
+            basket2.heading = atan2(sample2.y - basket2.y, sample2.x - basket2.x);
             intaking3.heading = atan2(sample3.y - intaking3.y, sample3.x - intaking3.x);
 
             Action preloadAnd1 =
