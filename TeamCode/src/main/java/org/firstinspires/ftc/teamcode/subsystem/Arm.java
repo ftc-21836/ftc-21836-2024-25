@@ -18,7 +18,7 @@ public final class Arm {
     public static double
             TIME_RETRACTED_TO_SAMPLE = 0.8,
             TIME_SAMPLE_TO_RETRACTED = 0.4,
-            TIME_SAMPLE_TO_IN_BASKET = 0.3,
+            TIME_SAMPLE_TO_IN_BASKET = 0.57,
             TIME_RETRACTED_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_SPEC = 0.5,
             TIME_SPEC_TO_RETRACTED = 0.4;
