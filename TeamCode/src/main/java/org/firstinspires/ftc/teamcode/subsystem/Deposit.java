@@ -90,7 +90,7 @@ public final class Deposit {
 
     public static boolean level1Ascent = false;
 
-    public boolean liftBeforePointArm = true;
+    public boolean liftBeforePointArm = true, pauseBeforeAutoRetractingLift = true;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
@@ -104,7 +104,7 @@ public final class Deposit {
 
             case SAMPLE_FALLING:
 
-                if (timer.seconds() >= TIME_SAMPLE_RELEASE) {
+                if (timer.seconds() >= (pauseBeforeAutoRetractingLift ? TIME_SAMPLE_RELEASE_TO_LIFT_DOWN : TIME_SAMPLE_RELEASE_TO_ARM_DOWN)) {
                     state = RETRACTED;
                     setPosition(FLOOR);
                 }

@@ -103,7 +103,6 @@ public final class Auto extends LinearOpMode {
             EXTEND_OVER_SUB_BAR_2 = 120,
             EXTEND_SUB_MIN = 254,
             EXTEND_SUB_MAX = 410,
-            EXTEND_RETURN_OFFSET = 50,
             TIME_EXTEND_CYCLE = 1,
             SPEED_SWEEPING_SUB = 5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
@@ -376,6 +375,7 @@ public final class Auto extends LinearOpMode {
         } else {
 
             robot.intake.retractBucketBeforeExtendo = false;
+            robot.deposit.pauseBeforeAutoRetractingLift = false;
 
             if (specimenPreload)
                 robot.deposit.preloadSpecimen();
@@ -465,6 +465,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.runRoller(0);
                         robot.intake.ejectSample();
                         robot.deposit.liftBeforePointArm = false;
+                        robot.deposit.pauseBeforeAutoRetractingLift = true;
                     })
                     .setTangent(PI / 4)
                     .splineToSplineHeading(intakingSub.toPose2d(), intakingSub.heading)
@@ -479,10 +480,27 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR);
                         robot.deposit.liftBeforePointArm = false;
+                        robot.deposit.pauseBeforeAutoRetractingLift = true;
                     })
                     .afterTime(0, sweep(robot))
                     .setTangent(basket.heading)
                     .splineTo(intakingSub.toVector2d(), intakingSub.heading)
+                    .stopAndAdd(sweep(robot))
+                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
+                    .build();
+
+            Action toSub2 = robot.drivetrain.actionBuilder(basketFromSub.toPose2d())
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_2);
+                        robot.deposit.liftBeforePointArm = false;
+                        robot.deposit.pauseBeforeAutoRetractingLift = true;
+                    })
+                    .afterTime(0, sweep(robot))
+                    .setTangent(basketFromSub.heading)
+                    .splineTo(sub2.toVector2d(), sub2.heading)
                     .stopAndAdd(sweep(robot))
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
@@ -498,21 +516,6 @@ public final class Auto extends LinearOpMode {
                     .splineTo(parkLeft.toVector2d(), parkLeft.heading)
                     .build();
 
-            Action toSub2 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> {
-                        robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_2);
-                        robot.deposit.liftBeforePointArm = false;
-                    })
-                    .afterTime(0, sweep(robot))
-                    .setTangent(basket.heading)
-                    .splineTo(sub2.toVector2d(), sub2.heading)
-                    .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
-                    .waitSeconds(WAIT_DROP_TO_EXTEND)
-                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
-                    .build();
-
             trajectory = new Action() {
 
                 State state = PRELOAD_AND_1;
@@ -522,7 +525,6 @@ public final class Auto extends LinearOpMode {
                 Action activeTraj = preloadAnd1;
 
                 EditablePose sub = intakingSub;
-                double subExtend = EXTEND_SUB_MAX;
 
                 void stopDt() {
                     robot.drivetrain.leftFront.setPower(0);
@@ -663,7 +665,6 @@ public final class Auto extends LinearOpMode {
                             if (robot.intake.hasSample()) {
 
                                 sub = new EditablePose(robot.drivetrain.pose);
-                                subExtend = robot.intake.extendo.getPosition() - EXTEND_RETURN_OFFSET;
 
                                 activeTraj = robot.drivetrain.actionBuilder(sub.toPose2d())
                                         .afterTime(0, () -> robot.intake.runRoller(1))
