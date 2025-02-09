@@ -11,7 +11,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_STICK_BUTTO
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.LENGTH_ROBOT;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_ALLIANCE;
@@ -33,7 +32,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Robot.HEIGHT_RUNG_LOW_RAI
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -47,11 +45,8 @@ import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 
-@Config
 @TeleOp
 public final class Tele extends LinearOpMode {
-
-    public static double INTAKING_TURN_SPEED = 2.5;
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
@@ -79,8 +74,6 @@ public final class Tele extends LinearOpMode {
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 10; // 15 seconds for climb
         boolean rumbledClimb = false, rumbledSample = false;
-
-        double r1 = 61.40711 + 25.4 * LENGTH_ROBOT / 2;
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -198,8 +191,6 @@ public final class Tele extends LinearOpMode {
 
                 if (gamepadEx1.wasJustPressed(X)) driver.reset();
 
-                boolean useSlowMode = slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER);
-                
                 robot.drivetrain.run(
                         gamepadEx1.getLeftX(),
                         gamepadEx1.getLeftY(),
@@ -208,10 +199,8 @@ public final class Tele extends LinearOpMode {
                                         new EditablePose(robot.drivetrain.pose),
                                         robot.deposit.intaking() ? chamberRight : basket
                                 ).drivePower.heading :
-                                !useSlowMode && triggers > 0 ?
-                                        INTAKING_TURN_SPEED * gamepadEx1.getRightX() * r1 / (r1 + robot.intake.extendo.getPosition()) :
-                                        gamepadEx1.getRightX(),
-                        useSlowMode,
+                                gamepadEx1.getRightX(),
+                        slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
                         useFieldCentric
                 );
 
