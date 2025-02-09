@@ -375,7 +375,6 @@ public final class Auto extends LinearOpMode {
         } else {
 
             robot.intake.retractBucketBeforeExtendo = false;
-            robot.deposit.liftBeforePointArm = true;
 
             if (specimenPreload)
                 robot.deposit.preloadSpecimen();

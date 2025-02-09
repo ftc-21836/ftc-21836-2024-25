@@ -89,7 +89,7 @@ public final class Deposit {
 
     public static boolean level1Ascent = false;
 
-    public boolean liftBeforePointArm = false;
+    public boolean liftBeforePointArm = true;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
