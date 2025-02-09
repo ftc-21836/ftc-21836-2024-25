@@ -51,7 +51,7 @@ import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 @TeleOp
 public final class Tele extends LinearOpMode {
 
-    public static double INTAKING_TURN_SPEED = 1;
+    public static double INTAKING_TURN_SPEED = 2.5;
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
