@@ -132,6 +132,7 @@ public final class Auto extends LinearOpMode {
             TIME_CYCLE = 5,
             TIME_SCORE = 2;
 
+    /// <a href="https://www.desmos.com/calculator/l8pl2gf1mb">Adjust spikes 1 and 2</a>
     /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
     public static EditablePose
             admissibleError = new EditablePose(1, 1, toRadians(2)),
@@ -145,7 +146,7 @@ public final class Auto extends LinearOpMode {
             sample3 = new EditablePose(-69.2,-26, PI / 2),
 
             intaking1 = new EditablePose(-54.6,-50, toRadians(84.36)),
-            intaking2 = new EditablePose(-56.9,-49.9, toRadians(105)),
+            intaking2 = new EditablePose(-56.85,-50.9, toRadians(105)),
             intaking3 = new EditablePose(-53.5,-43.5, 2 * PI / 3),
 
             intakingSub = new EditablePose(-22.5, -11, 0),
