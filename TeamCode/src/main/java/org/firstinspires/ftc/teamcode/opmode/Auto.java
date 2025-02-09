@@ -509,6 +509,13 @@ public final class Auto extends LinearOpMode {
                 EditablePose sub = intakingSub;
                 double subExtend = EXTEND_SUB_MAX;
 
+                void stopDt() {
+                    robot.drivetrain.leftFront.setPower(0);
+                    robot.drivetrain.leftBack.setPower(0);
+                    robot.drivetrain.rightBack.setPower(0);
+                    robot.drivetrain.rightFront.setPower(0);
+                }
+
                 public boolean run(@NonNull TelemetryPacket p) {
                     if (matchTimer == null) matchTimer = new ElapsedTime();
 
@@ -530,6 +537,7 @@ public final class Auto extends LinearOpMode {
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING_1;
+                                stopDt();
                             } else if (trajDone) { // skip to 2 if didn't get 1
                                 activeTraj = intake2;
                                 state = INTAKING_2;
@@ -557,6 +565,7 @@ public final class Auto extends LinearOpMode {
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING_2;
+                                stopDt();
                             } else if (trajDone) { // skip to 3 if didn't get 2
                                 activeTraj = intake3;
                                 state = INTAKING_3;
@@ -584,6 +593,7 @@ public final class Auto extends LinearOpMode {
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
                                 state = SCORING;
+                                stopDt();
                             } else if (trajDone) { // skip to sub if didn't get 3
                                 activeTraj = i3ToSub;
                                 state = DRIVING_TO_SUB;
@@ -596,6 +606,7 @@ public final class Auto extends LinearOpMode {
                                 if (remaining < TIME_CYCLE) {
                                     activeTraj = park;
                                     state = PARKING;
+                                    stopDt();
                                 } else {
                                     activeTraj = sub == intakingSub ? toSub :
                                             robot.drivetrain.actionBuilder(basket.toPose2d())
@@ -616,7 +627,6 @@ public final class Auto extends LinearOpMode {
                                 }
                             } else if (remaining < WAIT_SCORE_BASKET && robot.deposit.hasSample()) {
                                 robot.deposit.triggerClaw();
-                                return false;
                             }
                             break;
 
@@ -641,9 +651,8 @@ public final class Auto extends LinearOpMode {
                                             robot.deposit.lift.setTarget(0);
                                         })
                                         .afterTime(1, () -> robot.intake.extendo.setExtended(false))
-                                        .setTangent(PI / 2)
-                                        .lineToY(robot.drivetrain.pose.position.y + 0.25)
                                         .build();
+                                stopDt();
                                 state = PARKING;
                                 break;
                             }
@@ -667,6 +676,7 @@ public final class Auto extends LinearOpMode {
                                         .build();
 
                                 state = SCORING;
+                                stopDt();
                             } else {
 
                                 /// <a href="https://www.desmos.com/calculator/2jddu08h7f">Graph</a>
