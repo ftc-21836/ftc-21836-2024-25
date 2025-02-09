@@ -35,7 +35,8 @@ public final class Deposit {
             ANGLE_CLAW_SLIDING = 40,
             ANGLE_CLAW_CLOSED = 25,
 
-            TIME_SAMPLE_RELEASE = 0.6,
+            TIME_SAMPLE_RELEASE_TO_LIFT_DOWN = 0.6,
+            TIME_SAMPLE_RELEASE_TO_ARM_DOWN = 0.3,
             TIME_SPEC_GRAB = 0.25,
             TIME_SPEC_RELEASE = 0.1,
 
@@ -144,10 +145,12 @@ public final class Deposit {
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
         boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (!liftBeforePointArm || atLowBasket || atHighBasket);
+        boolean armDown = state == SAMPLE_FALLING && timer.seconds() >= TIME_SAMPLE_RELEASE_TO_ARM_DOWN;
 
         Arm.Position armPosition =
                 level1Ascent ? Arm.ASCENT :
                 obsZone ? Arm.INTAKING :
+                armDown ? Arm.TRANSFER :
                 pointArmIntoBasket ? Arm.SCORING_SAMPLE :
                 state.armPosition;
 
