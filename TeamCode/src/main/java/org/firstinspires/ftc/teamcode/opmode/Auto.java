@@ -671,7 +671,7 @@ public final class Auto extends LinearOpMode {
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
 
-                                subCycle = 2;
+                                subCycle++;
                                 state = SCORING;
                                 stopDt();
                             } else {
