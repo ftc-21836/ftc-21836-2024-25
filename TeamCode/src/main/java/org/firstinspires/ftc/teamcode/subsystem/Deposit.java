@@ -92,6 +92,8 @@ public final class Deposit {
 
     public boolean liftBeforePointArm = true, pauseBeforeAutoRetractingLift = true;
 
+    private double basketHeight = HEIGHT_BASKET_HIGH;
+
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
@@ -258,6 +260,7 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
+                basketHeight = lift.getTarget();
                 state = SAMPLE_FALLING;
                 timer.reset();
 
@@ -336,7 +339,7 @@ public final class Deposit {
     public void transfer(Sample sample) {
         if (sample == null || state != RETRACTED) return;
         state = HAS_SAMPLE;
-        setPosition(HIGH);
+        lift.setTarget(basketHeight);
         closeClaw();
     }
 
