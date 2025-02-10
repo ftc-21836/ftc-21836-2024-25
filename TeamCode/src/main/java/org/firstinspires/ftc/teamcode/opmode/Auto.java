@@ -103,7 +103,10 @@ public final class Auto extends LinearOpMode {
             EXTEND_OVER_SUB_BAR_2 = 100,
             EXTEND_SUB_MIN = 220,
             EXTEND_SUB_MAX = 410,
-            TIME_EXTEND_CYCLE = 1,
+            TIME_EXTEND = 0.6,
+            TIME_RETRACT = 0.4,
+            SPEED_EXTEND = 1,
+            SPEED_RETRACT = 0.6,
             SPEED_SWEEPING_SUB = 5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 5,
@@ -122,7 +125,6 @@ public final class Auto extends LinearOpMode {
             WAIT_EXTEND_MAX_SPIKE = 0.75,
             WAIT_SWEEPER_EXTEND = 0.3,
             WAIT_SWEEPER_RETRACT = 0,
-            WAIT_EXTEND_POST_SWEEPER = 0.3,
             LIFT_HEIGHT_TOLERANCE = 3.75,
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
@@ -486,8 +488,6 @@ public final class Auto extends LinearOpMode {
                     .stopAndAdd(sweep(robot))
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
-                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
             Action toSub1 = robot.drivetrain.actionBuilder(basket.toPose2d())
@@ -501,8 +501,6 @@ public final class Auto extends LinearOpMode {
                     .stopAndAdd(sweep(robot))
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
-                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
             Action intakingSub1 = robot.drivetrain.actionBuilder(sub1.toPose2d())
@@ -517,8 +515,6 @@ public final class Auto extends LinearOpMode {
                     .stopAndAdd(sweep(robot))
                     .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
-                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
                     .build();
 
             Action intakingSub2 = robot.drivetrain.actionBuilder(sub2.toPose2d())
@@ -543,6 +539,8 @@ public final class Auto extends LinearOpMode {
                 Action activeTraj = preloadAnd1;
 
                 int subCycle = 1;
+
+                boolean extending = true;
 
                 void stopDt() {
                     robot.drivetrain.leftFront.setPower(0);
@@ -647,6 +645,7 @@ public final class Auto extends LinearOpMode {
                         case INTAKING:
 
                             if (remaining < TIME_SCORE) {
+                                robot.intake.extendo.runManual(0);
                                 robot.intake.ejectSample();
                                 robot.intake.runRoller(0);
                                 Deposit.level1Ascent = true;
@@ -658,6 +657,8 @@ public final class Auto extends LinearOpMode {
 
                             // Sample intaked
                             if (robot.intake.hasSample()) {
+
+                                robot.intake.extendo.runManual(0);
 
                                 Pose2d current = robot.drivetrain.pose;
                                 double y = current.position.y;
@@ -679,10 +680,11 @@ public final class Auto extends LinearOpMode {
                                 stopDt();
                             } else {
 
-                                /// <a href="https://www.desmos.com/calculator/2jddu08h7f">Graph</a>
-                                robot.intake.extendo.setTarget(
-                                        EXTEND_SUB_MIN + (EXTEND_SUB_MAX - EXTEND_SUB_MIN) * (1 + cos(2 * PI * timer.seconds() / TIME_EXTEND_CYCLE)) / 2
-                                );
+                                robot.intake.extendo.runManual(extending ? SPEED_EXTEND : SPEED_RETRACT);
+                                if (timer.seconds >= (extending ? TIME_EXTEND : TIME_RETRACT)) {
+                                    timer.reset();
+                                    extending = !extending;
+                                }
 
                                 // sweep the other way
                                 if (trajDone) {
