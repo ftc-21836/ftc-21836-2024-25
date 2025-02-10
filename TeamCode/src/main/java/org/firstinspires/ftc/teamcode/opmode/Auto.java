@@ -455,26 +455,6 @@ public final class Auto extends LinearOpMode {
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
-            Action i3ToSub = robot.drivetrain.actionBuilder(
-                            new Pose2d(intaking3.x, intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, intaking3.heading)
-                    )
-                    .afterTime(0.5, sweep(robot))
-                    .afterTime(0, () -> {
-                        robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_1);
-                        robot.intake.runRoller(0);
-                        robot.intake.ejectSample();
-                        robot.deposit.liftBeforePointArm = false;
-                        robot.deposit.pauseBeforeAutoRetractingLift = true;
-                    })
-                    .setTangent(basket.heading)
-                    .splineToSplineHeading(sub1.toPose2d(), sub1.heading)
-                    .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
-                    .waitSeconds(WAIT_DROP_TO_EXTEND)
-                    .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
-                    .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
-                    .build();
-
             Action toSub1 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_1);
@@ -615,7 +595,23 @@ public final class Auto extends LinearOpMode {
                                 state = SCORING;
                                 stopDt();
                             } else if (trajDone) { // skip to sub if didn't get 3
-                                activeTraj = i3ToSub;
+                                activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                                        .afterTime(0.5, sweep(robot))
+                                        .afterTime(0, () -> {
+                                            robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_1);
+                                            robot.intake.runRoller(0);
+                                            robot.intake.ejectSample();
+                                            robot.deposit.liftBeforePointArm = false;
+                                            robot.deposit.pauseBeforeAutoRetractingLift = true;
+                                        })
+                                        .setTangent(basket.heading)
+                                        .splineToSplineHeading(sub1.toPose2d(), sub1.heading)
+                                        .stopAndAdd(sweep(robot))
+                                        .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
+                                        .waitSeconds(WAIT_DROP_TO_EXTEND)
+                                        .stopAndAdd(() -> robot.intake.extendo.setExtended(true))
+                                        .waitSeconds(WAIT_EXTEND_POST_SWEEPER)
+                                        .build();
                                 state = DRIVING_TO_SUB;
                             }
 
