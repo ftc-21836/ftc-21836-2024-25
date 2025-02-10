@@ -642,15 +642,10 @@ public final class Auto extends LinearOpMode {
                         case INTAKING:
 
                             if (remaining < TIME_SCORE) {
-                                activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-                                        .afterTime(0, () -> {
-                                            robot.intake.ejectSample();
-                                            robot.intake.runRoller(0);
-                                            Deposit.level1Ascent = true;
-                                            robot.deposit.lift.setTarget(0);
-                                        })
-                                        .afterTime(1, () -> robot.intake.extendo.setExtended(false))
-                                        .build();
+                                robot.intake.ejectSample();
+                                robot.intake.runRoller(0);
+                                Deposit.level1Ascent = true;
+                                timer.reset();
                                 stopDt();
                                 state = PARKING;
                                 break;
@@ -659,11 +654,14 @@ public final class Auto extends LinearOpMode {
                             // Sample intaked
                             if (robot.intake.hasSample()) {
 
-                                activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                                Pose2d current = robot.drivetrain.pose;
+                                double y = current.position.y;
+
+                                activeTraj = robot.drivetrain.actionBuilder(new Pose2d(sub1.x, y, 0))
                                         .afterTime(0, () -> robot.intake.runRoller(1))
                                         .waitSeconds(WAIT_POST_INTAKING_SUB)
                                         .afterTime(0, () -> robot.intake.runRoller(0))
-                                        .setTangent(PI + robot.drivetrain.pose.heading.toDouble())
+                                        .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                                         .afterDisp(12, () -> robot.sweeper.setActivated(true))
                                         .splineTo(basketFromSub.toVector2d(), PI + basketFromSub.heading)
@@ -682,16 +680,22 @@ public final class Auto extends LinearOpMode {
                                 );
 
                                 // sweep the other way
-                                if (trajDone) activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-                                        .setTangent(robot.drivetrain.pose.position.y > 0 ? - PI / 2 : PI / 2)
-                                        .lineToY(robot.drivetrain.pose.position.y > 0 ? sub1.y : -sub1.y, sweepConstraint)
+                                if (trajDone) {
+
+                                    double y = robot.drivetrain.pose.position.y;
+                                    
+                                    activeTraj = robot.drivetrain.actionBuilder(new Pose2d(sub1.x, y, 0))
+                                        .setTangent(y > 0 ? - PI / 2 : PI / 2)
+                                        .lineToY(y > 0 ? sub1.y : -sub1.y, sweepConstraint)
                                         .build();
+                                }
 
                             }
 
                             break;
 
                         case PARKING:
+                            if (timer.seconds >= 1) robot.intake.extendo.setExtended(false);
                             return !trajDone;
                     }
 
