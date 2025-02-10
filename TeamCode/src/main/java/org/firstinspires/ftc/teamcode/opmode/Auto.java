@@ -427,7 +427,7 @@ public final class Auto extends LinearOpMode {
                         timer.reset();
                     })
                     .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
-                    .setTangent(intaking2.heading)
+                    .setTangent(intaking1.heading)
                     .lineToY(intaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
