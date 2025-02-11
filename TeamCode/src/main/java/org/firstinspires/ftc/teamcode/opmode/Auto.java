@@ -364,7 +364,7 @@ public final class Auto extends LinearOpMode {
                             .afterTime(0, robot.deposit::triggerClaw)
                             .stopAndAdd(telemetryPacket -> !robot.deposit.hasSpecimen())
                             .setTangent(PI / 2)
-                            .splineToConstantHeading(new Vector2d(chamberRight.x + chamberXs[i] * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), chamberRight.heading)
+                            .splineToConstantHeading(new Vector2d(chamberRight.x + chamberXs[i] * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), PI / 2)
                             .stopAndAdd(scoreSpecimen(robot))
                     ;
 
