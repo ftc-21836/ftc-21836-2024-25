@@ -194,7 +194,7 @@ public final class Intake {
                 setBucket(ANGLE_BUCKET_PRE_TRANSFER);
                 roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed() || !retractBucketBeforeExtendo)
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed() || !extendo.isExtended() ||!retractBucketBeforeExtendo)
                     state = EXTENDO_RETRACTING;
                 else break;
 
