@@ -681,7 +681,7 @@ public final class Auto extends LinearOpMode {
                             } else {
 
                                 robot.intake.extendo.runManual(extending ? SPEED_EXTEND : SPEED_RETRACT);
-                                if (timer.seconds >= (extending ? TIME_EXTEND : TIME_RETRACT)) {
+                                if (timer.seconds() >= (extending ? TIME_EXTEND : TIME_RETRACT)) {
                                     timer.reset();
                                     extending = !extending;
                                 }
@@ -702,7 +702,7 @@ public final class Auto extends LinearOpMode {
                             break;
 
                         case PARKING:
-                            if (timer.seconds >= 1) robot.intake.extendo.setExtended(false);
+                            if (timer.seconds() >= 1) robot.intake.extendo.setExtended(false);
                             return !trajDone;
                     }
 
