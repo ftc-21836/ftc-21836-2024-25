@@ -140,13 +140,10 @@ public final class Deposit {
 
         }
 
-        double liftPos = lift.getPosition();
-
-        boolean atLowBasket = lift.getTarget() != HEIGHT_BASKET_HIGH && abs(liftPos - HEIGHT_BASKET_LOW) <= TOLERANCE_ARM_SCORING_POS;
-        boolean atHighBasket = abs(liftPos - HEIGHT_BASKET_HIGH) <= TOLERANCE_ARM_SCORING_POS;
+        boolean reachedTarget = abs(lift.getPosition() - lift.getTarget()) <= TOLERANCE_ARM_SCORING_POS;
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (!liftBeforePointArm || atLowBasket || atHighBasket);
+        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (!liftBeforePointArm || reachedTarget);
         boolean armDown = state == SAMPLE_FALLING && timer.seconds() >= TIME_SAMPLE_RELEASE_TO_ARM_DOWN;
 
         Arm.Position armPosition =
@@ -158,7 +155,7 @@ public final class Deposit {
 
         arm.setTarget(armPosition);
 
-        boolean armCanMove = liftPos >= HEIGHT_ABOVE_INTAKE || intake.clearOfDeposit() || !arm.movingNearIntake();
+        boolean armCanMove = lift.getPosition() >= HEIGHT_ABOVE_INTAKE || intake.clearOfDeposit() || !arm.movingNearIntake();
 
         arm.run(armCanMove);
 
