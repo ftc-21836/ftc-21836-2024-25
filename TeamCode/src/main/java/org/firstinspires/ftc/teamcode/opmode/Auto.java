@@ -29,8 +29,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRE
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_SPECIMEN_PRELOAD;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
 import static java.lang.Math.min;
 import static java.lang.Math.toRadians;
 import static java.lang.Math.ceil;
@@ -101,8 +99,6 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_3 = 350,
             EXTEND_OVER_SUB_BAR_1 = 80,
             EXTEND_OVER_SUB_BAR_2 = 100,
-            EXTEND_SUB_MIN = 220,
-            EXTEND_SUB_MAX = 410,
             TIME_EXTEND = 0.6,
             TIME_RETRACT = 0.4,
             SPEED_EXTEND = 1,
@@ -400,9 +396,9 @@ public final class Auto extends LinearOpMode {
                     new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
             ));
 
-            intaking1.heading = atan2(sample1.y - intaking1.y, sample1.x - intaking1.x);
-            intaking2.heading = atan2(sample2.y - intaking2.y, sample2.x - intaking2.x);
-            intaking3.heading = atan2(sample3.y - intaking3.y, sample3.x - intaking3.x);
+            intaking1.heading = intaking1.angleTo(sample1);
+            intaking2.heading = intaking2.angleTo(sample2);
+            intaking3.heading = intaking3.angleTo(sample3);
 
             Action preloadAnd1 =
                     (specimenPreload ?
