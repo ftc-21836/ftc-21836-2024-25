@@ -109,6 +109,8 @@ public final class Auto extends LinearOpMode {
             SPEED_INCHING = 5,
             SPEED_INCHING_TURNING = 0.75,
             SPEED_INTAKING = 0.875,
+            SPEED_SLAM_BUCKET = 0.4,
+            WAIT_SLAM_BUCKET = 0.2,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
@@ -666,6 +668,13 @@ public final class Auto extends LinearOpMode {
 
                                 activeTraj = robot.drivetrain.actionBuilder(new Pose2d(sub1.x, y, 0))
                                         .stopAndAdd(intake(robot))
+                                        .stopAndAdd(new SequentialAction(
+                                                new InstantAction(() -> robot.intake.runRoller(SPEED_SLAM_BUCKET)),
+                                                new SleepAction(WAIT_SLAM_BUCKET),
+                                                new InstantAction(() -> robot.intake.runRoller(1)),
+                                                new SleepAction(WAIT_SLAM_BUCKET),
+                                                new InstantAction(() -> robot.intake.runRoller(0))
+                                        ))
                                         .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                                         .afterDisp(12, () -> robot.sweeper.setActivated(true))
