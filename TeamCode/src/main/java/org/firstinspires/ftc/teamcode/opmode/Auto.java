@@ -10,6 +10,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PUSHING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
@@ -175,6 +176,7 @@ public final class Auto extends LinearOpMode {
         EDITING_SIDE,
         EDITING_PRELOAD,
         EDITING_WAIT,
+        EDITING_PUSHING,
         EDITING_CYCLES;
 
         public static final AutonConfig[] selections = values();
@@ -207,7 +209,8 @@ public final class Auto extends LinearOpMode {
 
         boolean specimenSide = false;
         double partnerWait = 0;
-        int cycles = 3;
+        int cycles = 1;
+        boolean push = false;
         boolean specimenPreload = false;
 
         ElapsedTime timer = new ElapsedTime();
@@ -229,6 +232,7 @@ public final class Auto extends LinearOpMode {
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_PUSHING && !specimenSide ||
                         selection == EDITING_CYCLES && !specimenSide
                 );
             } else if (down) {
@@ -236,6 +240,7 @@ public final class Auto extends LinearOpMode {
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_PUSHING && !specimenSide ||
                         selection == EDITING_CYCLES && !specimenSide
                 );
             }
@@ -253,6 +258,9 @@ public final class Auto extends LinearOpMode {
                 case EDITING_WAIT:
                     if ((specimenPreload || specimenSide) && y) partnerWait++;
                     if ((specimenPreload || specimenSide) && a && partnerWait > 0) partnerWait--;
+                    break;
+                case EDITING_PUSHING:
+                    if (specimenSide && x) push = !push;
                     break;
                 case EDITING_CYCLES:
                     if (specimenSide && y) cycles++;
@@ -282,6 +290,8 @@ public final class Auto extends LinearOpMode {
                 mTelemetry.addLine("Wait " + partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
             }
             if (specimenSide) {
+                mTelemetry.addLine();
+                mTelemetry.addLine((push ? "Push samples after preload" : "Go directly to observation zone") + selection.markIf(EDITING_PUSHING));
                 mTelemetry.addLine();
                 mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
             }
@@ -321,17 +331,19 @@ public final class Auto extends LinearOpMode {
             mTelemetry.addLine("> Score preloaded specimen");
 
             if (cycles > 0) {
-
-                /// Push samples
-                builder = builder
-                        .afterTime(0, robot.deposit::triggerClaw)
-                        .setTangent(- PI / 2);
                 
-                EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3, intakingFirstSpec};
-                for (EditablePose pose : pushingPoses) {
-                    builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
+                /// Push samples
+                if (push) {
+                    builder = builder
+                            .afterTime(0, robot.deposit::triggerClaw)
+                            .setTangent(- PI / 2);
+                    
+                    EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3, intakingFirstSpec};
+                    for (EditablePose pose : pushingPoses) {
+                        builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
+                    }
+                    mTelemetry.addLine("> Push samples");
                 }
-                mTelemetry.addLine("> Push samples");
 
                 double[] chamberXs = {
                         X_OFFSET_CHAMBER_1,
@@ -342,7 +354,7 @@ public final class Auto extends LinearOpMode {
 
                 /// Cycle specimens
                 for (int i = 0; i < min(chamberXs.length, cycles); i++) {
-                    if (i > 0) builder = builder
+                    if (!push || i > 0) builder = builder
                             .afterTime(0, robot.deposit::triggerClaw)
                             .setTangent(- PI / 2)
                             .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
