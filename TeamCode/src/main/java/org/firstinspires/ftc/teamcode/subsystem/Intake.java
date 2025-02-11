@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
@@ -168,7 +167,7 @@ public final class Intake {
                 if (rollerSpeed != 0 && !stopRoller && !deposit.hasSample()) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
-                    roller.setPower(rollerSpeed / SPEED_INTAKING);
+                    roller.setPower(rollerSpeed);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
