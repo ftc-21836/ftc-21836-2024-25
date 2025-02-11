@@ -3,11 +3,10 @@ package org.firstinspires.ftc.teamcode.opmode;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.CONFIRMING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PUSHING;
@@ -178,7 +177,8 @@ public final class Auto extends LinearOpMode {
         EDITING_PRELOAD,
         EDITING_WAIT,
         EDITING_PUSHING,
-        EDITING_CYCLES;
+        EDITING_CYCLES,
+        CONFIRMING;
 
         public static final AutonConfig[] selections = values();
 
@@ -216,8 +216,8 @@ public final class Auto extends LinearOpMode {
 
         ElapsedTime timer = new ElapsedTime();
 
-        // Get gamepad 1 button input and save alliance and side for autonomous configuration:
-        while (opModeInInit() && timer.seconds() < 5 && !(gamepadEx1.isDown(RIGHT_BUMPER) && gamepadEx1.isDown(LEFT_BUMPER))) {
+        config:
+        while (opModeInInit() && timer.seconds() < 5) {
             gamepadEx1.readButtons();
 
             boolean up = gamepadEx1.wasJustPressed(DPAD_UP);
@@ -267,6 +267,8 @@ public final class Auto extends LinearOpMode {
                     if (specimenSide && y) cycles++;
                     if (specimenSide && a && cycles > 0) cycles--;
                     break;
+                case CONFIRMING:
+                    if (x) break config;
             }
 
             gamepad1.setLedColor(
@@ -276,15 +278,12 @@ public final class Auto extends LinearOpMode {
                     Gamepad.LED_DURATION_CONTINUOUS
             );
 
-            mTelemetry.addLine("CONFIRMING IN " + (int) ceil(5 - timer.seconds()) + " SECONDS!");
+            mTelemetry.addLine((isRedAlliance ? "Red" : "Blue") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
-            mTelemetry.addLine();
-            mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-            mTelemetry.addLine();
-            mTelemetry.addLine((specimenSide ? "RIGHT (OBSERVATION-SIDE)" : "LEFT (BASKET-SIDE)") + selection.markIf(EDITING_SIDE));
+            mTelemetry.addLine((specimenSide ? "Right (observation-side)" : "Left (basket-side)") + selection.markIf(EDITING_SIDE));
             if (!specimenSide) {
                 mTelemetry.addLine();
-                mTelemetry.addLine((specimenPreload ? "SPECIMEN" : "SAMPLE") + " preload" + selection.markIf(EDITING_PRELOAD));
+                mTelemetry.addLine((specimenPreload ? "Specimen" : "Sample") + " preload" + selection.markIf(EDITING_PRELOAD));
             }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
@@ -296,18 +295,15 @@ public final class Auto extends LinearOpMode {
                 mTelemetry.addLine();
                 mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
             }
+            mTelemetry.addLine();
+            mTelemetry.addLine();
+            mTelemetry.addLine("Confirm configuration (confirming in " + (int) ceil(5 - timer.seconds()) + " seconds)" + selection.markIf(CONFIRMING));
 
             mTelemetry.update();
         }
 
         specimenPreload = specimenSide || specimenPreload;
 
-        mTelemetry.addLine("GENERATING TRAJECTORY...");
-        mTelemetry.update();
-
-        mTelemetry.addLine("TRAJECTORY GENERATED:");
-        mTelemetry.addLine();
-        mTelemetry.addLine("> " + (isRedAlliance ? "Red" : "Blue") + " alliance");
         robot.intake.setAlliance(isRedAlliance);
 
         Action trajectory;
@@ -320,16 +316,12 @@ public final class Auto extends LinearOpMode {
 
             TrajectoryActionBuilder builder = robot.drivetrain.actionBuilder(pose);
 
-            mTelemetry.addLine("> Right side (observation zone)");
-
             /// Score preloaded specimen
             builder = builder
                     .waitSeconds(partnerWait)
                     .strafeTo(chamberRight.toVector2d())
                     .stopAndAdd(scoreSpecimen(robot))
             ;
-
-            mTelemetry.addLine("> Score preloaded specimen");
 
             if (cycles > 0) {
                 
@@ -343,7 +335,6 @@ public final class Auto extends LinearOpMode {
                     for (EditablePose pose : pushingPoses) {
                         builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
                     }
-                    mTelemetry.addLine("> Push samples");
                 }
 
                 double[] chamberXs = {
@@ -368,17 +359,12 @@ public final class Auto extends LinearOpMode {
                             .splineToConstantHeading(new Vector2d(chamberRight.x + chamberXs[i] * DISTANCE_BETWEEN_SPECIMENS, chamberRight.y), PI / 2)
                             .stopAndAdd(scoreSpecimen(robot))
                     ;
-
-                    mTelemetry.addLine("> Specimen cycle " + (i + 1));
                 }
-
 
             }
 
             /// Park in observation zone
             builder = builder.strafeTo(intakingSpec.toVector2d());
-
-            mTelemetry.addLine("> Park in observation zone");
 
             trajectory = builder.build();
 
@@ -395,9 +381,6 @@ public final class Auto extends LinearOpMode {
             pose = specimenPreload ?
                     new Pose2d(chamberLeft.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2) :
                     new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
-
-            mTelemetry.addLine("> Left side (near basket)");
-            mTelemetry.addLine("> Score preloaded " + (specimenPreload ? "specimen" : "sample"));
 
             MinVelConstraint inchingConstraint = new MinVelConstraint(Arrays.asList(
                     new TranslationalVelConstraint(SPEED_INCHING),
@@ -733,6 +716,8 @@ public final class Auto extends LinearOpMode {
                 }
         );
 
+
+        mTelemetry.addLine("AUTONOMOUS READY");
         mTelemetry.update();
 
         waitForStart(); //--------------------------------------------------------------------------------------------------------------------------
