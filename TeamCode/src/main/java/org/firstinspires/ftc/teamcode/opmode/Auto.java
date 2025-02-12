@@ -127,7 +127,7 @@ public final class Auto extends LinearOpMode {
             X_OFFSET_CHAMBER_3 = -2,
             X_OFFSET_CHAMBER_4 = -3,
             Y_INCHING_FORWARD_WHEN_INTAKING = 5,
-            TIME_CYCLE = 2,
+            TIME_CYCLE = 5,
             TIME_SCORE = 0.5;
 
     /// <a href="https://www.desmos.com/calculator/l8pl2gf1mb">Adjust spikes 1 and 2</a>
