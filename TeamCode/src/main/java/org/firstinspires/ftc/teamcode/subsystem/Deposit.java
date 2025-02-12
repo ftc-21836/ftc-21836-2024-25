@@ -46,6 +46,7 @@ public final class Deposit {
             HEIGHT_OBSERVATION_ZONE = 0.01,
             HEIGHT_BASKET_LOW = 3,
             HEIGHT_BASKET_HIGH = 21,
+            INCREMENT_REACH_ABOVE_BASKET = 1,
             HEIGHT_INTAKING_SPECIMEN = 0,
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
@@ -215,7 +216,10 @@ public final class Deposit {
             case SAMPLE_FALLING:
 
                 lift.setTarget(
-                        position == HIGH ?  HEIGHT_BASKET_HIGH :
+                        position == HIGH ?
+                                lift.getTarget() >= HEIGHT_BASKET_HIGH ?
+                                            lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
+                                            HEIGHT_BASKET_HIGH :
                         position == LOW ?   HEIGHT_BASKET_LOW :
                                             HEIGHT_OBSERVATION_ZONE
                 );
