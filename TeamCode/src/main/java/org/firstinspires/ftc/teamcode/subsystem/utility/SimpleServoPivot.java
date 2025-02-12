@@ -58,6 +58,6 @@ public class SimpleServoPivot {
      * Hold {@link #servos} position
      */
     public void run() {
-        for (CachedSimpleServo servo : servos) servo.turnToAngle(activated ? ANGLE_ACTIVATED : ANGLE_INITIAL);
+        for (CachedSimpleServo servo : servos) servo.turnToAngle(isActivated() ? ANGLE_ACTIVATED : ANGLE_INITIAL);
     }
 }
