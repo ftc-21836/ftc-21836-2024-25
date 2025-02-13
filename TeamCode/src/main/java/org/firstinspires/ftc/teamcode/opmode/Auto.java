@@ -161,13 +161,12 @@ public final class Auto extends LinearOpMode {
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
             pushing2 = new EditablePose(57, pushing1.y, toRadians(-70)),
             pushing3 = new EditablePose(63, pushing1.y, - PI / 2),
+
+            intakingSpec = new EditablePose(36, -60, PI / 2),
     
             pushed1 = new EditablePose(pushing1.x, -46, toRadians(110)),
             pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
-            pushed3 = new EditablePose(pushing3.x, pushed1.y, - PI / 2),
-    
-            intakingSpec = new EditablePose(36, -60, PI / 2),
-            intakingFirstSpec = new EditablePose(55, intakingSpec.y, -intakingSpec.heading);
+            pushed3 = new EditablePose(pushing3.x, intakingSpec.y, - PI / 2);
 
     static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
     static boolean isRedAlliance = false;
@@ -332,7 +331,7 @@ public final class Auto extends LinearOpMode {
                             .afterTime(0, robot.deposit::triggerClaw)
                             .setTangent(- PI / 2);
                     
-                    EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3, intakingFirstSpec};
+                    EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3};
                     for (EditablePose pose : pushingPoses) {
                         builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
                     }
