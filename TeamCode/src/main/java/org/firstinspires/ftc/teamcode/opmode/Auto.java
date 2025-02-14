@@ -101,6 +101,7 @@ public final class Auto extends LinearOpMode {
             EXTEND_OVER_SUB_BAR_2 = 100,
             TIME_EXTEND = 0.6,
             TIME_RETRACT = 0.4,
+            SPEED_INTAKING = 0.875,
             SPEED_EXTEND = 1,
             SPEED_RETRACT = -0.6,
             SPEED_SPIKE_TURNING = 2,
@@ -411,12 +412,12 @@ public final class Auto extends LinearOpMode {
                                     .stopAndAdd(robot.deposit::triggerClaw)
                                     .waitSeconds(WAIT_SCORE_SPEC_PRELOAD)
                                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
-                                    .afterTime(0, () -> robot.intake.runRoller(1))
+                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                                     .waitSeconds(WAIT_DROP_TO_EXTEND) :
                             robot.drivetrain.actionBuilder(pose)
                                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
                                     .stopAndAdd(scoreSample(robot))
-                                    .afterTime(0, () -> robot.intake.runRoller(1))
+                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
                     )
                     .afterTime(0, () -> {
@@ -435,7 +436,7 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> robot.intake.runRoller(1))
+                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
@@ -453,7 +454,7 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> robot.intake.runRoller(1))
+                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
@@ -475,7 +476,7 @@ public final class Auto extends LinearOpMode {
                     .setTangent(basket.heading)
                     .splineToSplineHeading(sub1.toPose2d(), sub1.heading)
                     .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(1))
+                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
                     .build();
 
@@ -486,7 +487,7 @@ public final class Auto extends LinearOpMode {
                     .setTangent(basket.heading)
                     .splineTo(sub1.toVector2d(), sub1.heading)
                     .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(1))
+                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
                     .build();
 
@@ -500,7 +501,7 @@ public final class Auto extends LinearOpMode {
                     .setTangent(basketFromSub.heading)
                     .splineTo(sub2.toVector2d(), sub2.heading)
                     .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(1))
+                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
                     .waitSeconds(WAIT_DROP_TO_EXTEND)
                     .build();
 
