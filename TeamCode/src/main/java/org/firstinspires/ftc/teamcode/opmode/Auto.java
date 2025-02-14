@@ -443,7 +443,10 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intakePartnerSample = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.extendo.setTarget(200);
+                    })
                     .splineTo(intakingPartnerSample.toVector2d(), intakingPartnerSample.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setExtended(true);
@@ -463,7 +466,10 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intakingPartnerTo1 = robot.drivetrain.actionBuilder(intakingPartnerSample.toPose2d())
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.extendo.setTarget(200);
+                    })
                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
@@ -475,7 +481,10 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake1 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.extendo.setTarget(200);
+                    })
                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
@@ -495,7 +504,10 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.extendo.setTarget(200);
+                    })
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
@@ -515,7 +527,10 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.extendo.setTarget(200);
+                    })
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
