@@ -11,6 +11,8 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALL
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PUSHING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SUB_1_Y;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SUB_2_Y;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAIT;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.DRIVING_TO_SUB;
@@ -110,10 +112,6 @@ public final class Auto extends LinearOpMode {
             SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 5,
             SPEED_INCHING_TURNING = 0.75,
-            SPEED_PRE_SLAM_BUCKET = 0.4,
-            WAIT_PRE_SLAM_BUCKET = 0.2,
-            SPEED_SLAMMING_BUCKET = 1.1,
-            WAIT_SLAMMING_BUCKET = 0.1,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
@@ -179,6 +177,8 @@ public final class Auto extends LinearOpMode {
         EDITING_SIDE,
         EDITING_PRELOAD,
         EDITING_WAIT,
+        EDITING_SUB_1_Y,
+        EDITING_SUB_2_Y,
         EDITING_PUSHING,
         EDITING_CYCLES,
         CONFIRMING;
@@ -212,12 +212,14 @@ public final class Auto extends LinearOpMode {
         AutonConfig selection = EDITING_ALLIANCE;
 
         boolean specimenSide = false;
-        double partnerWait = 0;
+        int partnerWait = 0;
         int cycles = 1;
         boolean push = false;
         boolean specimenPreload = false;
 
         ElapsedTime timer = new ElapsedTime();
+
+        EditablePose sub1Edited = sub1, sub2Edited = sub2;
 
         config:
         while (opModeInInit() && timer.seconds() < 5) {
@@ -236,6 +238,8 @@ public final class Auto extends LinearOpMode {
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_SUB_1_Y && specimenSide ||
+                        selection == EDITING_SUB_2_Y && specimenSide ||
                         selection == EDITING_PUSHING && !specimenSide ||
                         selection == EDITING_CYCLES && !specimenSide
                 );
@@ -244,6 +248,8 @@ public final class Auto extends LinearOpMode {
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
+                        selection == EDITING_SUB_1_Y && specimenSide ||
+                        selection == EDITING_SUB_2_Y && specimenSide ||
                         selection == EDITING_PUSHING && !specimenSide ||
                         selection == EDITING_CYCLES && !specimenSide
                 );
@@ -262,6 +268,14 @@ public final class Auto extends LinearOpMode {
                 case EDITING_WAIT:
                     if ((specimenPreload || specimenSide) && y) partnerWait++;
                     if ((specimenPreload || specimenSide) && a && partnerWait > 0) partnerWait--;
+                    break;
+                case EDITING_SUB_1_Y:
+                    if (!specimenSide && y && sub1Edited.y < -sub1.y) sub1Edited.y++;
+                    if (!specimenSide && a && sub1Edited.y > sub1.y) sub1Edited.y--;
+                    break;
+                case EDITING_SUB_2_Y:
+                    if (!specimenSide && y && sub2Edited.y < -sub1.y) sub2Edited.y++;
+                    if (!specimenSide && a && sub2Edited.y > sub1.y) sub2Edited.y--;
                     break;
                 case EDITING_PUSHING:
                     if (specimenSide && x) push = !push;
@@ -290,7 +304,13 @@ public final class Auto extends LinearOpMode {
             }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
-                mTelemetry.addLine("Wait " + (int) partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
+                mTelemetry.addLine("Wait " + partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
+            }
+            if (!specimenSide) {
+                mTelemetry.addLine();
+                mTelemetry.addLine("First sub intaking Y = " + sub1Edited.y + " (default " + sub1.y + ")" + selection.markIf(EDITING_SUB_1_Y));
+                mTelemetry.addLine();
+                mTelemetry.addLine("Second sub intaking Y = " + sub2Edited.y + " (default " + sub2.y + ")" + selection.markIf(EDITING_SUB_2_Y));
             }
             if (specimenSide) {
                 mTelemetry.addLine();
@@ -481,20 +501,18 @@ public final class Auto extends LinearOpMode {
             Action i3ToSub = robot.drivetrain.actionBuilder(intaking3.toPose2d())
                     .afterTime(0.5, sweep(robot))
                     .setTangent(basket.heading)
-                    .splineToSplineHeading(sub1.toPose2d(), sub1.heading)
+                    .splineToSplineHeading(sub1Edited.toPose2d(), sub1Edited.heading)
                     .stopAndAdd(approachSub(robot))
                     .build();
 
             Action toSub1 = robot.drivetrain.actionBuilder(basket.toPose2d())
-                    .afterTime(0, () -> {
-                        robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_1);
-                    })
+                    .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_1))
                     .setTangent(basket.heading)
-                    .splineTo(sub1.toVector2d(), sub1.heading)
+                    .splineTo(sub1Edited.toVector2d(), sub1Edited.heading)
                     .stopAndAdd(approachSub(robot))
                     .build();
 
-            Action intakingSub1 = robot.drivetrain.actionBuilder(sub1.toPose2d())
+            Action intakingSub1 = robot.drivetrain.actionBuilder(sub1Edited.toPose2d())
                     .setTangent(PI / 2)
                     .lineToY(-sub1.y, sweepConstraint)
                     .build();
@@ -502,11 +520,11 @@ public final class Auto extends LinearOpMode {
             Action toSub2 = robot.drivetrain.actionBuilder(basketFromSub.toPose2d())
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_2))
                     .setTangent(basketFromSub.heading)
-                    .splineTo(sub2.toVector2d(), sub2.heading)
+                    .splineTo(sub2Edited.toVector2d(), sub2Edited.heading)
                     .stopAndAdd(approachSub(robot))
                     .build();
 
-            Action intakingSub2 = robot.drivetrain.actionBuilder(sub2.toPose2d())
+            Action intakingSub2 = robot.drivetrain.actionBuilder(sub2Edited.toPose2d())
                     .setTangent(PI / 2)
                     .lineToY(-sub1.y, sweepConstraint)
                     .build();
