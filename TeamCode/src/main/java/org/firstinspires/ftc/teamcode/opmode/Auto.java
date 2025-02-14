@@ -116,7 +116,7 @@ public final class Auto extends LinearOpMode {
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
-            WAIT_POST_INTAKING = 0.3,
+            WAIT_POST_INTAKING = 0,
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.1,
             WAIT_SCORE_SPEC_PRELOAD = 0.75,
