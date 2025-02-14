@@ -687,6 +687,12 @@ public final class Auto extends LinearOpMode {
                                     double y = robot.drivetrain.pose.position.y;
                                     
                                     activeTraj = robot.drivetrain.actionBuilder(new Pose2d(sub1.x, y, 0))
+                                        .afterTime(0, () -> {
+                                            robot.intake.runRoller(0);
+                                            robot.intake.extendo.setTarget(subCycle == 1 ? EXTEND_OVER_SUB_BAR_1 : EXTEND_OVER_SUB_BAR_2);
+                                        })
+                                        .waitSeconds(TIME_RETRACT)
+                                        .stopAndAdd(approachSub(robot))
                                         .setTangent(y > 0 ? - PI / 2 : PI / 2)
                                         .lineToY(y > 0 ? sub1.y : -sub1.y, sweepConstraint)
                                         .build();
