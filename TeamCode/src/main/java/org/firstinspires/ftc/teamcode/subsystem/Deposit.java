@@ -91,7 +91,7 @@ public final class Deposit {
 
     public static boolean level1Ascent = false;
 
-    public boolean liftBeforePointArm = true, pauseBeforeAutoRetractingLift = true;
+    public boolean pauseBeforeAutoRetractingLift = true;
 
     private double basketHeight = HEIGHT_BASKET_HIGH;
 
@@ -144,7 +144,7 @@ public final class Deposit {
         boolean reachedTarget = abs(lift.getPosition() - lift.getTarget()) <= TOLERANCE_ARM_SCORING_POS;
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (!liftBeforePointArm || reachedTarget);
+        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && reachedTarget;
         boolean armDown = state == SAMPLE_FALLING && timer.seconds() >= TIME_SAMPLE_RELEASE_TO_ARM_DOWN;
 
         Arm.Position armPosition =
