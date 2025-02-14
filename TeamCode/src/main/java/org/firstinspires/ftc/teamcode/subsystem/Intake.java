@@ -174,10 +174,10 @@ public final class Intake {
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
                     if (getSample() == badSample) ejectSample();
-
-                    break;
+                    else if (hasSample()) transfer(sample);
+                    else break;
                     
-                } else if (!hasSample()) { // retracted
+                } else { // retracted
 
                     setBucket(ANGLE_BUCKET_RETRACTED);
                     roller.setPower(
@@ -188,7 +188,7 @@ public final class Intake {
 
                     break;
 
-                } else transfer(sample); // trigger released, sample acquired, initiate transfer
+                }
 
             case BUCKET_SEMI_RETRACTING:
 
