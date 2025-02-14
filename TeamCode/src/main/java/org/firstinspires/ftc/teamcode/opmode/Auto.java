@@ -98,7 +98,7 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_2 = 395,
             EXTEND_SAMPLE_3 = 350,
             EXTEND_OVER_SUB_BAR_1 = 50,
-            EXTEND_OVER_SUB_BAR_2 = 80,
+            EXTEND_OVER_SUB_BAR_2 = 50,
             TIME_EXTEND = 0.6,
             TIME_RETRACT = 0.4,
             SPEED_INTAKING = 1,
