@@ -173,8 +173,12 @@ public final class Intake {
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                    if (getSample() == badSample) ejectSample();
-                    else if (hasSample()) transfer(sample);
+                    if (getSample() == badSample) {
+                        ejectSample();
+                        break;
+                    }
+                    
+                    if (hasSample()) transfer(sample);
                     else break;
                     
                 } else { // retracted
