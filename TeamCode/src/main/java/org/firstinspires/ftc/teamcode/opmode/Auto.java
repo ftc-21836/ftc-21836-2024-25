@@ -101,6 +101,7 @@ public final class Auto extends LinearOpMode {
             EXTEND_OVER_SUB_BAR_2 = 50,
             TIME_EXTEND = 0.6,
             TIME_RETRACT = 0.4,
+            WAIT_RE_SWEEP = 0.1,
             SPEED_INTAKING = 1,
             SPEED_EXTEND = 1,
             SPEED_RETRACT = -0.6,
@@ -691,6 +692,7 @@ public final class Auto extends LinearOpMode {
                                             robot.intake.runRoller(0);
                                             robot.intake.extendo.setTarget(subCycle == 1 ? EXTEND_OVER_SUB_BAR_1 : EXTEND_OVER_SUB_BAR_2);
                                         })
+                                        .waitSeconds(WAIT_RE_SWEEP)
                                         .stopAndAdd(approachSub(robot))
                                         .setTangent(y > 0 ? - PI / 2 : PI / 2)
                                         .lineToY(y > 0 ? sub1.y : -sub1.y, sweepConstraint)
