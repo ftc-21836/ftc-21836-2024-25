@@ -289,7 +289,7 @@ public final class Auto extends LinearOpMode {
             }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
-                mTelemetry.addLine("Wait " + partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
+                mTelemetry.addLine("Wait " + (int) partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
             }
             if (specimenSide) {
                 mTelemetry.addLine();
