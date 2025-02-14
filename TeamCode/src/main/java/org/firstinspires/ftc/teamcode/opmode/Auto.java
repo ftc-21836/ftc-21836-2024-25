@@ -102,7 +102,7 @@ public final class Auto extends LinearOpMode {
             TIME_EXTEND = 0.6,
             TIME_RETRACT = 0.4,
             SPEED_EXTEND = 1,
-            SPEED_RETRACT = 0.6,
+            SPEED_RETRACT = -0.6,
             SPEED_SWEEPING_SUB = 5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
             SPEED_INCHING = 5,
