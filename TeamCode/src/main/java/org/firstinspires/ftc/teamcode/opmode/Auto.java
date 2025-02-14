@@ -475,9 +475,7 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0.5, sweep(robot))
                     .setTangent(basket.heading)
                     .splineToSplineHeading(sub1.toPose2d(), sub1.heading)
-                    .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
-                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(approachSub(robot))
                     .build();
 
             Action toSub1 = robot.drivetrain.actionBuilder(basket.toPose2d())
@@ -486,9 +484,7 @@ public final class Auto extends LinearOpMode {
                     })
                     .setTangent(basket.heading)
                     .splineTo(sub1.toVector2d(), sub1.heading)
-                    .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
-                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(approachSub(robot))
                     .build();
 
             Action intakingSub1 = robot.drivetrain.actionBuilder(sub1.toPose2d())
@@ -500,9 +496,7 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_2))
                     .setTangent(basketFromSub.heading)
                     .splineTo(sub2.toVector2d(), sub2.heading)
-                    .stopAndAdd(sweep(robot))
-                    .stopAndAdd(() -> robot.intake.runRoller(SPEED_INTAKING))
-                    .waitSeconds(WAIT_DROP_TO_EXTEND)
+                    .stopAndAdd(approachSub(robot))
                     .build();
 
             Action intakingSub2 = robot.drivetrain.actionBuilder(sub2.toPose2d())
@@ -769,6 +763,14 @@ public final class Auto extends LinearOpMode {
                 new InstantAction(() -> robot.intake.runRoller(1)),
                 new SleepAction(WAIT_POST_INTAKING),
                 new InstantAction(() -> robot.intake.runRoller(0))
+        );
+    }
+
+    private static Action approachSub(Robot robot) {
+        return new SequentialAction(
+                sweep(robot),
+                new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
+                new SleepAction(WAIT_DROP_TO_EXTEND),
         );
     }
 
