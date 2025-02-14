@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMot
 public final class Extendo {
 
     public static double
-            SPEED_RETRACTION = -1,
+            SPEED_RETRACTION = -0.75,
             TOUCHPAD_RANGE = 0.9,
             LENGTH_RETRACTING = 50,
             LENGTH_INTERFACING = 10,

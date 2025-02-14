@@ -20,11 +20,11 @@ public final class Arm {
             TIME_SAMPLE_TO_RETRACTED = 0.4,
             TIME_SAMPLE_TO_IN_BASKET = 0.15,
             TIME_RETRACTED_TO_INTAKING = 0.65,
-            TIME_INTAKING_TO_SPEC = 0.5,
+            TIME_INTAKING_TO_SPEC = 1,
             TIME_SPEC_TO_RETRACTED = 0.4;
 
     public static Arm.Position
-            TRANSFER =      new Arm.Position(15, 107, "TRANSFER"),
+            TRANSFER =      new Arm.Position(25, 97, "TRANSFER"),
             INTAKING =      new Arm.Position(175, 20, "INTAKING"),
             SPECIMEN =      new Arm.Position(240, 220, "SPECIMEN"),
             SPEC_PRELOAD =  new Arm.Position(205, 42, "SPEC PRELOAD"),
