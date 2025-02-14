@@ -522,7 +522,7 @@ public final class Auto extends LinearOpMode {
 
                 int subCycle = 1;
 
-                boolean extending = true;
+                boolean extending = false;
 
                 void stopDt() {
                     robot.drivetrain.leftFront.setPower(0);
@@ -620,6 +620,7 @@ public final class Auto extends LinearOpMode {
                                 activeTraj = subCycle == 1 ? intakingSub1 : intakingSub2;
                                 state = INTAKING;
                                 timer.reset();
+                                extending = false;
                             }
                             break;
                         case INTAKING:
@@ -771,6 +772,8 @@ public final class Auto extends LinearOpMode {
                 sweep(robot),
                 new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
                 new SleepAction(WAIT_DROP_TO_EXTEND),
+                new InstantAction(() -> robot.intake.extendo.runManual(SPEED_EXTEND)),
+                new SleepAction(TIME_EXTEND)
         );
     }
 
