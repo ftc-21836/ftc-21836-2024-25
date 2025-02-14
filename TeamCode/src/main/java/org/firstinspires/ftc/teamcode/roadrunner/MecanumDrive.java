@@ -88,33 +88,6 @@ public class MecanumDrive {
 
         /* Counter-rotate x and y by robot heading for field centric driving
         *
-        * setDrivePower(double) assumes the entered x and y are in the robot coordinate frame
-        * Entering x and y in field frame (left) is then interpreted as rotated π/2 counterclockwise (+π/2)
-        *
-        * |---------------|               |---------------|
-        * |       Y+      |               |       X+      |
-        * |       ----X+--|     ---->     |--Y+----       |
-        * |               |               |               |
-        * |               |               |               |
-        * |---------------|               |---------------|
-        * Control stick/field frame        Robot frame
-        *
-        * This would cause a forward command (Y=1) to drive the drivetrain left
-        * We counteract this by rotating the input x and y from field frame π/2 clockwise (-π/2)
-        *
-        * |---------------|               |---------------|             |---------------|
-        * |       Y+      |               |               |             |       Y+      |
-        * |       ----X+--|     ---->     |       ----Y+--|     ---->   |       ----X+--|
-        * |               |               |       |       |             |               |
-        * |               |               |       X+      |             |               |
-        * |---------------|               |---------------|             |---------------|
-        * Control stick/field frame             Rotated                    Robot frame
-        *
-        *      ^ Same---------------------------------------------------------Same ^
-        *
-        * Using the robot angle in field frame directly as the rotation angle produces field-centric
-        * behavior-- this works as π/2 is the angle for facing forward in field frame
-        *
         * Robot-relative:
         * Using a constant π/2 radians as the robot's heading produces robot-centric behavior,
         * as the robot thinks it is always facing forward
