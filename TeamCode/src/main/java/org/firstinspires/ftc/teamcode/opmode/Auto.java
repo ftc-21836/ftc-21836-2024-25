@@ -649,15 +649,17 @@ public final class Auto extends LinearOpMode {
                                 Pose2d current = robot.drivetrain.pose;
                                 double y = current.position.y;
 
+                                robot.intake.retractBucketBeforeExtendo = true;
+
                                 activeTraj = robot.drivetrain.actionBuilder(new Pose2d(sub1.x, y, 0))
                                         .stopAndAdd(intake(robot))
-                                        .stopAndAdd(new SequentialAction(
-                                                new InstantAction(() -> robot.intake.runRoller(SPEED_PRE_SLAM_BUCKET)),
-                                                new SleepAction(WAIT_PRE_SLAM_BUCKET),
-                                                new InstantAction(() -> robot.intake.runRoller(SPEED_SLAMMING_BUCKET)),
-                                                new SleepAction(WAIT_SLAMMING_BUCKET),
-                                                new InstantAction(() -> robot.intake.runRoller(0))
-                                        ))
+//                                        .stopAndAdd(new SequentialAction(
+//                                                new InstantAction(() -> robot.intake.runRoller(SPEED_PRE_SLAM_BUCKET)),
+//                                                new SleepAction(WAIT_PRE_SLAM_BUCKET),
+//                                                new InstantAction(() -> robot.intake.runRoller(SPEED_SLAMMING_BUCKET)),
+//                                                new SleepAction(WAIT_SLAMMING_BUCKET),
+//                                                new InstantAction(() -> robot.intake.runRoller(0))
+//                                        ))
                                         .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                                         .afterDisp(12, () -> robot.sweeper.setActivated(true))
