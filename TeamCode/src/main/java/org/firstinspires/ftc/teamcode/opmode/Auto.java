@@ -431,7 +431,9 @@ public final class Auto extends LinearOpMode {
 
             Action score1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
                     .stopAndAdd(intake(robot))
+                    .afterTime(0, () -> robot.sweeper.setActivated(true))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .afterTime(0, () -> robot.sweeper.setActivated(false))
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
@@ -449,7 +451,9 @@ public final class Auto extends LinearOpMode {
 
             Action score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .stopAndAdd(intake(robot))
+                    .afterTime(0, () -> robot.sweeper.setActivated(true))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .afterTime(0, () -> robot.sweeper.setActivated(false))
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
@@ -467,7 +471,9 @@ public final class Auto extends LinearOpMode {
 
             Action score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
                     .stopAndAdd(intake(robot))
+                    .afterTime(0, () -> robot.sweeper.setActivated(true))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .afterTime(0, () -> robot.sweeper.setActivated(false))
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
