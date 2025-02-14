@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUT
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.CONFIRMING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PARTNER_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PUSHING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SUB_1_Y;
@@ -17,18 +18,18 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAI
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.DRIVING_TO_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_1;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_2;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_3;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_PARTNER_SAMPLE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.PARKING;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.State.PRELOAD_AND_1;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_PARTNER_SAMPLE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_1;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_2;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRELOAD_SCORED;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_OFFSET_PRELOAD_SCORING;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_SPECIMEN_PRELOAD;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
@@ -71,7 +72,10 @@ public final class Auto extends LinearOpMode {
 
 
     enum State {
-        PRELOAD_AND_1,
+        SCORING_PRELOAD,
+        INTAKING_PARTNER_SAMPLE,
+        SCORING_PARTNER_SAMPLE,
+        INTAKING_1,
         SCORING_1,
         INTAKING_2,
         SCORING_2,
@@ -139,6 +143,8 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, toRadians(2)),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
+            intakingPartnerSample = new EditablePose(-20,7 - SIZE_HALF_FIELD, 0),
+
             intaking1 = new EditablePose(-54.6,-50, toRadians(84.36)),
             intaking2 = new EditablePose(-56.85,-50.9, toRadians(105)),
             intaking3 = new EditablePose(-53.5,-43.5, 2 * PI / 3),
@@ -176,6 +182,7 @@ public final class Auto extends LinearOpMode {
         EDITING_ALLIANCE,
         EDITING_SIDE,
         EDITING_PRELOAD,
+        EDITING_PARTNER_SAMPLE,
         EDITING_WAIT,
         EDITING_SUB_1_Y,
         EDITING_SUB_2_Y,
@@ -216,6 +223,7 @@ public final class Auto extends LinearOpMode {
         int cycles = 1;
         boolean push = false;
         boolean specimenPreload = false;
+        boolean usePartnerSample = false;
 
         ElapsedTime timer = new ElapsedTime();
 
@@ -237,6 +245,7 @@ public final class Auto extends LinearOpMode {
                 do selection = selection.plus(-1);
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
+                        selection == EDITING_PARTNER_SAMPLE && specimenSide ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
                         selection == EDITING_SUB_1_Y && specimenSide ||
                         selection == EDITING_SUB_2_Y && specimenSide ||
@@ -247,6 +256,7 @@ public final class Auto extends LinearOpMode {
                 do selection = selection.plus(1);
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
+                        selection == EDITING_PARTNER_SAMPLE && specimenSide ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
                         selection == EDITING_SUB_1_Y && specimenSide ||
                         selection == EDITING_SUB_2_Y && specimenSide ||
@@ -264,6 +274,9 @@ public final class Auto extends LinearOpMode {
                     break;
                 case EDITING_PRELOAD:
                     if (!specimenSide && x) specimenPreload = !specimenPreload;
+                    break;
+                case EDITING_PARTNER_SAMPLE:
+                    if (!specimenSide && x) usePartnerSample = !usePartnerSample;
                     break;
                 case EDITING_WAIT:
                     if ((specimenPreload || specimenSide) && y) partnerWait++;
@@ -301,6 +314,8 @@ public final class Auto extends LinearOpMode {
             if (!specimenSide) {
                 mTelemetry.addLine();
                 mTelemetry.addLine((specimenPreload ? "Specimen" : "Sample") + " preload" + selection.markIf(EDITING_PRELOAD));
+                mTelemetry.addLine();
+                mTelemetry.addLine((usePartnerSample ? "Use" : "Don't use") + " partner's sample" + selection.markIf(EDITING_PRELOAD));
             }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
@@ -421,26 +436,47 @@ public final class Auto extends LinearOpMode {
             intaking2.heading = intaking2.angleTo(sample2);
             intaking3.heading = intaking3.angleTo(sample3);
 
-            Action preloadAnd1 =
-                    (specimenPreload ?
-                            robot.drivetrain.actionBuilder(pose)
-                                    .waitSeconds(partnerWait)
-                                    .strafeTo(chamberLeft.toVector2d())
-                                    .waitSeconds(WAIT_APPROACH_CHAMBER)
-                                    .stopAndAdd(telemetryPacket -> !(robot.deposit.arm.atPosition(Arm.SPEC_PRELOAD) && robot.deposit.lift.atPosition(HEIGHT_SPECIMEN_PRELOAD))) // wait until deposit in position
-                                    .stopAndAdd(() -> robot.deposit.lift.setTarget(HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORING))
-                                    .stopAndAdd(telemetryPacket -> robot.deposit.lift.getPosition() < HEIGHT_SPECIMEN_PRELOAD + HEIGHT_OFFSET_PRELOAD_SCORED)
-                                    .stopAndAdd(robot.deposit::triggerClaw)
-                                    .waitSeconds(WAIT_SCORE_SPEC_PRELOAD)
-                                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
-                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                                    .waitSeconds(WAIT_DROP_TO_EXTEND) :
-                            robot.drivetrain.actionBuilder(pose)
-                                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                                    .stopAndAdd(scoreSample(robot))
-                                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
-                                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
-                    )
+            // wait until deposit in position
+            Action scorePreload = robot.drivetrain.actionBuilder(pose)
+                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
+
+            Action intakePartnerSample = robot.drivetrain.actionBuilder(basket.toPose2d())
+                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .splineTo(intakingPartnerSample.toVector2d(), intakingPartnerSample.heading, spikeConstraint)
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setExtended(true);
+                        timer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(410)))
+                    .setTangent(intakingPartnerSample.heading)
+                    .lineToX(intakingPartnerSample.x + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
+
+            Action scorePartnerSample = robot.drivetrain.actionBuilder(intakingPartnerSample.toPose2d())
+                    .stopAndAdd(intake(robot))
+                    .afterTime(0, () -> robot.sweeper.setActivated(true))
+                    .strafeToSplineHeading(basket.toVector2d(), basket.heading)
+                    .afterTime(0, () -> robot.sweeper.setActivated(false))
+                    .stopAndAdd(scoreSample(robot))
+                    .build();
+
+            Action intakingPartnerTo1 = robot.drivetrain.actionBuilder(intakingPartnerSample.toPose2d())
+                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
+                    .afterTime(0, () -> {
+                        robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
+                        timer.reset();
+                    })
+                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
+                    .setTangent(intaking1.heading)
+                    .lineToY(intaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .build();
+
+            Action intake1 = robot.drivetrain.actionBuilder(basket.toPose2d())
+                    .afterTime(0, () -> robot.intake.runRoller(SPEED_INTAKING))
+                    .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                         timer.reset();
@@ -537,13 +573,15 @@ public final class Auto extends LinearOpMode {
                     .splineTo(sub1.toVector2d(), sub1.heading)
                     .build();
 
+            boolean usePartnerSample_Final = usePartnerSample;
+
             trajectory = new Action() {
 
-                State state = PRELOAD_AND_1;
+                State state = SCORING_PRELOAD;
 
                 ElapsedTime matchTimer = null;
 
-                Action activeTraj = preloadAnd1;
+                Action activeTraj = scorePreload;
 
                 int subCycle = 1;
 
@@ -564,7 +602,43 @@ public final class Auto extends LinearOpMode {
                     boolean trajDone = !activeTraj.run(p);
 
                     switch (state) {
-                        case PRELOAD_AND_1:
+                        case SCORING_PRELOAD:
+
+                            if (trajDone) {
+                                if (usePartnerSample_Final) {
+                                    activeTraj = intakePartnerSample;
+                                    state = INTAKING_PARTNER_SAMPLE;
+                                } else {
+                                    activeTraj = intake1;
+                                    state = INTAKING_1;
+                                }
+                            }
+                            break;
+
+                        case INTAKING_PARTNER_SAMPLE:
+
+                            // Sample intaked
+                            if (robot.intake.hasSample()) {
+                                activeTraj = scorePartnerSample;
+                                state = SCORING_PARTNER_SAMPLE;
+                                stopDt();
+                            } else if (trajDone) { // skip to 2 if didn't get 1
+                                activeTraj = intakingPartnerTo1;
+                                state = INTAKING_1;
+                                robot.intake.extendo.setExtended(false);
+                                robot.intake.ejectSample();
+                            }
+
+                            break;
+
+                        case SCORING_PARTNER_SAMPLE:
+                            if (trajDone) {
+                                activeTraj = intake1;
+                                state = INTAKING_1;
+                            }
+                            break;
+
+                        case INTAKING_1:
 
                             // Sample intaked
                             if (robot.intake.hasSample()) {
