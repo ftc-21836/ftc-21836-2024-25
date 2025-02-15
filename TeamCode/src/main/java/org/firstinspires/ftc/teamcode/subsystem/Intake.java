@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SEMI_
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RE_EXTENDING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
@@ -42,6 +43,10 @@ public final class Intake {
             TIME_BUCKET_SEMI_RETRACT = 0.2,
             TIME_PRE_TRANSFER = 0,
             TIME_TRANSFER = 0.3,
+
+            TIME_BEFORE_RE_RETRACT = 0.65,
+            TIME_AFTER_RE_RETRACT = 0.65,
+            RE_RETRACT_TARGET = 150,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
@@ -125,6 +130,7 @@ public final class Intake {
         EJECTING_SAMPLE,
         STANDBY,
         BUCKET_SEMI_RETRACTING,
+        EXTENDO_RE_EXTENDING,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
         BUCKET_SETTLING,
@@ -195,9 +201,18 @@ public final class Intake {
                 setBucket(ANGLE_BUCKET_PRE_TRANSFER);
                 roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed() || !extendo.isExtended() ||!retractBucketBeforeExtendo)
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed() || !extendo.isExtended() ||!retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
+                    timer.reset();
+                }
                 else break;
+
+            case EXTENDO_RE_EXTENDING:
+
+                if (extendo.atPosition(RE_RETRACT_TARGET) || timer.seconds() > TIME_AFTER_RE_RETRACT) {
+                    state = EXTENDO_RETRACTING;
+                    timer.reset();
+                } else break;
 
             case EXTENDO_RETRACTING:
 
@@ -209,9 +224,17 @@ public final class Intake {
                 );
                 extendo.setExtended(false);
 
-                if (!extendo.isExtended() && deposit.readyToTransfer())
+
+                if (extendo.isExtended()) {
+                    if (timer.seconds() >= TIME_BEFORE_RE_RETRACT) {
+                        state = EXTENDO_RE_EXTENDING;
+                        extendo.setTarget(RE_RETRACT_TARGET);
+                        timer.reset();
+                    }
+                    break;
+                } else if (deposit.readyToTransfer()) {
                     state = BUCKET_RETRACTING;
-                else break;
+                } else break;
 
             case BUCKET_RETRACTING:
 
