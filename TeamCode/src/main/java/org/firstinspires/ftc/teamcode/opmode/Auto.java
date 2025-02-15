@@ -122,7 +122,6 @@ public final class Auto extends LinearOpMode {
             WAIT_POST_INTAKING = 0,
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.1,
-            WAIT_SCORE_SPEC_PRELOAD = 0.75,
             WAIT_DROP_TO_EXTEND = 0.2,
             WAIT_INTAKE_RETRACT_POST_SUB = 0,
             WAIT_EXTEND_MAX_SPIKE = 0.75,
@@ -227,7 +226,7 @@ public final class Auto extends LinearOpMode {
 
         ElapsedTime timer = new ElapsedTime();
 
-        EditablePose sub1Edited = sub1, sub2Edited = sub2;
+        EditablePose sub1Edited = sub1.clone(), sub2Edited = sub2.clone();
 
         config:
         while (opModeInInit() && timer.seconds() < 5) {
@@ -315,7 +314,7 @@ public final class Auto extends LinearOpMode {
                 mTelemetry.addLine();
                 mTelemetry.addLine((specimenPreload ? "Specimen" : "Sample") + " preload" + selection.markIf(EDITING_PRELOAD));
                 mTelemetry.addLine();
-                mTelemetry.addLine((usePartnerSample ? "Use" : "Don't use") + " partner's sample" + selection.markIf(EDITING_PRELOAD));
+                mTelemetry.addLine((usePartnerSample ? "Use" : "Don't use") + " partner's sample" + selection.markIf(EDITING_PARTNER_SAMPLE));
             }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
