@@ -888,11 +888,13 @@ public final class Auto extends LinearOpMode {
 
     private static Action approachSub(Robot robot) {
         return new SequentialAction(
-                sweep(robot),
+                new InstantAction(() -> robot.sweeper.setActivated(true)),
+                new SleepAction(WAIT_SWEEPER_EXTEND),
                 new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
                 new SleepAction(WAIT_DROP_TO_EXTEND),
                 new InstantAction(() -> robot.intake.extendo.runManual(SPEED_EXTEND)),
-                new SleepAction(TIME_EXTEND)
+                new SleepAction(TIME_EXTEND),
+                new InstantAction(() -> robot.sweeper.setActivated(false))
         );
     }
 
