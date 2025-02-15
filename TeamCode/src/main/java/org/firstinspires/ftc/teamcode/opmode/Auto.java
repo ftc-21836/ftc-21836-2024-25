@@ -114,7 +114,7 @@ public final class Auto extends LinearOpMode {
             SPEED_SPIKE_TURNING = 2,
             SPEED_SWEEPING_SUB = 6.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
-            SPEED_INCHING = 6.5,
+            SPEED_INCHING = 8,
             SPEED_INCHING_TURNING = 0.75,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
