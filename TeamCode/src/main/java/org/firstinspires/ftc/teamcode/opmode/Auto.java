@@ -715,7 +715,7 @@ public final class Auto extends LinearOpMode {
 
                         case SCORING:
                             if (trajDone) {
-                                if (remaining < TIME_CYCLE) {
+                                if (remaining < TIME_CYCLE || subCycle > 2) {
                                     activeTraj = park;
                                     state = PARKING;
                                     stopDt();
