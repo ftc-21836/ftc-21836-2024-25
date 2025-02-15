@@ -155,7 +155,7 @@ public final class Auto extends LinearOpMode {
             basket = new EditablePose(-57.5, -55.5, PI / 4),
 
             sub1 = new EditablePose(-22.5, -11, 0),
-            sub2 = new EditablePose(sub1.x, -6, 0),
+            sub2 = new EditablePose(sub1.x, -4, 0),
 
             basketFromSub = new EditablePose(-60, -56, 0.765),
 
