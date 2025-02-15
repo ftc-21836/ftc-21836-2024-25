@@ -108,6 +108,10 @@ public final class Auto extends LinearOpMode {
             TIME_EXTEND = 0.6,
             TIME_RETRACT = 0.4,
             WAIT_RE_SWEEP = 0.65,
+            SPEED_PRE_SLAM_BUCKET = 0.4,
+            WAIT_PRE_SLAM_BUCKET = 0.25,
+            SPEED_SLAMMING_BUCKET = 1.1,
+            WAIT_SLAMMING_BUCKET = 0.25,
             SPEED_INTAKING = 1,
             SPEED_EXTEND = 1,
             SPEED_RETRACT = -0.6,
@@ -757,18 +761,18 @@ public final class Auto extends LinearOpMode {
                                 Pose2d current = robot.drivetrain.pose;
                                 double y = current.position.y;
 
-                                robot.intake.retractBucketBeforeExtendo = true;
+//                                robot.intake.retractBucketBeforeExtendo = true;
                                 robot.deposit.pauseBeforeAutoRetractingLift = true;
 
                                 activeTraj = robot.drivetrain.actionBuilder(new Pose2d(sub1.x, y, 0))
                                         .stopAndAdd(intake(robot))
-//                                        .stopAndAdd(new SequentialAction(
-//                                                new InstantAction(() -> robot.intake.runRoller(SPEED_PRE_SLAM_BUCKET)),
-//                                                new SleepAction(WAIT_PRE_SLAM_BUCKET),
-//                                                new InstantAction(() -> robot.intake.runRoller(SPEED_SLAMMING_BUCKET)),
-//                                                new SleepAction(WAIT_SLAMMING_BUCKET),
-//                                                new InstantAction(() -> robot.intake.runRoller(0))
-//                                        ))
+                                        .stopAndAdd(new SequentialAction(
+                                                new InstantAction(() -> robot.intake.runRoller(SPEED_PRE_SLAM_BUCKET)),
+                                                new SleepAction(WAIT_PRE_SLAM_BUCKET),
+                                                new InstantAction(() -> robot.intake.runRoller(SPEED_SLAMMING_BUCKET)),
+                                                new SleepAction(WAIT_SLAMMING_BUCKET),
+                                                new InstantAction(() -> robot.intake.runRoller(0))
+                                        ))
                                         .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                                         .afterDisp(12, () -> robot.sweeper.setActivated(true))
