@@ -146,7 +146,7 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, toRadians(2)),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
-            intakingPartnerSample = new EditablePose(-20,7 - SIZE_HALF_FIELD, 0),
+            intakingPartnerSample = new EditablePose(-29,7 - SIZE_HALF_FIELD, 0),
 
             intaking1 = new EditablePose(-54.6,-50, toRadians(84.36)),
             intaking2 = new EditablePose(-56.85,-50.9, toRadians(105)),
@@ -450,7 +450,7 @@ public final class Auto extends LinearOpMode {
                         robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(200);
                     })
-                    .splineTo(intakingPartnerSample.toVector2d(), intakingPartnerSample.heading, spikeConstraint)
+                    .strafeToSplineHeading(intakingPartnerSample.toVector2d(), intakingPartnerSample.heading, spikeConstraint)
                     .afterTime(0, () -> {
                         robot.intake.extendo.setExtended(true);
                         timer.reset();
