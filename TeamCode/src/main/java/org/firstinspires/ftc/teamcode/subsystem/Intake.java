@@ -25,6 +25,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
+import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
@@ -32,6 +33,8 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 public final class Intake {
 
     public static double
+            ANGLE_SWEEPER_STANDBY = 6,
+            ANGLE_SWEEPER_SWEPT = 103,
 
             ANGLE_BUCKET_RETRACTED = 5,
             ANGLE_BUCKET_PRE_TRANSFER = 5,
@@ -120,6 +123,8 @@ public final class Intake {
     
     private final TouchSensor bucketSensor;
 
+    public final SimpleServoPivot sweeper;
+
     public final Extendo extendo;
 
     private Intake.State state = STANDBY;
@@ -153,6 +158,11 @@ public final class Intake {
         colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
+
+        sweeper = new SimpleServoPivot(
+                ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT,
+                CachedSimpleServo.getGBServo(hardwareMap, "sweeper")
+        );
     }
 
     void run(Deposit deposit, boolean stopRoller) {
@@ -212,6 +222,7 @@ public final class Intake {
                 if (extendo.atPosition(RE_RETRACT_TARGET) || timer.seconds() > TIME_AFTER_RE_RETRACT) {
                     state = EXTENDO_RETRACTING;
                     timer.reset();
+                    sweeper.setActivated(false);
                 } else break;
 
             case EXTENDO_RETRACTING:
@@ -224,9 +235,9 @@ public final class Intake {
                 );
                 extendo.setExtended(false);
 
-
                 if (extendo.isExtended()) {
                     if (timer.seconds() >= TIME_BEFORE_RE_RETRACT) {
+                        sweeper.setActivated(true);
                         state = EXTENDO_RE_EXTENDING;
                         extendo.setTarget(RE_RETRACT_TARGET);
                         timer.reset();
@@ -270,6 +281,9 @@ public final class Intake {
                 
                 break;
         }
+
+        sweeper.updateAngles(ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT);
+        sweeper.run();
 
         extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
     }

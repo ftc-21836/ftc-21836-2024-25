@@ -462,9 +462,9 @@ public final class Auto extends LinearOpMode {
 
             Action scorePartnerSample = robot.drivetrain.actionBuilder(intakingPartnerSample.toPose2d())
                     .stopAndAdd(intake(robot))
-                    .afterTime(0, () -> robot.sweeper.setActivated(true))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(true))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .afterTime(0, () -> robot.sweeper.setActivated(false))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(false))
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
@@ -500,9 +500,9 @@ public final class Auto extends LinearOpMode {
 
             Action score1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
                     .stopAndAdd(intake(robot))
-                    .afterTime(0, () -> robot.sweeper.setActivated(true))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(true))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .afterTime(0, () -> robot.sweeper.setActivated(false))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(false))
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
@@ -523,9 +523,9 @@ public final class Auto extends LinearOpMode {
 
             Action score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .stopAndAdd(intake(robot))
-                    .afterTime(0, () -> robot.sweeper.setActivated(true))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(true))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .afterTime(0, () -> robot.sweeper.setActivated(false))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(false))
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
@@ -546,9 +546,9 @@ public final class Auto extends LinearOpMode {
 
             Action score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
                     .stopAndAdd(intake(robot))
-                    .afterTime(0, () -> robot.sweeper.setActivated(true))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(true))
                     .strafeToSplineHeading(basket.toVector2d(), basket.heading)
-                    .afterTime(0, () -> robot.sweeper.setActivated(false))
+                    .afterTime(0, () -> robot.intake.sweeper.setActivated(false))
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
@@ -775,9 +775,9 @@ public final class Auto extends LinearOpMode {
                                         ))
                                         .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
-                                        .afterDisp(12, () -> robot.sweeper.setActivated(true))
+                                        .afterDisp(12, () -> robot.intake.sweeper.setActivated(true))
                                         .splineTo(basketFromSub.toVector2d(), PI + basketFromSub.heading)
-                                        .afterTime(0, () -> robot.sweeper.setActivated(false))
+                                        .afterTime(0, () -> robot.intake.sweeper.setActivated(false))
                                         .stopAndAdd(scoreSample(robot))
                                         .build();
 
@@ -875,9 +875,9 @@ public final class Auto extends LinearOpMode {
 
     private static Action sweep(Robot robot) {
         return new SequentialAction(
-                new InstantAction(() -> robot.sweeper.setActivated(true)),
+                new InstantAction(() -> robot.intake.sweeper.setActivated(true)),
                 new SleepAction(WAIT_SWEEPER_EXTEND),
-                new InstantAction(() -> robot.sweeper.setActivated(false)),
+                new InstantAction(() -> robot.intake.sweeper.setActivated(false)),
                 new SleepAction(WAIT_SWEEPER_RETRACT)
         );
     }
@@ -892,13 +892,13 @@ public final class Auto extends LinearOpMode {
 
     private static Action approachSub(Robot robot) {
         return new SequentialAction(
-                new InstantAction(() -> robot.sweeper.setActivated(true)),
+                new InstantAction(() -> robot.intake.sweeper.setActivated(true)),
                 new SleepAction(WAIT_SWEEPER_EXTEND),
                 new InstantAction(() -> robot.intake.runRoller(SPEED_INTAKING)),
                 new SleepAction(WAIT_DROP_TO_EXTEND),
                 new InstantAction(() -> robot.intake.extendo.runManual(SPEED_EXTEND)),
                 new SleepAction(TIME_EXTEND),
-                new InstantAction(() -> robot.sweeper.setActivated(false))
+                new InstantAction(() -> robot.intake.sweeper.setActivated(false))
         );
     }
 

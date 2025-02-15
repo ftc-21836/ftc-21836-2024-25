@@ -229,7 +229,7 @@ public final class Tele extends LinearOpMode {
                 robot.deposit.setPosition(FLOOR);
             }
 
-            robot.sweeper.setActivated(gamepadEx1.isDown(A));
+            robot.intake.sweeper.setActivated(gamepadEx1.isDown(A));
 
             robot.run();
 
