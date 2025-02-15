@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
+import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
@@ -10,6 +11,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.CONFIRMING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PARTNER_SAMPLE;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PARTNER_SAMPLE_X;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PUSHING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SUB_1_Y;
@@ -186,6 +188,7 @@ public final class Auto extends LinearOpMode {
         EDITING_SIDE,
         EDITING_PRELOAD,
         EDITING_PARTNER_SAMPLE,
+        EDITING_PARTNER_SAMPLE_X,
         EDITING_WAIT,
         EDITING_SUB_1_Y,
         EDITING_SUB_2_Y,
@@ -241,14 +244,16 @@ public final class Auto extends LinearOpMode {
             boolean y = gamepadEx1.wasJustPressed(Y);
             boolean x = gamepadEx1.wasJustPressed(X);
             boolean a = gamepadEx1.wasJustPressed(A);
+            boolean b = gamepadEx1.wasJustPressed(B);
 
-            if (up || down || y || a || x) timer.reset();
+            if (up || down || y || a || x || b) timer.reset();
 
             if (up) {
                 do selection = selection.plus(-1);
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_PARTNER_SAMPLE && specimenSide ||
+                        selection == EDITING_PARTNER_SAMPLE_X && specimenSide && !usePartnerSample ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
                         selection == EDITING_SUB_1_Y && specimenSide ||
                         selection == EDITING_SUB_2_Y && specimenSide ||
@@ -260,6 +265,7 @@ public final class Auto extends LinearOpMode {
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_PARTNER_SAMPLE && specimenSide ||
+                        selection == EDITING_PARTNER_SAMPLE_X && specimenSide && !usePartnerSample ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
                         selection == EDITING_SUB_1_Y && specimenSide ||
                         selection == EDITING_SUB_2_Y && specimenSide ||
@@ -280,6 +286,10 @@ public final class Auto extends LinearOpMode {
                     break;
                 case EDITING_PARTNER_SAMPLE:
                     if (!specimenSide && x) usePartnerSample = !usePartnerSample;
+                    break;
+                case EDITING_PARTNER_SAMPLE_X:
+                    if (!specimenSide && usePartnerSample && b) intakingPartnerSample.x++;
+                    if (!specimenSide && usePartnerSample && x) intakingPartnerSample.x--;
                     break;
                 case EDITING_WAIT:
                     if ((specimenPreload || specimenSide) && y) partnerWait++;
@@ -318,7 +328,11 @@ public final class Auto extends LinearOpMode {
                 mTelemetry.addLine();
                 mTelemetry.addLine((specimenPreload ? "Specimen" : "Sample") + " preload" + selection.markIf(EDITING_PRELOAD));
                 mTelemetry.addLine();
-                mTelemetry.addLine((usePartnerSample ? "Use" : "Don't use") + " partner's sample" + selection.markIf(EDITING_PARTNER_SAMPLE));
+                mTelemetry.addLine((usePartnerSample ? "Teamwork makes the dream work" : "Lonely sad") + selection.markIf(EDITING_PARTNER_SAMPLE));
+                if (usePartnerSample) {
+                    mTelemetry.addLine();
+                    mTelemetry.addLine("Partner sample X = " + intakingPartnerSample.x + selection.markIf(EDITING_PARTNER_SAMPLE_X));
+                }
             }
             if (specimenPreload || specimenSide) {
                 mTelemetry.addLine();
