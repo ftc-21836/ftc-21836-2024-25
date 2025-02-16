@@ -47,6 +47,8 @@ public final class Intake {
             TIME_PRE_TRANSFER = 0,
             TIME_TRANSFER = 0.3,
 
+            TIME_MAX_BUCKET_RETRACT = 0.75,
+
             TIME_BEFORE_RE_RETRACT = 0.65,
             TIME_AFTER_RE_RETRACT = 0.65,
             RE_RETRACT_TARGET = 150,
@@ -245,6 +247,7 @@ public final class Intake {
                     break;
                 } else if (deposit.readyToTransfer()) {
                     state = BUCKET_RETRACTING;
+                    timer.reset();
                 } else break;
 
             case BUCKET_RETRACTING:
@@ -253,7 +256,7 @@ public final class Intake {
                 roller.setPower(stopRoller ? 0 : SPEED_INTERFACING);
                 extendo.setExtended(false);
 
-                if (bucketSensor.isPressed()) {
+                if (bucketSensor.isPressed() || timer.seconds() >= TIME_MAX_BUCKET_RETRACT) {
                     state = BUCKET_SETTLING;
                     timer.reset();
                 } else break;
