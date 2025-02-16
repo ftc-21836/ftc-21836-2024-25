@@ -770,7 +770,7 @@ public final class Auto extends LinearOpMode {
                                 robot.intake.extendo.runManual(0);
                                 robot.intake.ejectSample();
                                 robot.intake.runRoller(0);
-                                Deposit.level1Ascent = true;
+//                                Deposit.level1Ascent = true;
                                 timer.reset();
                                 stopDt();
                                 state = PARKING;
