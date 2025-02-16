@@ -67,7 +67,7 @@ public final class Intake {
             minRed = new HSV(
                     0,
                     0.25,
-                    0.02
+                    0.008
             ),
             maxRed = new HSV(
                     30,
