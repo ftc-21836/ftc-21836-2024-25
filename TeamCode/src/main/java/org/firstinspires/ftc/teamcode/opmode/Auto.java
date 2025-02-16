@@ -157,9 +157,9 @@ public final class Auto extends LinearOpMode {
             intaking2 = new EditablePose(-56.85,-50.9, toRadians(105)),
             intaking3 = new EditablePose(-53.5,-43.5, 2 * PI / 3),
 
-            sample1 = new EditablePose(-49.24,-28.3, PI / 2),
+            sample1 = new EditablePose(-50.2,-28.3, PI / 2),
             sample2 = new EditablePose(-58.5,-27.77, PI / 2),
-            sample3 = new EditablePose(-69.2,-26, PI / 2),
+            sample3 = new EditablePose(-69.2,-26.5, PI / 2),
 
             basket = new EditablePose(-57, -55, PI / 4),
 
