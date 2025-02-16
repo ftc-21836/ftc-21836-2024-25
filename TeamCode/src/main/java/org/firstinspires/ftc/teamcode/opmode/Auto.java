@@ -161,12 +161,12 @@ public final class Auto extends LinearOpMode {
             sample2 = new EditablePose(-58.5,-27.77, PI / 2),
             sample3 = new EditablePose(-69.2,-26, PI / 2),
 
-            basket = new EditablePose(-57.5, -55.5, PI / 4),
+            basket = new EditablePose(-57, -55, PI / 4),
 
             sub1 = new EditablePose(-22.5, -11, 0),
             sub2 = new EditablePose(sub1.x, -4, 0),
 
-            basketFromSub = new EditablePose(-60, -56, 0.765),
+            basketFromSub = new EditablePose(-59, -55, 0.765),
 
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
     
