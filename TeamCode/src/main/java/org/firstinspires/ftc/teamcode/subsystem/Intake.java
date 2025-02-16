@@ -44,14 +44,13 @@ public final class Intake {
 
             TIME_EJECTING = 0.5,
             TIME_BUCKET_SEMI_RETRACT = 0.2,
-            TIME_PRE_TRANSFER = 0,
+            TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
+            TIME_MAX_RETRACT_BEFORE_REATTEMPT = 0.65,
+            TIME_MAX_BUCKET_RETRACT = 0.75,
+            TIME_BUCKET_SETTLING = 0,
             TIME_TRANSFER = 0.3,
 
-            TIME_MAX_BUCKET_RETRACT = 0.75,
-
-            TIME_BEFORE_RE_RETRACT = 0.65,
-            TIME_AFTER_RE_RETRACT = 0.65,
-            RE_RETRACT_TARGET = 150,
+            LENGTH_RE_RETRACT_TARGET = 150,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
@@ -221,7 +220,7 @@ public final class Intake {
 
             case EXTENDO_RE_EXTENDING:
 
-                if (extendo.atPosition(RE_RETRACT_TARGET) || timer.seconds() > TIME_AFTER_RE_RETRACT) {
+                if (extendo.atPosition(LENGTH_RE_RETRACT_TARGET) || timer.seconds() > TIME_MAX_EXTEND_BEFORE_RE_RETRACT) {
                     state = EXTENDO_RETRACTING;
                     timer.reset();
                     sweeper.setActivated(false);
@@ -238,10 +237,10 @@ public final class Intake {
                 extendo.setExtended(false);
 
                 if (extendo.isExtended()) {
-                    if (timer.seconds() >= TIME_BEFORE_RE_RETRACT) {
+                    if (timer.seconds() >= TIME_MAX_RETRACT_BEFORE_REATTEMPT) {
                         sweeper.setActivated(true);
                         state = EXTENDO_RE_EXTENDING;
-                        extendo.setTarget(RE_RETRACT_TARGET);
+                        extendo.setTarget(LENGTH_RE_RETRACT_TARGET);
                         timer.reset();
                     }
                     break;
@@ -267,7 +266,7 @@ public final class Intake {
                 roller.setPower(stopRoller ? 0 : SPEED_PRE_TRANSFER);
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_PRE_TRANSFER) {
+                if (timer.seconds() >= TIME_BUCKET_SETTLING) {
                     state = TRANSFERRING;
                     deposit.transfer(sample);
                     sample = null;
