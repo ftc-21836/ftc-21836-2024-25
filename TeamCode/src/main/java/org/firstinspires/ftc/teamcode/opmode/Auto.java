@@ -97,6 +97,7 @@ public final class Auto extends LinearOpMode {
     }
 
     public static double
+            DEAD_TIME = 0.5,
             LENGTH_ROBOT = 17.30327,
             WIDTH_ROBOT = 16.42126,
             SIZE_HALF_FIELD = 70.5,
@@ -632,7 +633,7 @@ public final class Auto extends LinearOpMode {
                 public boolean run(@NonNull TelemetryPacket p) {
                     if (matchTimer == null) matchTimer = new ElapsedTime();
 
-                    double remaining = 30 - matchTimer.seconds();
+                    double remaining = (30 - DEAD_TIME) - matchTimer.seconds();
 
                     boolean trajDone = !activeTraj.run(p);
 
@@ -863,6 +864,8 @@ public final class Auto extends LinearOpMode {
         robot.drivetrain.pinpoint.setPositionRR(pose);
 
         Actions.runBlocking(auton);
+
+        Thread.sleep((long) (DEAD_TIME * 1000));
     }
 
     private static Action scoreSample(Robot robot) {
