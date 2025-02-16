@@ -116,6 +116,7 @@ public final class Auto extends LinearOpMode {
             WAIT_PRE_SLAM_BUCKET = 0.25,
             SPEED_SLAMMING_BUCKET = 1.1,
             WAIT_SLAMMING_BUCKET = 0.35,
+            SPEED_PRE_INTAKING_GLIDING = 0.7,
             SPEED_INTAKING = 1,
             SPEED_EXTEND = 1,
             SPEED_RETRACT = -0.6,
@@ -463,11 +464,12 @@ public final class Auto extends LinearOpMode {
 
             Action intakePartnerSample = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
-                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.runRoller(SPEED_PRE_INTAKING_GLIDING);
                         robot.intake.extendo.setTarget(200);
                     })
                     .strafeToSplineHeading(intakingPartnerSample.toVector2d(), intakingPartnerSample.heading, spikeConstraint)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setExtended(true);
                         timer.reset();
                     })
@@ -486,11 +488,12 @@ public final class Auto extends LinearOpMode {
 
             Action intakingPartnerTo1 = robot.drivetrain.actionBuilder(intakingPartnerSample.toPose2d())
                     .afterTime(0, () -> {
-                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.runRoller(SPEED_PRE_INTAKING_GLIDING);
                         robot.intake.extendo.setTarget(200);
                     })
                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                         timer.reset();
                     })
@@ -501,11 +504,12 @@ public final class Auto extends LinearOpMode {
 
             Action intake1 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
-                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.runRoller(SPEED_PRE_INTAKING_GLIDING);
                         robot.intake.extendo.setTarget(200);
                     })
                     .strafeToSplineHeading(intaking1.toVector2d(), intaking1.heading, spikeConstraint)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                         timer.reset();
                     })
@@ -524,11 +528,12 @@ public final class Auto extends LinearOpMode {
 
             Action intake2 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
-                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.runRoller(SPEED_PRE_INTAKING_GLIDING);
                         robot.intake.extendo.setTarget(200);
                     })
                     .strafeToSplineHeading(intaking2.toVector2d(), intaking2.heading, spikeConstraint)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         timer.reset();
                     })
@@ -547,11 +552,12 @@ public final class Auto extends LinearOpMode {
 
             Action intake3 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> {
-                        robot.intake.runRoller(SPEED_INTAKING);
+                        robot.intake.runRoller(SPEED_PRE_INTAKING_GLIDING);
                         robot.intake.extendo.setTarget(200);
                     })
                     .strafeToSplineHeading(intaking3.toVector2d(), intaking3.heading, spikeConstraint)
                     .afterTime(0, () -> {
+                        robot.intake.runRoller(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                         timer.reset();
                     })
