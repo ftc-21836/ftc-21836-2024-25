@@ -37,7 +37,7 @@ public final class Intake {
             ANGLE_SWEEPER_SWEPT = 103,
 
             ANGLE_BUCKET_RETRACTED = 5,
-            ANGLE_BUCKET_PRE_TRANSFER = 5,
+            ANGLE_BUCKET_PRE_TRANSFER = 35,
             ANGLE_BUCKET_OVER_BARRIER = 140,
             ANGLE_BUCKET_INTAKING_NEAR = 206,
             ANGLE_BUCKET_INTAKING_FAR = 203.5,
