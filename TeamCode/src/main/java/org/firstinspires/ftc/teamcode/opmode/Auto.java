@@ -102,6 +102,7 @@ public final class Auto extends LinearOpMode {
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
+            DISTANCE_FROM_BASKET_SWEEP = 36.5,
             EXTEND_SAMPLE_1 = 410,
             EXTEND_SAMPLE_2 = 395,
             EXTEND_SAMPLE_3 = 350,
@@ -575,7 +576,7 @@ public final class Auto extends LinearOpMode {
 
             Action toSub1 = robot.drivetrain.actionBuilder(basket.toPose2d())
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_1))
-                    .afterDisp(40, sweep(robot))
+                    .afterDisp(DISTANCE_FROM_BASKET_SWEEP, sweep(robot))
                     .setTangent(basket.heading)
                     .splineTo(sub1Edited.toVector2d(), sub1Edited.heading)
                     .stopAndAdd(approachSub(robot))
@@ -588,7 +589,7 @@ public final class Auto extends LinearOpMode {
 
             Action toSub2 = robot.drivetrain.actionBuilder(basketFromSub.toPose2d())
                     .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR_2))
-                    .afterDisp(40, sweep(robot))
+                    .afterDisp(DISTANCE_FROM_BASKET_SWEEP, sweep(robot))
                     .setTangent(basketFromSub.heading)
                     .splineTo(sub2Edited.toVector2d(), sub2Edited.heading)
                     .stopAndAdd(approachSub(robot))
