@@ -254,7 +254,7 @@ public final class Auto extends LinearOpMode {
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_PARTNER_SAMPLE && specimenSide ||
-                        selection == EDITING_PARTNER_SAMPLE_X && specimenSide && !usePartnerSample ||
+                        selection == EDITING_PARTNER_SAMPLE_X && (specimenSide || !usePartnerSample) ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
                         selection == EDITING_SUB_1_Y && specimenSide ||
                         selection == EDITING_SUB_2_Y && specimenSide ||
@@ -266,7 +266,7 @@ public final class Auto extends LinearOpMode {
                 while (
                         selection == EDITING_PRELOAD && specimenSide ||
                         selection == EDITING_PARTNER_SAMPLE && specimenSide ||
-                        selection == EDITING_PARTNER_SAMPLE_X && specimenSide && !usePartnerSample ||
+                        selection == EDITING_PARTNER_SAMPLE_X && (specimenSide || !usePartnerSample) ||
                         selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
                         selection == EDITING_SUB_1_Y && specimenSide ||
                         selection == EDITING_SUB_2_Y && specimenSide ||
