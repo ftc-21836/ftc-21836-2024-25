@@ -103,7 +103,7 @@ public final class Auto extends LinearOpMode {
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
-            DISTANCE_FROM_BASKET_SWEEP = 36.5,
+            DISTANCE_FROM_BASKET_SWEEP = 30,
             EXTEND_SAMPLE_1 = 410,
             EXTEND_SAMPLE_2 = 395,
             EXTEND_SAMPLE_3 = 350,
