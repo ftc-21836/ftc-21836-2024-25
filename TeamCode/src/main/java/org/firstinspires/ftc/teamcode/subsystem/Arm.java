@@ -18,13 +18,13 @@ public final class Arm {
     public static double
             TIME_RETRACTED_TO_SAMPLE = 0.8,
             TIME_SAMPLE_TO_RETRACTED = 0.4,
-            TIME_SAMPLE_TO_IN_BASKET = 0.3,
+            TIME_SAMPLE_TO_IN_BASKET = 0.15,
             TIME_RETRACTED_TO_INTAKING = 0.65,
             TIME_INTAKING_TO_SPEC = 1,
             TIME_SPEC_TO_RETRACTED = 0.4;
 
     public static Arm.Position
-            TRANSFER =      new Arm.Position(15, 107, "TRANSFER"),
+            TRANSFER =      new Arm.Position(25, 97, "TRANSFER"),
             INTAKING =      new Arm.Position(175, 20, "INTAKING"),
             SPECIMEN =      new Arm.Position(240, 220, "SPECIMEN"),
             SPEC_PRELOAD =  new Arm.Position(205, 42, "SPEC PRELOAD"),
@@ -54,7 +54,9 @@ public final class Arm {
                 target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
                 target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
                 target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
-                target == SCORING_SAMPLE ?  TIME_SAMPLE_TO_IN_BASKET :
+                target == SCORING_SAMPLE ?
+                        lastTarget == SAMPLE ?          TIME_SAMPLE_TO_IN_BASKET :
+                                                        TIME_RETRACTED_TO_SAMPLE + TIME_SAMPLE_TO_IN_BASKET :
                 target == TRANSFER ?
                         lastTarget == SAMPLE ?          TIME_SAMPLE_TO_RETRACTED :
                         lastTarget == SCORING_SAMPLE ?  TIME_SAMPLE_TO_RETRACTED :

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
@@ -7,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SEMI_
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RE_EXTENDING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
@@ -23,6 +25,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
+import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
@@ -30,17 +33,24 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 public final class Intake {
 
     public static double
+            ANGLE_SWEEPER_STANDBY = 6,
+            ANGLE_SWEEPER_SWEPT = 103,
 
-            ANGLE_BUCKET_RETRACTED = 7.5,
-            ANGLE_BUCKET_PRE_TRANSFER = 25,
+            ANGLE_BUCKET_RETRACTED = 5,
+            ANGLE_BUCKET_PRE_TRANSFER = 35,
             ANGLE_BUCKET_OVER_BARRIER = 140,
-            ANGLE_BUCKET_INTAKING_NEAR = 213,
-            ANGLE_BUCKET_INTAKING_FAR = 213,
+            ANGLE_BUCKET_INTAKING_NEAR = 206,
+            ANGLE_BUCKET_INTAKING_FAR = 203.5,
 
             TIME_EJECTING = 0.5,
             TIME_BUCKET_SEMI_RETRACT = 0.2,
-            TIME_PRE_TRANSFER = 0.15,
-            TIME_TRANSFER = 0.15,
+            TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
+            TIME_MAX_RETRACT_BEFORE_REATTEMPT = 0.65,
+            TIME_MAX_BUCKET_RETRACT = 0.75,
+            TIME_BUCKET_SETTLING = 0,
+            TIME_TRANSFER = 0.3,
+
+            LENGTH_RE_RETRACT_TARGET = 150,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
@@ -57,7 +67,7 @@ public final class Intake {
             minRed = new HSV(
                     0,
                     0.25,
-                    0.02
+                    0.008
             ),
             maxRed = new HSV(
                     30,
@@ -77,7 +87,7 @@ public final class Intake {
             minBlue = new HSV(
                     215,
                     0.6,
-                    0.02
+                    0.008
             ),
             maxBlue = new HSV(
                     230,
@@ -96,6 +106,8 @@ public final class Intake {
                 null;
     }
 
+    public boolean retractBucketBeforeExtendo = true;
+
     private final CRServo roller;
     private double rollerSpeed;
 
@@ -112,6 +124,8 @@ public final class Intake {
     
     private final TouchSensor bucketSensor;
 
+    public final SimpleServoPivot sweeper;
+
     public final Extendo extendo;
 
     private Intake.State state = STANDBY;
@@ -122,6 +136,7 @@ public final class Intake {
         EJECTING_SAMPLE,
         STANDBY,
         BUCKET_SEMI_RETRACTING,
+        EXTENDO_RE_EXTENDING,
         EXTENDO_RETRACTING,
         BUCKET_RETRACTING,
         BUCKET_SETTLING,
@@ -144,6 +159,11 @@ public final class Intake {
         colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
         bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
+
+        sweeper = new SimpleServoPivot(
+                ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT,
+                CachedSimpleServo.getGBServo(hardwareMap, "sweeper")
+        );
     }
 
     void run(Deposit deposit, boolean stopRoller) {
@@ -162,16 +182,16 @@ public final class Intake {
 
             case STANDBY:
 
-                if (rollerSpeed != 0) { // intaking, trigger held down
+                if (rollerSpeed != 0 && !stopRoller && !deposit.hasSample()) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
-                    roller.setPower(stopRoller || deposit.hasSample() ? 0 : rollerSpeed);
+                    roller.setPower(rollerSpeed / SPEED_INTAKING);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
                     if (getSample() == badSample) ejectSample();
-
+                    
                     break;
                     
                 } else if (!hasSample()) { // retracted
@@ -180,21 +200,31 @@ public final class Intake {
                     roller.setPower(
                         stopRoller ? 0 :
                         deposit.hasSample() && !clearOfDeposit() && deposit.requestingIntakeToMove() ? SPEED_POST_TRANSFER :
-                        deposit.isRetracted() ? SPEED_RETRACTED : 0
+                        deposit.arm.movingNearIntake() ? SPEED_RETRACTED : 0
                     );
 
                     break;
 
-                } else transfer(sample); // trigger released, sample acquired, initiate transfer
+                } else transfer(sample);
 
             case BUCKET_SEMI_RETRACTING:
 
                 setBucket(ANGLE_BUCKET_PRE_TRANSFER);
                 roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed())
+                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed() || !extendo.isExtended() ||!retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
+                    timer.reset();
+                }
                 else break;
+
+            case EXTENDO_RE_EXTENDING:
+
+                if (extendo.atPosition(LENGTH_RE_RETRACT_TARGET) || timer.seconds() > TIME_MAX_EXTEND_BEFORE_RE_RETRACT) {
+                    state = EXTENDO_RETRACTING;
+                    timer.reset();
+                    sweeper.setActivated(false);
+                } else break;
 
             case EXTENDO_RETRACTING:
 
@@ -206,9 +236,18 @@ public final class Intake {
                 );
                 extendo.setExtended(false);
 
-                if (!extendo.isExtended() && deposit.readyToTransfer())
+                if (extendo.isExtended()) {
+                    if (timer.seconds() >= TIME_MAX_RETRACT_BEFORE_REATTEMPT) {
+                        sweeper.setActivated(true);
+                        state = EXTENDO_RE_EXTENDING;
+                        extendo.setTarget(LENGTH_RE_RETRACT_TARGET);
+                        timer.reset();
+                    }
+                    break;
+                } else if (deposit.readyToTransfer()) {
                     state = BUCKET_RETRACTING;
-                else break;
+                    timer.reset();
+                } else break;
 
             case BUCKET_RETRACTING:
 
@@ -216,7 +255,7 @@ public final class Intake {
                 roller.setPower(stopRoller ? 0 : SPEED_INTERFACING);
                 extendo.setExtended(false);
 
-                if (bucketSensor.isPressed()) {
+                if (bucketSensor.isPressed() || timer.seconds() >= TIME_MAX_BUCKET_RETRACT) {
                     state = BUCKET_SETTLING;
                     timer.reset();
                 } else break;
@@ -227,7 +266,7 @@ public final class Intake {
                 roller.setPower(stopRoller ? 0 : SPEED_PRE_TRANSFER);
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_PRE_TRANSFER) {
+                if (timer.seconds() >= TIME_BUCKET_SETTLING) {
                     state = TRANSFERRING;
                     deposit.transfer(sample);
                     sample = null;
@@ -244,6 +283,9 @@ public final class Intake {
                 
                 break;
         }
+
+        sweeper.updateAngles(ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT);
+        sweeper.run();
 
         extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
     }

@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
-@TeleOp
+@TeleOp(group = "A - inspection")
 public final class Sizing extends LinearOpMode {
 
     @Override

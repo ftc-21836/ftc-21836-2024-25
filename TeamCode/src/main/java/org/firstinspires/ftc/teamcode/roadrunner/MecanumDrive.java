@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
 
+import static org.firstinspires.ftc.teamcode.opmode.Auto.admissibleError;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.admissibleVel;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static java.lang.Math.PI;
+import static java.lang.Math.abs;
 import static java.lang.Math.cos;
+import static java.lang.Math.hypot;
 import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 
@@ -84,33 +88,6 @@ public class MecanumDrive {
 
         /* Counter-rotate x and y by robot heading for field centric driving
         *
-        * setDrivePower(double) assumes the entered x and y are in the robot coordinate frame
-        * Entering x and y in field frame (left) is then interpreted as rotated π/2 counterclockwise (+π/2)
-        *
-        * |---------------|               |---------------|
-        * |       Y+      |               |       X+      |
-        * |       ----X+--|     ---->     |--Y+----       |
-        * |               |               |               |
-        * |               |               |               |
-        * |---------------|               |---------------|
-        * Control stick/field frame        Robot frame
-        *
-        * This would cause a forward command (Y=1) to drive the drivetrain left
-        * We counteract this by rotating the input x and y from field frame π/2 clockwise (-π/2)
-        *
-        * |---------------|               |---------------|             |---------------|
-        * |       Y+      |               |               |             |       Y+      |
-        * |       ----X+--|     ---->     |       ----Y+--|     ---->   |       ----X+--|
-        * |               |               |       |       |             |               |
-        * |               |               |       X+      |             |               |
-        * |---------------|               |---------------|             |---------------|
-        * Control stick/field frame             Rotated                    Robot frame
-        *
-        *      ^ Same---------------------------------------------------------Same ^
-        *
-        * Using the robot angle in field frame directly as the rotation angle produces field-centric
-        * behavior-- this works as π/2 is the angle for facing forward in field frame
-        *
         * Robot-relative:
         * Using a constant π/2 radians as the robot's heading produces robot-centric behavior,
         * as the robot thinks it is always facing forward
@@ -171,12 +148,12 @@ public class MecanumDrive {
         public double kA = 0.05;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 50;
-        public double minProfileAccel = -30;
-        public double maxProfileAccel = 50;
+        public double maxWheelVel = 85;
+        public double minProfileAccel = -60;
+        public double maxProfileAccel = 60;
 
         // turn profile parameters (in radians)
-        public double maxAngVel = 5.3; // shared with path
+        public double maxAngVel = 5.4; // shared with path
         public double maxAngAccel = 10;
 
         // path controller gains
@@ -387,7 +364,20 @@ public class MecanumDrive {
                 t = Actions.now() - beginTs;
             }
 
-            if (t >= timeTrajectory.duration) {
+            Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
+            targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
+
+            PoseVelocity2d robotVelRobot = updatePoseEstimate();
+
+            Pose2d error = txWorldTarget.value().minusExp(pose);
+
+            if (t >= timeTrajectory.duration
+//                    + 1 || t >= timeTrajectory.duration &&
+//                    error.position.norm() < admissibleError.x &&
+//                    abs(error.heading.toDouble()) < admissibleError.heading &&
+//                    robotVelRobot.linearVel.norm() < admissibleVel.x &&
+//                    abs(robotVelRobot.angVel) < admissibleVel.heading
+            ) {
                 leftFront.setPower(0);
                 leftBack.setPower(0);
                 rightBack.setPower(0);
@@ -395,11 +385,6 @@ public class MecanumDrive {
 
                 return false;
             }
-
-            Pose2dDual<Time> txWorldTarget = timeTrajectory.get(t);
-            targetPoseWriter.write(new PoseMessage(txWorldTarget.value()));
-
-            PoseVelocity2d robotVelRobot = updatePoseEstimate();
 
             PoseVelocity2dDual<Time> command = new HolonomicController(
                     PARAMS.axialGain, PARAMS.lateralGain, PARAMS.headingGain,
@@ -430,7 +415,6 @@ public class MecanumDrive {
             p.put("y", pose.position.y);
             p.put("heading (deg)", toDegrees(pose.heading.toDouble()));
 
-            Pose2d error = txWorldTarget.value().minusExp(pose);
             p.put("xError", error.position.x);
             p.put("yError", error.position.y);
             p.put("headingError (deg)", toDegrees(error.heading.toDouble()));

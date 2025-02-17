@@ -31,32 +31,30 @@ public final class Deposit {
 
     public static double
             ANGLE_CLAW_OPEN = 70,
-            ANGLE_CLAW_TRANSFER = 60,
+            ANGLE_CLAW_TRANSFER = 80,
             ANGLE_CLAW_SLIDING = 40,
             ANGLE_CLAW_CLOSED = 25,
 
-            TIME_SAMPLE_RELEASE = 0.5,
+            TIME_SAMPLE_RELEASE_TO_LIFT_DOWN = 0.6,
+            TIME_SAMPLE_RELEASE_TO_ARM_DOWN = 0.3,
             TIME_SPEC_GRAB = 0.25,
-            TIME_SPEC_RELEASE = 0.5,
+            TIME_SPEC_RELEASE = 0.1,
 
             TOLERANCE_ARM_SCORING_POS = 4,
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_OBSERVATION_ZONE = 0.01,
-            HEIGHT_BASKET_LOW = 3,
-            HEIGHT_BASKET_HIGH = 21,
+            HEIGHT_BASKET_LOW = 3.5,
+            HEIGHT_BASKET_HIGH = 21.5,
+            INCREMENT_REACH_ABOVE_BASKET = 1,
             HEIGHT_INTAKING_SPECIMEN = 0,
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
             HEIGHT_SPECIMEN_SCORED = 4.5,
-            HEIGHT_SPECIMEN_SCORING = 5.5,
+            HEIGHT_SPECIMEN_SCORING = HEIGHT_SPECIMEN_SCORED + 1,
             HEIGHT_SPECIMEN_PRELOAD = 9.5,
             HEIGHT_OFFSET_PRELOAD_SCORED = 10,
-            HEIGHT_OFFSET_PRELOAD_SCORING = 11;
-
-    public boolean isRetracted() {
-        return state == RETRACTED;
-    }
+            HEIGHT_OFFSET_PRELOAD_SCORING = HEIGHT_OFFSET_PRELOAD_SCORED + 1;
 
     enum State {
         RETRACTED           (Arm.TRANSFER),
@@ -93,6 +91,10 @@ public final class Deposit {
 
     public static boolean level1Ascent = false;
 
+    public boolean pauseBeforeAutoRetractingLift = true;
+
+    private double basketHeight = HEIGHT_BASKET_HIGH;
+
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
         arm = new Arm(hardwareMap);
@@ -105,7 +107,7 @@ public final class Deposit {
 
             case SAMPLE_FALLING:
 
-                if (timer.seconds() >= TIME_SAMPLE_RELEASE) {
+                if (timer.seconds() >= (pauseBeforeAutoRetractingLift ? TIME_SAMPLE_RELEASE_TO_LIFT_DOWN : TIME_SAMPLE_RELEASE_TO_ARM_DOWN)) {
                     state = RETRACTED;
                     setPosition(FLOOR);
                 }
@@ -130,31 +132,31 @@ public final class Deposit {
             case RELEASING_SPEC_PRELOAD:
             case RELEASING_SPECIMEN:
 
-                if (timer.seconds() >= TIME_SPEC_RELEASE) triggerClaw();
+                if (timer.seconds() >= TIME_SPEC_RELEASE) {
+                    state = RETRACTED;
+                    setPosition(FLOOR);
+                }
 
                 break;
 
         }
 
-        double liftPos = lift.getPosition();
-        boolean aboveIntake = liftPos >= HEIGHT_ABOVE_INTAKE;
-        boolean intakeClear = intake.clearOfDeposit();
-
-        boolean atLowBasket = lift.getTarget() != HEIGHT_BASKET_HIGH && abs(liftPos - HEIGHT_BASKET_LOW) <= TOLERANCE_ARM_SCORING_POS;
-        boolean atHighBasket = abs(liftPos - HEIGHT_BASKET_HIGH) <= TOLERANCE_ARM_SCORING_POS;
+        boolean reachedTarget = abs(lift.getPosition() - lift.getTarget()) <= TOLERANCE_ARM_SCORING_POS;
 
         boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && (atLowBasket || atHighBasket);
+        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && reachedTarget;
+        boolean armDown = state == SAMPLE_FALLING && timer.seconds() >= TIME_SAMPLE_RELEASE_TO_ARM_DOWN;
 
         Arm.Position armPosition =
                 level1Ascent ? Arm.ASCENT :
                 obsZone ? Arm.INTAKING :
+                armDown ? Arm.TRANSFER :
                 pointArmIntoBasket ? Arm.SCORING_SAMPLE :
                 state.armPosition;
 
         arm.setTarget(armPosition);
 
-        boolean armCanMove = aboveIntake || intakeClear || !arm.movingNearIntake();
+        boolean armCanMove = lift.getPosition() >= HEIGHT_ABOVE_INTAKE || intake.clearOfDeposit() || !arm.movingNearIntake();
 
         arm.run(armCanMove);
 
@@ -214,7 +216,10 @@ public final class Deposit {
             case SAMPLE_FALLING:
 
                 lift.setTarget(
-                        position == HIGH ?  HEIGHT_BASKET_HIGH :
+                        position == HIGH ?
+                                lift.getTarget() >= HEIGHT_BASKET_HIGH ?
+                                            lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
+                                            HEIGHT_BASKET_HIGH :
                         position == LOW ?   HEIGHT_BASKET_LOW :
                                             HEIGHT_OBSERVATION_ZONE
                 );
@@ -256,11 +261,14 @@ public final class Deposit {
 
             case HAS_SAMPLE:
 
+                basketHeight = lift.getTarget();
                 state = SAMPLE_FALLING;
                 timer.reset();
 
                 break;
 
+            case RELEASING_SPEC_PRELOAD:
+            case RELEASING_SPECIMEN:
             case SAMPLE_FALLING:
             case RETRACTED:
 
@@ -305,14 +313,6 @@ public final class Deposit {
                 timer.reset();
 
                 break;
-
-            case RELEASING_SPEC_PRELOAD:
-            case RELEASING_SPECIMEN:
-
-                state = RETRACTED;
-                setPosition(FLOOR);
-
-                break;
         }
     }
 
@@ -340,7 +340,7 @@ public final class Deposit {
     public void transfer(Sample sample) {
         if (sample == null || state != RETRACTED) return;
         state = HAS_SAMPLE;
-        setPosition(HIGH);
+        lift.setTarget(basketHeight);
         closeClaw();
     }
 
