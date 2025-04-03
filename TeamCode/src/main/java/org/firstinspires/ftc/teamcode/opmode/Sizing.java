@@ -31,16 +31,16 @@ public final class Sizing extends LinearOpMode {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(X)) {
-                if (robot.deposit.hasSample()) {
-                    robot.deposit.triggerClaw();
-                    robot.intake.extendo.setExtended(false);
-                    robot.intake.runRoller(0);
-                } else {
-                    robot.deposit.transfer(NEUTRAL);
-                    robot.deposit.setPosition(Deposit.Position.LOW);
-                    robot.intake.extendo.setExtended(true);
-                    robot.intake.runRoller(0.01);
-                }
+//                if (robot.deposit.hasSample()) {
+//                    robot.deposit.triggerClaw();
+//                    robot.intake.extendo.setExtended(false);
+//                    robot.intake.runRoller(0);
+//                } else {
+//                    robot.deposit.transfer(NEUTRAL);
+//                    robot.deposit.setPosition(Deposit.Position.LOW);
+//                    robot.intake.extendo.setExtended(true);
+//                    robot.intake.runRoller(0.01);
+//                }
             }
 
             robot.run();
