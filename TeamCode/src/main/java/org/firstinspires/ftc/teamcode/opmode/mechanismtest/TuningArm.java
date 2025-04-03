@@ -12,14 +12,15 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.ASCENT;
+import static org.firstinspires.ftc.teamcode.subsystem.Arm.INTAKED;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.INTAKING;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SAMPLE;
-import static org.firstinspires.ftc.teamcode.subsystem.Arm.SCORING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystem.Arm.SPEC_PRELOAD;
+import static org.firstinspires.ftc.teamcode.subsystem.Arm.STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Arm.TRANSFER;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ANGLE_CLAW_CLOSED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ANGLE_CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -39,7 +40,7 @@ public final class TuningArm extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         Arm arm = new Arm(hardwareMap);
-        CachedSimpleServo claw = getGBServo(hardwareMap, "claw").reversed();
+        CachedSimpleServo claw = getAxon(hardwareMap, "claw").reversed();
 
         boolean closed = false;
 
@@ -77,12 +78,12 @@ public final class TuningArm extends LinearOpMode {
                 arm.setTarget(ASCENT);
                 timer.reset();
             }
-            if (gamepadEx1.wasJustPressed(Y)) {
-                arm.setTarget(SCORING_SAMPLE);
+            if (gamepadEx1.wasJustPressed(X)) {
+                arm.setTarget(STANDBY);
                 timer.reset();
             }
-            if (gamepadEx1.wasJustPressed(X)) {
-                arm.setTarget(SPEC_PRELOAD);
+            if (gamepadEx1.wasJustPressed(Y)) {
+                arm.setTarget(INTAKED);
                 timer.reset();
             }
 

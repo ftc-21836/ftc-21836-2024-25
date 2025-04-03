@@ -18,7 +18,7 @@ public final class Robot {
 
     public final PinpointDrive drivetrain;
 //    public final Intake intake;
-//    public final Deposit deposit;
+    public final Deposit deposit;
     public final BulkReader bulkReader;
 
     private final ElapsedTime loopTimer = new ElapsedTime();
@@ -27,12 +27,12 @@ public final class Robot {
         drivetrain = new PinpointDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
 //        intake = new Intake(hardwareMap);
-//        deposit = new Deposit(hardwareMap);
+        deposit = new Deposit(hardwareMap);
     }
 
     public void run() {
 //        intake.run(deposit, activeHooks.isActivated() || Deposit.level1Ascent);
-//        deposit.run(intake, activeHooks.isActivated());
+        deposit.run(false);
     }
 
     public boolean hasSample() {
@@ -47,7 +47,7 @@ public final class Robot {
         drivetrain.printTelemetry();
 //        divider();
 //        intake.printTelemetry();
-//        divider();
-//        deposit.printTelemetry();
+        divider();
+        deposit.printTelemetry();
     }
 }

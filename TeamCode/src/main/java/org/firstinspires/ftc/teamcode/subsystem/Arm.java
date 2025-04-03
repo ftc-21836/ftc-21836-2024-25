@@ -16,21 +16,16 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Arm {
 
     public static double
-            TIME_RETRACTED_TO_SAMPLE = 0.8,
-            TIME_SAMPLE_TO_RETRACTED = 0.4,
-            TIME_SAMPLE_TO_IN_BASKET = 0.15,
-            TIME_RETRACTED_TO_INTAKING = 0.65,
-            TIME_INTAKING_TO_SPEC = 1,
-            TIME_SPEC_TO_RETRACTED = 0.4;
+            TIME_STANDBY_TO_TRANSFER = 1;
 
     public static Arm.Position
-            TRANSFER =      new Arm.Position(25, 97, "TRANSFER"),
-            INTAKING =      new Arm.Position(175, 20, "INTAKING"),
-            SPECIMEN =      new Arm.Position(240, 220, "SPECIMEN"),
-            SPEC_PRELOAD =  new Arm.Position(205, 42, "SPEC PRELOAD"),
-            ASCENT =        new Arm.Position(255, 32, "LVL 1 ASCENT"),
-            SAMPLE =        new Arm.Position(230, 180, "SAMPLE"),
-            SCORING_SAMPLE =new Arm.Position(220, 270, "SCORING SAMPLE");
+            INTAKING =      new Arm.Position(0, 0, "INTAKING"),
+            INTAKED =       new Arm.Position(0, 0, "INTAKED"),
+            TRANSFER =      new Arm.Position(0, 0, "TRANSFER"),
+            STANDBY =       new Arm.Position(0, 0, "STANDBY"),
+            SPECIMEN =      new Arm.Position(0, 0, "SPECIMEN"),
+            ASCENT =        new Arm.Position(0, 0, "LVL 1 ASCENT"),
+            SAMPLE =        new Arm.Position(0, 0, "SAMPLE");
 
     private final ElapsedTime timer = new ElapsedTime();
     private boolean movingToTarget = false;
@@ -39,30 +34,16 @@ public final class Arm {
     }
 
     private Arm.Position target = TRANSFER, lastTarget = level1Ascent ? ASCENT : TRANSFER;
-    private final CachedSimpleServo rServo, lServo;
+    private final CachedSimpleServo rServo, lServo, wrist;
 
     public Arm(HardwareMap hardwareMap) {
         rServo = getAxon(hardwareMap, "arm right");
         lServo = getAxon(hardwareMap, "arm left").reversed();
+        wrist = getAxon(hardwareMap, "wrist");
     }
 
     private double timeToReachTarget() {
-        return
-                target == lastTarget ?      0 :
-                target == SPEC_PRELOAD ?    0 :
-                target == ASCENT ?          0 :
-                target == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
-                target == SPECIMEN ?        TIME_INTAKING_TO_SPEC :
-                target == SAMPLE ?          TIME_RETRACTED_TO_SAMPLE :
-                target == SCORING_SAMPLE ?
-                        lastTarget == SAMPLE ?          TIME_SAMPLE_TO_IN_BASKET :
-                                                        TIME_RETRACTED_TO_SAMPLE + TIME_SAMPLE_TO_IN_BASKET :
-                target == TRANSFER ?
-                        lastTarget == SAMPLE ?          TIME_SAMPLE_TO_RETRACTED :
-                        lastTarget == SCORING_SAMPLE ?  TIME_SAMPLE_TO_RETRACTED :
-                        lastTarget == INTAKING ?        TIME_RETRACTED_TO_INTAKING :
-                                                        TIME_SPEC_TO_RETRACTED :
-                1;
+        return 1;
     }
 
     boolean reachedTarget() {
@@ -70,7 +51,7 @@ public final class Arm {
     }
 
     boolean movingNearIntake() {
-        return (target == TRANSFER || (lastTarget == TRANSFER && getTimeTraveled() < TIME_RETRACTED_TO_INTAKING)) && target != Arm.SPEC_PRELOAD;
+        return target == TRANSFER || (lastTarget == TRANSFER && getTimeTraveled() < 0.75);
     }
 
     public boolean atPosition(Position position) {
@@ -105,9 +86,9 @@ public final class Arm {
             setpoint = lastTarget;
         }
 
-        rServo.turnToAngle(setpoint.right);
-        lServo.turnToAngle(setpoint.left);
-
+        rServo.turnToAngle(setpoint.arm);
+        lServo.turnToAngle(setpoint.arm);
+        wrist.turnToAngle(setpoint.wrist);
     }
 
     public void printTelemetry() {
@@ -118,18 +99,18 @@ public final class Arm {
 
     public static final class Position {
 
-        public double right, left;
+        public double arm, wrist;
         private final String name;
 
-        private Position(double left, double right, String name) {
-            this.right = right;
-            this.left = left;
+        private Position(double arm, double wrist, String name) {
+            this.arm = arm;
+            this.wrist = wrist;
             this.name = name;
         }
 
         @NonNull
         public String toString() {
-            return name + ", Right: " + right + ", Left: " + left;
+            return name + ", Arm: " + arm + ", Wrist: " + wrist;
         }
     }
 

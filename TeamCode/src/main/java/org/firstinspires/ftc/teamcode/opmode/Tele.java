@@ -174,56 +174,52 @@ public final class Tele extends LinearOpMode {
 
 //                robot.intake.runRoller(0);
 //                robot.intake.extendo.runManual(triggers);
-//                robot.deposit.lift.runManual(gamepadEx1.getLeftY() * (gamepadEx1.isDown(RIGHT_BUMPER) ? 0.3 : 1));
-//
-//                if (gamepadEx1.wasJustPressed(LEFT_STICK_BUTTON))   robot.deposit.lift.reset();
+                robot.deposit.lift.runManual(gamepadEx1.getLeftY() * (gamepadEx1.isDown(RIGHT_BUMPER) ? 0.3 : 1));
 
                 // SET HEADING:
                 robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
                 robot.drivetrain.run(0, 0, 0, false, true);
 
                 if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
+                if (gamepadEx1.wasJustPressed(B)) robot.deposit.lift.gearSwitch.toggle();
+                if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilter.toggle();
 
             } else {
 
 //                robot.intake.runRoller(triggers);
 //                robot.intake.extendo.runManual(0);
-//                robot.deposit.lift.runManual(0);
+                robot.deposit.lift.runManual(0);
 
                 if (gamepadEx1.wasJustPressed(X)) driver.reset();
 
-                robot.drivetrain.run(
-                        gamepadEx1.getLeftX(),
-                        gamepadEx1.getLeftY(),
-//                        gamepadEx1.isDown(X) && (robot.deposit.basketReady() || robot.intake.hasSample() || robot.deposit.intaking())?
-//                                driver.driveTo(
-//                                        new EditablePose(robot.drivetrain.pose),
-//                                        robot.deposit.intaking() ? chamberRight : basket
-//                                ).drivePower.heading :
-                                gamepadEx1.getRightX(),
-                        slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
-                        useFieldCentric
-                );
+                if (!robot.deposit.lift.gearSwitch.isActivated())
+                    robot.drivetrain.run(
+                            gamepadEx1.getLeftX(),
+                            gamepadEx1.getLeftY(),
+    //                        gamepadEx1.isDown(X) && (robot.deposit.basketReady() || robot.intake.hasSample() || robot.deposit.intaking())?
+    //                                driver.driveTo(
+    //                                        new EditablePose(robot.drivetrain.pose),
+    //                                        robot.deposit.intaking() ? chamberRight : basket
+    //                                ).drivePower.heading :
+                                    gamepadEx1.getRightX(),
+                            slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
+                            useFieldCentric
+                    );
+
+                if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.climb();
+
+                if (gamepadEx1.wasJustPressed(B)) robot.deposit.triggerClaw();
 
             }
 
             if (gamepad1.touchpad_finger_1) {
 //                robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
-
-//            if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.climb();
-
-//            if (gamepadEx1.wasJustPressed(B))                   robot.deposit.triggerClaw();
 //
-//            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
-//            else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
-//            else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
-//            else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-//                robot.activeHooks.setActivated(false);
-//                robot.deposit.setPosition(FLOOR);
-//            }
-
-//            robot.intake.sweeper.setActivated(gamepadEx1.isDown(A));
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.transfer(NEUTRAL);
+            else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
+            else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
+            else if (gamepadEx1.wasJustPressed(DPAD_DOWN))      robot.deposit.setPosition(FLOOR);
 
             robot.run();
 
