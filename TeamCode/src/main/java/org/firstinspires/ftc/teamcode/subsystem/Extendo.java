@@ -50,7 +50,7 @@ public final class Extendo {
         motor = new CachedMotorEx(hardwareMap, "extendo", RPM_1620);
 //        motor.setInverted(true);
 
-        motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_1620).encoder;
+        motor.encoder = new CachedMotorEx(hardwareMap, "right back", RPM_1620).encoder;
 //        motor.encoder.setDirection(REVERSE);
         motor.encoder.setDistancePerPulse(INCHES_PER_TICK);
         motor.encoder.reset();
