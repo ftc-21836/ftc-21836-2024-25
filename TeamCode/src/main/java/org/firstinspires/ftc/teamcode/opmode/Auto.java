@@ -6,7 +6,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.CONFIRMING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
@@ -30,8 +29,6 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_1;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_2;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_CHAMBER_HIGH;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.min;
@@ -62,7 +59,6 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
-import org.firstinspires.ftc.teamcode.subsystem.Arm;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 

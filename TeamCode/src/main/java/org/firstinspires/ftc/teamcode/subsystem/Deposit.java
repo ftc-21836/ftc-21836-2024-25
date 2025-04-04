@@ -13,9 +13,11 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISING_SPE
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RETRACTED;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
-import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
+import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
 import static java.lang.Math.abs;
+
+import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -32,7 +34,7 @@ public final class Deposit {
             ANGLE_CLAW_TRANSFER = 80,
             ANGLE_CLAW_CLOSED = 25,
 
-            TIME_SAMPLE_RELEASE_TO_LIFT_DOWN = 0.6,
+            TIME_SAMPLE_RELEASE = 0.6,
             TIME_SAMPLE_RELEASE_TO_ARM_DOWN = 0.3,
             TIME_SPEC_GRAB = 0.25,
             TIME_SPEC_RELEASE = 0.1,
@@ -46,23 +48,33 @@ public final class Deposit {
             INCREMENT_REACH_ABOVE_BASKET = 1,
             HEIGHT_INTAKING_SPECIMEN = 0,
             HEIGHT_CHAMBER_HIGH = 0,
-            HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH;
+            HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
+
+            TIME_STANDBY_TO_IN_INTAKE = 1,
+            TIME_IN_INTAKE_TO_STANDBY = 1,
+            TIME_STANDBY_TO_BASKET = 1,
+            TIME_STANDBY_TO_INTAKING_SPEC = 1,
+            TIME_RAISE_SPEC = 1,
+            TIME_RAISED_SPEC_TO_CHAMBER;
+
+    public static ArmPosition
+            INTAKING_SPEC = new ArmPosition(0, 0),
+            RAISED_SPEC =   new ArmPosition(0, 0),
+            CHAMBER =       new ArmPosition(0, 0),
+            STANDBY =       new ArmPosition(0, 0),
+            IN_INTAKE =     new ArmPosition(0, 0),
+            BASKET =        new ArmPosition(0, 0),
+            ASCENT =        new ArmPosition(0, 0);
 
     enum State {
-        RETRACTED           (Arm.TRANSFER),
-        HAS_SAMPLE          (Arm.SAMPLE),
-        SAMPLE_FALLING      (Arm.SAMPLE),
-        INTAKING_SPECIMEN   (Arm.INTAKING),
-        GRABBING_SPECIMEN   (Arm.INTAKING),
-        RAISING_SPECIMEN    (Arm.INTAKED),
-        HAS_SPECIMEN        (Arm.SPECIMEN),
-        RELEASING_SPECIMEN  (Arm.SPECIMEN);
-
-        private final Arm.Position armPosition;
-
-        State(Arm.Position armPosition) {
-            this.armPosition = armPosition;
-        }
+        RETRACTED,
+        HAS_SAMPLE,
+        SAMPLE_FALLING,
+        INTAKING_SPECIMEN,
+        GRABBING_SPECIMEN,
+        RAISING_SPECIMEN,
+        HAS_SPECIMEN,
+        RELEASING_SPECIMEN;
     }
 
     public enum Position {
@@ -72,8 +84,8 @@ public final class Deposit {
     }
 
     public final Lift lift;
-//    public final Arm arm;
 //    private final CachedSimpleServo claw;
+    private final CachedSimpleServo rServo, lServo, wrist;
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -81,14 +93,14 @@ public final class Deposit {
 
     public static boolean level1Ascent = false;
 
-    public boolean pauseBeforeAutoRetractingLift = true;
-
     private double basketHeight = HEIGHT_BASKET_HIGH;
 
     Deposit(HardwareMap hardwareMap) {
         lift = new Lift(hardwareMap);
-//        arm = new Arm(hardwareMap);
 //        claw = getAxon(hardwareMap, "claw").reversed();
+        rServo = getAxon(hardwareMap, "arm right");
+        lServo = getAxon(hardwareMap, "arm left").reversed();
+        wrist = getAxon(hardwareMap, "wrist");
     }
 
     void run(boolean climbing) {
@@ -97,7 +109,7 @@ public final class Deposit {
 
             case SAMPLE_FALLING:
 
-                if (timer.seconds() >= (pauseBeforeAutoRetractingLift ? TIME_SAMPLE_RELEASE_TO_LIFT_DOWN : TIME_SAMPLE_RELEASE_TO_ARM_DOWN)) {
+                if (timer.seconds() >= TIME_SAMPLE_RELEASE) {
                     state = RETRACTED;
                     setPosition(FLOOR);
                 }
@@ -127,14 +139,6 @@ public final class Deposit {
 
         boolean reachedTarget = abs(lift.getPosition() - lift.getTarget()) <= TOLERANCE_ARM_SCORING_POS;
 
-        boolean obsZone = state.armPosition == Arm.SAMPLE && lift.getTarget() == HEIGHT_OBSERVATION_ZONE;
-        boolean pointArmIntoBasket = state.armPosition == Arm.SAMPLE && reachedTarget;
-
-        Arm.Position armPosition =
-                level1Ascent ? Arm.ASCENT :
-                obsZone ? Arm.INTAKING :
-                state.armPosition;
-
 //        arm.setTarget(armPosition);
 
         boolean armCanMove = lift.getPosition() >= HEIGHT_ABOVE_INTAKE;
@@ -157,6 +161,10 @@ public final class Deposit {
 //
 //                                                    ANGLE_CLAW_TRANSFER
 //        );
+
+//        rServo.turnToAngle(state.armPosition.arm);
+//        lServo.turnToAngle(state.armPosition.arm);
+//        wrist.turnToAngle(state.armPosition.wrist);
     }
 
     public void preloadSpecimen() {
@@ -304,17 +312,23 @@ public final class Deposit {
     public void transfer(Sample sample) {
         if (sample == null || state != RETRACTED) return;
         state = HAS_SAMPLE;
-        lift.setTarget(basketHeight);
         closeClaw();
     }
 
     void printTelemetry() {
         String gameElement = state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? "has specimen" : "has sample";
         mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
-//        divider();
-//        arm.printTelemetry();
         divider();
         lift.printTelemetry();
     }
 
+    public static final class ArmPosition {
+
+        public double arm, wrist;
+
+        private ArmPosition(double arm, double wrist) {
+            this.arm = arm;
+            this.wrist = wrist;
+        }
+    }
 }
