@@ -9,7 +9,6 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.INACTIVE;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.PULLING_FIRST_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.PULLING_SECOND_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.RAISING_FIRST_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.RAISING_SECOND_RUNG;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.TILTING_SWITCHING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
@@ -36,7 +35,6 @@ public final class Lift {
 
     enum ClimbState {
         INACTIVE,
-        RAISING_FIRST_RUNG,
         TILTING_SWITCHING,
         PULLING_FIRST_RUNG,
         RAISING_SECOND_RUNG,
@@ -49,12 +47,12 @@ public final class Lift {
     public void climb() {
         switch (climbState) {
             case INACTIVE:
-                setTarget(HEIGHT_ABOVE_FIRST_RUNG);
-                climbState = RAISING_FIRST_RUNG;
-                break;
-            case RAISING_FIRST_RUNG:
+                if (getTarget() != HEIGHT_ABOVE_FIRST_RUNG) {
+                    setTarget(HEIGHT_ABOVE_FIRST_RUNG);
+                    break;
+                }
                 gearSwitch.setActivated(true);
-                tilter.setActivated(true);
+                tilt.setActivated(true);
                 climbState = TILTING_SWITCHING;
                 break;
             case TILTING_SWITCHING:
@@ -63,19 +61,19 @@ public final class Lift {
                 break;
             case PULLING_FIRST_RUNG:
                 gearSwitch.setActivated(false);
-                tilter.setActivated(false);
+                tilt.setActivated(false);
                 setTarget(HEIGHT_ABOVE_SECOND_RUNG);
                 climbState = RAISING_SECOND_RUNG;
                 break;
             case RAISING_SECOND_RUNG:
                 gearSwitch.setActivated(true);
-                tilter.setActivated(true);
+                tilt.setActivated(true);
                 setTarget(0);
                 climbState = PULLING_SECOND_RUNG;
                 break;
             case PULLING_SECOND_RUNG:
                 gearSwitch.setActivated(false);
-                tilter.setActivated(false);
+                tilt.setActivated(false);
                 climbState = INACTIVE;
                 break;
         }
@@ -83,14 +81,8 @@ public final class Lift {
     }
 
     public static PIDGains
-            pidGains = new PIDGains(
-                    0.05,
-                    0.025
-            ),
-            dtPidGains = new PIDGains(
-                    0.05,
-                    0.025
-            );
+            pidGains = new PIDGains(0.05, 0.025),
+            dtPidGains = new PIDGains(0.05, 0.025);
 
     public static double
             kG = 0.4,
@@ -118,7 +110,7 @@ public final class Lift {
     private final VoltageSensor batteryVoltageSensor;
     private final TouchSensor liftSensor;
 
-    public final SimpleServoPivot tilter, gearSwitch;
+    public final SimpleServoPivot tilt, gearSwitch;
 
     private double position, target, manualPower;
 
@@ -152,7 +144,7 @@ public final class Lift {
         motors[0].setInverted(true);
         motors[1].setInverted(true);
 
-        tilter = new SimpleServoPivot(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED,
+        tilt = new SimpleServoPivot(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED,
                 getAxon(hardwareMap, "tilt right"),
                 getAxon(hardwareMap, "tilt left").reversed()
         );
@@ -209,9 +201,9 @@ public final class Lift {
             output = controller.calculate(new State(getPosition()));
         }
 
-        tilter.updateAngles(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED);
+        tilt.updateAngles(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED);
         gearSwitch.updateAngles(ANGLE_SWITCH_INACTIVE, ANGLE_SWITCH_ENGAGED);
-        tilter.run();
+        tilt.run();
         gearSwitch.run();
 
         if (gearSwitch.isActivated()) {
