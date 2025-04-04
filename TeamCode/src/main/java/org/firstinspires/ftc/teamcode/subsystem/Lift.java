@@ -86,18 +86,23 @@ public final class Lift {
 
     public static double
             kG = 0.4,
-            kG_CLIMB = -0.5,
             INCHES_PER_TICK = 0.0440162371,
             POSITION_TOLERANCE = 0.25,
             HEIGHT_RETRACTING = 0.25,
-            HEIGHT_ABOVE_FIRST_RUNG = 10,
-            HEIGHT_ABOVE_SECOND_RUNG = 15,
             SPEED_RETRACTION = -0,
             MAX_VOLTAGE = 13,
+    
+            kG_CLIMB = -0.5,
+
+            HEIGHT_ABOVE_FIRST_RUNG = 10,
+            HEIGHT_ABOVE_SECOND_RUNG = 15,
+
             ANGLE_TILTER_INACTIVE = 15,
             ANGLE_TILTER_TILTED = 120,
+
             ANGLE_SWITCH_INACTIVE = 15,
             ANGLE_SWITCH_ENGAGED = 30,
+
             TIME_TILT_AND_SWITCH = 10,
             TIME_RAISE_SECOND_RUNG = 10;
 
