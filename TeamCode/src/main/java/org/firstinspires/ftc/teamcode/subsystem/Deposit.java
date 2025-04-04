@@ -110,38 +110,6 @@ public final class Deposit {
 
     void run(Intake intake) {
 
-        switch (state) {
-
-            case SAMPLE_FALLING:
-
-                if (timer.seconds() >= TIME_SAMPLE_RELEASE) {
-                    state = State.STANDBY;
-                    setPosition(FLOOR);
-                }
-
-                break;
-
-            case INTAKING_SPECIMEN:
-
-//                if (intake.hasSample()) setPosition(FLOOR);
-                break;
-
-            case GRABBING_SPECIMEN:
-
-                if (timer.seconds() >= TIME_SPEC_GRAB) triggerClaw();
-                else break;
-
-            case RELEASING_SPECIMEN:
-
-                if (timer.seconds() >= TIME_SPEC_RELEASE) {
-                    state = State.STANDBY;
-                    setPosition(FLOOR);
-                }
-
-                break;
-
-        }
-
         lift.run();
 
 //        claw.turnToAngle(
