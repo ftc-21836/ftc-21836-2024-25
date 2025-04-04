@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_117;
+import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
@@ -29,12 +30,12 @@ public final class Extendo {
     public static double
             SPEED_RETRACTION = -0.75,
             TOUCHPAD_RANGE = 0.9,
-            LENGTH_RETRACTING = 50,
-            LENGTH_INTERFACING = 10,
-            LENGTH_DEPOSIT_CLEAR = 100,
-            POSITION_TOLERANCE = 15,
-            LENGTH_EXTENDED = Math.MM_EXTENSION,
-            kS = 0;
+            INCHES_PER_TICK = 0.0440162371,
+            LENGTH_RETRACTING = 2,
+            LENGTH_INTERFACING = 0.4,
+            LENGTH_DEPOSIT_CLEAR = 4,
+            POSITION_TOLERANCE = 0.6,
+            LENGTH_EXTENDED = 21.25984251968504;
 
     public static PIDGains pidGains = new PIDGains(0.015, 0.01);
 
@@ -46,12 +47,12 @@ public final class Extendo {
 
     public Extendo(HardwareMap hardwareMap) {
 
-        motor = new CachedMotorEx(hardwareMap, "extendo", RPM_117);
-        motor.setInverted(true);
+        motor = new CachedMotorEx(hardwareMap, "extendo", RPM_1620);
+//        motor.setInverted(true);
 
-        motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_312).encoder;
-        motor.encoder.setDirection(REVERSE);
-        motor.encoder.setDistancePerPulse(2 * PI / motor.getCPR());
+        motor.encoder = new CachedMotorEx(hardwareMap, "right front", RPM_1620).encoder;
+//        motor.encoder.setDirection(REVERSE);
+        motor.encoder.setDistancePerPulse(INCHES_PER_TICK);
         motor.encoder.reset();
 
         extendoSensor = hardwareMap.get(TouchSensor.class, "extendo sensor");
@@ -71,9 +72,8 @@ public final class Extendo {
             motor.encoder.reset();
             position = 0;
             setTarget(0);
-        } else {
-            position = Math.millimeters(max(0, motor.encoder.getDistance()) + Math.RAD_RETRACTED) - Math.MM_RETRACTED;
-        }
+
+        } else position = max(0, motor.encoder.getDistance());
 
         if (manualPower != 0) {
             setTarget(getPosition());
@@ -135,60 +135,6 @@ public final class Extendo {
 
     public void toggle() {
         setExtended(!isExtended());
-    }
-
-    /// <a href="https://www.desmos.com/calculator/guflnpad5a">Desmos diagrams + graphs</a>
-    private static final class Math {
-
-        private static final double
-                A = 240,        A_2 = A*A,
-                B = 360,        B_2 = B*B,
-                H = 19.65017,   H_2 = H*H,
-                B2_H2 = B_2 - H_2,
-                AH2 = A * H * 2,
-                b = 0.5 / A,                b_2 = b*b,
-                a = b * (B_2 - A_2 - H_2),  a_2 = a*a,
-                bh2a = 2 * b * H_2 + a,
-                ab2 = a * b * 2,
-                MM_RETRACTED = 144.39994388,
-                MM_EXTENSION = 410,
-                MM_EXTENDED = MM_RETRACTED + MM_EXTENSION,
-                RAD_RETRACTED = radians(MM_RETRACTED),
-                NORM_FACTOR = 1 / radiansPerMillimeter(MM_RETRACTED);
-
-        private static double millimeters(double radians) {
-            double sin = sin(radians);
-            return sqrt(B2_H2 - AH2 * sin - A_2 * sin * sin) - A * cos(radians);
-        }
-
-        private static double radians(double millimeters) {
-            double x_2 = millimeters*millimeters;
-            return PI - asin(  (a - b*x_2) / sqrt(H_2 + x_2)  ) - atan(millimeters / H);
-        }
-
-        private static double radiansPerMillimeter(double millimeters) {
-            double x_2 = millimeters*millimeters;
-            double x2h2 = x_2 + H_2;
-            double num = millimeters * (b*x_2 + bh2a);
-            double denom = x2h2 * sqrt(x2h2 - a_2 + ab2 * x_2 - b_2 * x_2 * x_2);
-            return num / denom - H / x2h2;
-        }
-
-        private static double scaledPower(double power, double millimeters) {
-            return power * NORM_FACTOR * radiansPerMillimeter(millimeters) + (power <= 0 ? 0 : (millimeters - MM_RETRACTED) * kS);
-        }
-
-        public static void main(String[] args) {
-
-            System.out.println(millimeters(RAD_RETRACTED) - 144.39994388);
-            System.out.println(radians(MM_RETRACTED) - 0.89401173062);
-            System.out.println(radiansPerMillimeter(MM_RETRACTED) - 0.0122469670588);
-
-            System.out.println(scaledPower(1, MM_EXTENDED) - 0.445959977881);
-            System.out.println(scaledPower(1, MM_RETRACTED) - 1);
-
-        }
-
     }
 
 }
