@@ -1,19 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
-import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_117;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
-import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_312;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static java.lang.Double.max;
-import static java.lang.Math.PI;
 import static java.lang.Math.abs;
-import static java.lang.Math.asin;
-import static java.lang.Math.atan;
-import static java.lang.Math.cos;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -62,12 +53,10 @@ public final class Extendo {
         this.manualPower = power;
     }
 
-    public void run(boolean canRetract) {
-
-        double setpoint = max(getTarget(), canRetract ? 0 : LENGTH_DEPOSIT_CLEAR + POSITION_TOLERANCE);
+    public void run() {
 
         // When the magnet hits
-        if (setpoint == 0 && !isExtended() && manualPower <= 0) {
+        if (getTarget() == 0 && !isExtended() && manualPower <= 0) {
             controller.reset();
             motor.encoder.reset();
             position = 0;
@@ -81,13 +70,13 @@ public final class Extendo {
             return;
         }
 
-        if (setpoint == 0 && isExtended() && getPosition() > 0 && getPosition() <= LENGTH_RETRACTING) {
+        if (getTarget() == 0 && isExtended() && getPosition() > 0 && getPosition() <= LENGTH_RETRACTING) {
             motor.set(SPEED_RETRACTION);
             return;
         }
 
         controller.setGains(pidGains);
-        controller.setTarget(new State(setpoint));
+        controller.setTarget(new State(getTarget()));
 
         motor.set(controller.calculate(new State(getPosition())));
     }

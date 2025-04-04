@@ -73,8 +73,6 @@ public final class Tele extends LinearOpMode {
 
         PIDDriver driver = new PIDDriver();
 
-        Deposit.level1Ascent = false;
-
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
         TeleOpConfig selection = PRELOAD_SAMPLE;
@@ -209,7 +207,7 @@ public final class Tele extends LinearOpMode {
 //                robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
 //
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.transfer(NEUTRAL);
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.transfer();
             else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
             else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
             else if (gamepadEx1.wasJustPressed(DPAD_DOWN))      robot.deposit.setPosition(FLOOR);

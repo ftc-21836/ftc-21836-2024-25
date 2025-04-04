@@ -209,7 +209,6 @@ public final class Auto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Deposit.level1Ascent = false;
 
         // Initialize multiple telemetry outputs:
         mTelemetry = new MultipleTelemetry(telemetry);
@@ -605,7 +604,6 @@ public final class Auto extends LinearOpMode {
 
             Action park = robot.drivetrain.actionBuilder(basketFromSub.toPose2d())
                     .afterTime(0, () -> {
-                        Deposit.level1Ascent = true;
 //                        robot.deposit.lift.setTarget(0);
                     })
                     .splineTo(sub1.toVector2d(), sub1.heading)

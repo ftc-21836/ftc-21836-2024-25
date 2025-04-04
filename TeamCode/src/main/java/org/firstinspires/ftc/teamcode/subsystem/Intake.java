@@ -3,29 +3,30 @@ package org.firstinspires.ftc.teamcode.subsystem;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.ARM_ENTERING_BUCKET;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.ARM_EXITING_BUCKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SEMI_RETRACTING;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_SETTLING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RE_EXTENDING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.STANDBY;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.gainmatrix.HSV;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
-import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 
@@ -33,31 +34,24 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.sensor.ColorSensor;
 public final class Intake {
 
     public static double
-            ANGLE_SWEEPER_STANDBY = 6,
-            ANGLE_SWEEPER_SWEPT = 103,
 
             ANGLE_BUCKET_RETRACTED = 5,
-            ANGLE_BUCKET_PRE_TRANSFER = 35,
             ANGLE_BUCKET_OVER_BARRIER = 140,
             ANGLE_BUCKET_INTAKING_NEAR = 206,
             ANGLE_BUCKET_INTAKING_FAR = 203.5,
 
             TIME_EJECTING = 0.5,
-            TIME_BUCKET_SEMI_RETRACT = 0.2,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
             TIME_MAX_RETRACT_BEFORE_REATTEMPT = 0.65,
             TIME_MAX_BUCKET_RETRACT = 0.75,
             TIME_BUCKET_SETTLING = 0,
-            TIME_TRANSFER = 0.3,
 
             LENGTH_RE_RETRACT_TARGET = 150,
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
-            SPEED_INTERFACING = 0.25,
             SPEED_PRE_TRANSFER = -0.1,
             SPEED_POST_TRANSFER = -0.2,
-            SPEED_RETRACTED = -0.05,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -108,7 +102,7 @@ public final class Intake {
 
     public boolean retractBucketBeforeExtendo = true;
 
-    private final CRServo roller;
+    private final CachedMotorEx roller;
     private double rollerSpeed;
 
     private final ColorSensor colorSensor;
@@ -124,8 +118,6 @@ public final class Intake {
     
     private final TouchSensor bucketSensor;
 
-    public final SimpleServoPivot sweeper;
-
     public final Extendo extendo;
 
     private Intake.State state = STANDBY;
@@ -135,12 +127,13 @@ public final class Intake {
     enum State {
         EJECTING_SAMPLE,
         STANDBY,
-        BUCKET_SEMI_RETRACTING,
+        BUCKET_RETRACTING,
         EXTENDO_RE_EXTENDING,
         EXTENDO_RETRACTING,
-        BUCKET_RETRACTING,
-        BUCKET_SETTLING,
+        SETTLING,
+        ARM_ENTERING_BUCKET,
         TRANSFERRING,
+        ARM_EXITING_BUCKET,
     }
 
     public void setAlliance(boolean redAlliance) {
@@ -154,19 +147,14 @@ public final class Intake {
         bucketR = getAxon(hardwareMap, "bucket right").reversed();
         bucketL = getAxon(hardwareMap, "bucket left");
 
-        roller = hardwareMap.get(CRServo.class, "intake");
+        roller = new CachedMotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1620);
 
         colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
-        bucketSensor = hardwareMap.get(TouchSensor.class, "bucket pivot sensor");
-
-        sweeper = new SimpleServoPivot(
-                ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT,
-                CachedSimpleServo.getGBServo(hardwareMap, "sweeper")
-        );
+        bucketSensor = hardwareMap.get(TouchSensor.class, "bucket sensor");
     }
 
-    void run(Deposit deposit, boolean stopRoller) {
+    void run(Deposit deposit) {
 
         double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
 
@@ -175,101 +163,92 @@ public final class Intake {
             case EJECTING_SAMPLE:
 
                 setBucket(ANGLE_BUCKET_INTAKING);
-                roller.setPower(stopRoller ? 0 : SPEED_EJECTING);
+                roller.set(SPEED_EJECTING);
 
                 if (timer.seconds() >= TIME_EJECTING) state = STANDBY;
                 else break;
 
             case STANDBY:
 
-                if (rollerSpeed != 0 && !stopRoller && !deposit.hasSample()) { // intaking, trigger held down
+                if (rollerSpeed != 0) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
-                    roller.setPower(rollerSpeed / SPEED_INTAKING);
+                    roller.set(rollerSpeed / SPEED_INTAKING);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                    if (getSample() == badSample) ejectSample();
+                    if (getSample() == badSample || deposit.hasSample()) ejectSample();
                     
                     break;
                     
                 } else if (!hasSample()) { // retracted
 
                     setBucket(ANGLE_BUCKET_RETRACTED);
-                    roller.setPower(
-                        stopRoller ? 0 :
-                        deposit.hasSample() && !clearOfDeposit() && deposit.requestingIntakeToMove() ? SPEED_POST_TRANSFER :
-//                        deposit.arm.movingNearIntake() ? SPEED_RETRACTED :
-                        0
-                    );
+                    roller.set(0);
 
                     break;
 
                 } else transfer(sample);
 
-            case BUCKET_SEMI_RETRACTING:
+            case BUCKET_RETRACTING:
 
-                setBucket(ANGLE_BUCKET_PRE_TRANSFER);
-                roller.setPower(stopRoller ? 0 : SPEED_HOLDING);
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.set(SPEED_HOLDING);
 
-                if (timer.seconds() >= TIME_BUCKET_SEMI_RETRACT || bucketSensor.isPressed() || !extendo.isExtended() ||!retractBucketBeforeExtendo) {
+                if (bucketSensor.isPressed() || timer.seconds() >= TIME_MAX_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
                     timer.reset();
-                }
-                else break;
+                } else break;
 
             case EXTENDO_RE_EXTENDING:
+
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.set(SPEED_HOLDING);
 
                 if (extendo.atPosition(LENGTH_RE_RETRACT_TARGET) || timer.seconds() > TIME_MAX_EXTEND_BEFORE_RE_RETRACT) {
                     state = EXTENDO_RETRACTING;
                     timer.reset();
-                    sweeper.setActivated(false);
                 } else break;
 
             case EXTENDO_RETRACTING:
 
-                setBucket(ANGLE_BUCKET_PRE_TRANSFER);
-                roller.setPower(
-                    stopRoller ? 0 : 
-                    extendo.getPosition() > Extendo.LENGTH_INTERFACING ? SPEED_HOLDING :
-                    SPEED_INTERFACING
-                );
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.set(SPEED_HOLDING);
                 extendo.setExtended(false);
 
                 if (extendo.isExtended()) {
                     if (timer.seconds() >= TIME_MAX_RETRACT_BEFORE_REATTEMPT) {
-                        sweeper.setActivated(true);
                         state = EXTENDO_RE_EXTENDING;
                         extendo.setTarget(LENGTH_RE_RETRACT_TARGET);
                         timer.reset();
                     }
                     break;
-                } else if (deposit.readyToTransfer()) {
-                    state = BUCKET_RETRACTING;
+                } else if (bucketSensor.isPressed() && deposit.readyToTransfer()) {
+                    state = SETTLING;
                     timer.reset();
                 } else break;
 
-            case BUCKET_RETRACTING:
+            case SETTLING:
 
                 setBucket(ANGLE_BUCKET_RETRACTED);
-                roller.setPower(stopRoller ? 0 : SPEED_INTERFACING);
-                extendo.setExtended(false);
-
-                if (bucketSensor.isPressed() || timer.seconds() >= TIME_MAX_BUCKET_RETRACT) {
-                    state = BUCKET_SETTLING;
-                    timer.reset();
-                } else break;
-
-            case BUCKET_SETTLING:
-
-                setBucket(ANGLE_BUCKET_RETRACTED);
-                roller.setPower(stopRoller ? 0 : SPEED_PRE_TRANSFER);
+                roller.set(SPEED_HOLDING);
                 extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_BUCKET_SETTLING) {
+                    state = ARM_ENTERING_BUCKET;
+                    deposit.transfer();
+                    timer.reset();
+                } else break;
+
+            case ARM_ENTERING_BUCKET:
+
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.set(SPEED_PRE_TRANSFER);
+                extendo.setExtended(false);
+
+                if (deposit.state == Deposit.State.TRANSFERRING) {
                     state = TRANSFERRING;
-                    deposit.transfer(sample);
                     sample = null;
                     timer.reset();
                 } else break;
@@ -277,23 +256,32 @@ public final class Intake {
             case TRANSFERRING:
 
                 setBucket(ANGLE_BUCKET_RETRACTED);
-                roller.setPower(0);
+                roller.set(0);
                 extendo.setExtended(false);
 
-                if (timer.seconds() >= TIME_TRANSFER) state = STANDBY;
-                
-                break;
+                if (deposit.state == Deposit.State.EXITING_BUCKET) {
+                    state = ARM_EXITING_BUCKET;
+                    timer.reset();
+                } else break;
+
+            case ARM_EXITING_BUCKET:
+
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.set(SPEED_POST_TRANSFER);
+                extendo.setExtended(false);
+
+                if (deposit.state != Deposit.State.EXITING_BUCKET) {
+                    state = STANDBY;
+                    timer.reset();
+                } else break;
         }
 
-        sweeper.updateAngles(ANGLE_SWEEPER_STANDBY, ANGLE_SWEEPER_SWEPT);
-        sweeper.run();
-
-        extendo.run(!deposit.requestingIntakeToMove() || state == TRANSFERRING);
+        extendo.run();
     }
 
     public void transfer(Sample sample) {
         this.sample = sample;
-        state = BUCKET_SEMI_RETRACTING;
+        state = BUCKET_RETRACTING;
         timer.reset();
     }
 

@@ -5,6 +5,7 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_435;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.BRAKE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
+import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.INACTIVE;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.PULLING_FIRST_RUNG;
@@ -14,7 +15,6 @@ import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.TILTING_S
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
-import static java.lang.Double.max;
 import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -91,8 +91,10 @@ public final class Lift {
             HEIGHT_RETRACTING = 0.25,
             SPEED_RETRACTION = -0,
             MAX_VOLTAGE = 13,
-    
+
             kG_CLIMB = -0.5,
+
+            HEIGHT_EXTENDED = 28.34645669291339,
 
             HEIGHT_ABOVE_FIRST_RUNG = 10,
             HEIGHT_ABOVE_SECOND_RUNG = 15,
@@ -108,9 +110,9 @@ public final class Lift {
 
     public static Motor.ZeroPowerBehavior zeroPowerBehavior = BRAKE;
 
-    // Motors and variables to manage their readings:
     private final CachedMotorEx[] motors;
     private final CachedMotorEx[] dtMotors;
+
     private final PIDController controller = new PIDController();
     private final VoltageSensor batteryVoltageSensor;
     private final TouchSensor liftSensor;
@@ -168,10 +170,7 @@ public final class Lift {
         this.manualPower = power;
     }
 
-    void run(boolean canMove, boolean climbing) {
-
-        double kG = !isExtended() || climbing ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
-        double setpoint = max(getTarget(), 0);
+    void run() {
 
         position = 0.5 * (motors[0].encoder.getDistance() + motors[1].encoder.getDistance());
 
@@ -190,7 +189,7 @@ public final class Lift {
         }
 
         // When the magnet hits
-        if (!gearSwitch.isActivated() && setpoint == 0 && !isExtended() && manualPower <= 0) {
+        if (!gearSwitch.isActivated() && getTarget() == 0 && !isExtended() && manualPower <= 0) {
             controller.reset();
             for (CachedMotorEx motor : motors) motor.encoder.reset();
             setTarget(position = 0);
@@ -198,11 +197,11 @@ public final class Lift {
         } else if (manualPower != 0) {
             setTarget(getPosition());
             output = manualPower;
-        } else if (!gearSwitch.isActivated() && setpoint == 0 && isExtended() && getPosition() > 0 && getPosition() <= HEIGHT_RETRACTING) {
+        } else if (!gearSwitch.isActivated() && getTarget() == 0 && isExtended() && getPosition() > 0 && getPosition() <= HEIGHT_RETRACTING) {
             output = SPEED_RETRACTION;
         } else {
             controller.setGains(gearSwitch.isActivated() ? dtPidGains : pidGains);
-            controller.setTarget(new State(setpoint));
+            controller.setTarget(new State(getTarget()));
             output = controller.calculate(new State(getPosition()));
         }
 
@@ -217,9 +216,12 @@ public final class Lift {
                 motor.set(0);
                 motor.setZeroPowerBehavior(FLOAT);
             }
-        } else for (CachedMotorEx motor : motors) {
-            motor.set(output + kG);
-            motor.setZeroPowerBehavior(zeroPowerBehavior);
+        } else {
+            double kG = !isExtended() ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
+            for (CachedMotorEx motor : motors) {
+                motor.set(output + kG);
+                motor.setZeroPowerBehavior(zeroPowerBehavior);
+            }
         }
     }
 
@@ -243,7 +245,7 @@ public final class Lift {
     }
 
     public void setTarget(double inches) {
-        target = inches;
+        target = clip(inches, 0, HEIGHT_EXTENDED);
     }
 
     public boolean atPosition(double liftTarget) {

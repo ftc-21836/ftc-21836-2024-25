@@ -10,14 +10,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
-import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @Config
 public final class Robot {
 
     public final PinpointDrive drivetrain;
-//    public final Intake intake;
+    public final Intake intake;
     public final Deposit deposit;
     public final BulkReader bulkReader;
 
@@ -26,18 +24,17 @@ public final class Robot {
     public Robot(HardwareMap hardwareMap, Pose2d startPose) {
         drivetrain = new PinpointDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
-//        intake = new Intake(hardwareMap);
+        intake = new Intake(hardwareMap);
         deposit = new Deposit(hardwareMap);
     }
 
     public void run() {
-//        intake.run(deposit, activeHooks.isActivated() || Deposit.level1Ascent);
-        deposit.run(false);
+        intake.run(deposit);
+        deposit.run(intake);
     }
 
     public boolean hasSample() {
-        return false;
-//        return intake.hasSample() || deposit.hasSample();
+        return intake.hasSample() || deposit.hasSample();
     }
 
     public void printTelemetry() {
