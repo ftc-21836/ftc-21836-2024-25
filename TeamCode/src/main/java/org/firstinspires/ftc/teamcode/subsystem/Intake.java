@@ -148,6 +148,7 @@ public final class Intake {
         bucketL = getAxon(hardwareMap, "bucket left");
 
         roller = new CachedMotorEx(hardwareMap, "intake", Motor.GoBILDA.RPM_1620);
+        roller.setInverted(true);
 
         colorSensor = new ColorSensor(hardwareMap, "bucket color", (float) COLOR_SENSOR_GAIN);
 
