@@ -106,7 +106,7 @@ public final class Lift {
             ANGLE_TILTER_TILTED = 130,
 
             ANGLE_SWITCH_INACTIVE = 15,
-            ANGLE_SWITCH_ENGAGED = 30,
+            ANGLE_SWITCH_ENGAGED = 105,
 
             TIME_TILT_AND_SWITCH = 10,
             TIME_RAISE_SECOND_RUNG = 10;
