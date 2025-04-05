@@ -81,8 +81,8 @@ public final class Lift {
     }
 
     public static PIDGains
-            pidGains = new PIDGains(0.05, 0.025),
-            dtPidGains = new PIDGains(0.05, 0.025);
+            pidGains = new PIDGains(0, 0),
+            dtPidGains = new PIDGains(0, 0);
 
     public static double
             kG = 0.4,
@@ -92,7 +92,7 @@ public final class Lift {
             SPEED_RETRACTION = -0,
             MAX_VOLTAGE = 13,
 
-            kG_CLIMB = -0.5,
+            kG_CLIMB = 0,
 
             HEIGHT_EXTENDED = 28.34645669291339,
 
