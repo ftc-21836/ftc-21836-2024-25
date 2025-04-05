@@ -6,6 +6,7 @@ import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_435;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.BRAKE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.INACTIVE;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.PULLING_FIRST_RUNG;
@@ -27,7 +28,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.control.controller.PIDController;
 import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.control.motion.State;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
 
 @Config
@@ -113,7 +116,7 @@ public final class Lift {
     public static Motor.ZeroPowerBehavior zeroPowerBehavior = BRAKE;
 
     private final CachedMotorEx[] motors;
-    private final CachedMotorEx[] dtMotors;
+    private final MecanumDrive dt;
 
     private final PIDController controller = new PIDController();
     private final VoltageSensor batteryVoltageSensor;
@@ -123,8 +126,11 @@ public final class Lift {
 
     private double position, target, manualPower;
 
-    Lift(HardwareMap hardwareMap) {
+    Lift(HardwareMap hardwareMap, MecanumDrive dt) {
+
+        this.dt = dt;
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+
         motors = new CachedMotorEx[]{
                 new CachedMotorEx(hardwareMap, "lift right", RPM_1620),
                 new CachedMotorEx(hardwareMap, "lift left", RPM_1620),
@@ -133,9 +139,6 @@ public final class Lift {
 
         motors[0].encoder = new CachedMotorEx(hardwareMap, "left front", RPM_1620).encoder;
         motors[1].encoder = new CachedMotorEx(hardwareMap, "left back", RPM_1620).encoder;
-
-        liftSensor = hardwareMap.get(TouchSensor.class, "lift sensor");
-
         motors[1].encoder.setDirection(REVERSE);
 
         for (CachedMotorEx motor : motors) {
@@ -144,14 +147,7 @@ public final class Lift {
             motor.encoder.reset();
         }
 
-        dtMotors = new CachedMotorEx[]{
-                new CachedMotorEx(hardwareMap, "left front", RPM_435),
-                new CachedMotorEx(hardwareMap, "left back", RPM_435),
-                new CachedMotorEx(hardwareMap, "right front", RPM_435),
-                new CachedMotorEx(hardwareMap, "right back", RPM_435),
-        };
-        motors[0].setInverted(true);
-        motors[1].setInverted(true);
+        liftSensor = hardwareMap.get(TouchSensor.class, "lift sensor");
 
         tilt = new SimpleServoPivot(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED,
                 getAxon(hardwareMap, "tilt right"),
@@ -176,8 +172,6 @@ public final class Lift {
 
         position = 0.5 * (motors[0].encoder.getDistance() + motors[1].encoder.getDistance());
 
-        double output;
-
         switch (climbState) {
             case TILTING_SWITCHING:
                 if (climbTimer.seconds() >= TIME_TILT_AND_SWITCH) climb();
@@ -189,6 +183,8 @@ public final class Lift {
                 if (climbTimer.seconds() >= TIME_RAISE_SECOND_RUNG) climb();
                 else break;
         }
+
+        double output;
 
         // When the magnet hits
         if (!gearSwitch.isActivated() && getTarget() == 0 && !isExtended() && manualPower <= 0) {
@@ -215,7 +211,11 @@ public final class Lift {
         gearSwitch.run();
 
         if (gearSwitch.isActivated()) {
-            for (CachedMotorEx dtMotor : dtMotors) dtMotor.set(output + kG_CLIMB);
+            double power = output + kG_CLIMB;
+            dt.leftFront.setPower(power);
+            dt.leftBack.setPower(power);
+            dt.rightBack.setPower(power);
+            dt.rightFront .setPower(power);
             for (CachedMotorEx motor : motors) {
                 motor.set(0);
                 motor.setZeroPowerBehavior(FLOAT);
@@ -238,6 +238,10 @@ public final class Lift {
         mTelemetry.addLine();
         mTelemetry.addData("Right encoder (ticks)", motors[0].encoder.getPosition());
         mTelemetry.addData("Left encoder (ticks)", motors[1].encoder.getPosition());
+        divider();
+        mTelemetry.addData("GEAR SWITCH", gearSwitch.isActivated() ? "ENGAGED" : "INACTIVE");
+        divider();
+        mTelemetry.addData("TILT", tilt.isActivated() ? "TILTED" : "INACTIVE");
     }
 
     public double getPosition() {

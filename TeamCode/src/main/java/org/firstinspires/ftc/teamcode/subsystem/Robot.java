@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 
 @Config
 public final class Robot {
@@ -25,7 +26,7 @@ public final class Robot {
         drivetrain = new PinpointDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
         intake = new Intake(hardwareMap);
-        deposit = new Deposit(hardwareMap);
+        deposit = new Deposit(hardwareMap, drivetrain);
     }
 
     public void run() {
@@ -42,8 +43,8 @@ public final class Robot {
         loopTimer.reset();
         divider();
         drivetrain.printTelemetry();
-//        divider();
-//        intake.printTelemetry();
+        divider();
+        intake.printTelemetry();
         divider();
         deposit.printTelemetry();
     }

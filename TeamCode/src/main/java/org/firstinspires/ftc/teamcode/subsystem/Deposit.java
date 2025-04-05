@@ -22,6 +22,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @Config
@@ -100,8 +102,8 @@ public final class Deposit {
 
     private double sampleHeight = HEIGHT_BASKET_HIGH;
 
-    Deposit(HardwareMap hardwareMap) {
-        lift = new Lift(hardwareMap);
+    Deposit(HardwareMap hardwareMap, MecanumDrive dt) {
+        lift = new Lift(hardwareMap, dt);
         claw = getAxon(hardwareMap, "claw").reversed();
         armR = getAxon(hardwareMap, "arm right");
         armL = getAxon(hardwareMap, "arm left").reversed();
