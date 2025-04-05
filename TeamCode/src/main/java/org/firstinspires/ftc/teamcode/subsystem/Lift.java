@@ -99,14 +99,16 @@ public final class Lift {
             HEIGHT_ABOVE_FIRST_RUNG = 10,
             HEIGHT_ABOVE_SECOND_RUNG = 15,
 
-            ANGLE_TILTER_INACTIVE = 15,
-            ANGLE_TILTER_TILTED = 120,
+            ANGLE_TILTER_INACTIVE = 225,
+            ANGLE_TILTER_TILTED = 130,
 
             ANGLE_SWITCH_INACTIVE = 15,
             ANGLE_SWITCH_ENGAGED = 30,
 
             TIME_TILT_AND_SWITCH = 10,
             TIME_RAISE_SECOND_RUNG = 10;
+
+    private boolean usedTilt = false;
 
     public static Motor.ZeroPowerBehavior zeroPowerBehavior = BRAKE;
 
@@ -207,7 +209,9 @@ public final class Lift {
 
         tilt.updateAngles(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED);
         gearSwitch.updateAngles(ANGLE_SWITCH_INACTIVE, ANGLE_SWITCH_ENGAGED);
-        tilt.run();
+
+        if (tilt.isActivated()) usedTilt = true;
+        if (usedTilt) tilt.run();
         gearSwitch.run();
 
         if (gearSwitch.isActivated()) {

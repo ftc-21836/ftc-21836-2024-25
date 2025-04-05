@@ -28,7 +28,7 @@ public final class Extendo {
             POSITION_TOLERANCE = 0.6,
             LENGTH_EXTENDED = 21.25984251968504;
 
-    public static PIDGains pidGains = new PIDGains(0.015, 0.01);
+    public static PIDGains pidGains = new PIDGains(0, 0);
 
     private final CachedMotorEx motor;
     private final PIDController controller = new PIDController();
