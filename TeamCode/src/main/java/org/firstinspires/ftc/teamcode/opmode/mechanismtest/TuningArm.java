@@ -43,7 +43,7 @@ public final class TuningArm extends LinearOpMode {
         CachedSimpleServo rServo = getAxon(hardwareMap, "arm right");
         CachedSimpleServo lServo = getAxon(hardwareMap, "arm left").reversed();
 
-        CachedSimpleServo wrist = getAxon(hardwareMap, "wrist");
+        CachedSimpleServo wrist = getAxon(hardwareMap, "wrist").reversed();
 
         boolean closed = false;
 

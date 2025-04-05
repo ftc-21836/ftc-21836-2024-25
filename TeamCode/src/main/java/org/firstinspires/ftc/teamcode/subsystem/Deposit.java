@@ -31,7 +31,7 @@ public final class Deposit {
             ANGLE_CLAW_OPEN = 165, // 140
             ANGLE_CLAW_MOVING_TO_SPECIMEN = 165,
             ANGLE_CLAW_SAMPLE = 190,
-            ANGLE_CLAW_SPECIMEN = 200,
+            ANGLE_CLAW_SPECIMEN = 210,
 
             TIME_SAMPLE_RELEASE = 0.6,
             TIME_SPEC_GRAB = 0.25,
@@ -56,13 +56,13 @@ public final class Deposit {
             TIME_RAISED_SPEC_TO_CHAMBER;
 
     public static ArmPosition
-            INTAKING_SPEC = new ArmPosition(20, 0),
-            RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 0),
-            CHAMBER =       new ArmPosition(0, 0),
-            STANDBY =       new ArmPosition(180, 0),
-            IN_INTAKE =     new ArmPosition(160, 0),
-            BASKET =        new ArmPosition(313, 0),
-            ASCENT =        new ArmPosition(180, 20);
+            ASCENT =        new ArmPosition(180, 100),
+            BASKET =        new ArmPosition(313, 150),
+            CHAMBER =       new ArmPosition(150, 80),
+            INTAKING_SPEC = new ArmPosition(20, 55),
+            IN_INTAKE =     new ArmPosition(100, 75),
+            RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
+            STANDBY =       new ArmPosition(120, 56);
 
     enum State {
         STANDBY,
@@ -125,9 +125,9 @@ public final class Deposit {
 //                                                    ANGLE_CLAW_TRANSFER
 //        );
 
-//        rServo.turnToAngle(state.armPosition.arm);
-//        lServo.turnToAngle(state.armPosition.arm);
-//        wrist.turnToAngle(state.armPosition.wrist);
+        armR.turnToAngle(STANDBY.arm);
+        armL.turnToAngle(STANDBY.arm);
+        wrist.turnToAngle(STANDBY.wrist);
     }
 
     public void preloadSpecimen() {
