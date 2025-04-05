@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
@@ -38,10 +39,10 @@ public final class Extendo {
     public Extendo(HardwareMap hardwareMap) {
 
         motor = new CachedMotorEx(hardwareMap, "extendo", RPM_1620);
-//        motor.setInverted(true);
+        motor.setInverted(true);
 
         motor.encoder = new CachedMotorEx(hardwareMap, "right back", RPM_1620).encoder;
-//        motor.encoder.setDirection(REVERSE);
+        motor.encoder.setDirection(REVERSE);
         motor.encoder.setDistancePerPulse(INCHES_PER_TICK);
         motor.encoder.reset();
 
