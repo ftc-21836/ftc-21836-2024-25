@@ -21,18 +21,17 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @Config
 public final class Deposit {
 
     public static double
-            ANGLE_CLAW_OPEN = 70,
-            ANGLE_CLAW_TRANSFER = 80,
-            ANGLE_CLAW_CLOSED = 25,
+            ANGLE_CLAW_OPEN = 165, // 140
+            ANGLE_CLAW_MOVING_TO_SPECIMEN = 165,
+            ANGLE_CLAW_SAMPLE = 190,
+            ANGLE_CLAW_SPECIMEN = 200,
 
             TIME_SAMPLE_RELEASE = 0.6,
             TIME_SPEC_GRAB = 0.25,
@@ -57,13 +56,13 @@ public final class Deposit {
             TIME_RAISED_SPEC_TO_CHAMBER;
 
     public static ArmPosition
-            INTAKING_SPEC = new ArmPosition(0, 0),
-            RAISED_SPEC =   new ArmPosition(0, 0),
+            INTAKING_SPEC = new ArmPosition(20, 0),
+            RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 0),
             CHAMBER =       new ArmPosition(0, 0),
-            STANDBY =       new ArmPosition(0, 0),
-            IN_INTAKE =     new ArmPosition(0, 0),
-            BASKET =        new ArmPosition(0, 0),
-            ASCENT =        new ArmPosition(0, 0);
+            STANDBY =       new ArmPosition(180, 0),
+            IN_INTAKE =     new ArmPosition(160, 0),
+            BASKET =        new ArmPosition(313, 0),
+            ASCENT =        new ArmPosition(180, 20);
 
     enum State {
         STANDBY,
@@ -107,7 +106,7 @@ public final class Deposit {
         claw = getAxon(hardwareMap, "claw").reversed();
         armR = getAxon(hardwareMap, "arm right");
         armL = getAxon(hardwareMap, "arm left").reversed();
-        wrist = getAxon(hardwareMap, "wrist");
+        wrist = getAxon(hardwareMap, "wrist").reversed();
     }
 
     void run(Intake intake) {
