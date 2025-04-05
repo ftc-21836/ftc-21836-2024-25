@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
-import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_435;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.BRAKE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
@@ -30,7 +29,6 @@ import org.firstinspires.ftc.teamcode.control.gainmatrix.PIDGains;
 import org.firstinspires.ftc.teamcode.control.motion.State;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
 
 @Config
@@ -70,13 +68,11 @@ public final class Lift {
                 break;
             case RAISING_SECOND_RUNG:
                 gearSwitch.setActivated(true);
-                tilt.setActivated(true);
                 setTarget(0);
                 climbState = PULLING_SECOND_RUNG;
                 break;
             case PULLING_SECOND_RUNG:
                 gearSwitch.setActivated(false);
-                tilt.setActivated(false);
                 climbState = INACTIVE;
                 break;
         }
