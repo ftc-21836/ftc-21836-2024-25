@@ -105,6 +105,7 @@ public final class Lift {
             ANGLE_SWITCH_ENGAGED = 105,
 
             TIME_TILT_AND_SWITCH = 10,
+            TIME_SHORT_HOOKS = 1,
             TIME_RAISE_SECOND_RUNG = 10;
 
     private boolean usedTilt = false;
@@ -173,8 +174,9 @@ public final class Lift {
                 if (climbTimer.seconds() >= TIME_TILT_AND_SWITCH) climb();
                 else break;
             case PULLING_FIRST_RUNG:
-                if (!isExtended()) climb();
-                else break;
+                if (isExtended()) climbTimer.reset();
+                else if (climbTimer.seconds() < TIME_SHORT_HOOKS) break;
+                else climb();
             case RAISING_SECOND_RUNG:
                 if (climbTimer.seconds() >= TIME_RAISE_SECOND_RUNG) climb();
                 else break;
