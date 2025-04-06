@@ -5,17 +5,22 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.AT_OBS_ZONE;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.ENTERING_BUCKET;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.EXITING_BUCKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.GRABBING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SAMPLE;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.AT_BASKET;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_BASKET;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_INTAKING_SPEC;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_OBS_ZONE;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_PRE_OBS;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISED_TO_STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SCORING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_SPECIMEN;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.SAMPLE_FALLING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.STANDBY_TO_SPEC_SCORING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
-
-import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -53,7 +58,7 @@ public final class Deposit {
             TIME_STANDBY_TO_BASKET = 1,
             TIME_STANDBY_TO_INTAKING_SPEC = 1,
             TIME_RAISE_SPEC = 1,
-            TIME_RAISED_SPEC_TO_CHAMBER;
+            TIME_RAISED_SPEC_TO_CHAMBER = 1;
 
     public static ArmPosition
             ASCENT =        new ArmPosition(180, 100),
@@ -61,24 +66,45 @@ public final class Deposit {
             CHAMBER =       new ArmPosition(150, 80),
             INTAKING_SPEC = new ArmPosition(20, 55),
             IN_INTAKE =     new ArmPosition(100, 75),
+            PRE_OBS_ZONE =  new ArmPosition(120, 56),
             RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
             STANDBY =       new ArmPosition(120, 56);
 
     enum State {
         STANDBY,
+
         ENTERING_BUCKET,
+        COUNTER_ROLLING,
         TRANSFERRING,
         EXITING_BUCKET,
-        MOVING_TO_SAMPLE_SCORING,
-        SCORING_SAMPLE,
-        SAMPLE_FALLING,
-        RETURNING_TO_STANDBY,
+
+        MOVING_TO_BASKET,
+        AT_BASKET,
+        FALLING_BASKET,
+        BASKET_TO_STANDBY,
+
+        MOVING_TO_PRE_OBS,
+        MOVING_TO_OBS_ZONE,
+        AT_OBS_ZONE,
+        FALLING_OBS,
+        OBS_ZONE_TO_STANDBY,
+
+        MOVING_TO_INTAKING_SPEC,
         INTAKING_SPECIMEN,
         GRABBING_SPECIMEN,
         RAISING_SPECIMEN,
-        MOVING_TO_SPEC_SCORING,
+        RAISED_TO_STANDBY,
+        STANDBY_TO_SPEC_SCORING,
         SCORING_SPECIMEN,
-        RELEASING_SPECIMEN;
+        RELEASING_SPECIMEN,
+        RELEASED_SPEC_TO_STANDBY;
+
+        private static final State[] states = values();
+
+        private State plus(int i) {
+            int max = states.length;
+            return states[((ordinal() + i) % max + max) % max];
+        }
     }
 
     public enum Position {
@@ -99,7 +125,7 @@ public final class Deposit {
 
     Deposit.State state = Deposit.State.STANDBY;
 
-    private double sampleHeight = HEIGHT_BASKET_HIGH;
+    private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH;
 
     Deposit(HardwareMap hardwareMap, MecanumDrive dt) {
         lift = new Lift(hardwareMap, dt);
@@ -111,18 +137,11 @@ public final class Deposit {
 
     void run(Intake intake) {
 
+
+
         lift.run();
 
 //        claw.turnToAngle(
-//                state == HAS_SAMPLE ?               ANGLE_CLAW_CLOSED :
-//                state == SAMPLE_FALLING ?           ANGLE_CLAW_OPEN :
-//                state == INTAKING_SPECIMEN ?        ANGLE_CLAW_OPEN :
-//                state == GRABBING_SPECIMEN ?        ANGLE_CLAW_CLOSED :
-//                state == RAISING_SPECIMEN ?         ANGLE_CLAW_CLOSED :
-//                state == HAS_SPECIMEN ?             ANGLE_CLAW_CLOSED :
-//                state == RELEASING_SPECIMEN ?       ANGLE_CLAW_OPEN :
-//
-//                                                    ANGLE_CLAW_TRANSFER
 //        );
 
         armR.turnToAngle(STANDBY.arm);
@@ -164,16 +183,24 @@ public final class Deposit {
                     break;
                 }
 
-            case SCORING_SAMPLE:
-            case SAMPLE_FALLING:
+            case MOVING_TO_BASKET:
+            case AT_BASKET:
+            case FALLING_BASKET:
+
+                if (position == FLOOR) {
+
+                }
 
                 lift.setTarget(
                         position == HIGH ?
                                 lift.getTarget() >= HEIGHT_BASKET_HIGH ?
                                             lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
                                             HEIGHT_BASKET_HIGH :
-                        position == LOW ?   HEIGHT_BASKET_LOW :
-                                            HEIGHT_OBSERVATION_ZONE
+                        position == LOW ?
+                                lift.getTarget() >= HEIGHT_BASKET_LOW ?
+                                        lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
+                                        HEIGHT_BASKET_LOW :
+                        0
                 );
 
                 break;
@@ -185,7 +212,7 @@ public final class Deposit {
                 if (position == FLOOR) {
 
                     while (state != INTAKING_SPECIMEN) {
-                        triggerClaw();
+                        nextState();
                     }
                     break;
                 }
@@ -195,7 +222,7 @@ public final class Deposit {
                 if (position == FLOOR) {
 
                     while (state != SCORING_SPECIMEN) {
-                        triggerClaw();
+                        nextState();
                     }
                     break;
                 }
@@ -207,63 +234,87 @@ public final class Deposit {
 
     }
 
-    public void triggerClaw() {
+    public void nextState() {
         switch (state) {
-
-            case SCORING_SAMPLE:
-
-                sampleHeight = lift.getTarget();
-                state = SAMPLE_FALLING;
-                timer.reset();
-
-                break;
-
-            case RELEASING_SPECIMEN:
-            case SAMPLE_FALLING:
             case STANDBY:
 
-                state = INTAKING_SPECIMEN;
                 lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
-
+                state = MOVING_TO_INTAKING_SPEC;
                 break;
 
-            case INTAKING_SPECIMEN:
+            case EXITING_BUCKET:
 
-                state = GRABBING_SPECIMEN;
-                timer.reset();
-
+                if (sampleHeight == HEIGHT_OBSERVATION_ZONE) {
+                    state = MOVING_TO_PRE_OBS;
+                } else {
+                    lift.setTarget(sampleHeight);
+                    state = state.plus(1);
+                }
                 break;
 
             case GRABBING_SPECIMEN:
-
-                state = SCORING_SPECIMEN;
-                setPosition(HIGH);
-                timer.reset();
-
+                lift.setTarget(specimenHeight);
+                state = state.plus(1);
                 break;
 
+            case FALLING_BASKET:
+            case FALLING_OBS:
+            case RELEASING_SPECIMEN:
+                lift.setTarget(0);
+            case ENTERING_BUCKET:
+            case COUNTER_ROLLING:
+            case TRANSFERRING:
+            case MOVING_TO_BASKET:
+            case AT_BASKET:
+            case MOVING_TO_PRE_OBS:
+            case MOVING_TO_OBS_ZONE:
+            case AT_OBS_ZONE:
+            case MOVING_TO_INTAKING_SPEC:
+            case INTAKING_SPECIMEN:
+            case RAISING_SPECIMEN:
+            case RAISED_TO_STANDBY:
+            case STANDBY_TO_SPEC_SCORING:
             case SCORING_SPECIMEN:
 
-                state = RELEASING_SPECIMEN;
-                timer.reset();
+                state = state.plus(1);
+                break;
 
+            case BASKET_TO_STANDBY:
+            case OBS_ZONE_TO_STANDBY:
+            case RELEASED_SPEC_TO_STANDBY:
+
+                state = State.STANDBY;
                 break;
         }
     }
 
     public boolean hasSample() {
         return
-                state == SCORING_SAMPLE ||
+                state == TRANSFERRING ||
+                state == EXITING_BUCKET ||
+                state == MOVING_TO_BASKET ||
+                state == AT_BASKET ||
+
+                state == MOVING_TO_PRE_OBS ||
+                state == MOVING_TO_OBS_ZONE ||
+                state == AT_OBS_ZONE ||
+
                 state == GRABBING_SPECIMEN ||
                 state == RAISING_SPECIMEN ||
+                state == RAISED_TO_STANDBY ||
+                state == STANDBY_TO_SPEC_SCORING ||
                 state == SCORING_SPECIMEN;
     }
 
     public boolean basketReady() {
-        return state == SCORING_SAMPLE;
+        return state == AT_BASKET;
     }
 
-    public boolean hasSpecimen() {
+    public boolean obsReady() {
+        return state == AT_OBS_ZONE;
+    }
+
+    public boolean chamberReady() {
         return state == SCORING_SPECIMEN;
     }
 
@@ -274,10 +325,11 @@ public final class Deposit {
     public void transfer() {
         if (state != State.STANDBY) return;
         state = ENTERING_BUCKET;
+        timer.reset();
     }
 
     void printTelemetry() {
-        String gameElement = state.ordinal() >= INTAKING_SPECIMEN.ordinal() ? "has specimen" : "has sample";
+        String gameElement = state.ordinal() >= MOVING_TO_INTAKING_SPEC.ordinal() ? "has specimen" : "has sample";
         mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
         divider();
         lift.printTelemetry();

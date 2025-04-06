@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.ARM_ENTERING_BUCKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.ARM_EXITING_BUCKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.BUCKET_RETRACTING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.COUNTER_ROLLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.SETTLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EJECTING_SAMPLE;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.EXTENDO_RETRACTING;
@@ -50,8 +51,10 @@ public final class Intake {
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
-            SPEED_PRE_TRANSFER = -0.1,
-            SPEED_POST_TRANSFER = -0.2,
+            SPEED_ARM_ENTERING = 0.1,
+            SPEED_COUNTER_ROLLING = -0.1,
+            SPEED_TRANSFERRING = -0.05,
+            SPEED_ARM_EXITING = -0.2,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -132,6 +135,7 @@ public final class Intake {
         EXTENDO_RETRACTING,
         SETTLING,
         ARM_ENTERING_BUCKET,
+        COUNTER_ROLLING,
         TRANSFERRING,
         ARM_EXITING_BUCKET,
     }
@@ -245,7 +249,18 @@ public final class Intake {
             case ARM_ENTERING_BUCKET:
 
                 setBucket(ANGLE_BUCKET_RETRACTED);
-                roller.set(SPEED_PRE_TRANSFER);
+                roller.set(SPEED_ARM_ENTERING);
+                extendo.setExtended(false);
+
+                if (deposit.state == Deposit.State.COUNTER_ROLLING) {
+                    state = COUNTER_ROLLING;
+                    timer.reset();
+                } else break;
+
+            case COUNTER_ROLLING:
+
+                setBucket(ANGLE_BUCKET_RETRACTED);
+                roller.set(SPEED_COUNTER_ROLLING);
                 extendo.setExtended(false);
 
                 if (deposit.state == Deposit.State.TRANSFERRING) {
@@ -257,7 +272,7 @@ public final class Intake {
             case TRANSFERRING:
 
                 setBucket(ANGLE_BUCKET_RETRACTED);
-                roller.set(0);
+                roller.set(SPEED_TRANSFERRING);
                 extendo.setExtended(false);
 
                 if (deposit.state == Deposit.State.EXITING_BUCKET) {
@@ -268,7 +283,7 @@ public final class Intake {
             case ARM_EXITING_BUCKET:
 
                 setBucket(ANGLE_BUCKET_RETRACTED);
-                roller.set(SPEED_POST_TRANSFER);
+                roller.set(SPEED_ARM_EXITING);
                 extendo.setExtended(false);
 
                 if (deposit.state != Deposit.State.EXITING_BUCKET) {

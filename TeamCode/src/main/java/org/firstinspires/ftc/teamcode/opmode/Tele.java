@@ -39,7 +39,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
-import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 @TeleOp
@@ -133,7 +132,7 @@ public final class Tele extends LinearOpMode {
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
-            if (robot.deposit.hasSample()) mTelemetry.addLine("Preloaded a " + (robot.deposit.hasSpecimen() ? "SPECIMEN" : "SAMPLE"));
+            if (robot.deposit.hasSample()) mTelemetry.addLine("Preloaded a " + (robot.deposit.chamberReady() ? "SPECIMEN" : "SAMPLE"));
             else
             {
                 mTelemetry.addLine("Preload sample" + selection.markIf(PRELOAD_SAMPLE));
@@ -204,7 +203,7 @@ public final class Tele extends LinearOpMode {
 
                 if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.climb();
 
-                if (gamepadEx1.wasJustPressed(B)) robot.deposit.triggerClaw();
+                if (gamepadEx1.wasJustPressed(B)) robot.deposit.nextState();
 
             }
 
