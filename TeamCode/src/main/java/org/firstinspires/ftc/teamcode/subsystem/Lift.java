@@ -84,10 +84,10 @@ public final class Lift {
             dtPidGains = new PIDGains(0, 0);
 
     public static double
-            kG = 0.4,
+            kG = 0,
             INCHES_PER_TICK = 0.0440162371,
             POSITION_TOLERANCE = 0.25,
-            HEIGHT_RETRACTING = 0.25,
+            HEIGHT_RETRACTING = 0,
             SPEED_RETRACTION = -0,
             MAX_VOLTAGE = 13,
 
