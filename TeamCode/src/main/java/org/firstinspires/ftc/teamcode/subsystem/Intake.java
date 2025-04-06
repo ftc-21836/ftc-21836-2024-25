@@ -37,7 +37,7 @@ public final class Intake {
     public static double
 
             ANGLE_BUCKET_RETRACTED = 5,
-            ANGLE_BUCKET_OVER_BARRIER = 140,
+            ANGLE_BUCKET_OVER_SUB_BAR = 140,
             ANGLE_BUCKET_INTAKING_NEAR = 206,
             ANGLE_BUCKET_INTAKING_FAR = 203.5,
 
@@ -177,7 +177,7 @@ public final class Intake {
 
                 if (rollerSpeed != 0) { // intaking, trigger held down
 
-                    setBucket(lerp(ANGLE_BUCKET_OVER_BARRIER, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
+                    setBucket(lerp(ANGLE_BUCKET_OVER_SUB_BAR, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
                     roller.set(rollerSpeed / SPEED_INTAKING);
                     
                     colorSensor.update();
@@ -189,7 +189,7 @@ public final class Intake {
                     
                 } else if (!hasSample()) { // retracted
 
-                    setBucket(ANGLE_BUCKET_RETRACTED);
+                    setBucket(deposit.requestingIntakeToMove() ? ANGLE_BUCKET_OVER_SUB_BAR : ANGLE_BUCKET_RETRACTED);
                     roller.set(0);
 
                     break;
