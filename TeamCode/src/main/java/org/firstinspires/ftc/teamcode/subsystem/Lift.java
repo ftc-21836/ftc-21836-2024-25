@@ -217,13 +217,10 @@ public final class Lift {
             dt.leftBack.setPower(power);
             dt.rightBack.setPower(power);
             dt.rightFront .setPower(power);
-            for (CachedMotorEx motor : motors) motor.set(power);
+            for (CachedMotorEx motor : motors) motor.set(0);
         } else {
             double kG = !isExtended() ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
-            for (CachedMotorEx motor : motors) {
-                motor.set(output + kG);
-                motor.setZeroPowerBehavior(zeroPowerBehavior);
-            }
+            for (CachedMotorEx motor : motors) motor.set(output + kG);
         }
     }
 
