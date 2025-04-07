@@ -406,17 +406,27 @@ public final class Deposit {
             case TRANSFERRING:
             case OBS_ZONE_TO_PRE_OBS:
             case MOVING_TO_BASKET:
-            case AT_BASKET:
             case MOVING_TO_PRE_OBS:
             case MOVING_TO_OBS_ZONE:
-            case AT_OBS_ZONE:
             case MOVING_TO_INTAKING_SPEC:
             case INTAKING_SPECIMEN:
             case RAISING_SPECIMEN:
             case RAISED_TO_STANDBY:
             case STANDBY_TO_CHAMBER:
+
+                state = state.plus(1);
+                break;
+
+            case AT_BASKET:
+            case AT_OBS_ZONE:
+
+                sampleHeight = lift.getTarget();
+                state = state.plus(1);
+                break;
+
             case AT_CHAMBER:
 
+                specimenHeight = lift.getTarget();
                 state = state.plus(1);
                 break;
 
