@@ -42,7 +42,7 @@ public final class Lift {
         PULLING_SECOND_RUNG,
     }
 
-    private ClimbState climbState = INACTIVE;
+    ClimbState climbState = INACTIVE;
     private final ElapsedTime climbTimer = new ElapsedTime();
 
     public void climb() {

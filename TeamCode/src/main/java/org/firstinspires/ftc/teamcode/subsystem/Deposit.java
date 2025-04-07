@@ -223,9 +223,12 @@ public final class Deposit {
 
         lift.run();
 
-        armR.turnToAngle(state.armPosition.arm);
-        armL.turnToAngle(state.armPosition.arm);
-        wrist.turnToAngle(state.armPosition.wrist);
+        boolean swingOverBarForClimb = state == State.STANDBY && lift.climbState == Lift.ClimbState.PULLING_SECOND_RUNG;
+        ArmPosition armPosition = swingOverBarForClimb ? BASKET : state.armPosition;
+
+        armR.turnToAngle(armPosition.arm);
+        armL.turnToAngle(armPosition.arm);
+        wrist.turnToAngle(armPosition.wrist);
 
         claw.turnToAngle(
                 state == State.STANDBY ?    ANGLE_CLAW_OPEN :
