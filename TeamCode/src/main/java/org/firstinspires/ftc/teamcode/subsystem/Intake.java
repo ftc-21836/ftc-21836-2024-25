@@ -39,7 +39,7 @@ public final class Intake {
             ANGLE_ARM_EXITING = 25,
             ANGLE_BUCKET_RETRACTED = 5,
             ANGLE_BUCKET_OVER_SUB_BAR = 40,
-            ANGLE_AVOID_ARM = 25,
+            ANGLE_AVOID_ARM = 35,
             ANGLE_BUCKET_INTAKING_NEAR = 120,
             ANGLE_BUCKET_INTAKING_FAR = 120,
 
