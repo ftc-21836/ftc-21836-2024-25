@@ -46,10 +46,6 @@ public final class Deposit {
             ANGLE_CLAW_SAMPLE = 190,
             ANGLE_CLAW_SPECIMEN = 210,
 
-            TIME_SAMPLE_RELEASE = 0.6,
-            TIME_SPEC_GRAB = 0.25,
-            TIME_SPEC_RELEASE = 0.1,
-
             TOLERANCE_ARM_SCORING_POS = 4,
 
             HEIGHT_ABOVE_INTAKE = 10,
@@ -62,22 +58,34 @@ public final class Deposit {
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
 
-            TIME_STANDBY_TO_IN_INTAKE = 1,
-            TIME_IN_INTAKE_TO_STANDBY = 1,
-            TIME_STANDBY_TO_BASKET = 1,
-            TIME_STANDBY_TO_INTAKING_SPEC = 1,
+            TIME_ENTERING_BUCKET = 1,
+            TIME_COUNTER_ROLLING = 1,
+            TIME_TRANSFERRING = 1,
+            TIME_EXITING_BUCKET = 1,
+            TIME_OBS_ZONE_TO_PRE_OBS = 1,
+            TIME_TO_BASKET = 1,
+            TIME_SAMPLE_RELEASE = 1,
+            TIME_BASKET_TO_STANDBY = 1,
+            TIME_TO_PRE_OBS = 1,
+            TIME_TO_OBS_ZONE = 1,
+            TIME_OBS_ZONE_TO_STANDBY = 1,
+            TIME_TO_INTAKING_SPEC = 1,
+            TIME_SPEC_GRAB = 1,
             TIME_RAISE_SPEC = 1,
-            TIME_RAISED_SPEC_TO_CHAMBER = 1;
+            TIME_RAISED_SPEC_TO_STANDBY = 1,
+            TIME_STANDBY_TO_CHAMBER = 1,
+            TIME_SPEC_RELEASE = 1,
+            TIME_RELEASED_SPEC_TO_STANDBY = 1;
 
     public static ArmPosition
             ASCENT =        new ArmPosition(180, 100),
             BASKET =        new ArmPosition(313, 150),
             CHAMBER =       new ArmPosition(150, 80),
-            INTAKING_SPEC = new ArmPosition(20, 55),
+            INTAKING_SPEC = new ArmPosition(18, 55),
             IN_INTAKE =     new ArmPosition(100, 75),
             PRE_OBS_ZONE =  new ArmPosition(120, 56),
             RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
-            STANDBY =       new ArmPosition(120, 56);
+            STANDBY =       new ArmPosition(120, 35);
 
     enum State {
         STANDBY         (Deposit.STANDBY),
@@ -155,7 +163,63 @@ public final class Deposit {
 
     void run(Intake intake) {
 
-
+        switch (state) {
+            case ENTERING_BUCKET:
+                if (timer.seconds() >= TIME_ENTERING_BUCKET) nextState();
+                break;
+            case COUNTER_ROLLING:
+                if (timer.seconds() >= TIME_COUNTER_ROLLING) nextState();
+                break;
+            case TRANSFERRING:
+                if (timer.seconds() >= TIME_TRANSFERRING) nextState();
+                break;
+            case EXITING_BUCKET:
+                if (timer.seconds() >= TIME_EXITING_BUCKET) nextState();
+                break;
+            case OBS_ZONE_TO_PRE_OBS:
+                if (timer.seconds() >= TIME_OBS_ZONE_TO_PRE_OBS) nextState();
+                break;
+            case MOVING_TO_BASKET:
+                if (timer.seconds() >= TIME_TO_BASKET) nextState();
+                break;
+            case FALLING_BASKET:
+            case FALLING_OBS:
+                if (timer.seconds() >= TIME_SAMPLE_RELEASE) nextState();
+                break;
+            case BASKET_TO_STANDBY:
+                if (timer.seconds() >= TIME_BASKET_TO_STANDBY) nextState();
+                break;
+            case MOVING_TO_PRE_OBS:
+                if (timer.seconds() >= TIME_TO_PRE_OBS) nextState();
+                break;
+            case MOVING_TO_OBS_ZONE:
+                if (timer.seconds() >= TIME_TO_OBS_ZONE) nextState();
+                break;
+            case OBS_ZONE_TO_STANDBY:
+                if (timer.seconds() >= TIME_OBS_ZONE_TO_STANDBY) nextState();
+                break;
+            case MOVING_TO_INTAKING_SPEC:
+                if (timer.seconds() >= TIME_TO_INTAKING_SPEC) nextState();
+                break;
+            case GRABBING_SPECIMEN:
+                if (timer.seconds() >= TIME_SPEC_GRAB) nextState();
+                break;
+            case RAISING_SPECIMEN:
+                if (timer.seconds() >= TIME_RAISE_SPEC) nextState();
+                break;
+            case RAISED_TO_STANDBY:
+                if (timer.seconds() >= TIME_RAISED_SPEC_TO_STANDBY) nextState();
+                break;
+            case STANDBY_TO_CHAMBER:
+                if (timer.seconds() >= TIME_STANDBY_TO_CHAMBER) nextState();
+                break;
+            case RELEASING_SPECIMEN:
+                if (timer.seconds() >= TIME_SPEC_RELEASE) nextState();
+                break;
+            case RELEASED_SPEC_TO_STANDBY:
+                if (timer.seconds() >= TIME_RELEASED_SPEC_TO_STANDBY) nextState();
+                break;
+        }
 
         lift.run();
 
@@ -205,6 +269,7 @@ public final class Deposit {
     // when does the intake need to move out of the way
     boolean requestingIntakeToMove() {
         return lift.getPosition() < HEIGHT_ABOVE_INTAKE && (
+                        state == MOVING_TO_BASKET ||
                         state == MOVING_TO_PRE_OBS ||
                         state == MOVING_TO_OBS_ZONE ||
                         state == MOVING_TO_INTAKING_SPEC ||
@@ -306,6 +371,7 @@ public final class Deposit {
     }
 
     public void nextState() {
+        timer.reset();
         switch (state) {
             case STANDBY:
 

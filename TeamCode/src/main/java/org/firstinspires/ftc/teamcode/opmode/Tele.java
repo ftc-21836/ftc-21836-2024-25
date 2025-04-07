@@ -173,7 +173,9 @@ public final class Tele extends LinearOpMode {
                 robot.deposit.lift.runManual(gamepadEx1.getLeftY() * (gamepadEx1.isDown(RIGHT_BUMPER) ? 0.3 : 1));
 
                 robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
-                robot.drivetrain.run(0, 0, 0, false, true);
+
+                if (!robot.deposit.lift.gearSwitch.isActivated())
+                    robot.drivetrain.run(0, 0, 0, false, true);
 
                 if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.lift.gearSwitch.toggle();
@@ -211,7 +213,7 @@ public final class Tele extends LinearOpMode {
                 robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
 
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.transfer();
+            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
             else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
             else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
             else if (gamepadEx1.wasJustPressed(DPAD_DOWN))      robot.deposit.setPosition(FLOOR);

@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystem;
 
 import static com.arcrobotics.ftclib.hardware.motors.Motor.Direction.REVERSE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.GoBILDA.RPM_1620;
-import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.BRAKE;
 import static com.arcrobotics.ftclib.hardware.motors.Motor.ZeroPowerBehavior.FLOAT;
 import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
@@ -30,6 +29,7 @@ import org.firstinspires.ftc.teamcode.control.motion.State;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.SimpleServoPivot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedMotorEx;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @Config
 public final class Lift {
@@ -84,8 +84,8 @@ public final class Lift {
             dtPidGains = new PIDGains(0, 0);
 
     public static double
-            kG = 0,
-            INCHES_PER_TICK = 0.0440162371,
+            kG = 0.25,
+            INCHES_PER_TICK = 0.031300435271111114,
             POSITION_TOLERANCE = 0.25,
             HEIGHT_RETRACTING = 0,
             SPEED_RETRACTION = -0,
@@ -101,8 +101,9 @@ public final class Lift {
             ANGLE_TILTER_INACTIVE = 225,
             ANGLE_TILTER_TILTED = 130,
 
-            ANGLE_SWITCH_INACTIVE = 15,
-            ANGLE_SWITCH_ENGAGED = 105,
+            ANGLE_SWITCH_INACTIVE = 10,
+            ANGLE_SWITCH_ENGAGED = 65,
+            ANGLE_RIGHT_SWITCH_OFFSET = -1,
 
             TIME_TILT_AND_SWITCH = 10,
             TIME_SHORT_HOOKS = 1,
@@ -110,7 +111,7 @@ public final class Lift {
 
     private boolean usedTilt = false;
 
-    public static Motor.ZeroPowerBehavior zeroPowerBehavior = BRAKE;
+    public static Motor.ZeroPowerBehavior zeroPowerBehavior = FLOAT;
 
     private final CachedMotorEx[] motors;
     private final MecanumDrive dt;
@@ -120,6 +121,7 @@ public final class Lift {
     private final TouchSensor liftSensor;
 
     public final SimpleServoPivot tilt, gearSwitch;
+    private final CachedSimpleServo switchR;
 
     private double position, target, manualPower;
 
@@ -152,7 +154,7 @@ public final class Lift {
         );
 
         gearSwitch = new SimpleServoPivot(ANGLE_SWITCH_INACTIVE, ANGLE_SWITCH_ENGAGED,
-                getGBServo(hardwareMap, "switch right"),
+                switchR = getGBServo(hardwareMap, "switch right"),
                 getGBServo(hardwareMap, "switch left").reversed()
         );
     }
@@ -203,6 +205,7 @@ public final class Lift {
 
         tilt.updateAngles(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED);
         gearSwitch.updateAngles(ANGLE_SWITCH_INACTIVE, ANGLE_SWITCH_ENGAGED);
+        switchR.offset = ANGLE_RIGHT_SWITCH_OFFSET;
 
         if (tilt.isActivated()) usedTilt = true;
         if (usedTilt) tilt.run();
@@ -214,10 +217,7 @@ public final class Lift {
             dt.leftBack.setPower(power);
             dt.rightBack.setPower(power);
             dt.rightFront .setPower(power);
-            for (CachedMotorEx motor : motors) {
-                motor.set(0);
-                motor.setZeroPowerBehavior(FLOAT);
-            }
+            for (CachedMotorEx motor : motors) motor.set(power);
         } else {
             double kG = !isExtended() ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
             for (CachedMotorEx motor : motors) {

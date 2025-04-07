@@ -21,7 +21,7 @@ public final class Extendo {
 
     public static double
             TOUCHPAD_RANGE = 0.9,
-            INCHES_PER_TICK = 0.0440162371,
+            INCHES_PER_TICK = 0.0440162371 * (16/24.0),
             LENGTH_RETRACTING = 1,
             SPEED_RETRACTION = -0,
             LENGTH_DEPOSIT_CLEAR = 4,

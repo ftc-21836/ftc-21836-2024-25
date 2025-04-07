@@ -36,10 +36,12 @@ public final class Intake {
 
     public static double
 
+            ANGLE_ARM_EXITING = 25,
             ANGLE_BUCKET_RETRACTED = 5,
-            ANGLE_BUCKET_OVER_SUB_BAR = 140,
-            ANGLE_BUCKET_INTAKING_NEAR = 206,
-            ANGLE_BUCKET_INTAKING_FAR = 203.5,
+            ANGLE_BUCKET_OVER_SUB_BAR = 40,
+            ANGLE_AVOID_ARM = 25,
+            ANGLE_BUCKET_INTAKING_NEAR = 120,
+            ANGLE_BUCKET_INTAKING_FAR = 120,
 
             TIME_EJECTING = 0.5,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
@@ -51,10 +53,10 @@ public final class Intake {
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
-            SPEED_ARM_ENTERING = 0.1,
-            SPEED_COUNTER_ROLLING = -0.1,
-            SPEED_TRANSFERRING = -0.05,
-            SPEED_ARM_EXITING = -0.2,
+            SPEED_ARM_ENTERING = -0.5,
+            SPEED_COUNTER_ROLLING = -0.5,
+            SPEED_TRANSFERRING = -0.1,
+            SPEED_ARM_EXITING = -0.5,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -189,7 +191,7 @@ public final class Intake {
                     
                 } else if (!hasSample()) { // retracted
 
-                    setBucket(deposit.requestingIntakeToMove() ? ANGLE_BUCKET_OVER_SUB_BAR : ANGLE_BUCKET_RETRACTED);
+                    setBucket(deposit.requestingIntakeToMove() ? ANGLE_AVOID_ARM : ANGLE_BUCKET_RETRACTED);
                     roller.set(0);
 
                     break;
@@ -282,7 +284,7 @@ public final class Intake {
 
             case ARM_EXITING_BUCKET:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(ANGLE_ARM_EXITING);
                 roller.set(SPEED_ARM_EXITING);
                 extendo.setExtended(false);
 
