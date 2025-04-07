@@ -46,8 +46,6 @@ public final class Deposit {
             ANGLE_CLAW_SAMPLE = 190,
             ANGLE_CLAW_SPECIMEN = 210,
 
-            TOLERANCE_ARM_SCORING_POS = 4,
-
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_OBSERVATION_ZONE = 0,
             HEIGHT_BASKET_LOW = 3.5,
@@ -126,9 +124,9 @@ public final class Deposit {
 
         private static final State[] states = values();
 
-        private State plus(int i) {
+        private State next() {
             int max = states.length;
-            return states[((ordinal() + i) % max + max) % max];
+            return states[((ordinal() + 1) % max + max) % max];
         }
     }
 
@@ -141,11 +139,6 @@ public final class Deposit {
     public final Lift lift;
     public final CachedSimpleServo claw;
     private final CachedSimpleServo wrist, armR, armL;
-
-    private void setArm(double angle) {
-        armR.turnToAngle(angle);
-        armL.turnToAngle(angle);
-    }
 
     private final ElapsedTime timer = new ElapsedTime();
 
@@ -161,7 +154,7 @@ public final class Deposit {
         wrist = getAxon(hardwareMap, "wrist").reversed();
     }
 
-    void run(Intake intake) {
+    void run() {
 
         switch (state) {
             case ENTERING_BUCKET:
@@ -394,7 +387,7 @@ public final class Deposit {
 
             case GRABBING_SPECIMEN:
                 lift.setTarget(specimenHeight);
-                state = state.plus(1);
+                state = state.next();
                 break;
 
             case FALLING_BASKET:
@@ -414,20 +407,20 @@ public final class Deposit {
             case RAISED_TO_STANDBY:
             case STANDBY_TO_CHAMBER:
 
-                state = state.plus(1);
+                state = state.next();
                 break;
 
             case AT_BASKET:
             case AT_OBS_ZONE:
 
                 sampleHeight = lift.getTarget();
-                state = state.plus(1);
+                state = state.next();
                 break;
 
             case AT_CHAMBER:
 
                 specimenHeight = lift.getTarget();
-                state = state.plus(1);
+                state = state.next();
                 break;
 
             case BASKET_TO_STANDBY:

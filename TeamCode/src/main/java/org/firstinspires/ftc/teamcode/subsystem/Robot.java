@@ -10,7 +10,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.BulkReader;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 
 @Config
 public final class Robot {
@@ -31,7 +30,7 @@ public final class Robot {
 
     public void run() {
         intake.run(deposit);
-        deposit.run(intake);
+        deposit.run();
     }
 
     public boolean hasSample() {
