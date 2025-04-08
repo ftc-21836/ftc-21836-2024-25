@@ -6,6 +6,7 @@ import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver.EncoderDirec
 import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver.EncoderDirection.REVERSED;
 import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING;
 import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR.goBILDA_4_BAR_POD;
+import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR.goBILDA_SWINGARM_POD;
 import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.zyxOrientation;
 
 import static java.lang.Math.PI;
@@ -62,15 +63,15 @@ public class PinpointDrive extends MecanumDrive {
         To get this value from inPerTick, first convert the value to millimeters (multiply by 25.4)
         and then take its inverse (one over the value)
          */
-        public double encoderResolution = goBILDA_4_BAR_POD;
+        public double encoderResolution = goBILDA_SWINGARM_POD;
 
         /*
         Set the direction that each of the two odometry pods count. The X (forward) pod should
         increase when you move the robot forward. And the Y (strafe) pod should increase when
         you move the robot to the left.
          */
-        public GoBildaPinpointDriver.EncoderDirection xDirection = REVERSED;
-        public GoBildaPinpointDriver.EncoderDirection yDirection = FORWARD;
+        public GoBildaPinpointDriver.EncoderDirection xDirection = FORWARD;
+        public GoBildaPinpointDriver.EncoderDirection yDirection = REVERSED;
 
         /*
         Use the pinpoint IMU for tuning
