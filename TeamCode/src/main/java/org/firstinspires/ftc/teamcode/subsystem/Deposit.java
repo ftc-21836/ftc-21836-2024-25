@@ -259,7 +259,11 @@ public final class Deposit {
     public void preloadSpecimen() {
         state = AT_CHAMBER;
         claw.turnToAngle(ANGLE_CLAW_SPECIMEN);
-        lift.setTarget(specimenHeight);
+    }
+
+    public void preloadSample() {
+        state = AT_BASKET;
+        claw.turnToAngle(ANGLE_CLAW_SAMPLE);
     }
 
     // when does the intake need to move out of the way
