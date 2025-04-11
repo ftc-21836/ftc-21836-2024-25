@@ -88,27 +88,26 @@ public final class Tele extends LinearOpMode {
             gamepadEx1.readButtons();
 
             if (gamepadEx1.wasJustPressed(DPAD_UP)) {
-//                do
+               do
                     selection = selection.plus(-1);
-//                while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
+               while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             } else if (gamepadEx1.wasJustPressed(DPAD_DOWN)) {
-//                do
+               do
                     selection = selection.plus(1);
-//                while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
+               while (robot.deposit.hasSample() && (selection == PRELOAD_SAMPLE || selection == PRELOAD_SPECIMEN));
             }
 
             switch (selection) {
                 case PRELOAD_SAMPLE:
                     if (gamepadEx1.wasJustPressed(X)) {
-//                        robot.deposit.transfer(NEUTRAL);
-//                        selection = selection.plus(2);
+                       robot.deposit.preloadSample();
+                       selection = selection.plus(2);
                     }
                     break;
                 case PRELOAD_SPECIMEN:
                     if (gamepadEx1.wasJustPressed(X)) {
-//                        while (!robot.deposit.hasSpecimen()) robot.deposit.triggerClaw();
-//                        robot.deposit.closeClaw();
-//                        selection = selection.plus(1);
+                       robot.deposit.preloadSpecimen();
+                       selection = selection.plus(1);
                     }
                     break;
                 case EDITING_ALLIANCE:
@@ -177,9 +176,15 @@ public final class Tele extends LinearOpMode {
                 if (!robot.deposit.lift.gearSwitch.isActivated())
                     robot.drivetrain.run(0, 0, 0, false, true);
 
+                // if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.climb();
                 if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.lift.gearSwitch.toggle();
                 if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
+    
+                if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.preloadSample();
+                // else if (gamepadEx1.wasJustPressed(DPAD_UP))        
+                else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.preloadSpecimen();
+                // else if (gamepadEx1.wasJustPressed(DPAD_DOWN))      
 
             } else {
 
@@ -204,19 +209,20 @@ public final class Tele extends LinearOpMode {
                     );
 
                 if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.climb();
-
+                // if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.nextState();
+                // if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
+    
+                if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
+                else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
+                else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
+                else if (gamepadEx1.wasJustPressed(DPAD_DOWN))      robot.deposit.setPosition(FLOOR);
 
             }
 
             if (gamepad1.touchpad_finger_1) {
                 robot.intake.extendo.setWithTouchpad(gamepad1.touchpad_finger_1_x);
             }
-
-            if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
-            else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
-            else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.setPosition(LOW);
-            else if (gamepadEx1.wasJustPressed(DPAD_DOWN))      robot.deposit.setPosition(FLOOR);
 
             robot.run();
 
