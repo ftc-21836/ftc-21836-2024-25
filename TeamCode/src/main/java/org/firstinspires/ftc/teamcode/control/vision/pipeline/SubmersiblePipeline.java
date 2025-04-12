@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.control.vision.pipeline;
 
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.AprilTagDetectionPipeline.blue;
+import static org.firstinspires.ftc.teamcode.control.vision.pipeline.AprilTagDetectionPipeline.green;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -64,6 +67,7 @@ public class SubmersiblePipeline extends OpenCvPipeline {
 
         telemetry.addData("Target X", target.x);
         telemetry.addData("Target Y", target.y);
+        Imgproc.drawMarker(input, target, green, 2, 8);
 
         return input;
     }
