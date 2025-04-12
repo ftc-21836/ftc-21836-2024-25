@@ -80,8 +80,8 @@ public final class Lift {
     }
 
     public static PIDGains
-            pidGains = new PIDGains(0, 0),
-            dtPidGains = new PIDGains(0, 0);
+            pidGains = new PIDGains(0.4, 0.3),
+            dtPidGains = new PIDGains(0.25, 0.15);
 
     public static double
             kG = 0.25,

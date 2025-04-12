@@ -45,7 +45,7 @@ public final class Intake {
 
             TIME_EJECTING = 0.5,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
-            TIME_MAX_RETRACT_BEFORE_REATTEMPT = 0.65,
+            TIME_MAX_RETRACT_BEFORE_REATTEMPT = 1,
             TIME_MAX_BUCKET_RETRACT = 0.75,
             TIME_BUCKET_SETTLING = 0,
 
@@ -53,8 +53,8 @@ public final class Intake {
 
             SPEED_EJECTING = -0.25,
             SPEED_HOLDING = 0.25,
-            SPEED_ARM_ENTERING = -0.5,
-            SPEED_COUNTER_ROLLING = -0.5,
+            SPEED_ARM_ENTERING = -0.35,
+            SPEED_COUNTER_ROLLING = -0.35,
             SPEED_TRANSFERRING = -0.1,
             SPEED_ARM_EXITING = -0.5,
             COLOR_SENSOR_GAIN = 1;
@@ -231,7 +231,7 @@ public final class Intake {
                         timer.reset();
                     }
                     break;
-                } else if (bucketSensor.isPressed() && deposit.readyToTransfer()) {
+                } else if ((bucketSensor.isPressed()|| timer.seconds() >= TIME_MAX_BUCKET_RETRACT) && deposit.readyToTransfer()) {
                     state = SETTLING;
                     timer.reset();
                 } else break;
