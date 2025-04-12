@@ -470,6 +470,10 @@ public final class Deposit {
         return state == INTAKING_SPECIMEN;
     }
 
+    public boolean intaked() {
+        return state == RAISED_TO_STANDBY;
+    }
+
     public void transfer() {
         if (state != State.STANDBY) return;
         state = ENTERING_BUCKET;
