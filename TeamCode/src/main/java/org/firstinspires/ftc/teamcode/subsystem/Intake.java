@@ -51,7 +51,7 @@ public final class Intake {
 
             LENGTH_RE_RETRACT_TARGET = 150,
 
-            SPEED_EJECTING = -0.25,
+            SPEED_EJECTING = -0.75,
             SPEED_HOLDING = 0.25,
             SPEED_ARM_ENTERING = -0.35,
             SPEED_COUNTER_ROLLING = -0.35,
