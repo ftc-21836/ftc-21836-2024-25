@@ -39,7 +39,15 @@ public final class Lift {
         TILTING_SWITCHING,
         PULLING_FIRST_RUNG,
         RAISING_SECOND_RUNG,
-        PULLING_SECOND_RUNG,
+        SWITCHING,
+        PULLING_SECOND_RUNG;
+
+        private static final ClimbState[] states = values();
+
+        private ClimbState next() {
+            int max = states.length;
+            return states[((ordinal() + 1) % max + max) % max];
+        }
     }
 
     ClimbState climbState = INACTIVE;
@@ -50,32 +58,28 @@ public final class Lift {
             case INACTIVE:
                 if (getTarget() != HEIGHT_ABOVE_FIRST_RUNG) {
                     setTarget(HEIGHT_ABOVE_FIRST_RUNG);
-                    break;
+                    return;
                 }
                 gearSwitch.setActivated(true);
                 tilt.setActivated(true);
-                climbState = TILTING_SWITCHING;
                 break;
             case TILTING_SWITCHING:
+            case SWITCHING:
                 setTarget(0);
-                climbState = PULLING_FIRST_RUNG;
                 break;
             case PULLING_FIRST_RUNG:
                 gearSwitch.setActivated(false);
                 tilt.setActivated(false);
                 setTarget(HEIGHT_ABOVE_SECOND_RUNG);
-                climbState = RAISING_SECOND_RUNG;
                 break;
             case RAISING_SECOND_RUNG:
                 gearSwitch.setActivated(true);
-                setTarget(0);
-                climbState = PULLING_SECOND_RUNG;
                 break;
             case PULLING_SECOND_RUNG:
                 gearSwitch.setActivated(false);
-                climbState = INACTIVE;
                 break;
         }
+        climbState = climbState.next();
         climbTimer.reset();
     }
 
@@ -107,7 +111,8 @@ public final class Lift {
 
             TIME_TILT_AND_SWITCH = 10,
             TIME_SHORT_HOOKS = 1,
-            TIME_RAISE_SECOND_RUNG = 10;
+            TIME_RAISE_SECOND_RUNG = 10,
+            TIME_SWITCH = 10;
 
     private boolean usedTilt = false;
 
@@ -181,6 +186,9 @@ public final class Lift {
                 else climb();
             case RAISING_SECOND_RUNG:
                 if (climbTimer.seconds() >= TIME_RAISE_SECOND_RUNG) climb();
+                else break;
+            case SWITCHING:
+                if (climbTimer.seconds() >= TIME_SWITCH) climb();
                 else break;
         }
 

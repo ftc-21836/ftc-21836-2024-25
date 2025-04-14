@@ -216,7 +216,9 @@ public final class Deposit {
 
         lift.run();
 
-        boolean swingOverBarForClimb = state == State.STANDBY && lift.climbState == Lift.ClimbState.PULLING_SECOND_RUNG;
+        boolean swingOverBarForClimb = state == State.STANDBY && (
+                lift.climbState.ordinal() >= Lift.ClimbState.PULLING_SECOND_RUNG.ordinal()
+        );
         ArmPosition armPosition = swingOverBarForClimb ? BASKET : state.armPosition;
 
         armR.turnToAngle(armPosition.arm);
