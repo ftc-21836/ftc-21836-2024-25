@@ -98,6 +98,7 @@ public final class Lift {
             kG_CLIMB = 0,
 
             HEIGHT_EXTENDED = 28.34645669291339,
+            HEIGHT_START_kG = 2,
 
             HEIGHT_ABOVE_FIRST_RUNG = 10,
             HEIGHT_ABOVE_SECOND_RUNG = 15,
@@ -227,7 +228,7 @@ public final class Lift {
             dt.rightFront .setPower(power);
             for (CachedMotorEx motor : motors) motor.set(0);
         } else {
-            double kG = !isExtended() ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
+            double kG = getPosition() <= HEIGHT_START_kG ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
             for (CachedMotorEx motor : motors) motor.set(output + kG);
         }
     }
