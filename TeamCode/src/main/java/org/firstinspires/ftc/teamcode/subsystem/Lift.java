@@ -84,11 +84,12 @@ public final class Lift {
     }
 
     public static PIDGains
-            pidGains = new PIDGains(0.4, 0.3),
+            pidGains = new PIDGains(0.4, 0.4),
             dtPidGains = new PIDGains(0.25, 0.15);
 
     public static double
-            kG = 0.25,
+            kG = 0.5,
+            SCALAR_DOWNWARD = 1,
             INCHES_PER_TICK = 0.031300435271111114,
             POSITION_TOLERANCE = 0.25,
             HEIGHT_RETRACTING = 0,
@@ -98,7 +99,7 @@ public final class Lift {
             kG_CLIMB = 0,
 
             HEIGHT_EXTENDED = 28.34645669291339,
-            HEIGHT_START_kG = 2,
+            HEIGHT_START_kG = 1,
 
             HEIGHT_ABOVE_FIRST_RUNG = 10,
             HEIGHT_ABOVE_SECOND_RUNG = 15,
@@ -212,6 +213,8 @@ public final class Lift {
             output = controller.calculate(new State(getPosition()));
         }
 
+        output = clip(output, -1, 1);
+
         tilt.updateAngles(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED);
         gearSwitch.updateAngles(ANGLE_SWITCH_INACTIVE, ANGLE_SWITCH_ENGAGED);
         switchR.offset = ANGLE_RIGHT_SWITCH_OFFSET;
@@ -229,7 +232,7 @@ public final class Lift {
             for (CachedMotorEx motor : motors) motor.set(0);
         } else {
             double kG = getPosition() <= HEIGHT_START_kG ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
-            for (CachedMotorEx motor : motors) motor.set(output + kG);
+            for (CachedMotorEx motor : motors) motor.set(output * SCALAR_DOWNWARD + kG);
         }
     }
 

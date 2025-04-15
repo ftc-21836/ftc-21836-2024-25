@@ -41,8 +41,8 @@ public final class Intake {
             ANGLE_BUCKET_RETRACTED_OVER_BAR = 30,
             ANGLE_BUCKET_OVER_SUB_BAR = 40,
             ANGLE_AVOID_ARM = 35,
-            ANGLE_BUCKET_INTAKING_NEAR = 130,
-            ANGLE_BUCKET_INTAKING_FAR = 130,
+            ANGLE_BUCKET_INTAKING_NEAR = 133,
+            ANGLE_BUCKET_INTAKING_FAR = 125,
 
             TIME_EJECTING = 0.5,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
@@ -54,11 +54,11 @@ public final class Intake {
             LENGTH_TILT_BUCKET_OVER_BAR = 1,
 
             SPEED_EJECTING = -0.75,
-            SPEED_HOLDING = 0.25,
-            SPEED_ARM_ENTERING = -0.35,
-            SPEED_COUNTER_ROLLING = -0.35,
-            SPEED_TRANSFERRING = -0.1,
-            SPEED_ARM_EXITING = -0.5,
+            SPEED_HOLDING = 0.75,
+            SPEED_ARM_ENTERING = 0,
+            SPEED_COUNTER_ROLLING = -1,
+            SPEED_TRANSFERRING = -1,
+            SPEED_ARM_EXITING = -.74,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -183,12 +183,12 @@ public final class Intake {
                 if (rollerSpeed != 0) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_SUB_BAR, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
-                    roller.set(rollerSpeed / SPEED_INTAKING);
+                    roller.set(deposit.hasSample() ? 0 : rollerSpeed / SPEED_INTAKING);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                    if (getSample() == badSample || deposit.hasSample()) ejectSample();
+                    if (getSample() == badSample || (hasSample() && deposit.hasSample())) ejectSample();
                     
                     break;
                     

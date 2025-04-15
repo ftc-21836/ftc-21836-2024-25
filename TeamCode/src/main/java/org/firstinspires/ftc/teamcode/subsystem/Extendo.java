@@ -21,7 +21,7 @@ public final class Extendo {
 
     public static double
             TOUCHPAD_RANGE = 0.9,
-            INCHES_PER_TICK = 0.0440162371 * (16/24.0) * (1150 / 1620.0),
+            INCHES_PER_TICK = 0.0440162371 * (16/24.0),
             LENGTH_RETRACTING = 2,
             SPEED_RETRACTION = -.85,
             LENGTH_DEPOSIT_CLEAR = 4,
@@ -114,7 +114,7 @@ public final class Extendo {
         );
     }
 
-    boolean isExtended() {
+    public boolean isExtended() {
         return !extendoSensor.isPressed();
     }
 

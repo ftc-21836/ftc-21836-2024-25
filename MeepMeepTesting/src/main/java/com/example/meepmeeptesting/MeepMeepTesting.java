@@ -25,8 +25,8 @@ import java.util.Arrays;
 public class MeepMeepTesting {
 
     public static double
-            LENGTH_ROBOT = 17.30327,
-            WIDTH_ROBOT = 16.42126,
+            LENGTH_ROBOT = 14.2,
+            WIDTH_ROBOT = 14.2,
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
@@ -303,7 +303,7 @@ public class MeepMeepTesting {
         myBot.runAction(builder.build());
         myBot2.runAction(builder2.build());
 
-        meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_LIGHT)
+        meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(myBot)

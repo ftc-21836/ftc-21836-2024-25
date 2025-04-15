@@ -180,7 +180,7 @@ public final class Tele extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.lift.gearSwitch.toggle();
                 if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
-    
+
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.preloadSample();
                 // else if (gamepadEx1.wasJustPressed(DPAD_UP))        
                 else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.preloadSpecimen();
@@ -204,7 +204,7 @@ public final class Tele extends LinearOpMode {
                                             robot.deposit.intaking() ? chamberRight : basket
                                     ).drivePower.heading :
                                     gamepadEx1.getRightX(),
-                            slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
+                            slowModeLocked || triggers > 0,
                             useFieldCentric
                     );
 
@@ -212,6 +212,11 @@ public final class Tele extends LinearOpMode {
                 // if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.nextState();
                 // if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
+
+                if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) {
+                    if (!robot.hasSample() && !robot.intake.extendo.isExtended()) robot.intake.extendo.setExtended(true);
+                    if (robot.deposit.basketReady()) robot.deposit.nextState();
+                }
     
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
                 else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
