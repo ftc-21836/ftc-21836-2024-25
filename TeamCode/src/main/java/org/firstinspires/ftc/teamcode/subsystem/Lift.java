@@ -85,7 +85,7 @@ public final class Lift {
 
     public static PIDGains
             pidGains = new PIDGains(0.4, 0.4),
-            dtPidGains = new PIDGains(0.25, 0.15);
+            dtPidGains = new PIDGains(0, 0);
 
     public static double
             kG = 0.5,

@@ -35,9 +35,9 @@ public final class Deposit {
 
     public static double
             ANGLE_CLAW_INTAKING_SPECIMEN = 170,
-            ANGLE_CLAW_OPEN = 190,
+            ANGLE_CLAW_OPEN = 180,
             ANGLE_CLAW_MOVING_TO_SPECIMEN = 229.7,
-            ANGLE_CLAW_SAMPLE = 264.5,
+            ANGLE_CLAW_SAMPLE = 215,
             ANGLE_CLAW_DROPPING_SAMPLE = 170,
             ANGLE_CLAW_SPECIMEN = 292.353,
 
@@ -53,7 +53,7 @@ public final class Deposit {
             TIME_ENTERING_BUCKET = .075,
             TIME_COUNTER_ROLLING = 0.15,
             TIME_TRANSFERRING = .15,
-            TIME_EXITING_BUCKET = 0,
+            TIME_EXITING_BUCKET = 0.5,
             TIME_TO_BASKET = 0.75,
             TIME_SAMPLE_RELEASE = .125,
             TIME_BASKET_TO_STANDBY = .38,
@@ -65,17 +65,15 @@ public final class Deposit {
             TIME_SPEC_RELEASE = 1,
             TIME_RELEASED_SPEC_TO_STANDBY = 1,
 
-            TIME_LIFT_BEFORE_ARM = 0.25,
-
             TIME_BUCKET_AVOID = 1;
 
     public static ArmPosition
-            ASCENT =        new ArmPosition(180, 100),
+            ASCENT =        new ArmPosition(165, 100),
             BASKET =        new ArmPosition(313, 150),
             CHAMBER =       new ArmPosition(150, 80),
             MOVING_TO_INTAKING_SPEC = new ArmPosition(18, 55),
             INTAKING_SPEC = new ArmPosition(18, 55),
-            IN_INTAKE =     new ArmPosition(100, 65),
+            IN_INTAKE =     new ArmPosition(105, 58),
             RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
             STANDBY =       new ArmPosition(120, 35);
 
@@ -158,7 +156,7 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_EXITING_BUCKET) nextState();
                 break;
             case MOVING_TO_BASKET:
-                if (timer.seconds() >= TIME_TO_BASKET + (armWaitsForLift ? TIME_LIFT_BEFORE_ARM : 0)) nextState();
+                if (timer.seconds() >= TIME_TO_BASKET) nextState();
                 break;
             case FALLING_BASKET:
                 if (timer.seconds() >= TIME_SAMPLE_RELEASE) nextState();
@@ -199,7 +197,7 @@ public final class Deposit {
 
         if (!requestingIntakeToMove()) bucketAvoidTimer.reset();
         boolean intakeOutOfTheWay = !requestingIntakeToMove() || bucketAvoidTimer.seconds() >= TIME_BUCKET_AVOID;
-        if (intakeOutOfTheWay && (!armWaitsForLift || !(state == MOVING_TO_BASKET && timer.seconds() <= TIME_LIFT_BEFORE_ARM))) {
+        if (intakeOutOfTheWay) {
             armR.turnToAngle(armPosition.arm);
             armL.turnToAngle(armPosition.arm);
             wrist.turnToAngle(armPosition.wrist);
@@ -262,9 +260,9 @@ public final class Deposit {
             case ENTERING_BUCKET:
             case COUNTER_ROLLING:
             case TRANSFERRING:
-            case EXITING_BUCKET:
                 break;
 
+            case EXITING_BUCKET:
             case MOVING_TO_BASKET:
             case AT_BASKET:
             case STANDBY:
@@ -332,10 +330,10 @@ public final class Deposit {
 //                state = State.MOVING_TO_INTAKING_SPEC;
                 break;
 
-            case EXITING_BUCKET:
+            case TRANSFERRING:
 
                 lift.setTarget(sampleHeight);
-                state = MOVING_TO_BASKET;
+                state = EXITING_BUCKET;
                 break;
 
             case GRABBING_SPECIMEN:
@@ -348,7 +346,7 @@ public final class Deposit {
                 lift.setTarget(0);
             case ENTERING_BUCKET:
             case COUNTER_ROLLING:
-            case TRANSFERRING:
+            case EXITING_BUCKET:
             case MOVING_TO_BASKET:
             case MOVING_TO_INTAKING_SPEC:
             case INTAKING_SPECIMEN:

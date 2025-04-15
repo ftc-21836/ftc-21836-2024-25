@@ -84,10 +84,9 @@ public final class Extendo {
     public void printTelemetry() {
         mTelemetry.addData("EXTENDO", isExtended() ? "EXTENDED" : "RETRACTED");
         mTelemetry.addLine();
-        mTelemetry.addData("Position (mm)", getPosition());
-        mTelemetry.addData("Target (mm)", getTarget());
-        mTelemetry.addData("Error derivative (mm/s)", controller.getFilteredErrorDerivative());
-        mTelemetry.addData("Encoder (rad)", motor.encoder.getDistance());
+        mTelemetry.addData("Extendo position (in)", getPosition());
+        mTelemetry.addData("Extendo target (in)", getTarget());
+        mTelemetry.addData("Extendo error derivative (in/s)", controller.getFilteredErrorDerivative());
     }
 
     public double getPosition() {
@@ -98,8 +97,8 @@ public final class Extendo {
         return target;
     }
 
-    public void setTarget(double millimeters) {
-        target = clip(millimeters, 0, LENGTH_EXTENDED);
+    public void setTarget(double inches) {
+        target = clip(inches, 0, LENGTH_EXTENDED);
     }
 
     public boolean atPosition(double target) {

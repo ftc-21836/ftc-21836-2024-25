@@ -47,6 +47,7 @@ public final class Intake {
             TIME_EJECTING = 0.5,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
             TIME_MAX_RETRACT_BEFORE_REATTEMPT = 1,
+            TIME_BUCKET_RETRACT = 0,
             TIME_MAX_BUCKET_RETRACT = 0.75,
             TIME_BUCKET_SETTLING = 0,
 
@@ -73,7 +74,7 @@ public final class Intake {
             maxRed = new HSV(
                     30,
                     0.75,
-                    0.06
+                    1
             ),
             minYellow = new HSV(
                     75,
@@ -83,7 +84,7 @@ public final class Intake {
             maxYellow = new HSV(
                     96,
                     0.85,
-                    0.3
+                    1
             ),
             minBlue = new HSV(
                     215,
@@ -93,7 +94,7 @@ public final class Intake {
             maxBlue = new HSV(
                     230,
                     0.9,
-                    0.1
+                    1
             );
 
     /**
@@ -206,7 +207,7 @@ public final class Intake {
                 setBucket(angleBucketRetracted);
                 roller.set(SPEED_HOLDING);
 
-                if (bucketSensor.isPressed() || timer.seconds() >= TIME_MAX_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
+                if (bucketSensor.isPressed() || timer.seconds() >= TIME_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
                     timer.reset();
                 } else break;
