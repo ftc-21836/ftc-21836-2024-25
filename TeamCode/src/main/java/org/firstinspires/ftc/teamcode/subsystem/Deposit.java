@@ -41,15 +41,16 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Deposit {
 
     public static double
-            ANGLE_CLAW_OPEN = 140,
-            ANGLE_CLAW_MOVING_TO_SPECIMEN = 165,
-            ANGLE_CLAW_SAMPLE = 190,
-            ANGLE_CLAW_SPECIMEN = 210,
+            ANGLE_CLAW_INTAKING_SPECIMEN = 170,
+            ANGLE_CLAW_OPEN = 190,
+            ANGLE_CLAW_MOVING_TO_SPECIMEN = 229.7,
+            ANGLE_CLAW_SAMPLE = 264.5,
+            ANGLE_CLAW_SPECIMEN = 292.353,
 
             HEIGHT_ABOVE_INTAKE = 10,
             HEIGHT_OBSERVATION_ZONE = 0,
-            HEIGHT_BASKET_LOW = 3.5,
-            HEIGHT_BASKET_HIGH = 21.5,
+            HEIGHT_BASKET_LOW = 9,
+            HEIGHT_BASKET_HIGH = 25,
             INCREMENT_REACH_ABOVE_BASKET = 1,
             HEIGHT_INTAKING_SPECIMEN = 0,
 
@@ -80,7 +81,7 @@ public final class Deposit {
             BASKET =        new ArmPosition(313, 150),
             CHAMBER =       new ArmPosition(150, 80),
             INTAKING_SPEC = new ArmPosition(18, 55),
-            IN_INTAKE =     new ArmPosition(100, 75),
+            IN_INTAKE =     new ArmPosition(95, 78),
             PRE_OBS_ZONE =  new ArmPosition(120, 56),
             RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
             STANDBY =       new ArmPosition(120, 35);
@@ -245,7 +246,7 @@ public final class Deposit {
                 state == OBS_ZONE_TO_STANDBY ?  ANGLE_CLAW_MOVING_TO_SPECIMEN :
 
                 state == MOVING_TO_INTAKING_SPEC ?  ANGLE_CLAW_MOVING_TO_SPECIMEN :
-                state == INTAKING_SPECIMEN ?        ANGLE_CLAW_OPEN :
+                state == INTAKING_SPECIMEN ?        ANGLE_CLAW_INTAKING_SPECIMEN :
                 state == GRABBING_SPECIMEN ?        ANGLE_CLAW_SPECIMEN :
                 state == RAISING_SPECIMEN ?         ANGLE_CLAW_SPECIMEN :
                 state == RAISED_TO_STANDBY ?        ANGLE_CLAW_SPECIMEN :
@@ -271,7 +272,6 @@ public final class Deposit {
     // when does the intake need to move out of the way
     boolean requestingIntakeToMove() {
         return lift.getPosition() < HEIGHT_ABOVE_INTAKE && (
-                        state == MOVING_TO_BASKET ||
                         state == MOVING_TO_PRE_OBS ||
                         state == MOVING_TO_OBS_ZONE ||
                         state == MOVING_TO_INTAKING_SPEC ||
@@ -314,9 +314,7 @@ public final class Deposit {
                                         lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
                                         HEIGHT_BASKET_HIGH :
                         position == LOW ?
-                                lift.getTarget() >= HEIGHT_BASKET_LOW ?
-                                        lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
-                                        HEIGHT_BASKET_LOW :
+                                HEIGHT_BASKET_LOW :
                         0
                 );
                 break;
