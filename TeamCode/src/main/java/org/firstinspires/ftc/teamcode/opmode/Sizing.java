@@ -17,6 +17,7 @@ public final class Sizing extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         Robot robot = new Robot(hardwareMap, pose);
+        robot.deposit.steepArm = true;
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
@@ -37,7 +38,7 @@ public final class Sizing extends LinearOpMode {
                     robot.deposit.transfer();
                     robot.deposit.setPosition(Deposit.Position.LOW);
                     robot.intake.extendo.setExtended(true);
-                    robot.intake.runRoller(0.01);
+                    robot.intake.runRoller(0.3);
                 }
             }
 

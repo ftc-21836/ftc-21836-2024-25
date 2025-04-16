@@ -70,6 +70,7 @@ public final class Deposit {
     public static ArmPosition
             ASCENT =        new ArmPosition(165, 100),
             BASKET =        new ArmPosition(313, 150),
+            BASKET_STEEP =  new ArmPosition(260, 215),
             CHAMBER =       new ArmPosition(150, 80),
             MOVING_TO_INTAKING_SPEC = new ArmPosition(18, 55),
             INTAKING_SPEC = new ArmPosition(18, 55),
@@ -124,7 +125,7 @@ public final class Deposit {
     public final CachedSimpleServo claw;
     private final CachedSimpleServo wrist, armR, armL;
 
-    public boolean lvl1Ascent = false, armWaitsForLift = false;
+    public boolean lvl1Ascent = false, steepArm = false;
 
     private final ElapsedTime timer = new ElapsedTime(), bucketAvoidTimer = new ElapsedTime();
 
@@ -189,11 +190,13 @@ public final class Deposit {
 
         lift.run();
 
-        boolean swingOverBarForClimb = state == State.STANDBY && (
+        boolean steep = state == State.STANDBY && (
                 lift.climbState.ordinal() >= Lift.ClimbState.PULLING_SECOND_RUNG.ordinal()
         );
-        ArmPosition armPosition = swingOverBarForClimb ? BASKET :
-                state == State.STANDBY && lvl1Ascent ? ASCENT : state.armPosition;
+        ArmPosition armPosition =
+                state == State.STANDBY && lvl1Ascent ? ASCENT :
+                state.armPosition == BASKET && steepArm ? BASKET_STEEP :
+                state.armPosition;
 
         if (!requestingIntakeToMove()) bucketAvoidTimer.reset();
         boolean intakeOutOfTheWay = !requestingIntakeToMove() || bucketAvoidTimer.seconds() >= TIME_BUCKET_AVOID;
