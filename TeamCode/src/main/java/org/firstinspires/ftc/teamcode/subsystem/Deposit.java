@@ -38,7 +38,7 @@ public final class Deposit {
 
     public static double
             ANGLE_CLAW_INTAKING_SPECIMEN = 170,
-            ANGLE_CLAW_OPEN = 180,
+            ANGLE_CLAW_OPEN = 190,
             ANGLE_CLAW_MOVING_TO_SPECIMEN = 229.7,
             ANGLE_CLAW_SAMPLE = 215,
             ANGLE_CLAW_DROPPING_SAMPLE = 170,
@@ -59,7 +59,7 @@ public final class Deposit {
             TIME_COUNTER_ROLLING = 0.15,
             TIME_TRANSFERRING = .15,
             TIME_EXITING_BUCKET = 0,
-            TIME_TO_BASKET = 0.75,
+            TIME_TO_BASKET = 0.35,
             TIME_SAMPLE_RELEASE = .125,
             TIME_BASKET_TO_STANDBY = .38,
             TIME_TO_INTAKING_SPEC = 1,
@@ -79,7 +79,7 @@ public final class Deposit {
             CHAMBER =       new ArmPosition(150, 80),
             MOVING_TO_INTAKING_SPEC = new ArmPosition(18, 55),
             INTAKING_SPEC = new ArmPosition(18, 55),
-            IN_INTAKE =     new ArmPosition(105, 58),
+            IN_INTAKE =     new ArmPosition(95, 70),
             RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
             STANDBY =       new ArmPosition(120, 35);
 
@@ -395,6 +395,7 @@ public final class Deposit {
         return
                 state == TRANSFERRING ||
                 state == EXITING_BUCKET ||
+                state == LIFT_MOVING_TO_BASKET ||
                 state == ARM_MOVING_TO_BASKET ||
                 state == AT_BASKET ||
 

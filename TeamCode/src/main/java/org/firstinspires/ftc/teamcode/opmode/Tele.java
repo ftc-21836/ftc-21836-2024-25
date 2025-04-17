@@ -34,12 +34,15 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
+import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @TeleOp
 public final class Tele extends LinearOpMode {
@@ -75,6 +78,8 @@ public final class Tele extends LinearOpMode {
 
         Robot robot = new Robot(hardwareMap, pose);
         robot.drivetrain.trackHeadingOnly = true;
+
+        LEDIndicator indicator = new LEDIndicator(hardwareMap, "green", "red");
 
         PIDDriver driver = new PIDDriver();
 
@@ -211,12 +216,14 @@ public final class Tele extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.climb();
                 // if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.nextState();
-                // if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
+//                if (gamepadEx1.wasJustPressed(A)) robot.headlight.toggle();
 
 //                if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) {
 //                    if (!robot.hasSample() && !robot.intake.extendo.isExtended()) robot.intake.extendo.setExtended(true);
 //                    if (robot.deposit.basketReady()) robot.deposit.nextState();
 //                }
+
+                robot.headlight.setActivated(robot.intake.extendo.isExtended());
     
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
                 else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
@@ -243,7 +250,10 @@ public final class Tele extends LinearOpMode {
 
             if (!robot.intake.hasSample()) {
                 rumbledSample = false;
-                if (!robot.deposit.hasSample()) gamepad1.setLedColor(0,0,0, Gamepad.LED_DURATION_CONTINUOUS);
+                if (!robot.deposit.hasSample()) {
+                    gamepad1.setLedColor(0, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
+                    indicator.setState(LEDIndicator.State.OFF);
+                }
             } else if (!rumbledSample) {
 
                 Sample sample = robot.intake.getSample();
@@ -253,6 +263,8 @@ public final class Tele extends LinearOpMode {
                         sample == BLUE ? 1 : 0,
                         Gamepad.LED_DURATION_CONTINUOUS
                 );
+
+                indicator.setState(LEDIndicator.State.GREEN);
 
                 if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 200);
                 rumbledSample = true;

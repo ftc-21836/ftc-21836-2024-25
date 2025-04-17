@@ -56,7 +56,7 @@ public final class Intake {
 
             SPEED_EJECTING = -0.75,
             SPEED_HOLDING = 0.75,
-            SPEED_ARM_ENTERING = 0,
+            SPEED_ARM_ENTERING = 1,
             SPEED_COUNTER_ROLLING = -1,
             SPEED_TRANSFERRING = -1,
             SPEED_ARM_EXITING = -.74,
