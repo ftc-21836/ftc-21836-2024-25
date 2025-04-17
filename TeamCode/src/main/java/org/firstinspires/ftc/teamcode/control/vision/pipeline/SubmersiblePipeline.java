@@ -12,9 +12,16 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.*;
 import static org.opencv.imgproc.Imgproc.contourArea;
 
 import static java.lang.Double.NaN;
+import static java.lang.Math.atan;
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
 import static java.lang.Math.hypot;
 import static java.lang.Math.round;
+import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
+import static java.lang.Math.tan;
+import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.*;
@@ -26,17 +33,30 @@ public class SubmersiblePipeline extends OpenCvPipeline {
 
     public Sample targetColor1 = NEUTRAL, targetColor2 = targetColor1;
     public double
-            minSize = 1000,
-            maxSize = 60000,
+            minSize = 200,
+            maxSize = 120000,
 
             fractionOfContours = 0.5,
-            fractionOfByYs = 0.5,
+            fractionOfByYs = 0.25,
             fractionOfDensities = 0.5,
 
             SCREEN_WIDTH = 1280,
-            SCREEN_HEIGHT = 960;
+            SCREEN_HEIGHT = 960,
+
+            Y_IMPORTANCE_SCALAR = 2,
+
+            PIXELS_PER_INCH = 20 *72 / 15.0 *1.5,
+
+            C = -0,
+            Xc = 5.1,
+            Yc = 7.95,
+            Zc = 9.7,
+            a = toRadians(12),
+            b = toRadians(80),
+            tanB = tan(b);
 
     private final Point cornerBR = new Point(SCREEN_WIDTH, SCREEN_HEIGHT);
+    private final Point cornerBL = new Point(480, SCREEN_HEIGHT);
 
     public boolean viewContours = false;
 
@@ -82,6 +102,7 @@ public class SubmersiblePipeline extends OpenCvPipeline {
 
     @Override
     public Mat processFrame(Mat input) {
+        Core.rotate(input, input, Core.ROTATE_180);
         Imgproc.cvtColor(input, hsvMat, Imgproc.COLOR_RGB2HSV);
         Core.inRange(hsvMat, minBound(targetColor1), maxBound(targetColor1), hsvBinaryMat);
         if (!(targetColor2 == null || targetColor1 == targetColor2)) Core.inRange(hsvMat, minBound(targetColor2), maxBound(targetColor2), hsvBinaryMat2);
@@ -103,54 +124,54 @@ public class SubmersiblePipeline extends OpenCvPipeline {
             return area < minSize || area > maxSize;
         });
 
-//        // contour area
-//        {
-//            contours.sort((c1, c2) -> (int) (100000000 * (contourArea(c2) - contourArea(c1))));
-//            int numContours = (int) round(contours.size() * fractionOfContours);
-//            while (contours.size() > numContours) contours.remove(contours.size() - 1);
-//        }
-//
-//
-//        // density
-//        {
-//            contours.sort((c1, c2) -> {
-//                contours2f.release();
-//                c2.convertTo(contours2f, CvType.CV_32F);
-//                RotatedRect r2 = Imgproc.minAreaRect(contours2f);
-//
-//                contours2f.release();
-//                c1.convertTo(contours2f, CvType.CV_32F);
-//                RotatedRect r1 = Imgproc.minAreaRect(contours2f);
-//
-//                return (int) (100000000 * (
-//                        contourArea(c2) / r2.size.area() -
-//                                contourArea(c1) / r1.size.area()
-//                ));
-//            });
-//            int numContoursDensity = (int) round(contours.size() * fractionOfDensities);
-//            while (contours.size() > numContoursDensity) contours.remove(contours.size() - 1);
-//        }
-
-        // closest to bottom right
+        // closest to bottom left
         {
             contours.sort((c1, c2) -> {
 
                 contours2f.release();
                 c2.convertTo(contours2f, CvType.CV_32F);
                 Point rc2 = Imgproc.minAreaRect(contours2f).center;
-                double d2 = hypot(SCREEN_WIDTH - rc2.x, SCREEN_HEIGHT - rc2.y);
+                double d2 = hypot(cornerBL.x - rc2.x, Y_IMPORTANCE_SCALAR * (SCREEN_HEIGHT - rc2.y));
 
 
                 contours2f.release();
                 c1.convertTo(contours2f, CvType.CV_32F);
                 Point rc1 = Imgproc.minAreaRect(contours2f).center;
-                double d1 = hypot(SCREEN_WIDTH - rc1.x, SCREEN_HEIGHT - rc1.y);
+                double d1 = hypot(cornerBL.x - rc1.x, Y_IMPORTANCE_SCALAR * (SCREEN_HEIGHT - rc1.y));
 
-                return (int) (1000000 * (d1 - d2));
+                return (int) (10000000 * (d1 - d2));
             });
             int numContoursByY = (int) round(contours.size() * fractionOfByYs);
             while (contours.size() > numContoursByY) contours.remove(contours.size() - 1);
         }
+
+        /*// density
+        {
+            contours.sort((c1, c2) -> {
+                contours2f.release();
+                c2.convertTo(contours2f, CvType.CV_32F);
+                RotatedRect r2 = Imgproc.minAreaRect(contours2f);
+
+                contours2f.release();
+                c1.convertTo(contours2f, CvType.CV_32F);
+                RotatedRect r1 = Imgproc.minAreaRect(contours2f);
+
+                return (int) (100000000 * (
+                        contourArea(c2) / r2.size.area() -
+                                contourArea(c1) / r1.size.area()
+                ));
+            });
+            int numContoursDensity = (int) round(contours.size() * fractionOfDensities);
+            while (contours.size() > 1) contours.remove(contours.size() - 1);
+        }
+
+        // contour area
+        {
+            contours.sort((c1, c2) -> (int) (100000000 * (contourArea(c2) - contourArea(c1))));
+            int numContours = (int) round(contours.size() * fractionOfContours);
+            while (contours.size() > numContours) contours.remove(contours.size() - 1);
+        }*/
+
 
         int i = 0;
         for (MatOfPoint contour : contours) {
@@ -164,11 +185,14 @@ public class SubmersiblePipeline extends OpenCvPipeline {
             rect.points(rectPoints);
             MatOfPoint matOfPoint = new MatOfPoint(rectPoints);
 
-            Imgproc.polylines(input, Collections.singletonList(matOfPoint), true, lineColor, lineThickness);
+            Imgproc.polylines(input, Collections.singletonList(matOfPoint), true, i == 0 ? lavender : white, lineThickness);
 
             double rectArea = rect.size.area();
             Point center = rect.center;
-            Imgproc.line(input, center, cornerBR, white, 1);
+            Point vertex2 = new Point(center.x, SCREEN_HEIGHT);
+//            Imgproc.line(input, center, cornerBR, white, 1);
+            Imgproc.line(input, center, cornerBL, green, 1);
+//            Imgproc.line(input, vertex2, cornerBL, blue, 1);
 
             Imgproc.putText(input, "" + ++i + " (" + center.x + ", " + center.y + ")", new Point(center.x, center.y - 20), 2, .5, aqua);
             Imgproc.putText(input, "" + (area / rectArea), center, 2, .5, lavender);
@@ -184,8 +208,32 @@ public class SubmersiblePipeline extends OpenCvPipeline {
             target.x = center.x;
             target.y = center.y;
 
+            double xv = (target.x - 0.5 * SCREEN_WIDTH) / PIXELS_PER_INCH;
+            double yv = (target.y - 0.5 * SCREEN_HEIGHT) / PIXELS_PER_INCH;
+
+            telemetry.addLine("camera view " + xv + " " + yv);
+
+            double y = tan(b) * (Zc - (yv * sin(b) + 0.75)) - yv * cos(b) + C;
+
+            telemetry.addLine("camera distance " + y);
+
+            double rv = hypot(xv, y);
+            double tv = -atan2(xv, y);
+            double tv2 = tv + a;
+
+            double xS = rv * cos(tv2) + Xc;
+            double yS = rv * sin(tv2) + Yc;
+
+            double theta = -atan2(xS, yS);
+
+            double L = hypot(xS, yS) - 7.2;
+
+            double angle = atan2(cornerBL.x - center.x, (SCREEN_HEIGHT-center.y));
+
             telemetry.addData("Target X", target.x);
             telemetry.addData("Target Y", target.y);
+            telemetry.addData("Turn angle (deg)", toDegrees(theta));
+            telemetry.addData("Extension (in)", L);
             telemetry.update();
             Imgproc.drawMarker(input, target, green, 2, 8);
         }
