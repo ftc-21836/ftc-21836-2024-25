@@ -12,7 +12,8 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.EXITING_BUC
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.FALLING_BASKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.GRABBING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.AT_BASKET;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_BASKET;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.ARM_MOVING_TO_BASKET;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.LIFT_MOVING_TO_BASKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISED_TO_STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASED_SPEC_TO_STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_SPECIMEN;
@@ -22,6 +23,8 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISING_SPE
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.STANDBY_TO_CHAMBER;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
+
+import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -47,13 +50,15 @@ public final class Deposit {
             INCREMENT_REACH_ABOVE_BASKET = 1,
             HEIGHT_INTAKING_SPECIMEN = 0,
 
+            AT_BASKET_TOLERANCE = 10,
+
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
 
             TIME_ENTERING_BUCKET = .075,
             TIME_COUNTER_ROLLING = 0.15,
             TIME_TRANSFERRING = .15,
-            TIME_EXITING_BUCKET = 0.5,
+            TIME_EXITING_BUCKET = 0,
             TIME_TO_BASKET = 0.75,
             TIME_SAMPLE_RELEASE = .125,
             TIME_BASKET_TO_STANDBY = .38,
@@ -70,6 +75,7 @@ public final class Deposit {
     public static ArmPosition
             ASCENT =        new ArmPosition(165, 100),
             BASKET =        new ArmPosition(313, 150),
+            BASKET_STEEP =  new ArmPosition(260, 215),
             CHAMBER =       new ArmPosition(150, 80),
             MOVING_TO_INTAKING_SPEC = new ArmPosition(18, 55),
             INTAKING_SPEC = new ArmPosition(18, 55),
@@ -83,9 +89,9 @@ public final class Deposit {
         ENTERING_BUCKET (IN_INTAKE),
         COUNTER_ROLLING (IN_INTAKE),
         TRANSFERRING    (IN_INTAKE),
-        EXITING_BUCKET  (Deposit.STANDBY),
-
-        MOVING_TO_BASKET    (BASKET),
+        EXITING_BUCKET  (IN_INTAKE),
+        LIFT_MOVING_TO_BASKET (IN_INTAKE),
+        ARM_MOVING_TO_BASKET(BASKET),
         AT_BASKET           (BASKET),
         FALLING_BASKET      (BASKET),
         BASKET_TO_STANDBY   (Deposit.STANDBY),
@@ -124,7 +130,7 @@ public final class Deposit {
     public final CachedSimpleServo claw;
     private final CachedSimpleServo wrist, armR, armL;
 
-    public boolean lvl1Ascent = false, armWaitsForLift = false;
+    public boolean lvl1Ascent = false, steepArm = false;
 
     private final ElapsedTime timer = new ElapsedTime(), bucketAvoidTimer = new ElapsedTime();
 
@@ -155,7 +161,10 @@ public final class Deposit {
             case EXITING_BUCKET:
                 if (timer.seconds() >= TIME_EXITING_BUCKET) nextState();
                 break;
-            case MOVING_TO_BASKET:
+            case LIFT_MOVING_TO_BASKET:
+                if (abs(lift.getTarget() - lift.getPosition()) <= AT_BASKET_TOLERANCE || timer.seconds() >= 1) nextState();
+                break;
+            case ARM_MOVING_TO_BASKET:
                 if (timer.seconds() >= TIME_TO_BASKET) nextState();
                 break;
             case FALLING_BASKET:
@@ -189,11 +198,13 @@ public final class Deposit {
 
         lift.run();
 
-        boolean swingOverBarForClimb = state == State.STANDBY && (
+        boolean steep = state == State.STANDBY && (
                 lift.climbState.ordinal() >= Lift.ClimbState.PULLING_SECOND_RUNG.ordinal()
         );
-        ArmPosition armPosition = swingOverBarForClimb ? BASKET :
-                state == State.STANDBY && lvl1Ascent ? ASCENT : state.armPosition;
+        ArmPosition armPosition =
+                state == State.STANDBY && lvl1Ascent ? ASCENT :
+                state.armPosition == BASKET && steepArm ? BASKET_STEEP :
+                state.armPosition;
 
         if (!requestingIntakeToMove()) bucketAvoidTimer.reset();
         boolean intakeOutOfTheWay = !requestingIntakeToMove() || bucketAvoidTimer.seconds() >= TIME_BUCKET_AVOID;
@@ -211,7 +222,8 @@ public final class Deposit {
                 state == TRANSFERRING ?     ANGLE_CLAW_SAMPLE :
                 state == EXITING_BUCKET ?   ANGLE_CLAW_SAMPLE :
 
-                state == MOVING_TO_BASKET ?     ANGLE_CLAW_SAMPLE :
+                state == LIFT_MOVING_TO_BASKET ? ANGLE_CLAW_SAMPLE :
+                state == ARM_MOVING_TO_BASKET ?     ANGLE_CLAW_SAMPLE :
                 state == AT_BASKET ?            ANGLE_CLAW_SAMPLE :
                 state == FALLING_BASKET ?       ANGLE_CLAW_DROPPING_SAMPLE :
                 state == BASKET_TO_STANDBY ?    ANGLE_CLAW_OPEN :
@@ -263,7 +275,8 @@ public final class Deposit {
                 break;
 
             case EXITING_BUCKET:
-            case MOVING_TO_BASKET:
+            case LIFT_MOVING_TO_BASKET:
+            case ARM_MOVING_TO_BASKET:
             case AT_BASKET:
             case STANDBY:
             case RELEASED_SPEC_TO_STANDBY:
@@ -347,7 +360,8 @@ public final class Deposit {
             case ENTERING_BUCKET:
             case COUNTER_ROLLING:
             case EXITING_BUCKET:
-            case MOVING_TO_BASKET:
+            case LIFT_MOVING_TO_BASKET:
+            case ARM_MOVING_TO_BASKET:
             case MOVING_TO_INTAKING_SPEC:
             case INTAKING_SPECIMEN:
             case RAISING_SPECIMEN:
@@ -381,7 +395,7 @@ public final class Deposit {
         return
                 state == TRANSFERRING ||
                 state == EXITING_BUCKET ||
-                state == MOVING_TO_BASKET ||
+                state == ARM_MOVING_TO_BASKET ||
                 state == AT_BASKET ||
 
                 state == GRABBING_SPECIMEN ||
