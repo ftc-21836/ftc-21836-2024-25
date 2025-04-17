@@ -85,7 +85,7 @@ public final class Lift {
 
     public static PIDGains
             pidGains = new PIDGains(0.4, 0.4),
-            dtPidGains = new PIDGains(0, 0);
+            dtPidGains = new PIDGains(0.5, 0.5);
 
     public static double
             kG = 0.5,
@@ -104,17 +104,19 @@ public final class Lift {
             HEIGHT_ABOVE_FIRST_RUNG = 11,
             HEIGHT_ABOVE_SECOND_RUNG = 15,
 
+            HEIGHT_CLIMBED_FIRST_RUNG = 0.5,
+
             ANGLE_TILTER_INACTIVE = 225,
             ANGLE_TILTER_TILTED = 130,
 
             ANGLE_SWITCH_INACTIVE = 0,
-            ANGLE_SWITCH_ENGAGED = 40,
+            ANGLE_SWITCH_ENGAGED = 80,
             ANGLE_RIGHT_SWITCH_OFFSET = 0,
 
-            TIME_TILT_AND_SWITCH = 10,
+            TIME_TILT_AND_SWITCH = 1,
             TIME_SHORT_HOOKS = 1,
-            TIME_RAISE_SECOND_RUNG = 10,
-            TIME_SWITCH = 10;
+            TIME_RAISE_SECOND_RUNG = 2,
+            TIME_SWITCH = 1;
 
     private boolean usedTilt = false;
 
@@ -183,7 +185,7 @@ public final class Lift {
                 if (climbTimer.seconds() >= TIME_TILT_AND_SWITCH) climb();
                 else break;
             case PULLING_FIRST_RUNG:
-                if (isExtended()) climbTimer.reset();
+                if (getPosition() < HEIGHT_CLIMBED_FIRST_RUNG) climbTimer.reset();
                 else if (climbTimer.seconds() < TIME_SHORT_HOOKS) break;
                 else climb();
             case RAISING_SECOND_RUNG:

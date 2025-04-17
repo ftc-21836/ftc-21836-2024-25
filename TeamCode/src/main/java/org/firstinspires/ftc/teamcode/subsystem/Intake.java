@@ -111,7 +111,7 @@ public final class Intake {
     public boolean retractBucketBeforeExtendo = true;
 
     private final CachedMotorEx roller;
-    private double rollerSpeed;
+    private double rollerSpeed, bucketAngle;
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
@@ -183,7 +183,7 @@ public final class Intake {
 
                 if (rollerSpeed != 0) { // intaking, trigger held down
 
-                    setBucket(lerp(ANGLE_BUCKET_OVER_SUB_BAR, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
+                    setBucket(lerp(ANGLE_BUCKET_OVER_SUB_BAR, ANGLE_BUCKET_INTAKING, abs(bucketAngle)));
                     roller.set(deposit.hasSample() ? 0 : rollerSpeed / SPEED_INTAKING);
                     
                     colorSensor.update();
@@ -243,7 +243,7 @@ public final class Intake {
             case SETTLING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(SPEED_HOLDING);
+                roller.set(SPEED_MINOR_EJECTING);
                 extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_BUCKET_SETTLING) {
@@ -336,8 +336,17 @@ public final class Intake {
         return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR;
     }
 
-    public void runRoller(double power) {
+    public void setRollerAndAngle(double power) {
+        setRoller(power);
+        setAngle(power);
+    }
+
+    public void setRoller(double power) {
         rollerSpeed = power;
+    }
+
+    public void setAngle(double angle) {
+        bucketAngle = abs(angle);
     }
 
     void printTelemetry() {

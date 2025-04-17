@@ -48,6 +48,7 @@ public final class Deposit {
             HEIGHT_BASKET_LOW = 9,
             HEIGHT_BASKET_HIGH = 25,
             INCREMENT_REACH_ABOVE_BASKET = 1,
+            PASSIVE_INCREMENT = 0.25,
             HEIGHT_INTAKING_SPECIMEN = 0,
 
             AT_BASKET_TOLERANCE = 10,
@@ -247,8 +248,13 @@ public final class Deposit {
         claw.turnToAngle(ANGLE_CLAW_SPECIMEN);
     }
 
-    public void preloadSample() {
+    public void goToBasket() {
         state = AT_BASKET;
+        claw.turnToAngle(ANGLE_CLAW_SAMPLE);
+    }
+
+    public void preloadSample() {
+        state = TRANSFERRING;
         claw.turnToAngle(ANGLE_CLAW_SAMPLE);
     }
 
@@ -373,7 +379,7 @@ public final class Deposit {
 
             case AT_BASKET:
 
-                sampleHeight = lift.getTarget();
+                sampleHeight = lift.getTarget() + PASSIVE_INCREMENT;
                 state = state.next();
                 break;
 

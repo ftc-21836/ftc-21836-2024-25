@@ -12,7 +12,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.basket;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.basket3;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_FIELD_CENTRIC;
@@ -34,7 +34,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
@@ -42,7 +41,6 @@ import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
 import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
-import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
 @TeleOp
 public final class Tele extends LinearOpMode {
@@ -172,7 +170,7 @@ public final class Tele extends LinearOpMode {
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
 
-                robot.intake.runRoller(0);
+                robot.intake.setRollerAndAngle(0);
                 robot.intake.extendo.runManual(triggers);
                 robot.deposit.lift.runManual(gamepadEx1.getLeftY() * (gamepadEx1.isDown(RIGHT_BUMPER) ? 0.3 : 1));
 
@@ -186,14 +184,14 @@ public final class Tele extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.lift.gearSwitch.toggle();
                 if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
 
-                if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.preloadSample();
+                if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.goToBasket();
                 // else if (gamepadEx1.wasJustPressed(DPAD_UP))        
                 else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.preloadSpecimen();
                  else if (gamepadEx1.wasJustPressed(DPAD_DOWN))     robot.intake.ejectSample();
 
             } else {
 
-                robot.intake.runRoller(triggers);
+                robot.intake.setRollerAndAngle(triggers);
                 robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
 
@@ -206,7 +204,7 @@ public final class Tele extends LinearOpMode {
                             gamepadEx1.isDown(X) && (robot.deposit.basketReady() || robot.intake.hasSample() || robot.deposit.intaking())?
                                     driver.driveTo(
                                             new EditablePose(robot.drivetrain.pose),
-                                            robot.deposit.intaking() ? chamberRight : basket
+                                            robot.deposit.intaking() ? chamberRight : basket3
                                     ).drivePower.heading :
                                     gamepadEx1.getRightX(),
                             slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
