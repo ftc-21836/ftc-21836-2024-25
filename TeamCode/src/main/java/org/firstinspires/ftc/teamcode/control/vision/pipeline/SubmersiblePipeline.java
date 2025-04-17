@@ -47,16 +47,20 @@ public class SubmersiblePipeline extends OpenCvPipeline {
 
             PIXELS_PER_INCH = 20 *72 / 15.0 *1.5,
 
-            C = -0,
-            Xc = 5.1,
-            Yc = 7.95,
-            Zc = 9.7,
-            a = toRadians(12),
-            b = toRadians(80),
-            tanB = tan(b);
+            DISTANCE_TO_SUB_INCH = 20,
+
+            INTAKE_X_POSITON = 480;
+
+//            C = -0,
+//            Xc = 5.1,
+//            Yc = 7.95,
+//            Zc = 9.7,
+//            a = toRadians(12),
+//            b = toRadians(80),
+//            tanB = tan(b);
 
     private final Point cornerBR = new Point(SCREEN_WIDTH, SCREEN_HEIGHT);
-    private final Point cornerBL = new Point(480, SCREEN_HEIGHT);
+    private final Point cornerBL = new Point(INTAKE_X_POSITON, SCREEN_HEIGHT);
 
     public boolean viewContours = false;
 
@@ -79,6 +83,7 @@ public class SubmersiblePipeline extends OpenCvPipeline {
     public int lineThickness = 6;
 
     public Point target = null;
+    public Point screenCenter = null;
 
     private final Telemetry telemetry;
 
@@ -205,10 +210,24 @@ public class SubmersiblePipeline extends OpenCvPipeline {
             contours.get(0).convertTo(contours2f, CvType.CV_32F);
 
             Point center = Imgproc.minAreaRect(contours2f).center;
-            target.x = center.x;
-            target.y = center.y;
 
-            double xv = (target.x - 0.5 * SCREEN_WIDTH) / PIXELS_PER_INCH;
+            //sample center in inches
+            target.x = (center.x) / PIXELS_PER_INCH;
+            target.y = (center.y) / PIXELS_PER_INCH;
+
+            //screen center in inches
+            screenCenter.x = (0.5 * SCREEN_WIDTH) / PIXELS_PER_INCH;
+            screenCenter.y = (0.5 * SCREEN_HEIGHT) / PIXELS_PER_INCH;
+
+            //center to center distance
+            double ctc = (screenCenter.y - target.y)/(screenCenter.x - target.x);
+
+            //turn angle in radians -> intake to sample
+            double turnAngle = (atan2(ctc,DISTANCE_TO_SUB_INCH));
+
+            telemetry.addLine("Turn Angle " + toDegrees(turnAngle));
+
+            /*double xv = (target.x - 0.5 * SCREEN_WIDTH) / PIXELS_PER_INCH;
             double yv = (target.y - 0.5 * SCREEN_HEIGHT) / PIXELS_PER_INCH;
 
             telemetry.addLine("camera view " + xv + " " + yv);
@@ -228,12 +247,12 @@ public class SubmersiblePipeline extends OpenCvPipeline {
 
             double L = hypot(xS, yS) - 7.2;
 
-            double angle = atan2(cornerBL.x - center.x, (SCREEN_HEIGHT-center.y));
+            double angle = atan2(cornerBL.x - center.x, (SCREEN_HEIGHT-center.y));*/
 
-            telemetry.addData("Target X", target.x);
-            telemetry.addData("Target Y", target.y);
-            telemetry.addData("Turn angle (deg)", toDegrees(theta));
-            telemetry.addData("Extension (in)", L);
+            telemetry.addData("Target X in inches", target.x);
+            telemetry.addData("Target Y in inches", target.y);
+            //telemetry.addData("Turn angle (deg)", toDegrees(theta));
+            //telemetry.addData("Extension (in)", L);
             telemetry.update();
             Imgproc.drawMarker(input, target, green, 2, 8);
         }
