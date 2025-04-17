@@ -3,5 +3,5 @@
   "resourcesPath": ".",
   "excludedPaths": [],
   "excludedFileExtensions": [],
-  "eocvSimVersion": "3.5.2"
+  "eocvSimVersion": "4.0.1"
 }
