@@ -38,25 +38,28 @@ public final class Intake {
 
             ANGLE_ARM_EXITING = 25,
             ANGLE_BUCKET_RETRACTED = 5,
+            ANGLE_BUCKET_RETRACTED_OVER_BAR = 30,
             ANGLE_BUCKET_OVER_SUB_BAR = 40,
             ANGLE_AVOID_ARM = 35,
-            ANGLE_BUCKET_INTAKING_NEAR = 130,
-            ANGLE_BUCKET_INTAKING_FAR = 130,
+            ANGLE_BUCKET_INTAKING_NEAR = 140,
+            ANGLE_BUCKET_INTAKING_FAR = 127,
 
             TIME_EJECTING = 0.5,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
             TIME_MAX_RETRACT_BEFORE_REATTEMPT = 1,
+            TIME_BUCKET_RETRACT = 0,
             TIME_MAX_BUCKET_RETRACT = 0.75,
             TIME_BUCKET_SETTLING = 0,
 
             LENGTH_RE_RETRACT_TARGET = 150,
+            LENGTH_TILT_BUCKET_OVER_BAR = 1,
 
-            SPEED_EJECTING = -0.25,
-            SPEED_HOLDING = 0.25,
-            SPEED_ARM_ENTERING = -0.35,
-            SPEED_COUNTER_ROLLING = -0.35,
-            SPEED_TRANSFERRING = -0.1,
-            SPEED_ARM_EXITING = -0.5,
+            SPEED_EJECTING = -0.75,
+            SPEED_HOLDING = 0.75,
+            SPEED_ARM_ENTERING = 0,
+            SPEED_COUNTER_ROLLING = -1,
+            SPEED_TRANSFERRING = -1,
+            SPEED_ARM_EXITING = -.74,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -71,7 +74,7 @@ public final class Intake {
             maxRed = new HSV(
                     30,
                     0.75,
-                    0.06
+                    1
             ),
             minYellow = new HSV(
                     75,
@@ -81,7 +84,7 @@ public final class Intake {
             maxYellow = new HSV(
                     96,
                     0.85,
-                    0.3
+                    1
             ),
             minBlue = new HSV(
                     215,
@@ -91,7 +94,7 @@ public final class Intake {
             maxBlue = new HSV(
                     230,
                     0.9,
-                    0.1
+                    1
             );
 
     /**
@@ -165,6 +168,7 @@ public final class Intake {
 
         double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
 
+        double angleBucketRetracted = extendo.getPosition() > LENGTH_TILT_BUCKET_OVER_BAR ? ANGLE_BUCKET_RETRACTED_OVER_BAR : ANGLE_BUCKET_RETRACTED;
         switch (state) {
 
             case EJECTING_SAMPLE:
@@ -180,18 +184,18 @@ public final class Intake {
                 if (rollerSpeed != 0) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_SUB_BAR, ANGLE_BUCKET_INTAKING, abs(rollerSpeed)));
-                    roller.set(rollerSpeed / SPEED_INTAKING);
+                    roller.set(deposit.hasSample() ? 0 : rollerSpeed / SPEED_INTAKING);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                    if (getSample() == badSample || deposit.hasSample()) ejectSample();
+                    if (getSample() == badSample || (hasSample() && deposit.hasSample())) ejectSample();
                     
                     break;
                     
                 } else if (!hasSample()) { // retracted
 
-                    setBucket(deposit.requestingIntakeToMove() ? ANGLE_AVOID_ARM : ANGLE_BUCKET_RETRACTED);
+                    setBucket(deposit.requestingIntakeToMove() ? ANGLE_AVOID_ARM : angleBucketRetracted);
                     roller.set(0);
 
                     break;
@@ -200,17 +204,17 @@ public final class Intake {
 
             case BUCKET_RETRACTING:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(angleBucketRetracted);
                 roller.set(SPEED_HOLDING);
 
-                if (bucketSensor.isPressed() || timer.seconds() >= TIME_MAX_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
+                if (bucketSensor.isPressed() || timer.seconds() >= TIME_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
                     timer.reset();
                 } else break;
 
             case EXTENDO_RE_EXTENDING:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(angleBucketRetracted);
                 roller.set(SPEED_HOLDING);
 
                 if (extendo.atPosition(LENGTH_RE_RETRACT_TARGET) || timer.seconds() > TIME_MAX_EXTEND_BEFORE_RE_RETRACT) {
@@ -220,7 +224,7 @@ public final class Intake {
 
             case EXTENDO_RETRACTING:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(angleBucketRetracted);
                 roller.set(SPEED_HOLDING);
                 extendo.setExtended(false);
 
@@ -238,7 +242,7 @@ public final class Intake {
 
             case SETTLING:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(angleBucketRetracted);
                 roller.set(SPEED_HOLDING);
                 extendo.setExtended(false);
 
@@ -250,7 +254,7 @@ public final class Intake {
 
             case ARM_ENTERING_BUCKET:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(angleBucketRetracted);
                 roller.set(SPEED_ARM_ENTERING);
                 extendo.setExtended(false);
 
@@ -261,7 +265,7 @@ public final class Intake {
 
             case COUNTER_ROLLING:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(angleBucketRetracted);
                 roller.set(SPEED_COUNTER_ROLLING);
                 extendo.setExtended(false);
 
@@ -273,7 +277,7 @@ public final class Intake {
 
             case TRANSFERRING:
 
-                setBucket(ANGLE_BUCKET_RETRACTED);
+                setBucket(angleBucketRetracted);
                 roller.set(SPEED_TRANSFERRING);
                 extendo.setExtended(false);
 

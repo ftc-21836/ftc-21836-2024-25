@@ -39,7 +39,15 @@ public final class Lift {
         TILTING_SWITCHING,
         PULLING_FIRST_RUNG,
         RAISING_SECOND_RUNG,
-        PULLING_SECOND_RUNG,
+        SWITCHING,
+        PULLING_SECOND_RUNG;
+
+        private static final ClimbState[] states = values();
+
+        private ClimbState next() {
+            int max = states.length;
+            return states[((ordinal() + 1) % max + max) % max];
+        }
     }
 
     ClimbState climbState = INACTIVE;
@@ -50,41 +58,38 @@ public final class Lift {
             case INACTIVE:
                 if (getTarget() != HEIGHT_ABOVE_FIRST_RUNG) {
                     setTarget(HEIGHT_ABOVE_FIRST_RUNG);
-                    break;
+                    return;
                 }
                 gearSwitch.setActivated(true);
                 tilt.setActivated(true);
-                climbState = TILTING_SWITCHING;
                 break;
             case TILTING_SWITCHING:
+            case SWITCHING:
                 setTarget(0);
-                climbState = PULLING_FIRST_RUNG;
                 break;
             case PULLING_FIRST_RUNG:
                 gearSwitch.setActivated(false);
                 tilt.setActivated(false);
                 setTarget(HEIGHT_ABOVE_SECOND_RUNG);
-                climbState = RAISING_SECOND_RUNG;
                 break;
             case RAISING_SECOND_RUNG:
                 gearSwitch.setActivated(true);
-                setTarget(0);
-                climbState = PULLING_SECOND_RUNG;
                 break;
             case PULLING_SECOND_RUNG:
                 gearSwitch.setActivated(false);
-                climbState = INACTIVE;
                 break;
         }
+        climbState = climbState.next();
         climbTimer.reset();
     }
 
     public static PIDGains
-            pidGains = new PIDGains(0.4, 0.3),
-            dtPidGains = new PIDGains(0.25, 0.15);
+            pidGains = new PIDGains(0.4, 0.4),
+            dtPidGains = new PIDGains(0, 0);
 
     public static double
-            kG = 0.25,
+            kG = 0.5,
+            SCALAR_DOWNWARD = 1,
             INCHES_PER_TICK = 0.031300435271111114,
             POSITION_TOLERANCE = 0.25,
             HEIGHT_RETRACTING = 0,
@@ -94,6 +99,7 @@ public final class Lift {
             kG_CLIMB = 0,
 
             HEIGHT_EXTENDED = 28.34645669291339,
+            HEIGHT_START_kG = 1,
 
             HEIGHT_ABOVE_FIRST_RUNG = 10,
             HEIGHT_ABOVE_SECOND_RUNG = 15,
@@ -107,7 +113,8 @@ public final class Lift {
 
             TIME_TILT_AND_SWITCH = 10,
             TIME_SHORT_HOOKS = 1,
-            TIME_RAISE_SECOND_RUNG = 10;
+            TIME_RAISE_SECOND_RUNG = 10,
+            TIME_SWITCH = 10;
 
     private boolean usedTilt = false;
 
@@ -182,6 +189,9 @@ public final class Lift {
             case RAISING_SECOND_RUNG:
                 if (climbTimer.seconds() >= TIME_RAISE_SECOND_RUNG) climb();
                 else break;
+            case SWITCHING:
+                if (climbTimer.seconds() >= TIME_SWITCH) climb();
+                else break;
         }
 
         double output;
@@ -203,6 +213,8 @@ public final class Lift {
             output = controller.calculate(new State(getPosition()));
         }
 
+        output = clip(output, -1, 1);
+
         tilt.updateAngles(ANGLE_TILTER_INACTIVE, ANGLE_TILTER_TILTED);
         gearSwitch.updateAngles(ANGLE_SWITCH_INACTIVE, ANGLE_SWITCH_ENGAGED);
         switchR.offset = ANGLE_RIGHT_SWITCH_OFFSET;
@@ -219,8 +231,8 @@ public final class Lift {
             dt.rightFront .setPower(power);
             for (CachedMotorEx motor : motors) motor.set(0);
         } else {
-            double kG = !isExtended() ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
-            for (CachedMotorEx motor : motors) motor.set(output + kG);
+            double kG = getPosition() <= HEIGHT_START_kG ? 0 : Lift.kG * MAX_VOLTAGE / batteryVoltageSensor.getVoltage();
+            for (CachedMotorEx motor : motors) motor.set(output * SCALAR_DOWNWARD + kG);
         }
     }
 

@@ -21,14 +21,14 @@ public final class Extendo {
 
     public static double
             TOUCHPAD_RANGE = 0.9,
-            INCHES_PER_TICK = 0.0440162371 * (16/24.0) * (1150 / 1620.0),
+            INCHES_PER_TICK = 0.0440162371 * (16/24.0),
             LENGTH_RETRACTING = 2,
             SPEED_RETRACTION = -.85,
             LENGTH_DEPOSIT_CLEAR = 4,
             POSITION_TOLERANCE = 0.6,
             LENGTH_EXTENDED = 21.25984251968504;
 
-    public static PIDGains pidGains = new PIDGains(0.75, 0.6);
+    public static PIDGains pidGains = new PIDGains(0.3, 0.2);
 
     private final CachedMotorEx motor;
     private final PIDController controller = new PIDController();
@@ -84,10 +84,9 @@ public final class Extendo {
     public void printTelemetry() {
         mTelemetry.addData("EXTENDO", isExtended() ? "EXTENDED" : "RETRACTED");
         mTelemetry.addLine();
-        mTelemetry.addData("Position (mm)", getPosition());
-        mTelemetry.addData("Target (mm)", getTarget());
-        mTelemetry.addData("Error derivative (mm/s)", controller.getFilteredErrorDerivative());
-        mTelemetry.addData("Encoder (rad)", motor.encoder.getDistance());
+        mTelemetry.addData("Extendo position (in)", getPosition());
+        mTelemetry.addData("Extendo target (in)", getTarget());
+        mTelemetry.addData("Extendo error derivative (in/s)", controller.getFilteredErrorDerivative());
     }
 
     public double getPosition() {
@@ -98,8 +97,8 @@ public final class Extendo {
         return target;
     }
 
-    public void setTarget(double millimeters) {
-        target = clip(millimeters, 0, LENGTH_EXTENDED);
+    public void setTarget(double inches) {
+        target = clip(inches, 0, LENGTH_EXTENDED);
     }
 
     public boolean atPosition(double target) {
@@ -114,7 +113,7 @@ public final class Extendo {
         );
     }
 
-    boolean isExtended() {
+    public boolean isExtended() {
         return !extendoSensor.isPressed();
     }
 

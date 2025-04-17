@@ -5,21 +5,15 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.AT_OBS_ZONE;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.BASKET_TO_STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.COUNTER_ROLLING;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.ENTERING_BUCKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.EXITING_BUCKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.FALLING_BASKET;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.FALLING_OBS;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.GRABBING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.AT_BASKET;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_BASKET;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_INTAKING_SPEC;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_OBS_ZONE;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.MOVING_TO_PRE_OBS;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.OBS_ZONE_TO_PRE_OBS;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.OBS_ZONE_TO_STANDBY;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.ARM_MOVING_TO_BASKET;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.LIFT_MOVING_TO_BASKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISED_TO_STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASED_SPEC_TO_STANDBY;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RELEASING_SPECIMEN;
@@ -29,6 +23,8 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISING_SPE
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.STANDBY_TO_CHAMBER;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.TRANSFERRING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
+
+import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -41,47 +37,49 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 public final class Deposit {
 
     public static double
-            ANGLE_CLAW_OPEN = 140,
-            ANGLE_CLAW_MOVING_TO_SPECIMEN = 165,
-            ANGLE_CLAW_SAMPLE = 190,
-            ANGLE_CLAW_SPECIMEN = 210,
+            ANGLE_CLAW_INTAKING_SPECIMEN = 170,
+            ANGLE_CLAW_OPEN = 180,
+            ANGLE_CLAW_MOVING_TO_SPECIMEN = 229.7,
+            ANGLE_CLAW_SAMPLE = 215,
+            ANGLE_CLAW_DROPPING_SAMPLE = 170,
+            ANGLE_CLAW_SPECIMEN = 292.353,
 
             HEIGHT_ABOVE_INTAKE = 10,
-            HEIGHT_OBSERVATION_ZONE = 0,
-            HEIGHT_BASKET_LOW = 3.5,
-            HEIGHT_BASKET_HIGH = 21.5,
+            HEIGHT_BASKET_LOW = 9,
+            HEIGHT_BASKET_HIGH = 25,
             INCREMENT_REACH_ABOVE_BASKET = 1,
             HEIGHT_INTAKING_SPECIMEN = 0,
+
+            AT_BASKET_TOLERANCE = 10,
 
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
 
-            TIME_ENTERING_BUCKET = 1,
-            TIME_COUNTER_ROLLING = 1,
-            TIME_TRANSFERRING = 1,
-            TIME_EXITING_BUCKET = 1,
-            TIME_OBS_ZONE_TO_PRE_OBS = 1,
-            TIME_TO_BASKET = 1,
-            TIME_SAMPLE_RELEASE = 1,
-            TIME_BASKET_TO_STANDBY = 1,
-            TIME_TO_PRE_OBS = 1,
-            TIME_TO_OBS_ZONE = 1,
-            TIME_OBS_ZONE_TO_STANDBY = 1,
+            TIME_ENTERING_BUCKET = .075,
+            TIME_COUNTER_ROLLING = 0.15,
+            TIME_TRANSFERRING = .15,
+            TIME_EXITING_BUCKET = 0,
+            TIME_TO_BASKET = 0.75,
+            TIME_SAMPLE_RELEASE = .125,
+            TIME_BASKET_TO_STANDBY = .38,
             TIME_TO_INTAKING_SPEC = 1,
             TIME_SPEC_GRAB = 1,
             TIME_RAISE_SPEC = 1,
             TIME_RAISED_SPEC_TO_STANDBY = 1,
             TIME_STANDBY_TO_CHAMBER = 1,
             TIME_SPEC_RELEASE = 1,
-            TIME_RELEASED_SPEC_TO_STANDBY = 1;
+            TIME_RELEASED_SPEC_TO_STANDBY = 1,
+
+            TIME_BUCKET_AVOID = 1;
 
     public static ArmPosition
-            ASCENT =        new ArmPosition(180, 100),
+            ASCENT =        new ArmPosition(165, 100),
             BASKET =        new ArmPosition(313, 150),
+            BASKET_STEEP =  new ArmPosition(260, 215),
             CHAMBER =       new ArmPosition(150, 80),
+            MOVING_TO_INTAKING_SPEC = new ArmPosition(18, 55),
             INTAKING_SPEC = new ArmPosition(18, 55),
-            IN_INTAKE =     new ArmPosition(100, 75),
-            PRE_OBS_ZONE =  new ArmPosition(120, 56),
+            IN_INTAKE =     new ArmPosition(105, 58),
             RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
             STANDBY =       new ArmPosition(120, 35);
 
@@ -91,22 +89,14 @@ public final class Deposit {
         ENTERING_BUCKET (IN_INTAKE),
         COUNTER_ROLLING (IN_INTAKE),
         TRANSFERRING    (IN_INTAKE),
-        EXITING_BUCKET  (Deposit.STANDBY),
-
-        OBS_ZONE_TO_PRE_OBS (PRE_OBS_ZONE),
-
-        MOVING_TO_BASKET    (BASKET),
+        EXITING_BUCKET  (IN_INTAKE),
+        LIFT_MOVING_TO_BASKET (IN_INTAKE),
+        ARM_MOVING_TO_BASKET(BASKET),
         AT_BASKET           (BASKET),
         FALLING_BASKET      (BASKET),
         BASKET_TO_STANDBY   (Deposit.STANDBY),
 
-        MOVING_TO_PRE_OBS   (PRE_OBS_ZONE),
-        MOVING_TO_OBS_ZONE  (INTAKING_SPEC),
-        AT_OBS_ZONE         (INTAKING_SPEC),
-        FALLING_OBS         (INTAKING_SPEC),
-        OBS_ZONE_TO_STANDBY (Deposit.STANDBY),
-
-        MOVING_TO_INTAKING_SPEC (INTAKING_SPEC),
+        MOVING_TO_INTAKING_SPEC (Deposit.MOVING_TO_INTAKING_SPEC),
         INTAKING_SPECIMEN       (INTAKING_SPEC),
         GRABBING_SPECIMEN       (INTAKING_SPEC),
         RAISING_SPECIMEN        (RAISED_SPEC),
@@ -140,9 +130,11 @@ public final class Deposit {
     public final CachedSimpleServo claw;
     private final CachedSimpleServo wrist, armR, armL;
 
-    private final ElapsedTime timer = new ElapsedTime();
+    public boolean lvl1Ascent = false, steepArm = false;
 
-    Deposit.State state = Deposit.State.STANDBY;
+    private final ElapsedTime timer = new ElapsedTime(), bucketAvoidTimer = new ElapsedTime();
+
+    public Deposit.State state = Deposit.State.STANDBY;
 
     private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH;
 
@@ -169,27 +161,17 @@ public final class Deposit {
             case EXITING_BUCKET:
                 if (timer.seconds() >= TIME_EXITING_BUCKET) nextState();
                 break;
-            case OBS_ZONE_TO_PRE_OBS:
-                if (timer.seconds() >= TIME_OBS_ZONE_TO_PRE_OBS) nextState();
+            case LIFT_MOVING_TO_BASKET:
+                if (abs(lift.getTarget() - lift.getPosition()) <= AT_BASKET_TOLERANCE || timer.seconds() >= 1) nextState();
                 break;
-            case MOVING_TO_BASKET:
+            case ARM_MOVING_TO_BASKET:
                 if (timer.seconds() >= TIME_TO_BASKET) nextState();
                 break;
             case FALLING_BASKET:
-            case FALLING_OBS:
                 if (timer.seconds() >= TIME_SAMPLE_RELEASE) nextState();
                 break;
             case BASKET_TO_STANDBY:
                 if (timer.seconds() >= TIME_BASKET_TO_STANDBY) nextState();
-                break;
-            case MOVING_TO_PRE_OBS:
-                if (timer.seconds() >= TIME_TO_PRE_OBS) nextState();
-                break;
-            case MOVING_TO_OBS_ZONE:
-                if (timer.seconds() >= TIME_TO_OBS_ZONE) nextState();
-                break;
-            case OBS_ZONE_TO_STANDBY:
-                if (timer.seconds() >= TIME_OBS_ZONE_TO_STANDBY) nextState();
                 break;
             case MOVING_TO_INTAKING_SPEC:
                 if (timer.seconds() >= TIME_TO_INTAKING_SPEC) nextState();
@@ -216,12 +198,21 @@ public final class Deposit {
 
         lift.run();
 
-        boolean swingOverBarForClimb = state == State.STANDBY && lift.climbState == Lift.ClimbState.PULLING_SECOND_RUNG;
-        ArmPosition armPosition = swingOverBarForClimb ? BASKET : state.armPosition;
+        boolean steep = state == State.STANDBY && (
+                lift.climbState.ordinal() >= Lift.ClimbState.PULLING_SECOND_RUNG.ordinal()
+        );
+        ArmPosition armPosition =
+                state == State.STANDBY && lvl1Ascent ? ASCENT :
+                state.armPosition == BASKET && steepArm ? BASKET_STEEP :
+                state.armPosition;
 
-        armR.turnToAngle(armPosition.arm);
-        armL.turnToAngle(armPosition.arm);
-        wrist.turnToAngle(armPosition.wrist);
+        if (!requestingIntakeToMove()) bucketAvoidTimer.reset();
+        boolean intakeOutOfTheWay = !requestingIntakeToMove() || bucketAvoidTimer.seconds() >= TIME_BUCKET_AVOID;
+        if (intakeOutOfTheWay) {
+            armR.turnToAngle(armPosition.arm);
+            armL.turnToAngle(armPosition.arm);
+            wrist.turnToAngle(armPosition.wrist);
+        }
 
         claw.turnToAngle(
                 state == State.STANDBY ?    ANGLE_CLAW_OPEN :
@@ -229,21 +220,16 @@ public final class Deposit {
                 state == ENTERING_BUCKET ?  ANGLE_CLAW_OPEN :
                 state == COUNTER_ROLLING ?  ANGLE_CLAW_OPEN :
                 state == TRANSFERRING ?     ANGLE_CLAW_SAMPLE :
-                state == EXITING_BUCKET ?   ANGLE_CLAW_SAMPLE:
+                state == EXITING_BUCKET ?   ANGLE_CLAW_SAMPLE :
 
-                state == MOVING_TO_BASKET ?     ANGLE_CLAW_SAMPLE :
+                state == LIFT_MOVING_TO_BASKET ? ANGLE_CLAW_SAMPLE :
+                state == ARM_MOVING_TO_BASKET ?     ANGLE_CLAW_SAMPLE :
                 state == AT_BASKET ?            ANGLE_CLAW_SAMPLE :
-                state == FALLING_BASKET ?       ANGLE_CLAW_OPEN :
+                state == FALLING_BASKET ?       ANGLE_CLAW_DROPPING_SAMPLE :
                 state == BASKET_TO_STANDBY ?    ANGLE_CLAW_OPEN :
 
-                state == MOVING_TO_PRE_OBS ?    ANGLE_CLAW_SAMPLE :
-                state == MOVING_TO_OBS_ZONE ?   ANGLE_CLAW_SAMPLE :
-                state == AT_OBS_ZONE ?          ANGLE_CLAW_SAMPLE :
-                state == FALLING_OBS ?          ANGLE_CLAW_OPEN :
-                state == OBS_ZONE_TO_STANDBY ?  ANGLE_CLAW_MOVING_TO_SPECIMEN :
-
-                state == MOVING_TO_INTAKING_SPEC ?  ANGLE_CLAW_MOVING_TO_SPECIMEN :
-                state == INTAKING_SPECIMEN ?        ANGLE_CLAW_OPEN :
+                state == State.MOVING_TO_INTAKING_SPEC ?  ANGLE_CLAW_MOVING_TO_SPECIMEN :
+                state == INTAKING_SPECIMEN ?        ANGLE_CLAW_INTAKING_SPECIMEN :
                 state == GRABBING_SPECIMEN ?        ANGLE_CLAW_SPECIMEN :
                 state == RAISING_SPECIMEN ?         ANGLE_CLAW_SPECIMEN :
                 state == RAISED_TO_STANDBY ?        ANGLE_CLAW_SPECIMEN :
@@ -269,10 +255,7 @@ public final class Deposit {
     // when does the intake need to move out of the way
     boolean requestingIntakeToMove() {
         return lift.getPosition() < HEIGHT_ABOVE_INTAKE && (
-                        state == MOVING_TO_BASKET ||
-                        state == MOVING_TO_PRE_OBS ||
-                        state == MOVING_TO_OBS_ZONE ||
-                        state == MOVING_TO_INTAKING_SPEC ||
+                        state == State.MOVING_TO_INTAKING_SPEC ||
                         state == RAISED_TO_STANDBY ||
                         state == STANDBY_TO_CHAMBER
         );
@@ -289,20 +272,13 @@ public final class Deposit {
             case ENTERING_BUCKET:
             case COUNTER_ROLLING:
             case TRANSFERRING:
-            case EXITING_BUCKET:
                 break;
 
-            case OBS_ZONE_TO_PRE_OBS:
-            case MOVING_TO_BASKET:
+            case EXITING_BUCKET:
+            case LIFT_MOVING_TO_BASKET:
+            case ARM_MOVING_TO_BASKET:
             case AT_BASKET:
-                if (position == FLOOR) {
-                    state = MOVING_TO_PRE_OBS;
-                    lift.setTarget(0);
-                    break;
-                }
             case STANDBY:
-            case FALLING_OBS:
-            case OBS_ZONE_TO_STANDBY:
             case RELEASED_SPEC_TO_STANDBY:
             case FALLING_BASKET:
             case BASKET_TO_STANDBY:
@@ -312,21 +288,9 @@ public final class Deposit {
                                         lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
                                         HEIGHT_BASKET_HIGH :
                         position == LOW ?
-                                lift.getTarget() >= HEIGHT_BASKET_LOW ?
-                                        lift.getTarget() + INCREMENT_REACH_ABOVE_BASKET :
-                                        HEIGHT_BASKET_LOW :
+                                HEIGHT_BASKET_LOW :
                         0
                 );
-                break;
-
-            case MOVING_TO_PRE_OBS:
-            case MOVING_TO_OBS_ZONE:
-            case AT_OBS_ZONE:
-
-                if (position != FLOOR) {
-                    lift.setTarget(sampleHeight);
-                    state = OBS_ZONE_TO_PRE_OBS;
-                }
                 break;
 
             case MOVING_TO_INTAKING_SPEC:
@@ -344,7 +308,7 @@ public final class Deposit {
             case AT_CHAMBER:
 
                 if (position == FLOOR) {
-                    while (state != MOVING_TO_INTAKING_SPEC) nextState();
+                    while (state != State.MOVING_TO_INTAKING_SPEC) nextState();
                     break;
                 }
 
@@ -375,18 +339,14 @@ public final class Deposit {
         switch (state) {
             case STANDBY:
 
-                lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
-                state = MOVING_TO_INTAKING_SPEC;
+//                lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
+//                state = State.MOVING_TO_INTAKING_SPEC;
                 break;
 
-            case EXITING_BUCKET:
+            case TRANSFERRING:
 
-                if (sampleHeight == HEIGHT_OBSERVATION_ZONE) {
-                    state = MOVING_TO_PRE_OBS;
-                } else {
-                    lift.setTarget(sampleHeight);
-                    state = MOVING_TO_BASKET;
-                }
+                lift.setTarget(sampleHeight);
+                state = EXITING_BUCKET;
                 break;
 
             case GRABBING_SPECIMEN:
@@ -395,16 +355,13 @@ public final class Deposit {
                 break;
 
             case FALLING_BASKET:
-            case FALLING_OBS:
             case RELEASING_SPECIMEN:
                 lift.setTarget(0);
             case ENTERING_BUCKET:
             case COUNTER_ROLLING:
-            case TRANSFERRING:
-            case OBS_ZONE_TO_PRE_OBS:
-            case MOVING_TO_BASKET:
-            case MOVING_TO_PRE_OBS:
-            case MOVING_TO_OBS_ZONE:
+            case EXITING_BUCKET:
+            case LIFT_MOVING_TO_BASKET:
+            case ARM_MOVING_TO_BASKET:
             case MOVING_TO_INTAKING_SPEC:
             case INTAKING_SPECIMEN:
             case RAISING_SPECIMEN:
@@ -415,7 +372,6 @@ public final class Deposit {
                 break;
 
             case AT_BASKET:
-            case AT_OBS_ZONE:
 
                 sampleHeight = lift.getTarget();
                 state = state.next();
@@ -428,7 +384,6 @@ public final class Deposit {
                 break;
 
             case BASKET_TO_STANDBY:
-            case OBS_ZONE_TO_STANDBY:
             case RELEASED_SPEC_TO_STANDBY:
 
                 state = State.STANDBY;
@@ -440,12 +395,8 @@ public final class Deposit {
         return
                 state == TRANSFERRING ||
                 state == EXITING_BUCKET ||
-                state == MOVING_TO_BASKET ||
+                state == ARM_MOVING_TO_BASKET ||
                 state == AT_BASKET ||
-
-                state == MOVING_TO_PRE_OBS ||
-                state == MOVING_TO_OBS_ZONE ||
-                state == AT_OBS_ZONE ||
 
                 state == GRABBING_SPECIMEN ||
                 state == RAISING_SPECIMEN ||
@@ -456,10 +407,6 @@ public final class Deposit {
 
     public boolean basketReady() {
         return state == AT_BASKET;
-    }
-
-    public boolean obsReady() {
-        return state == AT_OBS_ZONE;
     }
 
     public boolean chamberReady() {
@@ -481,7 +428,7 @@ public final class Deposit {
     }
 
     void printTelemetry() {
-        String gameElement = state.ordinal() >= MOVING_TO_INTAKING_SPEC.ordinal() ? "has specimen" : "has sample";
+        String gameElement = state.ordinal() >= State.MOVING_TO_INTAKING_SPEC.ordinal() ? "has specimen" : "has sample";
         mTelemetry.addData("DEPOSIT", state + ", " + (hasSample() ? gameElement : "empty"));
         divider();
         lift.printTelemetry();
