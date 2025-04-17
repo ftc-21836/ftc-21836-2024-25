@@ -83,7 +83,7 @@ public final class Deposit {
             RAISED_SPEC =   new ArmPosition(INTAKING_SPEC.arm, 20),
             STANDBY =       new ArmPosition(120, 35);
 
-    enum State {
+    public enum State {
         STANDBY         (Deposit.STANDBY),
 
         ENTERING_BUCKET (IN_INTAKE),

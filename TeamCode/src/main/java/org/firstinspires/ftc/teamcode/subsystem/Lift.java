@@ -101,14 +101,14 @@ public final class Lift {
             HEIGHT_EXTENDED = 28.34645669291339,
             HEIGHT_START_kG = 1,
 
-            HEIGHT_ABOVE_FIRST_RUNG = 10,
+            HEIGHT_ABOVE_FIRST_RUNG = 11,
             HEIGHT_ABOVE_SECOND_RUNG = 15,
 
             ANGLE_TILTER_INACTIVE = 225,
             ANGLE_TILTER_TILTED = 130,
 
             ANGLE_SWITCH_INACTIVE = 0,
-            ANGLE_SWITCH_ENGAGED = 25,
+            ANGLE_SWITCH_ENGAGED = 40,
             ANGLE_RIGHT_SWITCH_OFFSET = 0,
 
             TIME_TILT_AND_SWITCH = 10,
@@ -245,6 +245,8 @@ public final class Lift {
         mTelemetry.addLine();
         mTelemetry.addData("Right encoder (ticks)", motors[0].encoder.getPosition());
         mTelemetry.addData("Left encoder (ticks)", motors[1].encoder.getPosition());
+        mTelemetry.addLine();
+        mTelemetry.addData("Climb state", climbState);
         divider();
         mTelemetry.addData("GEAR SWITCH", gearSwitch.isActivated() ? "ENGAGED" : "INACTIVE");
         divider();
