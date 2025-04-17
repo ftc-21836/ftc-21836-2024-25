@@ -106,7 +106,7 @@ public final class Auto extends LinearOpMode {
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
             DISTANCE_FROM_BASKET_SWEEP = 30,
-            EXTEND_SAMPLE_1 = 20,
+            EXTEND_SAMPLE_1 = 21,
             EXTEND_SAMPLE_2 = 20,
             EXTEND_SAMPLE_3 = 20,
             EXTEND_OVER_SUB_BAR_1 = 50 / 25.4 + 1.5,
@@ -125,7 +125,7 @@ public final class Auto extends LinearOpMode {
             SPEED_SPIKE_TURNING = 2,
             SPEED_SWEEPING_SUB = 6.5,
             SPEED_SWEEPING_SUB_TURNING = 0.5,
-            SPEED_INCHING = 8,
+            SPEED_INCHING = 5,
             SPEED_INCHING_TURNING = 0.75,
             WAIT_SCORE_SAMPLE_PRELOAD = 1.5,
             WAIT_APPROACH_WALL = 0,
@@ -144,7 +144,7 @@ public final class Auto extends LinearOpMode {
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
             X_OFFSET_CHAMBER_4 = -3,
-            Y_INCHING_FORWARD_WHEN_INTAKING = 5,
+            Y_INCHING_FORWARD_WHEN_INTAKING = 10,
             TIME_CYCLE = 5,
             TIME_SCORE = 0.5;
 
@@ -160,8 +160,8 @@ public final class Auto extends LinearOpMode {
             intaking2 = new EditablePose(-58.2, -55.2, PI/4),
             intaking3 = new EditablePose(-61, -50, 2 * PI / 3),
 
-            sample1 = new EditablePose(-46, -26.8, PI / 2),
-            sample2 = new EditablePose(-58.4, -27.4, PI / 2),
+            sample1 = new EditablePose(-48, -26.8, PI / 2),
+            sample2 = new EditablePose(-60, -27.4, PI / 2),
             sample3 = new EditablePose(-68.5, -27.8, PI / 2),
 
             basket = new EditablePose(-55.0, -53.5, PI / 4),
@@ -436,7 +436,7 @@ public final class Auto extends LinearOpMode {
                 robot.deposit.preloadSpecimen();
                 robot.deposit.lift.setTarget(HEIGHT_CHAMBER_HIGH);
             } else {
-                robot.deposit.preloadSample();
+//                robot.deposit.preloadSample();
                 robot.deposit.lift.setTarget(HEIGHT_BASKET_HIGH);
             }
 
@@ -466,7 +466,10 @@ public final class Auto extends LinearOpMode {
                             robot.intake.extendo.setTarget(EXTEND_APPROACH_SPIKES);
                             robot.intake.runRoller(SPEED_INTAKING);
                     }))
-                    .afterTime(WAIT_SCORE_SAMPLE_PRELOAD, robot.deposit::nextState)
+                    .afterTime(0, new SequentialAction(
+                            t -> robot.deposit.lift.getPosition() <= HEIGHT_BASKET_HIGH - 10,
+                            new InstantAction(robot.deposit::preloadSample)
+                    ))
                     .strafeToLinearHeading(intaking1.toVector2d(), intaking1.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
