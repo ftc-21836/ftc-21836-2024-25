@@ -201,21 +201,14 @@ public final class Deposit {
 
         lift.run();
 
-        boolean steep = state == State.STANDBY && (
-                lift.climbState.ordinal() >= Lift.ClimbState.PULLING_SECOND_RUNG.ordinal()
-        );
         ArmPosition armPosition =
                 state == State.STANDBY && lvl1Ascent ? ASCENT :
                 state.armPosition == BASKET && steepArm ? BASKET_STEEP :
                 state.armPosition;
 
-        if (!requestingIntakeToMove()) bucketAvoidTimer.reset();
-        boolean intakeOutOfTheWay = !requestingIntakeToMove() || bucketAvoidTimer.seconds() >= TIME_BUCKET_AVOID;
-        if (intakeOutOfTheWay) {
-            armR.turnToAngle(armPosition.arm);
-            armL.turnToAngle(armPosition.arm);
-            wrist.turnToAngle(armPosition.wrist + (state == AT_BASKET ? wristPitchingAngle * ANGLE_WRIST_PITCH : 0));
-        }
+        armR.turnToAngle(armPosition.arm);
+        armL.turnToAngle(armPosition.arm);
+        wrist.turnToAngle(armPosition.wrist + (state.armPosition == BASKET ? wristPitchingAngle * ANGLE_WRIST_PITCH : 0));
 
         claw.turnToAngle(
                 state == State.STANDBY ?    ANGLE_CLAW_OPEN :
