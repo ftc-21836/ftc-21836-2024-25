@@ -45,6 +45,7 @@ public final class Intake {
             ANGLE_BUCKET_INTAKING_FAR = 127,
 
             TIME_EJECTING = 0.5,
+            TIME_DROP_TAG_ALONG_SAMPLE = 0.05,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
             TIME_MAX_RETRACT_BEFORE_REATTEMPT = 1,
             TIME_BUCKET_RETRACT = 0,
@@ -54,7 +55,8 @@ public final class Intake {
             LENGTH_RE_RETRACT_TARGET = 150,
             LENGTH_TILT_BUCKET_OVER_BAR = 1,
 
-            SPEED_EJECTING = -0.75,
+            SPEED_EJECTING = -0.5,
+            SPEED_HOLDING_BUT_EJECTING = -0.5,
             SPEED_HOLDING = 0.75,
             SPEED_ARM_ENTERING = 1,
             SPEED_COUNTER_ROLLING = -1,
@@ -130,7 +132,7 @@ public final class Intake {
 
     private Intake.State state = STANDBY;
 
-    private final ElapsedTime timer = new ElapsedTime();
+    private final ElapsedTime timer = new ElapsedTime(), timeSinceIntaked = new ElapsedTime();
 
     enum State {
         EJECTING_SAMPLE,
@@ -169,6 +171,9 @@ public final class Intake {
         double ANGLE_BUCKET_INTAKING = lerp(ANGLE_BUCKET_INTAKING_NEAR, ANGLE_BUCKET_INTAKING_FAR, extendo.getPosition() / Extendo.LENGTH_EXTENDED);
 
         double angleBucketRetracted = extendo.getPosition() > LENGTH_TILT_BUCKET_OVER_BAR ? ANGLE_BUCKET_RETRACTED_OVER_BAR : ANGLE_BUCKET_RETRACTED;
+
+        double holdingSpeed = timeSinceIntaked.seconds() <= TIME_DROP_TAG_ALONG_SAMPLE ? SPEED_HOLDING_BUT_EJECTING : SPEED_HOLDING;
+
         switch (state) {
 
             case EJECTING_SAMPLE:
@@ -205,7 +210,7 @@ public final class Intake {
             case BUCKET_RETRACTING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(SPEED_HOLDING);
+                roller.set(holdingSpeed);
 
                 if (bucketSensor.isPressed() || timer.seconds() >= TIME_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
@@ -215,7 +220,7 @@ public final class Intake {
             case EXTENDO_RE_EXTENDING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(SPEED_HOLDING);
+                roller.set(holdingSpeed);
 
                 if (extendo.atPosition(LENGTH_RE_RETRACT_TARGET) || timer.seconds() > TIME_MAX_EXTEND_BEFORE_RE_RETRACT) {
                     state = EXTENDO_RETRACTING;
@@ -225,7 +230,7 @@ public final class Intake {
             case EXTENDO_RETRACTING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(SPEED_HOLDING);
+                roller.set(holdingSpeed);
                 extendo.setExtended(false);
 
                 if (extendo.isExtended()) {
@@ -243,7 +248,7 @@ public final class Intake {
             case SETTLING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(SPEED_MINOR_EJECTING);
+                roller.set(holdingSpeed);
                 extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_BUCKET_SETTLING) {
@@ -305,6 +310,7 @@ public final class Intake {
         this.sample = sample;
         state = BUCKET_RETRACTING;
         timer.reset();
+        timeSinceIntaked.reset();
     }
 
     public void ejectSample() {
@@ -330,10 +336,6 @@ public final class Intake {
 
     public Sample getSample() {
         return sample;
-    }
-
-    boolean clearOfDeposit() {
-        return extendo.getPosition() >= Extendo.LENGTH_DEPOSIT_CLEAR;
     }
 
     public void setRollerAndAngle(double power) {
