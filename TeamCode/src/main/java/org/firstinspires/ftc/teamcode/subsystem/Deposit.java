@@ -60,7 +60,7 @@ public final class Deposit {
             TIME_COUNTER_ROLLING = 0.15,
             TIME_TRANSFERRING = .15,
             TIME_EXITING_BUCKET = 0,
-            TIME_TO_BASKET = 0.4,
+            TIME_TO_BASKET = 0.35,
             TIME_SAMPLE_RELEASE = .125,
             TIME_BASKET_TO_STANDBY = .38,
             TIME_TO_INTAKING_SPEC = 1,
