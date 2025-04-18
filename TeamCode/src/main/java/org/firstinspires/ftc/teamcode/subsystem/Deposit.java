@@ -48,7 +48,7 @@ public final class Deposit {
             HEIGHT_BASKET_LOW = 9,
             HEIGHT_BASKET_HIGH = 25,
             INCREMENT_REACH_ABOVE_BASKET = 1,
-            PASSIVE_INCREMENT = 0.25,
+            PASSIVE_INCREMENT = .1,
             HEIGHT_INTAKING_SPECIMEN = 0,
 
             AT_BASKET_TOLERANCE = 10,
@@ -60,7 +60,7 @@ public final class Deposit {
             TIME_COUNTER_ROLLING = 0.15,
             TIME_TRANSFERRING = .15,
             TIME_EXITING_BUCKET = 0,
-            TIME_TO_BASKET = 0.35,
+            TIME_TO_BASKET = 0.38,
             TIME_SAMPLE_RELEASE = .125,
             TIME_BASKET_TO_STANDBY = .38,
             TIME_TO_INTAKING_SPEC = 1,
@@ -163,7 +163,7 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_EXITING_BUCKET) nextState();
                 break;
             case LIFT_MOVING_TO_BASKET:
-                if (abs(lift.getTarget() - lift.getPosition()) <= AT_BASKET_TOLERANCE || timer.seconds() >= 1) nextState();
+                if (abs(lift.getTarget() - lift.getPosition()) <= AT_BASKET_TOLERANCE || timer.seconds() >= 2.5) nextState();
                 break;
             case ARM_MOVING_TO_BASKET:
                 if (timer.seconds() >= TIME_TO_BASKET) nextState();

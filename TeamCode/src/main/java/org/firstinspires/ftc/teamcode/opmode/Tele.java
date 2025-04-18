@@ -262,7 +262,7 @@ public final class Tele extends LinearOpMode {
                         Gamepad.LED_DURATION_CONTINUOUS
                 );
 
-                indicator.setState(LEDIndicator.State.GREEN);
+                indicator.setState(LEDIndicator.State.AMBER);
 
                 if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 200);
                 rumbledSample = true;
