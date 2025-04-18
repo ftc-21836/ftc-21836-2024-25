@@ -120,8 +120,6 @@ public final class Lift {
             TIME_RAISE_SECOND_RUNG = 2,
             TIME_SWITCH = 1;
 
-    private boolean usedTilt = false;
-
     public static Motor.ZeroPowerBehavior zeroPowerBehavior = FLOAT;
 
     private final CachedMotorEx[] motors;
@@ -223,8 +221,7 @@ public final class Lift {
         gearSwitch.updateAngles(ANGLE_SWITCH_INACTIVE, ANGLE_SWITCH_ENGAGED);
         switchR.offset = ANGLE_RIGHT_SWITCH_OFFSET;
 
-        if (tilt.isActivated()) usedTilt = true;
-        if (usedTilt) tilt.run();
+        tilt.run();
         gearSwitch.run();
 
         if (gearSwitch.isActivated()) {
