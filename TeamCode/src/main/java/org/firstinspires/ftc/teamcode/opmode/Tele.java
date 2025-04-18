@@ -221,7 +221,7 @@ public final class Tele extends LinearOpMode {
 //                    if (robot.deposit.basketReady()) robot.deposit.nextState();
 //                }
 
-                robot.headlight.setActivated(robot.intake.extendo.isExtended());
+                robot.headlight.setActivated(robot.intake.extendo.isExtended() || gamepad1.cross);
     
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
                 else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
