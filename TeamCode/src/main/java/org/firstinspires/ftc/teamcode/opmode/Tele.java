@@ -179,7 +179,7 @@ public final class Tele extends LinearOpMode {
                 if (!robot.deposit.lift.gearSwitch.isActivated())
                     robot.drivetrain.run(0, 0, 0, false, true);
 
-                if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.hold = true;
+                if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.hold = !robot.deposit.lift.hold;
                 if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.lift.gearSwitch.toggle();
                 if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
