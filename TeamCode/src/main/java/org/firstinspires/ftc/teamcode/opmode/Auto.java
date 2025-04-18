@@ -776,7 +776,7 @@ public final class Auto extends LinearOpMode {
                         case INTAKING:
 
                             if (remaining < TIME_SCORE) {
-                                robot.intake.extendo.runManual(0);
+                                robot.intake.extendo.setExtended(false);
                                 robot.intake.ejectSample();
                                 robot.intake.setRollerAndAngle(0);
                                 robot.deposit.lvl1Ascent = true;
