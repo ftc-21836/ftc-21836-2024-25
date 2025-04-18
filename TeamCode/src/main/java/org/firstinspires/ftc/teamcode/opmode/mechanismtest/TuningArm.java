@@ -12,7 +12,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ANGLE_CLAW_SAMPLE;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ANGLE_CLAW_OPEN;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ANGLE_CLAW_TRANSFER;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.ASCENT;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.BASKET;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.CHAMBER;
@@ -99,7 +99,7 @@ public final class TuningArm extends LinearOpMode {
             wrist.turnToAngle(target.wrist);
 
             if (gamepadEx1.wasJustPressed(RIGHT_BUMPER)) closed = !closed;
-            claw.turnToAngle(closed ? ANGLE_CLAW_SAMPLE : ANGLE_CLAW_OPEN);
+            claw.turnToAngle(closed ? ANGLE_CLAW_SAMPLE : ANGLE_CLAW_TRANSFER);
 
             mTelemetry.addData("Time to reach target (sec)", seconds);
             divider();

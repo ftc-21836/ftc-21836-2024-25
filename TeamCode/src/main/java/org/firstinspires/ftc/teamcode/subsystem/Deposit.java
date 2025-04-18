@@ -38,7 +38,7 @@ public final class Deposit {
 
     public static double
             ANGLE_CLAW_INTAKING_SPECIMEN = 170,
-            ANGLE_CLAW_OPEN = 190,
+            ANGLE_CLAW_TRANSFER = 190,
             ANGLE_CLAW_MOVING_TO_SPECIMEN = 229.7,
             ANGLE_CLAW_SAMPLE = 215,
             ANGLE_CLAW_DROPPING_SAMPLE = 170,
@@ -211,10 +211,10 @@ public final class Deposit {
         wrist.turnToAngle(armPosition.wrist + (state.armPosition == BASKET ? wristPitchingAngle * ANGLE_WRIST_PITCH : 0));
 
         claw.turnToAngle(
-                state == State.STANDBY ?    ANGLE_CLAW_OPEN :
+                state == State.STANDBY ? ANGLE_CLAW_TRANSFER :
 
-                state == ENTERING_BUCKET ?  ANGLE_CLAW_OPEN :
-                state == COUNTER_ROLLING ?  ANGLE_CLAW_OPEN :
+                state == ENTERING_BUCKET ? ANGLE_CLAW_TRANSFER :
+                state == COUNTER_ROLLING ? ANGLE_CLAW_TRANSFER :
                 state == TRANSFERRING ?     ANGLE_CLAW_SAMPLE :
                 state == EXITING_BUCKET ?   ANGLE_CLAW_SAMPLE :
 
@@ -222,7 +222,7 @@ public final class Deposit {
                 state == ARM_MOVING_TO_BASKET ?     ANGLE_CLAW_SAMPLE :
                 state == AT_BASKET ?            ANGLE_CLAW_SAMPLE :
                 state == FALLING_BASKET ?       ANGLE_CLAW_DROPPING_SAMPLE :
-                state == BASKET_TO_STANDBY ?    ANGLE_CLAW_OPEN :
+                state == BASKET_TO_STANDBY ? ANGLE_CLAW_TRANSFER :
 
                 state == State.MOVING_TO_INTAKING_SPEC ?  ANGLE_CLAW_MOVING_TO_SPECIMEN :
                 state == INTAKING_SPECIMEN ?        ANGLE_CLAW_INTAKING_SPECIMEN :
@@ -231,8 +231,8 @@ public final class Deposit {
                 state == RAISED_TO_STANDBY ?        ANGLE_CLAW_SPECIMEN :
                 state == STANDBY_TO_CHAMBER ?       ANGLE_CLAW_SPECIMEN :
                 state == AT_CHAMBER ?               ANGLE_CLAW_SPECIMEN :
-                state == RELEASING_SPECIMEN ?       ANGLE_CLAW_OPEN :
-                state == RELEASED_SPEC_TO_STANDBY ? ANGLE_CLAW_OPEN :
+                state == RELEASING_SPECIMEN ? ANGLE_CLAW_TRANSFER :
+                state == RELEASED_SPEC_TO_STANDBY ? ANGLE_CLAW_TRANSFER :
 
                 ANGLE_CLAW_MOVING_TO_SPECIMEN
         );
