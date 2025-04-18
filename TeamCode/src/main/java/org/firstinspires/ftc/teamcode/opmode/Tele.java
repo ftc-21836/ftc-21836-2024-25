@@ -69,7 +69,7 @@ public final class Tele extends LinearOpMode {
         ElapsedTime matchTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
-        double CLIMB_TIME = TELE - 10; // 15 seconds for climb
+        double CLIMB_TIME = TELE - 15; // 15 seconds for climb
         boolean rumbledClimb = false, rumbledSample = false;
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -179,7 +179,7 @@ public final class Tele extends LinearOpMode {
                 if (!robot.deposit.lift.gearSwitch.isActivated())
                     robot.drivetrain.run(0, 0, 0, false, true);
 
-                // if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.climb();
+                if (gamepadEx1.wasJustPressed(Y)) robot.deposit.lift.hold = true;
                 if (gamepadEx1.wasJustPressed(X)) doTelemetry = !doTelemetry;
                 if (gamepadEx1.wasJustPressed(B)) robot.deposit.lift.gearSwitch.toggle();
                 if (gamepadEx1.wasJustPressed(A)) robot.deposit.lift.tilt.toggle();
@@ -221,7 +221,7 @@ public final class Tele extends LinearOpMode {
 //                    if (robot.deposit.basketReady()) robot.deposit.nextState();
 //                }
 
-                robot.headlight.setActivated(robot.intake.extendo.isExtended() || gamepad1.cross);
+                robot.headlight.setActivated(robot.intake.extendo.isExtended() || gamepad1.cross || rumbledClimb);
     
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
                 else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);

@@ -103,13 +103,13 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_2 = 20,
             EXTEND_SAMPLE_3 = 20,
 
-            TIME_EXTEND = 1,
-            TIME_RETRACT = 1,
+            TIME_EXTEND = 2.5,
+            TIME_RETRACT = 2.5,
             SPEED_EXTEND = 1,
             SPEED_RETRACT = -0.6,
 
             EXTEND_OVER_SUB_BAR = 2,
-            EXTEND_SUB = 14.173228346456694,
+            EXTEND_SUB = 21.25984251968504,
 
             WAIT_RE_SWEEP = 1,
             ANGLE_PRE_SLAM = 0.1,
@@ -138,6 +138,9 @@ public final class Auto extends LinearOpMode {
 
             LIFT_HEIGHT_TOLERANCE = 3.75,
 
+            MAX_WAIT_EXTEND_2 = 1,
+            ANGLE_TOLERANCE_2 = 0.25,
+
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
             X_OFFSET_CHAMBER_3 = -2,
@@ -161,7 +164,7 @@ public final class Auto extends LinearOpMode {
             intaking2 = new EditablePose(-62, -52, 1.4632986527692424),
             intaking3 = new EditablePose(-61, -50, 2 * PI / 3),
 
-            sample1 = new EditablePose(-51, -26.8, PI / 2),
+            sample1 = new EditablePose(-50.5, -26.8, PI / 2),
             sample2 = new EditablePose(-58, -27.4, PI / 2),
             sample3 = new EditablePose(-68.5, -27.8, PI / 2),
 
@@ -511,6 +514,7 @@ public final class Auto extends LinearOpMode {
             }
 
             Action intake1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
+                    .turnTo(intaking1.heading + .01)
                     .afterTime(0, () -> {
                         robot.intake.setRollerAndAngle(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
@@ -528,6 +532,7 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
+                    .turnTo(intaking2.heading + .01)
                     .afterTime(0, () -> {
                         robot.intake.setRollerAndAngle(SPEED_INTAKING);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
@@ -619,13 +624,13 @@ public final class Auto extends LinearOpMode {
                         case SCORING_PRELOAD:
 
                             if (trajDone) {
-                                if (usePartnerSample_Final) {
+//                                if (usePartnerSample_Final) {
 //                                    activeTraj = intakePartnerSample;
 //                                    state = INTAKING_PARTNER_SAMPLE;
-                                } else {
+//                                } else {
                                     activeTraj = intake1;
                                     state = INTAKING_1;
-                                }
+//                                }
                             }
                             break;
 
@@ -816,7 +821,7 @@ public final class Auto extends LinearOpMode {
                                 if (robot.intake.extendo.atPosition(extending ? EXTEND_SUB : EXTEND_OVER_SUB_BAR) || timer.seconds() >= (extending ? TIME_EXTEND : TIME_RETRACT)) {
                                     timer.reset();
                                     extending = !extending;
-                                    robot.intake.extendo.setTarget(extending ? EXTEND_OVER_SUB_BAR : EXTEND_SUB);
+                                    robot.intake.extendo.setTarget(extending ? EXTEND_SUB : EXTEND_OVER_SUB_BAR);
                                     if (!extending) robot.intake.ejectSample();
                                 }
 

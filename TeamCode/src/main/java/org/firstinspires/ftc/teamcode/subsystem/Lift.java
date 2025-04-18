@@ -79,13 +79,15 @@ public final class Lift {
                 gearSwitch.setActivated(false);
                 break;
         }
-        climbState = climbState.next();
-        climbTimer.reset();
+//        climbState = climbState.next();
+//        climbTimer.reset();
     }
+
+    public boolean hold = false;
 
     public static PIDGains
             pidGains = new PIDGains(0.4, 0.4),
-            dtPidGains = new PIDGains(0.5, 0.5);
+            dtPidGains = new PIDGains(0, 0);
 
     public static double
             kG = 0.5,
@@ -226,7 +228,7 @@ public final class Lift {
         gearSwitch.run();
 
         if (gearSwitch.isActivated()) {
-            double power = output + kG_CLIMB;
+            double power = hold ? -1 : output + kG_CLIMB;
             dt.leftFront.setPower(power);
             dt.leftBack.setPower(power);
             dt.rightBack.setPower(power);
