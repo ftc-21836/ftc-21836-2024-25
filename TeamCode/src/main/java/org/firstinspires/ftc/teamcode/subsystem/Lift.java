@@ -98,7 +98,7 @@ public final class Lift {
             SPEED_RETRACTION = -0,
             MAX_VOLTAGE = 13,
 
-            kG_CLIMB = 0,
+            kG_CLIMB = -0.85,
 
             HEIGHT_EXTENDED = 28.34645669291339,
             HEIGHT_START_kG = 1,
@@ -228,7 +228,7 @@ public final class Lift {
         gearSwitch.run();
 
         if (gearSwitch.isActivated()) {
-            double power = hold ? -1 : output + kG_CLIMB;
+            double power = hold ? kG_CLIMB : output;
             dt.leftFront.setPower(power);
             dt.leftBack.setPower(power);
             dt.rightBack.setPower(power);

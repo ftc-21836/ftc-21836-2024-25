@@ -191,7 +191,8 @@ public final class Tele extends LinearOpMode {
 
             } else {
 
-                robot.intake.setRollerAndAngle(triggers);
+                robot.intake.setRollerAndAngle(robot.deposit.hasSample() ? 0 : triggers);
+                robot.deposit.setWristPitchingAngle(robot.deposit.hasSample() ? triggers : 0);
                 robot.intake.extendo.runManual(0);
                 robot.deposit.lift.runManual(0);
 

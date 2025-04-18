@@ -48,13 +48,15 @@ public final class Deposit {
             HEIGHT_BASKET_LOW = 9,
             HEIGHT_BASKET_HIGH = 25,
             INCREMENT_REACH_ABOVE_BASKET = 1,
-            PASSIVE_INCREMENT = .1,
+            PASSIVE_INCREMENT = (26.5 - HEIGHT_BASKET_HIGH)/13.0,
             HEIGHT_INTAKING_SPECIMEN = 0,
 
             AT_BASKET_TOLERANCE = 10,
 
             HEIGHT_CHAMBER_HIGH = 0,
             HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
+
+            ANGLE_WRIST_PITCH = 104,
 
             TIME_ENTERING_BUCKET = .075,
             TIME_COUNTER_ROLLING = 0.15,
@@ -137,7 +139,7 @@ public final class Deposit {
 
     public Deposit.State state = Deposit.State.STANDBY;
 
-    private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH;
+    private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH, wristPitchingAngle = 0;
 
     Deposit(HardwareMap hardwareMap, MecanumDrive dt) {
         lift = new Lift(hardwareMap, dt);
@@ -212,7 +214,7 @@ public final class Deposit {
         if (intakeOutOfTheWay) {
             armR.turnToAngle(armPosition.arm);
             armL.turnToAngle(armPosition.arm);
-            wrist.turnToAngle(armPosition.wrist);
+            wrist.turnToAngle(armPosition.wrist + (state == AT_BASKET ? wristPitchingAngle * ANGLE_WRIST_PITCH : 0));
         }
 
         claw.turnToAngle(
@@ -241,6 +243,10 @@ public final class Deposit {
 
                 ANGLE_CLAW_MOVING_TO_SPECIMEN
         );
+    }
+
+    public void setWristPitchingAngle(double t) {
+        wristPitchingAngle = abs(t);
     }
 
     public void preloadSpecimen() {
