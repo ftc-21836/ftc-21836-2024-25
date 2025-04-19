@@ -135,7 +135,7 @@ public final class Deposit {
 
     public boolean lvl1Ascent = false, steepArm = false;
 
-    private final ElapsedTime timer = new ElapsedTime(), bucketAvoidTimer = new ElapsedTime();
+    public final ElapsedTime timer = new ElapsedTime();
 
     public Deposit.State state = Deposit.State.STANDBY;
 
@@ -253,8 +253,9 @@ public final class Deposit {
     }
 
     public void preloadSample() {
-        state = TRANSFERRING;
+        state = EXITING_BUCKET;
         claw.turnToAngle(ANGLE_CLAW_SAMPLE);
+        lift.setTarget(sampleHeight);
     }
 
     // when does the intake need to move out of the way

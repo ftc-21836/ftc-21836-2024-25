@@ -34,6 +34,8 @@ public final class Extendo {
     private final PIDController controller = new PIDController();
     private final TouchSensor extendoSensor;
 
+    public double powerCap = 1;
+
     private double position, target, manualPower;
 
     public Extendo(HardwareMap hardwareMap) {
@@ -78,7 +80,7 @@ public final class Extendo {
         controller.setGains(pidGains);
         controller.setTarget(new State(getTarget()));
 
-        motor.set(controller.calculate(new State(getPosition())));
+        motor.set(clip(controller.calculate(new State(getPosition())), -powerCap, powerCap));
     }
 
     public void printTelemetry() {

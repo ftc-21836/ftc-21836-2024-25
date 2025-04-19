@@ -149,7 +149,7 @@ public class MecanumDrive {
 
         // path profile parameters (in inches)
         public double maxWheelVel = 60;
-        public double minProfileAccel = -60;
+        public double minProfileAccel = -80;
         public double maxProfileAccel = 60;
 
         // turn profile parameters (in radians)
@@ -374,7 +374,10 @@ public class MecanumDrive {
             if (t >= timeTrajectory.duration
 //                    + 1 || t >= timeTrajectory.duration &&
 //                    error.position.norm() < admissibleError.x &&
-//                    abs(error.heading.toDouble()) < admissibleError.heading &&
+                    && (
+                            ( abs(error.heading.toDouble()) <= admissibleError.heading ) ||
+                            t >= timeTrajectory.duration + 1
+            )
 //                    robotVelRobot.linearVel.norm() < admissibleVel.x &&
 //                    abs(robotVelRobot.angVel) < admissibleVel.heading
             ) {
