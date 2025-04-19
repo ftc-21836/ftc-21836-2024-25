@@ -45,6 +45,8 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
 @TeleOp
 public final class Tele extends LinearOpMode {
 
+    public static boolean holdingSample = false;
+
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
         PRELOAD_SPECIMEN,
@@ -86,6 +88,8 @@ public final class Tele extends LinearOpMode {
         TeleOpConfig selection = PRELOAD_SAMPLE;
 
         boolean slowModeLocked = false, useFieldCentric = true, doTelemetry = false;
+
+        if (holdingSample) robot.deposit.preloadSample();
 
         while (opModeInInit()) {
             gamepadEx1.readButtons();
