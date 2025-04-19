@@ -173,7 +173,7 @@ public final class Auto extends LinearOpMode {
             intakingPartnerSample = new EditablePose(-29,7 - SIZE_HALF_FIELD, 0),
 
             intaking1 = new EditablePose(-61, -54, PI/3),
-            intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
+            intaking2 = new EditablePose(-62, -52, 1.4632986527692424),
             intaking3 = new EditablePose(-60, -50, 2 * PI / 3),
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
@@ -710,9 +710,7 @@ public final class Auto extends LinearOpMode {
                                     state = PARKING;
                                     stopDt();
                                 } else {
-                                    Pose2d subPos = new Pose2d(sub.x, sub.y
-//                                            + Y_OFFSET_SUB_APPROACHES * (subCycle - 1)
-                                            , 0);
+                                    Pose2d subPos = new Pose2d(sub.x, sub.y + Y_OFFSET_SUB_APPROACHES * (subCycle - 1), 0);
                                     activeTraj = subCycle == 1 ? toSub1 : robot.drivetrain.actionBuilder(basketFromSub.toPose2d())
                                             .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR))
                                             .setTangent(basketFromSub.heading)
@@ -734,7 +732,7 @@ public final class Auto extends LinearOpMode {
                             if (trajDone) {
                                 activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
                                         .setTangent(PI / 2)
-                                        .lineToY(0, sweepConstraint)
+                                        .lineToY(-sub.y, sweepConstraint)
                                         .build();
                                 state = INTAKING;
                                 timer.reset();
@@ -816,7 +814,7 @@ public final class Auto extends LinearOpMode {
                                             robot.intake.setAngle(.01);
                                         }))
                                         .setTangent(y > 0 ? - PI / 2 : PI / 2)
-                                        .lineToY(y > sub.y/2.0 ? sub.y : 0, sweepConstraint)
+                                        .lineToY(y > 0 ? sub.y : -sub.y, sweepConstraint)
                                         .build();
                                 }
 
