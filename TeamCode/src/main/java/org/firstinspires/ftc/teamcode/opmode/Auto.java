@@ -111,12 +111,12 @@ public final class Auto extends LinearOpMode {
             PRE_EXTEND_SAMPLE_2 = 12,
             PRE_EXTEND_SAMPLE_3 = 12,
 
-            TIME_EXTEND = 2.5,
-            TIME_RETRACT = 2.5,
+            TIME_EXTEND = 1,
+            TIME_RETRACT = 1,
             SPEED_EXTEND = 1,
             SPEED_RETRACT = -0.6,
 
-            EXTEND_OVER_SUB_BAR = 2,
+            EXTEND_OVER_SUB_BAR = 0,
             EXTEND_SUB = 21.25984251968504,
 
             WAIT_RE_SWEEP = 1,
@@ -162,7 +162,7 @@ public final class Auto extends LinearOpMode {
             TIME_CYCLE = 3,
             TIME_SCORE = 0.5,
 
-            SPEED_MAX_EXTENDO = 0.5;
+            SPEED_MAX_EXTENDO = 0.75;
 
     /// <a href="https:///www.desmos.com/calculator/l8pl2gf1mb">Adjust spikes 1 and 2</a>
     /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
@@ -173,11 +173,11 @@ public final class Auto extends LinearOpMode {
             intakingPartnerSample = new EditablePose(-29,7 - SIZE_HALF_FIELD, 0),
 
             intaking1 = new EditablePose(-61, -54, PI/3),
-            intaking2 = new EditablePose(-62, -52, 1.4632986527692424),
-            intaking3 = new EditablePose(-60, -50, 2 * PI / 3),
+            intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
+            intaking3 = new EditablePose(-59, -50, 2 * PI / 3),
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
-            sample2 = new EditablePose(-59, -27.4, PI / 2),
+            sample2 = new EditablePose(-60, -27.4, PI / 2),
             sample3 = new EditablePose(-68.5, -27.8, PI / 2),
 
             basket2 = new EditablePose(-63, -54, 1),
