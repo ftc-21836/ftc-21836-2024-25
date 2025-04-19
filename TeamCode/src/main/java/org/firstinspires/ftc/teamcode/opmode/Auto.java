@@ -36,6 +36,7 @@ import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.hypot;
 import static java.lang.Math.min;
+import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 import static java.lang.Math.ceil;
 
@@ -213,7 +214,9 @@ public final class Auto extends LinearOpMode {
 
             pushed1 = new EditablePose(pushing1.x, -46, toRadians(110)),
             pushed2 = new EditablePose(pushing2.x, pushed1.y, toRadians(110)),
-            pushed3 = new EditablePose(pushing3.x, intakingSpec.y, - PI / 2);
+            pushed3 = new EditablePose(pushing3.x, intakingSpec.y, - PI / 2),
+
+            targetOffset = new EditablePose(0 ,0, 0);
 
     static Pose2d pose = new Pose2d(0,0, 0.5 * PI);
     static boolean isRedAlliance = false;
@@ -731,7 +734,9 @@ public final class Auto extends LinearOpMode {
                                     state = PARKING;
                                     stopDt();
                                 } else {
-                                    Pose2d subPos = new Pose2d(sub.x, sub.y + Y_OFFSET_SUB_APPROACHES * (subCycle - 1), 0);
+                                    Pose2d subPos = new Pose2d(sub.x, sub.y
+//                                            + Y_OFFSET_SUB_APPROACHES * (subCycle - 1)
+                                            , 0);
                                     activeTraj = subCycle == 1 ? toSub1 : robot.drivetrain.actionBuilder(basketFromSub.toPose2d())
                                             .afterTime(0, () -> robot.intake.extendo.setTarget(EXTEND_OVER_SUB_BAR))
                                             .setTangent(basketFromSub.heading)
@@ -766,35 +771,35 @@ public final class Auto extends LinearOpMode {
 
                             if (offset.position.x != 0 || offset.position.y != 0 || offset.heading.toDouble() != 0) {
 
-                                EditablePose targetOffset = new EditablePose(offset);
+                                targetOffset = new EditablePose(autoAlignToSample.getTargetedOffset());
                                 double extendoInches = hypot(targetOffset.x, targetOffset.y) + OFFSET_CV_EXTEND;
 
-                                try {
+//                                try {
                                     activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
                                             .waitSeconds(WAIT_CV_BEFORE_EXTENDING)
                                             .turn(-targetOffset.heading)
                                             .afterTime(0, new SequentialAction(
                                                             new InstantAction(() -> {
-                                                                robot.intake.extendo.setTarget(EXTEND_SUB);
+                                                                robot.intake.extendo.setTarget(extendoInches);
                                                                 timer.reset();
                                                             }),
                                                             t -> !(robot.intake.extendo.getPosition() >= extendoInches - 5 || timer.seconds() >= 1),
                                                             new InstantAction(() -> robot.intake.setRollerAndAngle(1)),
-                                                            new SleepAction(WAIT_ATTEMPTED_CV_INTAKE)
+                                                            new SleepAction(WAIT_ATTEMPTED_CV_INTAKE),
+                                                            new InstantAction(() -> robot.intake.extendo.setTarget(EXTEND_SUB))
                                                     )
                                             )
                                             .build();
-                                } catch (IllegalArgumentException e) {
-                                    activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-                                            .setTangent(PI / 2)
-                                            .lineToY(-sub.y, sweepConstraint)
-                                            .build();
+//                                } catch (IllegalArgumentException e) {
+//                                    activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+//                                            .setTangent(PI / 2)
+//                                            .lineToY(-sub.y, sweepConstraint)
+//                                            .build();
+//
+//                                    bucketTimer.reset();
+//                                }
 
-                                    bucketTimer.reset();
-                                }
-
-                                state = INTAKING;
-                                extending = true;
+                                state = TARGET_INTAKING;
                                 timer.reset();
 
                             } else if (timer.seconds() >= MAX_PICTURE_TIME + MIN_PICTURE_TIME) {
@@ -807,6 +812,45 @@ public final class Auto extends LinearOpMode {
                                 extending = true;
                                 bucketTimer.reset();
                                 timer.reset();
+                            }
+
+                            break;
+
+                        case TARGET_INTAKING:
+
+                            if (trajDone) {
+                                if (robot.hasSample()) {
+                                    Pose2d current = robot.drivetrain.pose;
+                                    double y = current.position.y;
+
+                                    robot.intake.retractBucketBeforeExtendo = true;
+                                    robot.intake.extendo.powerCap = 1;
+                                    robot.deposit.setWristPitchingAngle(0);
+
+                                    activeTraj = robot.drivetrain.actionBuilder(new Pose2d(sub.x, y, 0))
+                                            .stopAndAdd(finishIntaking(robot))
+                                            .setTangent(PI + current.heading.toDouble())
+                                            .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
+                                            .splineTo(basketFromSub.toVector2d(), PI + basketFromSub.heading)
+                                            .stopAndAdd(scoreSample(robot))
+                                            .build();
+
+                                    subCycle++;
+                                    state = SCORING;
+                                    stopDt();
+                                } else {
+                                    activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
+                                            .setTangent(PI / 2)
+                                            .lineToY(-sub.y, sweepConstraint)
+                                            .build();
+
+                                    state = INTAKING;
+                                    extending = false;
+                                    bucketTimer.reset();
+                                    timer.reset();
+                                }
+
+
                             }
 
                             break;
@@ -914,6 +958,11 @@ public final class Auto extends LinearOpMode {
                 telemetryPacket -> {
                     pose = robot.drivetrain.pose;
                     robot.run();
+                    telemetry.addData("dx (in)", targetOffset.x);
+                    telemetry.addData("dy (in)", targetOffset.y);
+                    telemetry.addData("d(theta) (deg)", toDegrees(targetOffset.heading));
+                    telemetry.addData("Extension (in)", hypot(targetOffset.x, targetOffset.y));
+                    telemetry.update();
                     return opModeIsActive();
                 }
         );
