@@ -361,13 +361,6 @@ public final class Auto extends LinearOpMode {
                     if (x) break config;
             }
 
-            gamepad1.setLedColor(
-                    isRedAlliance ? 1 : 0,
-                    0,
-                    !isRedAlliance ? 1 : 0,
-                    Gamepad.LED_DURATION_CONTINUOUS
-            );
-
             mTelemetry.addLine((isRedAlliance ? "Red" : "Blue") + " alliance" + selection.markIf(EDITING_ALLIANCE));
             mTelemetry.addLine();
             mTelemetry.addLine((specimenSide ? "Right (observation-side)" : "Left (basket-side)") + selection.markIf(EDITING_SIDE));

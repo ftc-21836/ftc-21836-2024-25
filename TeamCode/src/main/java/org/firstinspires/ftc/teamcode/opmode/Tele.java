@@ -135,13 +135,6 @@ public final class Tele extends LinearOpMode {
                     break;
             }
 
-            gamepad1.setLedColor(
-                    isRedAlliance ? 1 : 0,
-                    0,
-                    !isRedAlliance ? 1 : 0,
-                    Gamepad.LED_DURATION_CONTINUOUS
-            );
-
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
