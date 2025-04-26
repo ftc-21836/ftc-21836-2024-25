@@ -47,7 +47,7 @@ public final class Intake {
             TIME_EJECTING = 0.5,
             TIME_DROP_TAG_ALONG_SAMPLE = 0.05,
             TIME_MAX_EXTEND_BEFORE_RE_RETRACT = 0.65,
-            TIME_MAX_RETRACT_BEFORE_REATTEMPT = 1,
+            TIME_MAX_RETRACT_BEFORE_REATTEMPT = 2,
             TIME_BUCKET_RETRACT = 0,
             TIME_MAX_BUCKET_RETRACT = 0.75,
             TIME_BUCKET_SETTLING = 0,

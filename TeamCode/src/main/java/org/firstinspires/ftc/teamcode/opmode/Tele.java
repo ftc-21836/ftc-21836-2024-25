@@ -26,6 +26,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static java.lang.Math.round;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -68,7 +69,7 @@ public final class Tele extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ElapsedTime matchTimer = new ElapsedTime();
+        ElapsedTime matchTimer = new ElapsedTime(), indicatorTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
@@ -249,6 +250,15 @@ public final class Tele extends LinearOpMode {
             if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
                 gamepad1.rumble(1, 1, 2000);
                 rumbledClimb = true;
+                indicatorTimer.reset();
+            }
+
+            if (rumbledClimb) {
+                indicator.setState(
+                        round(10 * indicatorTimer.seconds()) % 2 == 0 ?
+                                LEDIndicator.State.GREEN :
+                                LEDIndicator.State.OFF
+                );
             }
 
             if (!robot.intake.hasSample()) {
@@ -257,20 +267,28 @@ public final class Tele extends LinearOpMode {
                     gamepad1.setLedColor(0, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
                     indicator.setState(LEDIndicator.State.OFF);
                 }
-            } else if (!rumbledSample) {
+            } else {
 
-                Sample sample = robot.intake.getSample();
-                gamepad1.setLedColor(
-                        sample == RED || sample == NEUTRAL ? 1 : 0,
-                        sample == NEUTRAL ? 1 : 0,
-                        sample == BLUE ? 1 : 0,
-                        Gamepad.LED_DURATION_CONTINUOUS
+                indicator.setState(
+                        round(10 * indicatorTimer.seconds()) % 2 == 0 ?
+                                LEDIndicator.State.AMBER :
+                                LEDIndicator.State.OFF
                 );
 
-                indicator.setState(LEDIndicator.State.AMBER);
+                if (!rumbledSample) {
 
-                if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 200);
-                rumbledSample = true;
+                    Sample sample = robot.intake.getSample();
+                    gamepad1.setLedColor(
+                            sample == RED || sample == NEUTRAL ? 1 : 0,
+                            sample == NEUTRAL ? 1 : 0,
+                            sample == BLUE ? 1 : 0,
+                            Gamepad.LED_DURATION_CONTINUOUS
+                    );
+
+
+                    if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 200);
+                    rumbledSample = true;
+                }
             }
 
         }
