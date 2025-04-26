@@ -133,23 +133,23 @@ public class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
         // drive model parameters
         public double inPerTick = 1; // If you're using OTOS/Pinpoint leave this at 1 (all values will be in inches, 1 tick = 1 inch)
-        public double lateralInPerTick = 0.6392784965085728; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
-        public double trackWidthTicks = 15.649408396574804;
+        public double lateralInPerTick = 0.6496757774509637; // Tune this with LateralRampLogger (even if you use OTOS/Pinpoint)
+        public double trackWidthTicks = 11.622540030865755;
 
         // feedforward parameters (in tick units)
-        public double kS = 1.5992272823092581;
-        public double kV = 0.12133135492034344;
-        public double kA = 0.05;
+        public double kA = 0.04;
+        public double kS = 0.01;
+        public double kV = 0.17;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 85;
-        public double minProfileAccel = -60;
+        public double maxWheelVel = 60;
+        public double minProfileAccel = -80;
         public double maxProfileAccel = 60;
 
         // turn profile parameters (in radians)
@@ -374,7 +374,10 @@ public class MecanumDrive {
             if (t >= timeTrajectory.duration
 //                    + 1 || t >= timeTrajectory.duration &&
 //                    error.position.norm() < admissibleError.x &&
-//                    abs(error.heading.toDouble()) < admissibleError.heading &&
+                    && (
+                            ( abs(error.heading.toDouble()) <= admissibleError.heading ) ||
+                            t >= timeTrajectory.duration + 1
+            )
 //                    robotVelRobot.linearVel.norm() < admissibleVel.x &&
 //                    abs(robotVelRobot.angVel) < admissibleVel.heading
             ) {

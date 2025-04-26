@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.roadrunner.PinpointDrive;
@@ -16,15 +17,9 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSim
 @Config
 public final class Robot {
 
-    public static double
-            ANGLE_HOOKS_ACTIVE_RETRACTED = 25,
-            ANGLE_HOOKS_ACTIVE_EXTENDED = 180,
+    public static double HEADLIGHT_POWER = 1;
 
-            HEIGHT_RUNG_LOW_RAISED = 32,
-            HEIGHT_RUNG_LOW_CLIMB_OFFSET = -12;
-
-    public final SimpleServoPivot activeHooks;
-
+    public final SimpleServoPivot headlight;
     public final PinpointDrive drivetrain;
     public final Intake intake;
     public final Deposit deposit;
@@ -36,21 +31,15 @@ public final class Robot {
         drivetrain = new PinpointDrive(hardwareMap, startPose);
         bulkReader = new BulkReader(hardwareMap);
         intake = new Intake(hardwareMap);
-        deposit = new Deposit(hardwareMap);
+        deposit = new Deposit(hardwareMap, drivetrain);
 
-        activeHooks = new SimpleServoPivot(
-                ANGLE_HOOKS_ACTIVE_RETRACTED, ANGLE_HOOKS_ACTIVE_EXTENDED,
-                CachedSimpleServo.getGBServo(hardwareMap, "right active hook").reversed(),
-                CachedSimpleServo.getGBServo(hardwareMap, "left active hook")
-        );
+        headlight = new SimpleServoPivot(0, HEADLIGHT_POWER, new CachedSimpleServo(hardwareMap, "headlight", 0, 1));
     }
 
     public void run() {
-        intake.run(deposit, activeHooks.isActivated() || Deposit.level1Ascent);
-        deposit.run(intake, activeHooks.isActivated());
-
-        activeHooks.updateAngles(ANGLE_HOOKS_ACTIVE_RETRACTED, ANGLE_HOOKS_ACTIVE_EXTENDED);
-        activeHooks.run();
+        intake.run(deposit);
+        deposit.run();
+        headlight.run();
     }
 
     public boolean hasSample() {

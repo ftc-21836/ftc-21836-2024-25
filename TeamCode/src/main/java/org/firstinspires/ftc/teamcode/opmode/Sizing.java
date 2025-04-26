@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.pose;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
@@ -18,7 +17,7 @@ public final class Sizing extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         Robot robot = new Robot(hardwareMap, pose);
-        Deposit.level1Ascent = false;
+        robot.deposit.steepArm = true;
 
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);
 
@@ -32,14 +31,14 @@ public final class Sizing extends LinearOpMode {
 
             if (gamepadEx1.wasJustPressed(X)) {
                 if (robot.deposit.hasSample()) {
-                    robot.deposit.triggerClaw();
+                    robot.deposit.nextState();
                     robot.intake.extendo.setExtended(false);
-                    robot.intake.runRoller(0);
+                    robot.intake.setRollerAndAngle(0);
                 } else {
-                    robot.deposit.transfer(NEUTRAL);
+                    robot.deposit.transfer();
                     robot.deposit.setPosition(Deposit.Position.LOW);
                     robot.intake.extendo.setExtended(true);
-                    robot.intake.runRoller(0.01);
+                    robot.intake.setRollerAndAngle(0.3);
                 }
             }
 

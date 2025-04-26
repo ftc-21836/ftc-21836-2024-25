@@ -5,6 +5,8 @@ package org.firstinspires.ftc.teamcode.roadrunner;
 import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver.EncoderDirection.FORWARD;
 import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver.EncoderDirection.REVERSED;
 import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriver.readData.ONLY_UPDATE_HEADING;
+import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR.goBILDA_4_BAR_POD;
+import static com.acmerobotics.roadrunner.ftc.GoBildaPinpointDriverRR.goBILDA_SWINGARM_POD;
 import static com.qualcomm.hardware.rev.RevHubOrientationOnRobot.zyxOrientation;
 
 import static java.lang.Math.PI;
@@ -48,8 +50,8 @@ public class PinpointDrive extends MecanumDrive {
          */
         //These are tuned for 3110-0002-0001 Product Insight #1
         // RR localizer note: These units are MILLIMETERS
-        public double xOffset = 176.425;
-        public double yOffset = -23.07899;
+        public double xOffset = 5.5;
+        public double yOffset = -48.97683;
 
         /*
         Set the kind of pods used by your robot. If you're using goBILDA odometry pods, select either
@@ -61,15 +63,15 @@ public class PinpointDrive extends MecanumDrive {
         To get this value from inPerTick, first convert the value to millimeters (multiply by 25.4)
         and then take its inverse (one over the value)
          */
-        public double encoderResolution = 8192 / (PI * 38);
+        public double encoderResolution = goBILDA_SWINGARM_POD;
 
         /*
         Set the direction that each of the two odometry pods count. The X (forward) pod should
         increase when you move the robot forward. And the Y (strafe) pod should increase when
         you move the robot to the left.
          */
-        public GoBildaPinpointDriver.EncoderDirection xDirection = REVERSED;
-        public GoBildaPinpointDriver.EncoderDirection yDirection = FORWARD;
+        public GoBildaPinpointDriver.EncoderDirection xDirection = FORWARD;
+        public GoBildaPinpointDriver.EncoderDirection yDirection = REVERSED;
 
         /*
         Use the pinpoint IMU for tuning
