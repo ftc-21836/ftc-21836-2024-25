@@ -264,6 +264,7 @@ public final class Auto extends LinearOpMode {
         // Initialize robot:
         Robot robot = new Robot(hardwareMap, pose);
 //        robot.deposit.claw.turnToAngle(ANGLE_CLAW_SAMPLE);
+        robot.intake.autoTransfer = false;
 
         // Initialize gamepads:
         GamepadEx gamepadEx1 = new GamepadEx(gamepad1);

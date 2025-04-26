@@ -198,7 +198,7 @@ public final class Tele extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.goToBasket();
                 // else if (gamepadEx1.wasJustPressed(DPAD_UP))        
                 else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.preloadSpecimen();
-                 else if (gamepadEx1.wasJustPressed(DPAD_DOWN))     robot.intake.ejectSample();
+                else if (gamepadEx1.wasJustPressed(DPAD_DOWN))     robot.intake.autoTransfer = !robot.intake.autoTransfer;
 
             } else {
 

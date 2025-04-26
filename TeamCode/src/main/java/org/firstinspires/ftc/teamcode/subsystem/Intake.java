@@ -110,7 +110,7 @@ public final class Intake {
                 null;
     }
 
-    public boolean retractBucketBeforeExtendo = true;
+    public boolean retractBucketBeforeExtendo = true, autoTransfer = true;
 
     private final CachedMotorEx roller;
     private double rollerSpeed, bucketAngle;
@@ -194,9 +194,13 @@ public final class Intake {
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                    if (getSample() == badSample || (hasSample() && deposit.hasSample())) ejectSample();
-                    
-                    break;
+                    if (getSample() == badSample || (hasSample() && deposit.hasSample())) {
+                        ejectSample();
+                        break;
+                    }
+
+                    if (autoTransfer && hasSample()) transfer(sample);
+                    else break;
                     
                 } else if (!hasSample()) { // retracted
 
@@ -353,6 +357,8 @@ public final class Intake {
 
     void printTelemetry() {
         mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? getSample() + " sample" : "empty"));
+        mTelemetry.addLine();
+        mTelemetry.addData("Transfer", "on color detect" + (autoTransfer ? "" : " & trigger release"));
         hsv.toTelemetry();
         divider();
         extendo.printTelemetry();
