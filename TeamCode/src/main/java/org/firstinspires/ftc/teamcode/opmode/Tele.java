@@ -10,8 +10,6 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.basket3;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_ALLIANCE;
@@ -28,8 +26,9 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.GREEN;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.OFF;
-import static java.lang.Math.floor;
+import static java.lang.Math.PI;
 import static java.lang.Math.round;
+import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -37,12 +36,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
-import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
 
@@ -52,7 +49,7 @@ public final class Tele extends LinearOpMode {
     public static boolean holdingSample = false;
 
     public double
-                TIME_INDICATOR_ON_CLIMB = 0.05,
+            TIME_CLIMB_INDICATOR_ON = 0.05,
                 TIME_INDICATOR_OFF_CLIMB = 0.05;
 
     enum TeleOpConfig {
@@ -248,9 +245,8 @@ public final class Tele extends LinearOpMode {
 
             // https://www.desmos.com/calculator/chwmmry46i //
             double x = indicatorTimer.seconds();
-            double n = TIME_INDICATOR_ON_CLIMB;
-            double l = TIME_INDICATOR_OFF_CLIMB;
-            boolean indicatorOn = floor( (x / n) % (l/n + 1) ) == 0;
+            double n = TIME_CLIMB_INDICATOR_ON;
+            boolean indicatorOn = round( sin(PI * x / n) + 0.5 ) == 1;
 
             indicator.setState(matchTimer.seconds() >= CLIMB_TIME && indicatorOn ? GREEN : OFF);
         }
