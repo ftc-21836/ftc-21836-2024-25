@@ -26,6 +26,9 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
+import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.GREEN;
+import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.OFF;
+import static java.lang.Math.floor;
 import static java.lang.Math.round;
 import static java.lang.Math.toDegrees;
 
@@ -47,6 +50,10 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
 public final class Tele extends LinearOpMode {
 
     public static boolean holdingSample = false;
+
+    public double
+                TIME_INDICATOR_ON_CLIMB = 0.05,
+                TIME_INDICATOR_OFF_CLIMB = 0.05;
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
@@ -73,7 +80,6 @@ public final class Tele extends LinearOpMode {
 
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
-        boolean rumbledClimb = false, rumbledSample = false;
 
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
@@ -227,7 +233,7 @@ public final class Tele extends LinearOpMode {
 //                    if (robot.deposit.basketReady()) robot.deposit.nextState();
 //                }
 
-                robot.headlight.setActivated(robot.intake.extendo.isExtended() || gamepad1.cross || rumbledClimb);
+                robot.headlight.setActivated(robot.intake.extendo.isExtended() || gamepad1.cross);
     
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
                 else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
@@ -247,50 +253,13 @@ public final class Tele extends LinearOpMode {
                 mTelemetry.update();
             }
 
-            if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
-                gamepad1.rumble(1, 1, 2000);
-                rumbledClimb = true;
-                indicatorTimer.reset();
-            }
+            // https://www.desmos.com/calculator/chwmmry46i //
+            double x = indicatorTimer.seconds();
+            double n = TIME_INDICATOR_ON_CLIMB;
+            double l = TIME_INDICATOR_OFF_CLIMB;
+            boolean indicatorOn = floor( (x / n) % (l/n + 1) ) == 0;
 
-            if (rumbledClimb) {
-                indicator.setState(
-                        round(10 * indicatorTimer.seconds()) % 2 == 0 ?
-                                LEDIndicator.State.GREEN :
-                                LEDIndicator.State.OFF
-                );
-            }
-
-            if (!robot.intake.hasSample()) {
-                rumbledSample = false;
-                if (!robot.deposit.hasSample()) {
-                    gamepad1.setLedColor(0, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
-                    indicator.setState(LEDIndicator.State.OFF);
-                }
-            } else {
-
-                indicator.setState(
-                        round(10 * indicatorTimer.seconds()) % 2 == 0 ?
-                                LEDIndicator.State.AMBER :
-                                LEDIndicator.State.OFF
-                );
-
-                if (!rumbledSample) {
-
-                    Sample sample = robot.intake.getSample();
-                    gamepad1.setLedColor(
-                            sample == RED || sample == NEUTRAL ? 1 : 0,
-                            sample == NEUTRAL ? 1 : 0,
-                            sample == BLUE ? 1 : 0,
-                            Gamepad.LED_DURATION_CONTINUOUS
-                    );
-
-
-                    if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 200);
-                    rumbledSample = true;
-                }
-            }
-
+            indicator.setState(matchTimer.seconds() >= CLIMB_TIME && indicatorOn ? GREEN : OFF);
         }
     }
 }
