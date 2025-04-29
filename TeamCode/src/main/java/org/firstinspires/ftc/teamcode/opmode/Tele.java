@@ -48,9 +48,7 @@ public final class Tele extends LinearOpMode {
 
     public static boolean holdingSample = false;
 
-    public double
-            TIME_CLIMB_INDICATOR_ON = 0.05,
-                TIME_INDICATOR_OFF_CLIMB = 0.05;
+    public double TIME_CLIMB_INDICATOR_ON = 0.05;
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
@@ -243,10 +241,9 @@ public final class Tele extends LinearOpMode {
                 mTelemetry.update();
             }
 
-            // https://www.desmos.com/calculator/chwmmry46i //
             double x = indicatorTimer.seconds();
             double n = TIME_CLIMB_INDICATOR_ON;
-            boolean indicatorOn = round( sin(PI * x / n) + 0.5 ) == 1;
+            boolean indicatorOn = sin(PI * x / n) >= 0;
 
             indicator.setState(matchTimer.seconds() >= CLIMB_TIME && indicatorOn ? GREEN : OFF);
         }
