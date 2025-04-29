@@ -48,7 +48,7 @@ public final class Tele extends LinearOpMode {
 
     public static boolean holdingSample = false;
 
-    public double TIME_CLIMB_INDICATOR_ON = 0.05;
+    public static double TIME_CLIMB_INDICATOR_ON = 0.05;
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
