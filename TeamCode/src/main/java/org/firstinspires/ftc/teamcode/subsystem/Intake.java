@@ -36,7 +36,7 @@ public final class Intake {
 
     public static double
 
-            ANGLE_ARM_EXITING = 25,
+            ANGLE_ARM_EXITING = 5,
             ANGLE_BUCKET_RETRACTED = 5,
             ANGLE_BUCKET_RETRACTED_OVER_BAR = 30,
             ANGLE_BUCKET_OVER_SUB_BAR = 80,
@@ -61,7 +61,7 @@ public final class Intake {
             SPEED_ARM_ENTERING = 1,
             SPEED_COUNTER_ROLLING = -1,
             SPEED_TRANSFERRING = -1,
-            SPEED_ARM_EXITING = -.74,
+            SPEED_ARM_EXITING = -1,
             COLOR_SENSOR_GAIN = 1;
 
     /**
