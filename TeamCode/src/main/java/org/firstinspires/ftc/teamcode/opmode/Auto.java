@@ -743,8 +743,6 @@ public final class Auto extends LinearOpMode {
                                             .build();
                                     state = DRIVING_TO_SUB;
                                 }
-                            } else if (remaining < WAIT_SCORE_BASKET && robot.deposit.hasSample()) {
-                                Tele.holdingSample = true;
                             }
                             break;
 
@@ -970,6 +968,8 @@ public final class Auto extends LinearOpMode {
         robot.drivetrain.pinpoint.setPositionRR(pose);
 
         Actions.runBlocking(auton);
+
+        if (robot.deposit.hasSample()) Tele.holdingSample = true;
 
         Thread.sleep((long) (DEAD_TIME * 1000));
     }
