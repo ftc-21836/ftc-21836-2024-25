@@ -972,8 +972,7 @@ public final class Auto extends LinearOpMode {
             mTelemetry.addLine("First sub intaking Y = " + sub1Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_1_Y));
             mTelemetry.addLine();
             mTelemetry.addLine("Second sub intaking Y = " + sub2Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_2_Y));
-        }
-        if (specimenSide) {
+        } else {
             mTelemetry.addLine();
             mTelemetry.addLine((push ? "Push samples after preload" : "Go directly to observation zone") + selection.markIf(EDITING_PUSHING));
             mTelemetry.addLine();
