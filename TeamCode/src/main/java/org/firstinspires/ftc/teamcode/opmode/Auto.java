@@ -361,35 +361,7 @@ public final class Auto extends LinearOpMode {
                     if (x) break config;
             }
 
-            mTelemetry.addLine((isRedAlliance ? "Red" : "Blue") + " alliance" + selection.markIf(EDITING_ALLIANCE));
-            mTelemetry.addLine();
-            mTelemetry.addLine((specimenSide ? "Right (observation-side)" : "Left (basket-side)") + selection.markIf(EDITING_SIDE));
-            if (!specimenSide) {
-                mTelemetry.addLine();
-                mTelemetry.addLine((specimenPreload ? "Specimen" : "Sample") + " preload" + selection.markIf(EDITING_PRELOAD));
-                mTelemetry.addLine();
-                mTelemetry.addLine((usePartnerSample ? "Teamwork makes the dream work" : "Lonely sad") + selection.markIf(EDITING_PARTNER_SAMPLE));
-                if (usePartnerSample) {
-                    mTelemetry.addLine();
-                    mTelemetry.addLine("Partner sample X = " + intakingPartnerSample.x + selection.markIf(EDITING_PARTNER_SAMPLE_X));
-                }
-            }
-            if (specimenPreload || specimenSide) {
-                mTelemetry.addLine();
-                mTelemetry.addLine("Wait " + partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
-            }
-            if (!specimenSide) {
-                mTelemetry.addLine();
-                mTelemetry.addLine("First sub intaking Y = " + sub1Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_1_Y));
-                mTelemetry.addLine();
-                mTelemetry.addLine("Second sub intaking Y = " + sub2Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_2_Y));
-            }
-            if (specimenSide) {
-                mTelemetry.addLine();
-                mTelemetry.addLine((push ? "Push samples after preload" : "Go directly to observation zone") + selection.markIf(EDITING_PUSHING));
-                mTelemetry.addLine();
-                mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
-            }
+            printConfig(selection, specimenSide, specimenPreload, usePartnerSample, partnerWait, sub1Edited, sub2Edited, push, cycles);
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine("Confirm configuration (confirming in " + (int) ceil(5 - timer.seconds()) + " seconds)" + selection.markIf(CONFIRMING));
@@ -961,6 +933,9 @@ public final class Auto extends LinearOpMode {
 
 
         mTelemetry.addLine("AUTONOMOUS READY");
+        mTelemetry.addLine();
+        mTelemetry.addLine();
+        printConfig(selection, specimenSide, specimenPreload, usePartnerSample, partnerWait, sub1Edited, sub2Edited, push, cycles);
         mTelemetry.update();
 
         waitForStart(); //--------------------------------------------------------------------------------------------------------------------------
@@ -972,6 +947,38 @@ public final class Auto extends LinearOpMode {
         if (robot.deposit.hasSample()) Tele.holdingSample = true;
 
         Thread.sleep((long) (DEAD_TIME * 1000));
+    }
+
+    private static void printConfig(AutonConfig selection, boolean specimenSide, boolean specimenPreload, boolean usePartnerSample, int partnerWait, EditablePose sub1Edited, EditablePose sub2Edited, boolean push, int cycles) {
+        mTelemetry.addLine((isRedAlliance ? "Red" : "Blue") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+        mTelemetry.addLine();
+        mTelemetry.addLine((specimenSide ? "Right (observation-side)" : "Left (basket-side)") + selection.markIf(EDITING_SIDE));
+        if (!specimenSide) {
+            mTelemetry.addLine();
+            mTelemetry.addLine((specimenPreload ? "Specimen" : "Sample") + " preload" + selection.markIf(EDITING_PRELOAD));
+            mTelemetry.addLine();
+            mTelemetry.addLine((usePartnerSample ? "Teamwork makes the dream work" : "Lonely sad") + selection.markIf(EDITING_PARTNER_SAMPLE));
+            if (usePartnerSample) {
+                mTelemetry.addLine();
+                mTelemetry.addLine("Partner sample X = " + intakingPartnerSample.x + selection.markIf(EDITING_PARTNER_SAMPLE_X));
+            }
+        }
+        if (specimenPreload || specimenSide) {
+            mTelemetry.addLine();
+            mTelemetry.addLine("Wait " + partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
+        }
+        if (!specimenSide) {
+            mTelemetry.addLine();
+            mTelemetry.addLine("First sub intaking Y = " + sub1Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_1_Y));
+            mTelemetry.addLine();
+            mTelemetry.addLine("Second sub intaking Y = " + sub2Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_2_Y));
+        }
+        if (specimenSide) {
+            mTelemetry.addLine();
+            mTelemetry.addLine((push ? "Push samples after preload" : "Go directly to observation zone") + selection.markIf(EDITING_PUSHING));
+            mTelemetry.addLine();
+            mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
+        }
     }
 
     private static Action scoreSample(Robot robot) {
