@@ -241,11 +241,7 @@ public final class Tele extends LinearOpMode {
                 mTelemetry.update();
             }
 
-            double x = indicatorTimer.seconds();
-            double n = TIME_CLIMB_INDICATOR_ON;
-            boolean indicatorOn = sin(PI * x / n) >= 0;
-
-            indicator.setState(matchTimer.seconds() >= CLIMB_TIME && indicatorOn ? GREEN : OFF);
+            indicator.setState(matchTimer.seconds() >= CLIMB_TIME && sin(PI * indicatorTimer.seconds() / TIME_CLIMB_INDICATOR_ON) >= 0 ? GREEN : OFF);
         }
     }
 }
