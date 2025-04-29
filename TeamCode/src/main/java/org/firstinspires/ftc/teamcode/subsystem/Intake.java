@@ -15,7 +15,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.STANDBY;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.CLAW_CLOSING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static java.lang.Math.abs;
 
@@ -60,7 +60,7 @@ public final class Intake {
             SPEED_HOLDING = 0.75,
             SPEED_ARM_ENTERING = 1,
             SPEED_COUNTER_ROLLING = -1,
-            SPEED_TRANSFERRING = -1,
+            SPEED_CLAW_CLOSING = -1,
             SPEED_ARM_EXITING = -1,
             COLOR_SENSOR_GAIN = 1;
 
@@ -143,7 +143,7 @@ public final class Intake {
         SETTLING,
         ARM_ENTERING_BUCKET,
         COUNTER_ROLLING,
-        TRANSFERRING,
+        CLAW_CLOSING,
         ARM_EXITING_BUCKET,
     }
 
@@ -278,16 +278,16 @@ public final class Intake {
                 roller.set(SPEED_COUNTER_ROLLING);
                 extendo.setExtended(false);
 
-                if (deposit.state == Deposit.State.TRANSFERRING) {
-                    state = TRANSFERRING;
+                if (deposit.state == Deposit.State.CLAW_CLOSING) {
+                    state = CLAW_CLOSING;
                     sample = null;
                     timer.reset();
                 } else break;
 
-            case TRANSFERRING:
+            case CLAW_CLOSING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(SPEED_TRANSFERRING);
+                roller.set(SPEED_CLAW_CLOSING);
                 extendo.setExtended(false);
 
                 if (deposit.state == Deposit.State.EXITING_BUCKET) {

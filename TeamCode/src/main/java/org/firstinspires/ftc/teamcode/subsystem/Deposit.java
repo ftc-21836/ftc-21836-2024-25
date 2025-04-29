@@ -21,7 +21,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.AT_CHAMBER;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.INTAKING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.STANDBY_TO_CHAMBER;
-import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.TRANSFERRING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.CLAW_CLOSING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
 import static java.lang.Math.abs;
@@ -60,7 +60,7 @@ public final class Deposit {
 
             TIME_ENTERING_BUCKET = .075,
             TIME_COUNTER_ROLLING = 0.15,
-            TIME_TRANSFERRING = .15,
+            TIME_CLAW_CLOSING = .15,
             TIME_EXITING_BUCKET = 0,
             TIME_TO_BASKET = 0.38,
             TIME_SAMPLE_RELEASE = .125,
@@ -91,7 +91,7 @@ public final class Deposit {
 
         ENTERING_BUCKET (IN_INTAKE),
         COUNTER_ROLLING (IN_INTAKE),
-        TRANSFERRING    (IN_INTAKE),
+        CLAW_CLOSING(IN_INTAKE),
         EXITING_BUCKET  (IN_INTAKE),
         LIFT_MOVING_TO_BASKET (IN_INTAKE),
         ARM_MOVING_TO_BASKET(BASKET),
@@ -158,8 +158,8 @@ public final class Deposit {
             case COUNTER_ROLLING:
                 if (timer.seconds() >= TIME_COUNTER_ROLLING) nextState();
                 break;
-            case TRANSFERRING:
-                if (timer.seconds() >= TIME_TRANSFERRING) nextState();
+            case CLAW_CLOSING:
+                if (timer.seconds() >= TIME_CLAW_CLOSING) nextState();
                 break;
             case EXITING_BUCKET:
                 if (timer.seconds() >= TIME_EXITING_BUCKET) nextState();
@@ -215,7 +215,7 @@ public final class Deposit {
 
                 state == ENTERING_BUCKET ? ANGLE_CLAW_TRANSFER :
                 state == COUNTER_ROLLING ? ANGLE_CLAW_TRANSFER :
-                state == TRANSFERRING ?     ANGLE_CLAW_SAMPLE :
+                state == CLAW_CLOSING ?     ANGLE_CLAW_SAMPLE :
                 state == EXITING_BUCKET ?   ANGLE_CLAW_SAMPLE :
 
                 state == LIFT_MOVING_TO_BASKET ? ANGLE_CLAW_SAMPLE :
@@ -277,7 +277,7 @@ public final class Deposit {
 
             case ENTERING_BUCKET:
             case COUNTER_ROLLING:
-            case TRANSFERRING:
+            case CLAW_CLOSING:
                 break;
 
             case EXITING_BUCKET:
@@ -349,7 +349,7 @@ public final class Deposit {
 //                state = State.MOVING_TO_INTAKING_SPEC;
                 break;
 
-            case TRANSFERRING:
+            case CLAW_CLOSING:
 
                 lift.setTarget(sampleHeight);
                 state = EXITING_BUCKET;
@@ -399,7 +399,7 @@ public final class Deposit {
 
     public boolean hasSample() {
         return
-                state == TRANSFERRING ||
+                state == CLAW_CLOSING ||
                 state == EXITING_BUCKET ||
                 state == LIFT_MOVING_TO_BASKET ||
                 state == ARM_MOVING_TO_BASKET ||
