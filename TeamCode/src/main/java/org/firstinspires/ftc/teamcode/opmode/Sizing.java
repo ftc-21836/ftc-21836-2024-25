@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.opmode;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.pose;
+import static org.firstinspires.ftc.teamcode.subsystem.Extendo.LENGTH_EXTENDED;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,8 +12,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
+@Config
 @TeleOp(group = "A - inspection")
 public final class Sizing extends LinearOpMode {
+
+    public static double ANGLE_BUCKET = 0.5, LENGTH_EXTEND = LENGTH_EXTENDED;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -32,12 +37,11 @@ public final class Sizing extends LinearOpMode {
                 if (robot.deposit.hasSample()) {
                     robot.deposit.nextState();
                     robot.intake.extendo.setExtended(false);
-                    robot.intake.setRollerAndAngle(0);
+                    robot.intake.setAngle(0);
                 } else {
-                    robot.deposit.transfer();
-                    robot.deposit.setPosition(Deposit.Position.LOW);
-                    robot.intake.extendo.setExtended(true);
-                    robot.intake.setRollerAndAngle(0.3);
+                    robot.deposit.goToBasket();
+                    robot.intake.extendo.setTarget(LENGTH_EXTEND);
+                    robot.intake.setAngle(ANGLE_BUCKET);
                 }
             }
 
