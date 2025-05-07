@@ -133,7 +133,7 @@ public final class Deposit {
     public final CachedSimpleServo claw;
     private final CachedSimpleServo wrist, armR, armL;
 
-    public boolean lvl1Ascent = false, steepArm = false;
+    public boolean lvl1Ascent = false;
 
     public final ElapsedTime timer = new ElapsedTime();
 
@@ -203,7 +203,6 @@ public final class Deposit {
 
         ArmPosition armPosition =
                 state == State.STANDBY && lvl1Ascent ? ASCENT :
-                state.armPosition == BASKET && steepArm ? BASKET_STEEP :
                 state.armPosition;
 
         armR.turnToAngle(armPosition.arm);
