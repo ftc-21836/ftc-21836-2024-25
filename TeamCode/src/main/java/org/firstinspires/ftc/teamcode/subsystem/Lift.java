@@ -7,10 +7,6 @@ import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.INACTIVE;
-import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.PULLING_FIRST_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.PULLING_SECOND_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.RAISING_SECOND_RUNG;
-import static org.firstinspires.ftc.teamcode.subsystem.Lift.ClimbState.TILTING_SWITCHING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getGBServo;
 
@@ -39,8 +35,9 @@ public final class Lift {
         TILTING_SWITCHING,
         PULLING_FIRST_RUNG,
         RAISING_SECOND_RUNG,
-        SWITCHING,
-        PULLING_SECOND_RUNG;
+        SWINGING_SWITCHING,
+        PULLING_SECOND_RUNG,
+        HOLDING_SECOND_RUNG;
 
         private static final ClimbState[] states = values();
 
@@ -50,8 +47,18 @@ public final class Lift {
         }
     }
 
+    public boolean isClimbing() {
+        return climbState != INACTIVE;
+    }
+
     ClimbState climbState = INACTIVE;
     private final ElapsedTime climbTimer = new ElapsedTime();
+
+    interface Swingable {
+        void swing();
+    }
+
+    private final Swingable arm;
 
     public void climb() {
         switch (climbState) {
@@ -64,23 +71,32 @@ public final class Lift {
                 tilt.setActivated(true);
                 break;
             case TILTING_SWITCHING:
-            case SWITCHING:
-                setTarget(0);
+                runManual(-1);
                 break;
             case PULLING_FIRST_RUNG:
+                runManual(0);
                 gearSwitch.setActivated(false);
                 tilt.setActivated(false);
                 setTarget(HEIGHT_ABOVE_SECOND_RUNG);
                 break;
             case RAISING_SECOND_RUNG:
+                arm.swing();
                 gearSwitch.setActivated(true);
                 break;
+            case SWINGING_SWITCHING:
+                runManual(-1);
+                break;
             case PULLING_SECOND_RUNG:
+                runManual(0);
+                hold = true;
+                break;
+            case HOLDING_SECOND_RUNG:
+                hold = false;
                 gearSwitch.setActivated(false);
                 break;
         }
-//        climbState = climbState.next();
-//        climbTimer.reset();
+        climbState = climbState.next();
+        climbTimer.reset();
     }
 
     public boolean hold = false;
@@ -103,10 +119,8 @@ public final class Lift {
             HEIGHT_EXTENDED = 28.34645669291339,
             HEIGHT_START_kG = 1,
 
-            HEIGHT_ABOVE_FIRST_RUNG = 11,
-            HEIGHT_ABOVE_SECOND_RUNG = 15,
-
-            HEIGHT_CLIMBED_FIRST_RUNG = 0.5,
+            HEIGHT_ABOVE_FIRST_RUNG = 13,
+            HEIGHT_ABOVE_SECOND_RUNG = 25,
 
             ANGLE_TILTER_INACTIVE = 225,
             ANGLE_TILTER_TILTED = 130,
@@ -116,9 +130,10 @@ public final class Lift {
             ANGLE_RIGHT_SWITCH_OFFSET = 0,
 
             TIME_TILT_AND_SWITCH = 1,
-            TIME_SHORT_HOOKS = 1,
-            TIME_RAISE_SECOND_RUNG = 2,
-            TIME_SWITCH = 1;
+//            TIME_PULL_FIRST_RUNG = 4,
+            TIME_RAISE_SECOND_RUNG = 5,
+            TIME_SWING_AND_SWITCH = 1,
+            TIME_PULL_SECOND_RUNG = 4;
 
     public static Motor.ZeroPowerBehavior zeroPowerBehavior = FLOAT;
 
@@ -134,8 +149,9 @@ public final class Lift {
 
     private double position, target, manualPower;
 
-    Lift(HardwareMap hardwareMap, MecanumDrive dt) {
+    Lift(HardwareMap hardwareMap, MecanumDrive dt, Swingable arm) {
 
+        this.arm = arm;
         this.dt = dt;
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -184,15 +200,17 @@ public final class Lift {
             case TILTING_SWITCHING:
                 if (climbTimer.seconds() >= TIME_TILT_AND_SWITCH) climb();
                 else break;
-            case PULLING_FIRST_RUNG:
-                if (getPosition() < HEIGHT_CLIMBED_FIRST_RUNG) climbTimer.reset();
-                else if (climbTimer.seconds() < TIME_SHORT_HOOKS) break;
-                else climb();
+
             case RAISING_SECOND_RUNG:
                 if (climbTimer.seconds() >= TIME_RAISE_SECOND_RUNG) climb();
                 else break;
-            case SWITCHING:
-                if (climbTimer.seconds() >= TIME_SWITCH) climb();
+
+            case SWINGING_SWITCHING:
+                if (climbTimer.seconds() >= TIME_SWING_AND_SWITCH) climb();
+                else break;
+
+            case PULLING_SECOND_RUNG:
+                if (climbTimer.seconds() >= TIME_PULL_SECOND_RUNG) climb();
                 else break;
         }
 

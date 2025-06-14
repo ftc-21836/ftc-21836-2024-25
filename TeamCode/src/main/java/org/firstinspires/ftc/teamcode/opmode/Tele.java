@@ -27,7 +27,6 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUT
 import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.GREEN;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.OFF;
 import static java.lang.Math.PI;
-import static java.lang.Math.round;
 import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 
@@ -193,7 +192,7 @@ public final class Tele extends LinearOpMode {
                 robot.intake.setRollerAndAngle(robot.deposit.hasSample() ? 0 : triggers);
                 robot.deposit.setWristPitchingAngle(robot.deposit.hasSample() ? triggers : 0);
                 robot.intake.extendo.runManual(0);
-                robot.deposit.lift.runManual(0);
+                if (!robot.deposit.lift.isClimbing()) robot.deposit.lift.runManual(0);
 
                 if (gamepadEx1.wasJustPressed(X)) driver.reset();
 

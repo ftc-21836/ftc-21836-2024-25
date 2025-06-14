@@ -142,7 +142,7 @@ public final class Deposit {
     private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH, wristPitchingAngle = 0;
 
     Deposit(HardwareMap hardwareMap, MecanumDrive dt) {
-        lift = new Lift(hardwareMap, dt);
+        lift = new  Lift(hardwareMap, dt, this::goToBasket);
         claw = getAxon(hardwareMap, "claw").reversed();
         armR = getAxon(hardwareMap, "arm right");
         armL = getAxon(hardwareMap, "arm left").reversed();
