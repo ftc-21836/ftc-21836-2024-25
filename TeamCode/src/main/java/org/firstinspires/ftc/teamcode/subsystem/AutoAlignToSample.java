@@ -36,10 +36,10 @@ public class AutoAlignToSample {
     public Sample targetColor;
 
     public static double
-            xOffset = 5.6,
-            yOffset = 6,
-            limelightTilt = 50,
-            limelightHeight = 16.45;
+            xOffset = 5,
+            yOffset = 5,
+            limelightTilt = 58.5,
+            limelightHeight = 16.25;
 
     private double
             xDistance = 0,

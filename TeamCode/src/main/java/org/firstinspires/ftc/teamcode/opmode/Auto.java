@@ -60,7 +60,6 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
@@ -109,7 +108,12 @@ public final class Auto extends LinearOpMode {
             DISTANCE_BETWEEN_SPECIMENS = 2,
             DISTANCE_FROM_BASKET_SWEEP = 30,
 
-            OFFSET_CV_EXTEND = -13,
+            LL_ANGLE_BUCKET_INCREMENT = 50,
+            LL_DISTANCE_START_LOWERING = 10,
+            LL_EXTEND_OFFSET = -3,
+            LL_SPEED_MAX_EXTENDO = 1,
+            LL_SWEEP_ANGLE_RANGE = 5,
+            LL_SWEEP_SPEED = 0.5,
 
             EXTEND_SAMPLE_1 = 21,
             EXTEND_SAMPLE_2 = 20,
@@ -169,12 +173,8 @@ public final class Auto extends LinearOpMode {
             Y_INCHING_FORWARD_WHEN_INTAKING = 10,
             Y_OFFSET_SUB_APPROACHES = 4,
 
-            ANGLE_BUCKET_INCREMENT = 15,
-
             TIME_CYCLE = 3,
-            TIME_SCORE = 0.5,
-
-            SPEED_MAX_EXTENDO = 0.75;
+            TIME_SCORE = 0.5;
 
     /// <a href="https:///www.desmos.com/calculator/l8pl2gf1mb">Adjust spikes 1 and 2</a>
     /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
@@ -729,7 +729,7 @@ public final class Auto extends LinearOpMode {
                                 state = TAKING_PICTURE;
                                 timer.reset();
                                 picturingAction = autoAlignToSample.detectTarget(MAX_PICTURE_TIME);
-                                robot.intake.extendo.powerCap = SPEED_MAX_EXTENDO;
+                                robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
                             }
                             break;
                         case TAKING_PICTURE:
@@ -742,7 +742,7 @@ public final class Auto extends LinearOpMode {
                             if (offset.position.x != 0 || offset.position.y != 0 || offset.heading.toDouble() != 0) {
 
                                 targetOffset = new EditablePose(autoAlignToSample.getTargetedOffset());
-                                double extendoInches = hypot(targetOffset.x, targetOffset.y) + OFFSET_CV_EXTEND;
+                                double extendoInches = hypot(targetOffset.x, targetOffset.y) + LL_EXTEND_OFFSET;
 
 //                                try {
                                     activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
@@ -868,9 +868,9 @@ public final class Auto extends LinearOpMode {
                                 stopDt();
                             } else {
 
-                                robot.intake.extendo.powerCap = SPEED_MAX_EXTENDO;
+                                robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
-                                robot.intake.setAngle(extending ? min(bucketTimer.seconds() * ANGLE_BUCKET_INCREMENT, 1) : .1);
+                                robot.intake.setAngle(extending ? min(bucketTimer.seconds() * LL_ANGLE_BUCKET_INCREMENT, 1) : .1);
 
                                 if (robot.intake.extendo.atPosition(extending ? EXTEND_SUB : EXTEND_OVER_SUB_BAR) || timer.seconds() >= (extending ? TIME_EXTEND : TIME_RETRACT)) {
                                     timer.reset();
