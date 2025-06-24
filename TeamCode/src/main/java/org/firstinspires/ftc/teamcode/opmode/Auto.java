@@ -250,12 +250,6 @@ public final class Auto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
-        AutoAlignToSample autoAlignToSample = new AutoAlignToSample(new LimelightEx(limelight3a, hardwareMap));
-//        autoAlignToSample.activateLimelight(YELLOW);
-        limelight3a.stop();
-        limelight3a.start();
-
         scoringPreloadIntaking1.heading = scoringPreloadIntaking1.angleTo(sample1);
         intaking2.heading = intaking2.angleTo(sample2);
         intaking3.heading = intaking3.angleTo(sample3);
@@ -371,11 +365,15 @@ public final class Auto extends LinearOpMode {
             mTelemetry.update();
         }
 
+        Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
+        AutoAlignToSample autoAlignToSample = new AutoAlignToSample(new LimelightEx(limelight3a, hardwareMap));
         autoAlignToSample.activateLimelight(
                 specimenSide ?
                 /*specimen*/ isRedAlliance ? AutoAlignToSample.Pipeline.RED : AutoAlignToSample.Pipeline.BLUE :
                 /*sample*/   isRedAlliance ? AutoAlignToSample.Pipeline.YELLOW_RED : AutoAlignToSample.Pipeline.YELLOW_BLUE
         );
+        limelight3a.stop();
+        limelight3a.start();
 
 
 
