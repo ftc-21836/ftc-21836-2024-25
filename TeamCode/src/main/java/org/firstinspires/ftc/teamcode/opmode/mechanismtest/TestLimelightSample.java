@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_EXTEND_OFFSET;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SPEED_MAX_EXTENDO;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SWEEP_ANGLE_RANGE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SWEEP_SPEED;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_CV_BEFORE_EXTENDING;
 
 import static java.lang.Math.hypot;
 import static java.lang.Math.min;
@@ -62,12 +63,12 @@ public class TestLimelightSample extends LinearOpMode {
 
         ElapsedTime timer = new ElapsedTime();
 
-        TurnConstraints a = new TurnConstraints(LL_SWEEP_SPEED, -MecanumDrive.PARAMS.maxAngAccel, MecanumDrive.PARAMS.maxAngAccel);
+        TurnConstraints llSweepConstraint = new TurnConstraints(LL_SWEEP_SPEED, -MecanumDrive.PARAMS.maxAngAccel, MecanumDrive.PARAMS.maxAngAccel);
 
         robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
         Action traj = robot.drivetrain.actionBuilder(new Pose2d(0, 0, 0))
-                .waitSeconds(0.2)
+                .waitSeconds(WAIT_CV_BEFORE_EXTENDING)
                 .turn(-targetOffset.heading)
                 .stopAndAdd(() -> {
                     robot.intake.extendo.setTarget(extendoInches);
@@ -84,9 +85,9 @@ public class TestLimelightSample extends LinearOpMode {
                             return s * LL_ANGLE_BUCKET_INCREMENT < 1;
                         }
                 ))
-                .turn(toRadians(LL_SWEEP_ANGLE_RANGE), a)
-                .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), a)
-                .turn(toRadians(LL_SWEEP_ANGLE_RANGE), a)
+                .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
 
                 .stopAndAdd(t -> !robot.hasSample())
                 .stopAndAdd(() -> robot.intake.setRollerAndAngle(0))

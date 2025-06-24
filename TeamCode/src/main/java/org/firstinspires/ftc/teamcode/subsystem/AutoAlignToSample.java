@@ -105,7 +105,7 @@ public class AutoAlignToSample {
                     targetedPoseOffset = new Pose2d(xDistanceFromCenter, yDistanceFromCenter, atan2(xDistanceFromCenter, yDistanceFromCenter));
                 }
 
-                return expirationTimer.seconds() <= secondsToExpire && !isSampleDetected;
+                return !(expirationTimer.seconds() > secondsToExpire || isSampleDetected);
             }
         };
     }
