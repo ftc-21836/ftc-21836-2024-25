@@ -30,7 +30,6 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_1;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.SCORING_2;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.TAKING_PICTURE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.TARGET_INTAKING;
-import static org.firstinspires.ftc.teamcode.subsystem.AutoAlignToSample.Pipeline.YELLOW;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.HEIGHT_BASKET_HIGH;
 import static java.lang.Math.PI;
 import static java.lang.Math.abs;
@@ -75,7 +74,6 @@ import java.util.Arrays;
 @Config
 @Autonomous(preselectTeleOp = "Tele")
 public final class Auto extends LinearOpMode {
-
 
     enum State {
         SCORING_PRELOAD,
@@ -250,7 +248,7 @@ public final class Auto extends LinearOpMode {
 
         Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
         AutoAlignToSample autoAlignToSample = new AutoAlignToSample(new LimelightEx(limelight3a, hardwareMap));
-        autoAlignToSample.activateLimelight(YELLOW);
+//        autoAlignToSample.activateLimelight(YELLOW);
         limelight3a.stop();
         limelight3a.start();
 
@@ -368,6 +366,14 @@ public final class Auto extends LinearOpMode {
 
             mTelemetry.update();
         }
+
+        autoAlignToSample.activateLimelight(
+                specimenSide ?
+                /*specimen*/ isRedAlliance ? AutoAlignToSample.Pipeline.RED : AutoAlignToSample.Pipeline.BLUE :
+                /*sample*/   isRedAlliance ? AutoAlignToSample.Pipeline.YELLOW_RED : AutoAlignToSample.Pipeline.YELLOW_BLUE
+        );
+
+
 
         specimenPreload = specimenSide || specimenPreload;
 

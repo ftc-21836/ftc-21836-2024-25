@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
 import static org.firstinspires.ftc.teamcode.opmode.Auto.OFFSET_CV_EXTEND;
-import static org.firstinspires.ftc.teamcode.subsystem.AutoAlignToSample.Pipeline.YELLOW;
 
 import static java.lang.Math.hypot;
 import static java.lang.Math.toDegrees;
@@ -37,7 +36,7 @@ public class TestLimelightSample extends LinearOpMode {
 
         Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
         AutoAlignToSample autoAlignToSample = new AutoAlignToSample(new LimelightEx(limelight3a, hardwareMap));
-        autoAlignToSample.activateLimelight(YELLOW);
+        autoAlignToSample.activateLimelight(AutoAlignToSample.Pipeline.YELLOW_BLUE);
         limelight3a.stop();
         limelight3a.start();
 

@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static java.lang.Math.PI;
 import static java.lang.Math.atan2;
 import static java.lang.Math.tan;
-import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -23,18 +21,15 @@ public class AutoAlignToSample {
     private boolean isSampleDetected;
 
     public enum Pipeline {
-        RED(7),
-        BLUE(6),
-        YELLOW(8);
+        YELLOW_BLUE,
+        YELLOW_RED,
+        BLUE,
+        RED;
 
-        final int number;
+        public final int number;
 
-        Pipeline(int number) {
-            this.number = number;
-        }
-
-        public int getNumber() {
-            return number;
+        Pipeline() {
+            this.number = ordinal();
         }
     }
 
@@ -61,7 +56,7 @@ public class AutoAlignToSample {
     }
 
     public void activateLimelight(Pipeline pipeline) {
-        limelightEx.limelight.pipelineSwitch(pipeline.getNumber());
+        limelightEx.limelight.pipelineSwitch(pipeline.number);
 
         limelightEx.limelight.setPollRateHz(10);
     }
