@@ -196,23 +196,23 @@ public final class Lift {
 
         position = 0.5 * (motors[0].encoder.getDistance() + motors[1].encoder.getDistance());
 
-        switch (climbState) {
-            case TILTING_SWITCHING:
-                if (climbTimer.seconds() >= TIME_TILT_AND_SWITCH) climb();
-                else break;
-
-            case RAISING_SECOND_RUNG:
-                if (climbTimer.seconds() >= TIME_RAISE_SECOND_RUNG) climb();
-                else break;
-
-            case SWINGING_SWITCHING:
-                if (climbTimer.seconds() >= TIME_SWING_AND_SWITCH) climb();
-                else break;
-
-            case PULLING_SECOND_RUNG:
-                if (climbTimer.seconds() >= TIME_PULL_SECOND_RUNG) climb();
-                else break;
-        }
+//        switch (climbState) {
+//            case TILTING_SWITCHING:
+//                if (climbTimer.seconds() >= TIME_TILT_AND_SWITCH) climb();
+//                else break;
+//
+//            case RAISING_SECOND_RUNG:
+//                if (climbTimer.seconds() >= TIME_RAISE_SECOND_RUNG) climb();
+//                else break;
+//
+//            case SWINGING_SWITCHING:
+//                if (climbTimer.seconds() >= TIME_SWING_AND_SWITCH) climb();
+//                else break;
+//
+//            case PULLING_SECOND_RUNG:
+//                if (climbTimer.seconds() >= TIME_PULL_SECOND_RUNG) climb();
+//                else break;
+//        }
 
         double output;
 
