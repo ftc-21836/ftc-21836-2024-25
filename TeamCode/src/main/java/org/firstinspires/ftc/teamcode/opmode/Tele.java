@@ -157,6 +157,8 @@ public final class Tele extends LinearOpMode {
 
         matchTimer.reset();
 
+        boolean extended = true;
+
         // Control loop:
         while (opModeIsActive()) {
             // Read sensors + gamepads:
@@ -164,9 +166,13 @@ public final class Tele extends LinearOpMode {
             robot.drivetrain.updatePoseEstimate();
             gamepadEx1.readButtons();
 
+            if (!robot.intake.extendo.isExtended()) extended = false;
+
             double triggers = gamepad1.right_trigger - gamepad1.left_trigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
+
+                extended = false;
 
                 robot.intake.setRollerAndAngle(0);
                 robot.intake.extendo.runManual(triggers);
@@ -191,7 +197,7 @@ public final class Tele extends LinearOpMode {
 
                 robot.intake.setRollerAndAngle(robot.deposit.hasSample() ? 0 : triggers);
                 robot.deposit.setWristPitchingAngle(robot.deposit.hasSample() ? triggers : 0);
-                robot.intake.extendo.runManual(0);
+                robot.intake.extendo.runManual(extended ? -1 : 0);
                 if (!robot.deposit.lift.isClimbing()) robot.deposit.lift.runManual(0);
 
                 if (gamepadEx1.wasJustPressed(X)) driver.reset();
