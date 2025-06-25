@@ -27,9 +27,12 @@ import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.Ca
 import static java.lang.Math.abs;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
+import org.firstinspires.ftc.teamcode.opmode.Auto;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo;
 
@@ -64,7 +67,7 @@ public final class Deposit {
             TIME_EXITING_BUCKET = 0,
             TIME_TO_BASKET = 0.38,
             TIME_SAMPLE_RELEASE = .125,
-            TIME_BASKET_TO_STANDBY = .38,
+            TIME_MAX_BASKET_TO_STANDBY = 2,
             TIME_TO_INTAKING_SPEC = 1,
             TIME_SPEC_GRAB = 1,
             TIME_RAISE_SPEC = 1,
@@ -74,6 +77,8 @@ public final class Deposit {
             TIME_RELEASED_SPEC_TO_STANDBY = 1,
 
             TIME_BUCKET_AVOID = 1;
+
+    public static EditablePose distFromBasketLiftDown = new EditablePose(3, 3, 0);
 
     public static ArmPosition
             ASCENT =        new ArmPosition(165, 100),
@@ -141,8 +146,11 @@ public final class Deposit {
 
     private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH, wristPitchingAngle = 0;
 
+    private final MecanumDrive dt;
+    private Pose2d lastBasketPos = Auto.scoring3.toPose2d();
+
     Deposit(HardwareMap hardwareMap, MecanumDrive dt) {
-        lift = new  Lift(hardwareMap, dt, this::goToBasket);
+        lift = new Lift(hardwareMap, this.dt = dt, this::goToBasket);
         claw = getAxon(hardwareMap, "claw").reversed();
         armR = getAxon(hardwareMap, "arm right");
         armL = getAxon(hardwareMap, "arm left").reversed();
@@ -174,7 +182,10 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_SAMPLE_RELEASE) nextState();
                 break;
             case BASKET_TO_STANDBY:
-                if (timer.seconds() >= TIME_BASKET_TO_STANDBY) nextState();
+                boolean farEnoughFromBasket =   dt.pose.position.x - lastBasketPos.position.x > distFromBasketLiftDown.x &&
+                                                dt.pose.position.y - lastBasketPos.position.y > distFromBasketLiftDown.y;
+
+                if (farEnoughFromBasket || timer.seconds() >= TIME_MAX_BASKET_TO_STANDBY) nextState();
                 break;
             case MOVING_TO_INTAKING_SPEC:
                 if (timer.seconds() >= TIME_TO_INTAKING_SPEC) nextState();
@@ -378,6 +389,7 @@ public final class Deposit {
 
             case AT_BASKET:
 
+                lastBasketPos = dt.pose;
                 sampleHeight = lift.getTarget() + PASSIVE_INCREMENT;
                 state = state.next();
                 break;
