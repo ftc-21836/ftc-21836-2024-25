@@ -334,6 +334,10 @@ public final class Intake {
         return (1 - t) * start + t * end;
     }
 
+    public boolean extendoRetracting() {
+        return state == EXTENDO_RETRACTING;
+    }
+
     public boolean hasSample() {
         return getSample() != null;
     }

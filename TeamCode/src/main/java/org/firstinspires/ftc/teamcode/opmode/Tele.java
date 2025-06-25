@@ -39,6 +39,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
+import org.firstinspires.ftc.teamcode.subsystem.Intake;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
 
@@ -197,7 +198,7 @@ public final class Tele extends LinearOpMode {
 
                 robot.intake.setRollerAndAngle(robot.deposit.hasSample() ? 0 : triggers);
                 robot.deposit.setWristPitchingAngle(robot.deposit.hasSample() ? triggers : 0);
-                robot.intake.extendo.runManual(extended && robot.intake.hasSample() ? -1 : 0);
+                robot.intake.extendo.runManual(extended && robot.intake.extendoRetracting() ? -1 : 0);
                 if (!robot.deposit.lift.isClimbing()) robot.deposit.lift.runManual(0);
 
                 if (gamepadEx1.wasJustPressed(X)) driver.reset();
