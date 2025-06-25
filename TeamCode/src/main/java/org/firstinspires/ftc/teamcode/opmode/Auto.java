@@ -601,18 +601,7 @@ public final class Auto extends LinearOpMode {
 
                             EditablePose offset = new EditablePose(sampleAligner.getTargetedOffset());
 
-                            if (timer.seconds() > LL_MAX_PICTURE_TIME) {
-                                Pose2d current = robot.drivetrain.pose;
-                                activeTraj = robot.drivetrain.actionBuilder(current)
-                                        .setTangent(PI / 2)
-                                        .lineToY(current.position.y + LL_NO_DETECTION_Y_MOVE)
-                                        .build();
-
-                                state = DRIVING_TO_SUB;
-                                bucketTimer.reset();
-                                timer.reset();
-
-                            } else if (!(offset.x == 0 && offset.y == 0 && offset.heading == 0)) {
+                            if (!(offset.x == 0 && offset.y == 0 && offset.heading == 0)) {
 
                                 targetOffset = offset;
                                 double extendoInches = hypot(targetOffset.x, targetOffset.y) + LL_EXTEND_OFFSET;
@@ -642,6 +631,17 @@ public final class Auto extends LinearOpMode {
                                         .build();
 
                                 state = SUB_INTAKING;
+                                timer.reset();
+
+                            } else if (timer.seconds() > LL_MAX_PICTURE_TIME) {
+                                Pose2d current = robot.drivetrain.pose;
+                                activeTraj = robot.drivetrain.actionBuilder(current)
+                                        .setTangent(PI / 2)
+                                        .lineToY(current.position.y + LL_NO_DETECTION_Y_MOVE)
+                                        .build();
+
+                                state = DRIVING_TO_SUB;
+                                bucketTimer.reset();
                                 timer.reset();
 
                             }
