@@ -179,13 +179,13 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_TO_BASKET) nextState();
                 break;
             case FALLING_BASKET:
-                if (timer.seconds() >= TIME_SAMPLE_RELEASE) nextState();
+                boolean farEnoughFromBasket =   dt.pose.position.x - lastBasketPos.position.x > distFromBasketLiftDown.x &&
+                        dt.pose.position.y - lastBasketPos.position.y > distFromBasketLiftDown.y;
+
+                if (farEnoughFromBasket || timer.seconds() >= TIME_SAMPLE_RELEASE) nextState();
                 break;
             case BASKET_TO_STANDBY:
-                boolean farEnoughFromBasket =   dt.pose.position.x - lastBasketPos.position.x > distFromBasketLiftDown.x &&
-                                                dt.pose.position.y - lastBasketPos.position.y > distFromBasketLiftDown.y;
-
-                if (farEnoughFromBasket || timer.seconds() >= TIME_MAX_BASKET_TO_STANDBY) nextState();
+                if (timer.seconds() >= TIME_MAX_BASKET_TO_STANDBY) nextState();
                 break;
             case MOVING_TO_INTAKING_SPEC:
                 if (timer.seconds() >= TIME_TO_INTAKING_SPEC) nextState();
@@ -389,7 +389,7 @@ public final class Deposit {
 
             case AT_BASKET:
 
-                lastBasketPos = dt.pose;
+                lastBasketPos = new EditablePose(dt.pose).toPose2d();
                 sampleHeight = lift.getTarget() + PASSIVE_INCREMENT;
                 state = state.next();
                 break;
