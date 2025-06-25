@@ -71,7 +71,7 @@ public final class Tele extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ElapsedTime matchTimer = new ElapsedTime(), indicatorTimer = new ElapsedTime();
+        ElapsedTime matchTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
@@ -247,7 +247,8 @@ public final class Tele extends LinearOpMode {
                 mTelemetry.update();
             }
 
-            indicator.setState(matchTimer.seconds() >= CLIMB_TIME && sin(PI * indicatorTimer.seconds() / TIME_CLIMB_INDICATOR_ON) >= 0 ? GREEN : OFF);
+            double t = matchTimer.seconds();
+            indicator.setState(t >= CLIMB_TIME && sin(PI * t / TIME_CLIMB_INDICATOR_ON) >= 0 ? GREEN : OFF);
         }
     }
 }
