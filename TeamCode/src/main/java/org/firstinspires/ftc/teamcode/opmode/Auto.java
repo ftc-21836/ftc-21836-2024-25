@@ -56,9 +56,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystem.AutoAlignToSample;
+import org.firstinspires.ftc.teamcode.control.vision.AutoSampleAligner;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
-import org.firstinspires.ftc.teamcode.subsystem.LimelightEx;
+import org.firstinspires.ftc.teamcode.control.vision.LimelightEx;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 import java.util.Arrays;
@@ -273,11 +273,11 @@ public final class Auto extends LinearOpMode {
         }
 
         Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
-        AutoAlignToSample autoAlignToSample = new AutoAlignToSample(new LimelightEx(limelight3a, hardwareMap));
-        autoAlignToSample.activateLimelight(
+        AutoSampleAligner sampleAligner = new AutoSampleAligner(new LimelightEx(limelight3a, hardwareMap));
+        sampleAligner.activateLimelight(
                 specimenSide ?
-                /*specimen*/ isRedAlliance ? AutoAlignToSample.Pipeline.RED : AutoAlignToSample.Pipeline.BLUE :
-                /*sample*/   isRedAlliance ? AutoAlignToSample.Pipeline.YELLOW_RED : AutoAlignToSample.Pipeline.YELLOW_BLUE
+                /*specimen*/ isRedAlliance ? AutoSampleAligner.Pipeline.RED : AutoSampleAligner.Pipeline.BLUE :
+                /*sample*/   isRedAlliance ? AutoSampleAligner.Pipeline.YELLOW_RED : AutoSampleAligner.Pipeline.YELLOW_BLUE
         );
         limelight3a.stop();
         limelight3a.start();
@@ -591,7 +591,7 @@ public final class Auto extends LinearOpMode {
                             if (trajDone) {
                                 state = TAKING_PICTURE;
                                 timer.reset();
-                                snapshotAction = autoAlignToSample.detectTarget(LL_MAX_PICTURE_TIME);
+                                snapshotAction = sampleAligner.detectTarget(LL_MAX_PICTURE_TIME);
                             }
                             break;
                         case TAKING_PICTURE:
@@ -599,7 +599,7 @@ public final class Auto extends LinearOpMode {
 
                             if (timer.seconds() < LL_MIN_PICTURE_TIME) break;
 
-                            EditablePose offset = new EditablePose(autoAlignToSample.getTargetedOffset());
+                            EditablePose offset = new EditablePose(sampleAligner.getTargetedOffset());
 
                             if (timer.seconds() > LL_MAX_PICTURE_TIME) {
                                 Pose2d current = robot.drivetrain.pose;

@@ -1,7 +1,9 @@
-package org.firstinspires.ftc.teamcode.subsystem;
+package org.firstinspires.ftc.teamcode.control.vision;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.tan;
+
+import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -10,15 +12,14 @@ import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
-
 import java.util.List;
 
 @Config
-public class AutoAlignToSample {
+public class AutoSampleAligner {
+    
     private final LimelightEx limelightEx;
 
-    private boolean isSampleDetected;
+    private boolean sampleDetected;
 
     public enum Pipeline {
         YELLOW_BLUE,
@@ -32,8 +33,6 @@ public class AutoAlignToSample {
             this.number = ordinal();
         }
     }
-
-    public Sample targetColor;
 
     public static double
             xOffset = 5,
@@ -49,9 +48,9 @@ public class AutoAlignToSample {
             desiredSampleX = 0,
             desiredSampleY = 0;
 
-    private Pose2d targetedPoseOffset = new Pose2d(0, 0, 0);
+    private Pose2d targetOffset = new Pose2d(0, 0, 0);
 
-    public AutoAlignToSample(LimelightEx limelightEx) {
+    public AutoSampleAligner(LimelightEx limelightEx) {
         this.limelightEx = limelightEx;
     }
 
@@ -66,13 +65,12 @@ public class AutoAlignToSample {
         List<LLResultTypes.DetectorResult> targets = limelightEx.getDetectorResult();
 
         // checks and returns detection
-        if (targets != null && !targets.isEmpty() && targets.get(0) != null) {
-            desiredSampleX = targets.get(0).getTargetXDegrees() + 0.0;
-            desiredSampleY = targets.get(0).getTargetYDegrees() + 0.0;
-            return true;
-        }
+        if (targets == null || targets.isEmpty() || targets.get(0) == null) return false;
+        
+        desiredSampleX = targets.get(0).getTargetXDegrees() + 0.0;
+        desiredSampleY = targets.get(0).getTargetYDegrees() + 0.0;
+        return true;
 
-        return false;
     }
 
     public Action detectTarget(double secondsToExpire) {
@@ -81,20 +79,20 @@ public class AutoAlignToSample {
             final ElapsedTime expirationTimer = new ElapsedTime();
 
             @Override
-            public boolean run(TelemetryPacket telemetryPacket) {
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
                 if (isFirstTime) {
-                    targetedPoseOffset = new Pose2d(0, 0, 0);
-                    isSampleDetected = false;
+                    targetOffset = new Pose2d(0, 0, 0);
+                    sampleDetected = false;
                     isFirstTime = false;
                     expirationTimer.reset();
                 }
 
-                if (!isSampleDetected) {
-                    isSampleDetected = targetSample();
-                    if (isSampleDetected) limelightEx.limelight.captureSnapshot("detected");
+                if (!sampleDetected) {
+                    sampleDetected = targetSample();
+                    if (sampleDetected) limelightEx.limelight.captureSnapshot("detected");
                 }
 
-                if (isSampleDetected) {
+                if (sampleDetected) {
 
                     yDistance = tan(Math.toRadians(limelightTilt + desiredSampleY)) * limelightHeight;
                     xDistance = tan(Math.toRadians(desiredSampleX)) * yDistance;
@@ -102,15 +100,15 @@ public class AutoAlignToSample {
                     yDistanceFromCenter = yDistance + yOffset;
                     xDistanceFromCenter = xDistance + xOffset;
 
-                    targetedPoseOffset = new Pose2d(xDistanceFromCenter, yDistanceFromCenter, atan2(xDistanceFromCenter, yDistanceFromCenter));
+                    targetOffset = new Pose2d(xDistanceFromCenter, yDistanceFromCenter, atan2(xDistanceFromCenter, yDistanceFromCenter));
                 }
 
-                return !(expirationTimer.seconds() > secondsToExpire || isSampleDetected);
+                return !(expirationTimer.seconds() > secondsToExpire || sampleDetected);
             }
         };
     }
 
     public Pose2d getTargetedOffset() {
-        return targetedPoseOffset;
+        return targetOffset;
     }
 }

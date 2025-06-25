@@ -27,8 +27,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.subsystem.AutoAlignToSample;
-import org.firstinspires.ftc.teamcode.subsystem.LimelightEx;
+import org.firstinspires.ftc.teamcode.control.vision.AutoSampleAligner;
+import org.firstinspires.ftc.teamcode.control.vision.LimelightEx;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 
 @Config
@@ -41,17 +41,17 @@ public class TestLimelightSample extends LinearOpMode {
         Robot robot = new Robot(hardwareMap, new Pose2d(0, 0, 0));
 
         Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
-        AutoAlignToSample autoAlignToSample = new AutoAlignToSample(new LimelightEx(limelight3a, hardwareMap));
-        autoAlignToSample.activateLimelight(AutoAlignToSample.Pipeline.YELLOW_BLUE);
+        AutoSampleAligner sampleAligner = new AutoSampleAligner(new LimelightEx(limelight3a, hardwareMap));
+        sampleAligner.activateLimelight(AutoSampleAligner.Pipeline.YELLOW_BLUE);
         limelight3a.stop();
         limelight3a.start();
 
         waitForStart();
 
         // after init
-        Actions.runBlocking(autoAlignToSample.detectTarget(3));
+        Actions.runBlocking(sampleAligner.detectTarget(3));
 
-        EditablePose targetOffset = new EditablePose(autoAlignToSample.getTargetedOffset());
+        EditablePose targetOffset = new EditablePose(sampleAligner.getTargetedOffset());
         double extendoInches = hypot(targetOffset.x, targetOffset.y) + LL_EXTEND_OFFSET;
 
         telemetry.addData("dx (in)", targetOffset.x);
