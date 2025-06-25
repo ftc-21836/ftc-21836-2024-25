@@ -104,7 +104,7 @@ public final class Auto extends LinearOpMode {
             LL_DISTANCE_START_LOWERING = 10,
             LL_EXTEND_OFFSET = -3,
             LL_MAX_PICTURE_TIME = 3,
-            LL_MIN_PICTURE_TIME = 0.3,
+            LL_MIN_PICTURE_TIME = 0,
             LL_NO_DETECTION_Y_MOVE = 3,
             LL_SPEED_MAX_EXTENDO = 1,
             LL_SWEEP_ANGLE_RANGE = 5,
@@ -156,7 +156,7 @@ public final class Auto extends LinearOpMode {
             scoringPreloadIntaking1 = new EditablePose(-61, -54, PI/3),
             scoring1Intaking2Scoring2 = new EditablePose(-62, -51.5, 1.4632986527692424),
             intaking3 = new EditablePose(-59, -50, 2 * PI / 3),
-            scoring3 = new EditablePose(-54.5, -54.5, PI / 4),
+            scoring3 = new EditablePose(-56, -56, PI / 4),
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
             sample2 = new EditablePose(-60, -27.4, PI / 2),
