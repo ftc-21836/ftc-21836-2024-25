@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.ARM_ENTERING_BUCKET;
@@ -18,6 +17,7 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.CLAW_CLOSING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static java.lang.Math.abs;
+import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -189,7 +189,7 @@ public final class Intake {
                 if (rollerSpeed != 0) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_SUB_BAR, ANGLE_BUCKET_INTAKING, abs(bucketAngle)));
-                    roller.set(deposit.hasSample() ? 0 : rollerSpeed / SPEED_INTAKING);
+                    roller.set(deposit.hasSample() ? min(rollerSpeed, 0) : rollerSpeed);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
