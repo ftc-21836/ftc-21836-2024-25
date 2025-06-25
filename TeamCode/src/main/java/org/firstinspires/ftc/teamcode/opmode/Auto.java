@@ -10,14 +10,7 @@ import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUT
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.CONFIRMING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_CYCLES;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PARTNER_SAMPLE;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PARTNER_SAMPLE_X;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PUSHING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SIDE;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SUB_1_Y;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_SUB_2_Y;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_WAIT;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.AutonConfig.EDITING_PRELOAD;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.DRIVING_TO_SUB;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_1;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.State.INTAKING_2;
@@ -34,7 +27,6 @@ import static java.lang.Math.PI;
 import static java.lang.Math.abs;
 import static java.lang.Math.hypot;
 import static java.lang.Math.min;
-import static java.lang.Math.toDegrees;
 import static java.lang.Math.toRadians;
 import static java.lang.Math.ceil;
 
@@ -106,16 +98,16 @@ public final class Auto extends LinearOpMode {
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
-            DISTANCE_FROM_BASKET_SWEEP = 30,
 
             LL_ANGLE_BUCKET_INCREMENT = 50,
             LL_DISTANCE_START_LOWERING = 10,
             LL_EXTEND_OFFSET = -3,
             LL_MAX_PICTURE_TIME = 3,
+            LL_MIN_PICTURE_TIME = 0.3,
+            LL_NO_DETECTION_Y_MOVE = 3,
             LL_SPEED_MAX_EXTENDO = 1,
             LL_SWEEP_ANGLE_RANGE = 5,
             LL_SWEEP_SPEED = 0.5,
-            LL_NO_DETECTION_Y_MOVE = 3,
             LL_WAIT_INTAKE = 0.5,
 
             EXTEND_SAMPLE_1 = 21,
@@ -126,31 +118,9 @@ public final class Auto extends LinearOpMode {
             PRE_EXTEND_SAMPLE_2 = 12,
             PRE_EXTEND_SAMPLE_3 = 12,
 
-            TIME_EXTEND = 1,
-            TIME_RETRACT = 1,
-            SPEED_EXTEND = 1,
-            SPEED_RETRACT = -0.6,
-
-            EXTEND_OVER_SUB_BAR = 0,
-            EXTEND_SUB = 21.25984251968504,
-
-            WAIT_RE_SWEEP = 1,
-            ANGLE_PRE_SLAM = 0.1,
-            WAIT_PRE_SLAM_BUCKET = 0.25,
-            ANGLE_SLAMMING = 1.1,
-            WAIT_SLAMMING_BUCKET = 0.35,
-            SPEED_SLAMMING = -0.75,
-            SPEED_INTAKING = 1,
-
-            MIN_PICTURE_TIME = 0.3,
-            WAIT_ATTEMPTED_CV_INTAKE = 0.25,
-            WAIT_CV_BEFORE_EXTENDING = 0,
-
-            SPEED_SPIKE_TURNING = 2,
-            SPEED_SWEEPING_SUB = 6.5,
-            SPEED_SWEEPING_SUB_TURNING = 0.5,
-            SPEED_INCHING = 5,
-            SPEED_INCHING_TURNING = 0.75,
+            VEL_INCHING = 5,
+            VEL_ANG_INCHING = 0.75,
+            VEL_ANG_INTAKING_3 = 2,
 
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0.1,
@@ -158,14 +128,10 @@ public final class Auto extends LinearOpMode {
             WAIT_POST_INTAKING = 0,
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.1,
-            WAIT_DROP_TO_EXTEND = 0.2,
             WAIT_INTAKE_RETRACT_POST_SUB = 0,
             WAIT_EXTEND_MAX_SPIKE = 3,
 
             LIFT_HEIGHT_TOLERANCE = 3.75,
-
-            MAX_WAIT_EXTEND_2 = 1,
-            ANGLE_TOLERANCE_2 = 0.25,
 
             X_OFFSET_CHAMBER_1 = 1,
             X_OFFSET_CHAMBER_2 = -1,
@@ -173,10 +139,8 @@ public final class Auto extends LinearOpMode {
             X_OFFSET_CHAMBER_4 = -3,
 
             Y_INCHING_FORWARD_WHEN_INTAKING = 10,
-            Y_OFFSET_SUB_APPROACHES = 4,
 
-            TIME_CYCLE = 3,
-            TIME_SCORE = 0.5;
+            TIME_CYCLE = 3;
 
     /// <a href="https:///www.desmos.com/calculator/l8pl2gf1mb">Adjust spikes 1 and 2</a>
     /// <a href="https://www.desmos.com/calculator/sishohvpwc">Visualize spike samples</a>
@@ -184,9 +148,7 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, 0.05),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
-            intakingPartnerSample = new EditablePose(-29,7 - SIZE_HALF_FIELD, 0),
-
-            scoringPreloadIntaking1 = new EditablePose(-61, -54, PI/3),
+            intaking1 = new EditablePose(-61, -54, PI/3),
             intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
             intaking3 = new EditablePose(-59, -50, 2 * PI / 3),
 
@@ -201,12 +163,9 @@ public final class Auto extends LinearOpMode {
 
             sub = new EditablePose(-22.5, -11, 0),
 
-//            scoringFromSub = new EditablePose(-59, -55, 0.765),
-
             aroundBeamPushing = new EditablePose(35, -30, PI / 2),
 
             chamberRight = new EditablePose(0.5 * WIDTH_ROBOT + 0.375, -33, - PI / 2),
-            chamberLeft = new EditablePose(-chamberRight.x, -33, PI / 2),
 
             pushing1 = new EditablePose(46, -13, toRadians(-80)),
             pushing2 = new EditablePose(57, pushing1.y, toRadians(-70)),
@@ -226,13 +185,6 @@ public final class Auto extends LinearOpMode {
     enum AutonConfig {
         EDITING_ALLIANCE,
         EDITING_SIDE,
-        EDITING_PRELOAD,
-        EDITING_PARTNER_SAMPLE,
-        EDITING_PARTNER_SAMPLE_X,
-        EDITING_WAIT,
-        EDITING_SUB_1_Y,
-        EDITING_SUB_2_Y,
-        EDITING_PUSHING,
         EDITING_CYCLES,
         CONFIRMING;
 
@@ -250,7 +202,7 @@ public final class Auto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        scoringPreloadIntaking1.heading = scoringPreloadIntaking1.angleTo(sample1);
+        intaking1.heading = intaking1.angleTo(sample1);
         intaking2.heading = intaking2.angleTo(sample2);
         intaking3.heading = intaking3.angleTo(sample3);
 
@@ -268,15 +220,9 @@ public final class Auto extends LinearOpMode {
         AutonConfig selection = EDITING_ALLIANCE;
 
         boolean specimenSide = false;
-        int partnerWait = 0;
-        int cycles = 1;
-        boolean push = false;
-        boolean specimenPreload = false;
-        boolean usePartnerSample = false;
+        int cycles = 4;
 
         ElapsedTime timer = new ElapsedTime();
-
-        EditablePose sub1Edited = sub.clone(), sub2Edited = sub.clone();
 
         config:
         while (opModeInInit() && timer.seconds() < 5) {
@@ -294,25 +240,11 @@ public final class Auto extends LinearOpMode {
             if (up) {
                 do selection = selection.plus(-1);
                 while (
-                        selection == EDITING_PRELOAD && specimenSide ||
-                        selection == EDITING_PARTNER_SAMPLE && specimenSide ||
-                        selection == EDITING_PARTNER_SAMPLE_X && (specimenSide || !usePartnerSample) ||
-                        selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
-                        selection == EDITING_SUB_1_Y && specimenSide ||
-                        selection == EDITING_SUB_2_Y && specimenSide ||
-                        selection == EDITING_PUSHING && !specimenSide ||
                         selection == EDITING_CYCLES && !specimenSide
                 );
             } else if (down) {
                 do selection = selection.plus(1);
                 while (
-                        selection == EDITING_PRELOAD && specimenSide ||
-                        selection == EDITING_PARTNER_SAMPLE && specimenSide ||
-                        selection == EDITING_PARTNER_SAMPLE_X && (specimenSide || !usePartnerSample) ||
-                        selection == EDITING_WAIT && !specimenSide && !specimenPreload ||
-                        selection == EDITING_SUB_1_Y && specimenSide ||
-                        selection == EDITING_SUB_2_Y && specimenSide ||
-                        selection == EDITING_PUSHING && !specimenSide ||
                         selection == EDITING_CYCLES && !specimenSide
                 );
             }
@@ -324,31 +256,6 @@ public final class Auto extends LinearOpMode {
                 case EDITING_SIDE:
                     if (x) specimenSide = !specimenSide;
                     break;
-                case EDITING_PRELOAD:
-                    if (!specimenSide && x) specimenPreload = !specimenPreload;
-                    break;
-                case EDITING_PARTNER_SAMPLE:
-                    if (!specimenSide && x) usePartnerSample = !usePartnerSample;
-                    break;
-                case EDITING_PARTNER_SAMPLE_X:
-                    if (!specimenSide && usePartnerSample && b) intakingPartnerSample.x++;
-                    if (!specimenSide && usePartnerSample && x) intakingPartnerSample.x--;
-                    break;
-                case EDITING_WAIT:
-                    if ((specimenPreload || specimenSide) && y) partnerWait++;
-                    if ((specimenPreload || specimenSide) && a && partnerWait > 0) partnerWait--;
-                    break;
-                case EDITING_SUB_1_Y:
-                    if (!specimenSide && y && sub1Edited.y < -sub.y) sub1Edited.y++;
-                    if (!specimenSide && a && sub1Edited.y > sub.y) sub1Edited.y--;
-                    break;
-                case EDITING_SUB_2_Y:
-                    if (!specimenSide && y && sub2Edited.y < -sub.y) sub2Edited.y++;
-                    if (!specimenSide && a && sub2Edited.y > sub.y) sub2Edited.y--;
-                    break;
-                case EDITING_PUSHING:
-                    if (specimenSide && x) push = !push;
-                    break;
                 case EDITING_CYCLES:
                     if (specimenSide && y) cycles++;
                     if (specimenSide && a && cycles > 0) cycles--;
@@ -357,7 +264,7 @@ public final class Auto extends LinearOpMode {
                     if (x) break config;
             }
 
-            printConfig(selection, specimenSide, specimenPreload, usePartnerSample, partnerWait, sub1Edited, sub2Edited, push, cycles);
+            printConfig(selection, specimenSide, cycles);
             mTelemetry.addLine();
             mTelemetry.addLine();
             mTelemetry.addLine("Confirm configuration (confirming in " + (int) ceil(5 - timer.seconds()) + " seconds)" + selection.markIf(CONFIRMING));
@@ -376,9 +283,6 @@ public final class Auto extends LinearOpMode {
         limelight3a.start();
 
 
-
-        specimenPreload = specimenSide || specimenPreload;
-
         robot.intake.setAlliance(isRedAlliance);
 
         Action trajectory;
@@ -393,7 +297,6 @@ public final class Auto extends LinearOpMode {
 
             /// Score preloaded specimen
             builder = builder
-                    .waitSeconds(partnerWait)
                     .strafeTo(chamberRight.toVector2d())
                     .stopAndAdd(scoreSpecimen(robot))
             ;
@@ -401,15 +304,13 @@ public final class Auto extends LinearOpMode {
             if (cycles > 0) {
 
                 /// Push samples
-                if (push) {
-                    builder = builder
-                            .afterTime(0, robot.deposit::nextState)
-                            .setTangent(- PI / 2);
+                builder = builder
+                        .afterTime(0, robot.deposit::nextState)
+                        .setTangent(-PI / 2);
 
-                    EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3};
-                    for (EditablePose pose : pushingPoses) {
-                        builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
-                    }
+                EditablePose[] pushingPoses = {aroundBeamPushing, pushing1, pushed1, pushing2, pushed2, pushing3, pushed3};
+                for (EditablePose pose : pushingPoses) {
+                    builder = builder.splineToConstantHeading(pose.toVector2d(), pose.heading);
                 }
 
                 double[] chamberXs = {
@@ -421,7 +322,7 @@ public final class Auto extends LinearOpMode {
 
                 /// Cycle specimens
                 for (int i = 0; i < min(chamberXs.length, cycles); i++) {
-                    if (!push || i > 0) builder = builder
+                    if (i > 0) builder = builder
                             .afterTime(0, robot.deposit::nextState)
                             .setTangent(- PI / 2)
                             .splineToConstantHeading(intakingSpec.toVector2d(), - PI / 2)
@@ -458,22 +359,13 @@ public final class Auto extends LinearOpMode {
 //                robot.deposit.lift.setTarget(HEIGHT_BASKET_HIGH);
 //            }
 
-            pose = specimenPreload ?
-                    new Pose2d(chamberLeft.x, 0.5 * LENGTH_ROBOT - SIZE_HALF_FIELD, PI / 2) :
-                    new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
-
-            AngularVelConstraint spikeConstraint = new AngularVelConstraint(SPEED_SPIKE_TURNING);
+            pose = new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
 
             TurnConstraints llSweepConstraint = new TurnConstraints(LL_SWEEP_SPEED, -MecanumDrive.PARAMS.maxAngAccel, MecanumDrive.PARAMS.maxAngAccel);
 
             MinVelConstraint inchingConstraint = new MinVelConstraint(Arrays.asList(
-                    new TranslationalVelConstraint(SPEED_INCHING),
-                    new AngularVelConstraint(SPEED_INCHING_TURNING)
-            ));
-
-            MinVelConstraint sweepConstraint = new MinVelConstraint(Arrays.asList(
-                    new TranslationalVelConstraint(SPEED_SWEEPING_SUB),
-                    new AngularVelConstraint(SPEED_SWEEPING_SUB_TURNING)
+                    new TranslationalVelConstraint(VEL_INCHING),
+                    new AngularVelConstraint(VEL_ANG_INCHING)
             ));
 
             robot.deposit.setWristPitchingAngle(0.5);
@@ -481,23 +373,23 @@ public final class Auto extends LinearOpMode {
             // wait until deposit in position
             Action scorePreload = robot.drivetrain.actionBuilder(pose)
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_1))
-                    .strafeToLinearHeading(scoringPreloadIntaking1.toVector2d(), scoringPreloadIntaking1.heading)
+                    .strafeToLinearHeading(intaking1.toVector2d(), intaking1.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
-            Action intake1 = robot.drivetrain.actionBuilder(scoringPreloadIntaking1.toPose2d())
-                    .turnTo(scoringPreloadIntaking1.heading + .01)
+            Action intake1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
+                    .turnTo(intaking1.heading + .01)
                     .afterTime(0, () -> {
-                        robot.intake.setRollerAndAngle(SPEED_INTAKING);
+                        robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
                         timer.reset();
                     })
                     .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
-                    .setTangent(scoringPreloadIntaking1.heading)
-                    .lineToY(scoringPreloadIntaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .setTangent(intaking1.heading)
+                    .lineToY(intaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
-            Action score1 = robot.drivetrain.actionBuilder(scoringPreloadIntaking1.toPose2d())
+            Action score1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_2))
                     .stopAndAdd(finishIntaking(robot))
                     .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
@@ -507,7 +399,7 @@ public final class Auto extends LinearOpMode {
             Action intake2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .turnTo(intaking2.heading + .01)
                     .afterTime(0, () -> {
-                        robot.intake.setRollerAndAngle(SPEED_INTAKING);
+                        robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                         timer.reset();
                     })
@@ -524,9 +416,9 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action intake3 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
-                    .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading, spikeConstraint)
+                    .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading, new AngularVelConstraint(VEL_ANG_INTAKING_3))
                     .afterTime(0, () -> {
-                        robot.intake.setRollerAndAngle(SPEED_INTAKING);
+                        robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                         timer.reset();
                     })
@@ -553,7 +445,6 @@ public final class Auto extends LinearOpMode {
 
             ElapsedTime bucketTimer = new ElapsedTime();
 
-            boolean usePartnerSample_Final = usePartnerSample;
 
             trajectory = new Action() {
 
@@ -566,8 +457,6 @@ public final class Auto extends LinearOpMode {
                 Action activeTraj = scorePreload;
 
                 int subCycle = 1;
-
-                boolean extending = false;
 
                 void stopDt() {
                     robot.drivetrain.leftFront.setPower(0);
@@ -611,7 +500,7 @@ public final class Auto extends LinearOpMode {
                                         .afterTime(0, () -> robot.intake.extendo.setExtended(false))
                                         .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
                                         .afterTime(0, () -> {
-                                            robot.intake.setRollerAndAngle(SPEED_INTAKING);
+                                            robot.intake.setRollerAndAngle(1);
                                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                                             timer.reset();
                                         })
@@ -644,7 +533,7 @@ public final class Auto extends LinearOpMode {
                                 activeTraj = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                                         .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading)
                                         .afterTime(0, () -> {
-                                            robot.intake.setRollerAndAngle(SPEED_INTAKING);
+                                            robot.intake.setRollerAndAngle(1);
                                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
                                             timer.reset();
                                         })
@@ -708,7 +597,7 @@ public final class Auto extends LinearOpMode {
                         case TAKING_PICTURE:
                             snapshotAction.run(p);
 
-                            if (timer.seconds() < MIN_PICTURE_TIME) break;
+                            if (timer.seconds() < LL_MIN_PICTURE_TIME) break;
 
                             EditablePose offset = new EditablePose(autoAlignToSample.getTargetedOffset());
 
@@ -731,7 +620,6 @@ public final class Auto extends LinearOpMode {
                                 robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
                                 activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-                                        .waitSeconds(WAIT_CV_BEFORE_EXTENDING)
                                         .turn(-targetOffset.heading)
                                         .stopAndAdd(() -> {
                                             robot.intake.extendo.setTarget(extendoInches);
@@ -821,11 +709,11 @@ public final class Auto extends LinearOpMode {
                 telemetryPacket -> {
                     pose = robot.drivetrain.pose;
                     robot.run();
-                    telemetry.addData("dx (in)", targetOffset.x);
-                    telemetry.addData("dy (in)", targetOffset.y);
-                    telemetry.addData("d(theta) (deg)", toDegrees(targetOffset.heading));
-                    telemetry.addData("Extension (in)", hypot(targetOffset.x, targetOffset.y));
-                    telemetry.update();
+//                    telemetry.addData("dx (in)", targetOffset.x);
+//                    telemetry.addData("dy (in)", targetOffset.y);
+//                    telemetry.addData("d(theta) (deg)", toDegrees(targetOffset.heading));
+//                    telemetry.addData("Extension (in)", hypot(targetOffset.x, targetOffset.y));
+//                    telemetry.update();
                     return opModeIsActive();
                 }
         );
@@ -834,7 +722,7 @@ public final class Auto extends LinearOpMode {
         mTelemetry.addLine("AUTONOMOUS READY");
         mTelemetry.addLine();
         mTelemetry.addLine();
-        printConfig(selection, specimenSide, specimenPreload, usePartnerSample, partnerWait, sub1Edited, sub2Edited, push, cycles);
+        printConfig(selection, specimenSide, cycles);
         mTelemetry.update();
 
         waitForStart(); //--------------------------------------------------------------------------------------------------------------------------
@@ -848,34 +736,16 @@ public final class Auto extends LinearOpMode {
         Thread.sleep((long) (DEAD_TIME * 1000));
     }
 
-    private static void printConfig(AutonConfig selection, boolean specimenSide, boolean specimenPreload, boolean usePartnerSample, int partnerWait, EditablePose sub1Edited, EditablePose sub2Edited, boolean push, int cycles) {
-        mTelemetry.addLine((isRedAlliance ? "Red" : "Blue") + " alliance" + selection.markIf(EDITING_ALLIANCE));
+    private static void printConfig(AutonConfig selection, boolean specimenSide, int cycles) {
+        mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
-        mTelemetry.addLine((specimenSide ? "Right (observation-side)" : "Left (basket-side)") + selection.markIf(EDITING_SIDE));
-        if (!specimenSide) {
-            mTelemetry.addLine();
-            mTelemetry.addLine((specimenPreload ? "Specimen" : "Sample") + " preload" + selection.markIf(EDITING_PRELOAD));
-            mTelemetry.addLine();
-            mTelemetry.addLine((usePartnerSample ? "Teamwork makes the dream work" : "Lonely sad") + selection.markIf(EDITING_PARTNER_SAMPLE));
-            if (usePartnerSample) {
-                mTelemetry.addLine();
-                mTelemetry.addLine("Partner sample X = " + intakingPartnerSample.x + selection.markIf(EDITING_PARTNER_SAMPLE_X));
-            }
-        }
-        if (specimenPreload || specimenSide) {
-            mTelemetry.addLine();
-            mTelemetry.addLine("Wait " + partnerWait + " sec" + (partnerWait == 1 ? "" : "s") + " before specimen preload" + selection.markIf(EDITING_WAIT));
-        }
-        if (!specimenSide) {
-            mTelemetry.addLine();
-            mTelemetry.addLine("First sub intaking Y = " + sub1Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_1_Y));
-            mTelemetry.addLine();
-            mTelemetry.addLine("Second sub intaking Y = " + sub2Edited.y + " (default " + sub.y + ")" + selection.markIf(EDITING_SUB_2_Y));
-        } else {
-            mTelemetry.addLine();
-            mTelemetry.addLine((push ? "Push samples after preload" : "Go directly to observation zone") + selection.markIf(EDITING_PUSHING));
+        if (!specimenSide) mTelemetry.addLine("LEFT (basket-side)" + selection.markIf(EDITING_SIDE));
+        else {
+
+            mTelemetry.addLine("RIGHT (observation-side)" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
             mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
+
         }
     }
 
@@ -918,7 +788,7 @@ public final class Auto extends LinearOpMode {
                 t -> robot.deposit.state.ordinal() < Deposit.State.ARM_MOVING_TO_BASKET.ordinal(),
                 new InstantAction(() -> {
                     robot.intake.extendo.setTarget(length);
-                    robot.intake.setRollerAndAngle(SPEED_INTAKING);
+                    robot.intake.setRollerAndAngle(1);
                 })
         );
     }

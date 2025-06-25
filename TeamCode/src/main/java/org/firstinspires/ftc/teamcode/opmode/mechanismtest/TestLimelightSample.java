@@ -6,7 +6,6 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_EXTEND_OFFSET;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SPEED_MAX_EXTENDO;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SWEEP_ANGLE_RANGE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SWEEP_SPEED;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.WAIT_CV_BEFORE_EXTENDING;
 
 import static java.lang.Math.hypot;
 import static java.lang.Math.min;
@@ -68,7 +67,6 @@ public class TestLimelightSample extends LinearOpMode {
         robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
         Action traj = robot.drivetrain.actionBuilder(new Pose2d(0, 0, 0))
-                .waitSeconds(WAIT_CV_BEFORE_EXTENDING)
                 .turn(-targetOffset.heading)
                 .stopAndAdd(() -> {
                     robot.intake.extendo.setTarget(extendoInches);
