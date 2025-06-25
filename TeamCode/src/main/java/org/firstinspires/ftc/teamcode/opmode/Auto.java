@@ -93,8 +93,8 @@ public final class Auto extends LinearOpMode {
 
     public static double
             DEAD_TIME = 0,
-            LENGTH_ROBOT = 14.2,
-            WIDTH_ROBOT = 14.2,
+            LENGTH_ROBOT = 14.386976771653545,
+            WIDTH_ROBOT = 14.28740157480315,
             SIZE_HALF_FIELD = 70.5,
             SIZE_TILE = 23.625,
             DISTANCE_BETWEEN_SPECIMENS = 2,
