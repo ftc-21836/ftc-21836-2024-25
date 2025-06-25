@@ -66,8 +66,8 @@ public final class Deposit {
             TIME_CLAW_CLOSING = .15,
             TIME_EXITING_BUCKET = 0,
             TIME_TO_BASKET = 0.38,
-            TIME_SAMPLE_RELEASE = .125,
-            TIME_MAX_BASKET_TO_STANDBY = 2,
+            TIME_MAX_SAMPLE_RELEASE = 1,
+            TIME_BASKET_TO_STANDBY = .38,
             TIME_TO_INTAKING_SPEC = 1,
             TIME_SPEC_GRAB = 1,
             TIME_RAISE_SPEC = 1,
@@ -78,7 +78,7 @@ public final class Deposit {
 
             TIME_BUCKET_AVOID = 1;
 
-    public static EditablePose distFromBasketLiftDown = new EditablePose(3, 3, 0);
+    public static EditablePose distFromBasketLiftDown = new EditablePose(1, 1, 0);
 
     public static ArmPosition
             ASCENT =        new ArmPosition(165, 100),
@@ -182,10 +182,10 @@ public final class Deposit {
                 boolean farEnoughFromBasket =   dt.pose.position.x - lastBasketPos.position.x > distFromBasketLiftDown.x &&
                         dt.pose.position.y - lastBasketPos.position.y > distFromBasketLiftDown.y;
 
-                if (farEnoughFromBasket || timer.seconds() >= TIME_SAMPLE_RELEASE) nextState();
+                if (farEnoughFromBasket || timer.seconds() >= TIME_MAX_SAMPLE_RELEASE) nextState();
                 break;
             case BASKET_TO_STANDBY:
-                if (timer.seconds() >= TIME_MAX_BASKET_TO_STANDBY) nextState();
+                if (timer.seconds() >= TIME_BASKET_TO_STANDBY) nextState();
                 break;
             case MOVING_TO_INTAKING_SPEC:
                 if (timer.seconds() >= TIME_TO_INTAKING_SPEC) nextState();
