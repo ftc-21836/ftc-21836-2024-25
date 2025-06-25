@@ -111,6 +111,8 @@ public final class Auto extends LinearOpMode {
             LL_SWEEP_SPEED = 0.5,
             LL_WAIT_INTAKE = 0.65,
 
+            ANGLE_PITCH_FROM_SUB = 0.5,
+
             EXTEND_SAMPLE_1 = 21,
             EXTEND_SAMPLE_2 = 20,
             EXTEND_SAMPLE_3 = 20,
@@ -653,7 +655,9 @@ public final class Auto extends LinearOpMode {
                                         .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
                                         .splineTo(scoring3.toVector2d(), PI + scoring3.heading)
+                                        .afterTime(0, () -> robot.deposit.setWristPitchingAngle(ANGLE_PITCH_FROM_SUB))
                                         .stopAndAdd(scoreSample(robot))
+                                        .afterTime(0, () -> robot.deposit.setWristPitchingAngle(0))
                                         .build();
 
                                 subCycle++;
@@ -735,6 +739,7 @@ public final class Auto extends LinearOpMode {
 
     private static Action scoreSample(Robot robot) {
         return new SequentialAction(
+
                 new InstantAction(() -> {
                     if (!robot.hasSample()) robot.intake.transfer(NEUTRAL);
                 }),
