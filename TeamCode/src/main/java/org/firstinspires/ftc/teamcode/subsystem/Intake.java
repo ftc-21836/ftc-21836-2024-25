@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.ARM_ENTERING_BUCKET;
@@ -352,11 +353,12 @@ public final class Intake {
     }
 
     public void setRoller(double power) {
-        rollerSpeed = power;
+        rollerSpeed = clip(power, -1, 1);
     }
 
-    public void setAngle(double angle) {
-        bucketAngle = abs(angle);
+    public boolean setAngle(double angle) {
+        bucketAngle = clip(abs(angle), 0, 1);
+        return bucketAngle == 1;
     }
 
     void printTelemetry() {

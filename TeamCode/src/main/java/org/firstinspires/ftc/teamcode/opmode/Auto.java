@@ -54,6 +54,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.control.FirstTerminateAction;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.control.vision.AutoSampleAligner;
@@ -129,7 +130,7 @@ public final class Auto extends LinearOpMode {
             WAIT_SCORE_BASKET = 0.25,
             WAIT_SCORE_CHAMBER = 0.1,
             WAIT_INTAKE_RETRACT_POST_SUB = 0,
-            WAIT_EXTEND_MAX_SPIKE = 3,
+            WAIT_EXTEND_MAX_SPIKE = 2,
 
             LIFT_HEIGHT_TOLERANCE = 3.75,
 
@@ -349,15 +350,6 @@ public final class Auto extends LinearOpMode {
             robot.deposit.preloadSample();
 
             robot.intake.retractBucketBeforeExtendo = false;
-//            robot.deposit.pauseBeforeAutoRetractingLift = false;
-
-//            if (specimenPreload) {
-//                robot.deposit.preloadSpecimen();
-//                robot.deposit.lift.setTarget(HEIGHT_CHAMBER_HIGH);
-//            } else {
-////                robot.deposit.preloadSample();
-//                robot.deposit.lift.setTarget(HEIGHT_BASKET_HIGH);
-//            }
 
             pose = new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
 
@@ -379,12 +371,15 @@ public final class Auto extends LinearOpMode {
 
             Action intake1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
                     .turnTo(intaking1.heading + .01)
-                    .afterTime(0, () -> {
+
+                    .stopAndAdd(() -> {
                         robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
-                        timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)))
+                    .stopAndAdd(new FirstTerminateAction(
+                            telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)),
+                            new SleepAction(WAIT_EXTEND_MAX_SPIKE)
+                    ))
                     .setTangent(intaking1.heading)
                     .lineToY(intaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
@@ -398,12 +393,15 @@ public final class Auto extends LinearOpMode {
 
             Action intake2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .turnTo(intaking2.heading + .01)
-                    .afterTime(0, () -> {
+
+                    .stopAndAdd(() -> {
                         robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
-                        timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                    .stopAndAdd(new FirstTerminateAction(
+                            telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)),
+                            new SleepAction(WAIT_EXTEND_MAX_SPIKE)
+                    ))
                     .setTangent(intaking2.heading)
                     .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
@@ -417,12 +415,14 @@ public final class Auto extends LinearOpMode {
 
             Action intake3 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading, new AngularVelConstraint(VEL_ANG_INTAKING_3))
-                    .afterTime(0, () -> {
+                    .stopAndAdd(() -> {
                         robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
-                        timer.reset();
                     })
-                    .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)))
+                    .stopAndAdd(new FirstTerminateAction(
+                            telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)),
+                            new SleepAction(WAIT_EXTEND_MAX_SPIKE)
+                    ))
                     .setTangent(PI / 2)
                     .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
@@ -442,8 +442,6 @@ public final class Auto extends LinearOpMode {
                     .afterTime(0, () -> robot.deposit.lift.setTarget(0))
                     .splineTo(sub.toVector2d(), sub.heading)
                     .build();
-
-            ElapsedTime bucketTimer = new ElapsedTime();
 
 
             trajectory = new Action() {
@@ -499,12 +497,14 @@ public final class Auto extends LinearOpMode {
                                 activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
                                         .afterTime(0, () -> robot.intake.extendo.setExtended(false))
                                         .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
-                                        .afterTime(0, () -> {
+                                        .stopAndAdd(() -> {
                                             robot.intake.setRollerAndAngle(1);
                                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
-                                            timer.reset();
                                         })
-                                        .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                                        .stopAndAdd(new FirstTerminateAction(
+                                                telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)),
+                                                new SleepAction(WAIT_EXTEND_MAX_SPIKE)
+                                        ))
                                         .setTangent(intaking2.heading)
                                         .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                                         .build();
@@ -532,12 +532,14 @@ public final class Auto extends LinearOpMode {
                             else if (trajDone) { // skip to 3 if didn't get 2
                                 activeTraj = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                                         .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading)
-                                        .afterTime(0, () -> {
+                                        .stopAndAdd(() -> {
                                             robot.intake.setRollerAndAngle(1);
-                                            robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
-                                            timer.reset();
+                                            robot.intake.extendo.setTarget(EXTEND_SAMPLE_3);
                                         })
-                                        .stopAndAdd(telemetryPacket -> !(timer.seconds() >= WAIT_EXTEND_MAX_SPIKE || robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)))
+                                        .stopAndAdd(new FirstTerminateAction(
+                                                telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_3)),
+                                                new SleepAction(WAIT_EXTEND_MAX_SPIKE)
+                                        ))
                                         .setTangent(intaking3.heading)
                                         .lineToY(intaking3.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                                         .build();
@@ -614,17 +616,13 @@ public final class Auto extends LinearOpMode {
                                             robot.intake.extendo.setTarget(extendoInches);
                                             robot.intake.setAngle(0.01);
                                             robot.intake.setRoller(1);
-                                            timer.reset();
                                         })
-                                        .stopAndAdd(new SequentialAction(
-                                                t -> !(robot.intake.extendo.getPosition() >= extendoInches - LL_DISTANCE_START_LOWERING || timer.seconds() >= 1),
-                                                new InstantAction(timer::reset),
-                                                t -> {
-                                                    double s = timer.seconds();
-                                                    robot.intake.setAngle(min(s * LL_ANGLE_BUCKET_INCREMENT, 1));
-                                                    return s * LL_ANGLE_BUCKET_INCREMENT < 1;
-                                                }
+                                        .stopAndAdd(new FirstTerminateAction(
+                                                t -> robot.intake.extendo.getPosition() < extendoInches - LL_DISTANCE_START_LOWERING,
+                                                new SleepAction(1)
                                         ))
+                                        .stopAndAdd(timer::reset)
+                                        .stopAndAdd(t -> !robot.intake.setAngle(timer.seconds() * LL_ANGLE_BUCKET_INCREMENT))
                                         .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                                         .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                                         .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
@@ -632,9 +630,9 @@ public final class Auto extends LinearOpMode {
                                         .build();
 
                                 state = SUB_INTAKING;
-                                timer.reset();
 
                             } else if (timer.seconds() > LL_MAX_PICTURE_TIME) {
+
                                 Pose2d current = robot.drivetrain.pose;
                                 activeTraj = robot.drivetrain.actionBuilder(current)
                                         .setTangent(PI / 2)
@@ -642,18 +640,15 @@ public final class Auto extends LinearOpMode {
                                         .build();
 
                                 state = DRIVING_TO_SUB;
-                                bucketTimer.reset();
-                                timer.reset();
-
                             }
 
                             break;
 
                         case SUB_INTAKING:
 
-                            Pose2d current = robot.drivetrain.pose;
 
                             if (robot.hasSample()) {
+                                Pose2d current = robot.drivetrain.pose;
 
                                 robot.intake.retractBucketBeforeExtendo = true;
                                 robot.intake.extendo.powerCap = 1;
@@ -676,14 +671,13 @@ public final class Auto extends LinearOpMode {
                                 robot.intake.setRollerAndAngle(0);
                                 robot.intake.extendo.setExtended(false);
 
+                                Pose2d current = robot.drivetrain.pose;
                                 activeTraj = robot.drivetrain.actionBuilder(current)
                                         .setTangent(PI / 2)
                                         .lineToY(current.position.y + LL_NO_DETECTION_Y_MOVE)
                                         .build();
 
                                 state = DRIVING_TO_SUB;
-                                bucketTimer.reset();
-                                timer.reset();
 
                             }
 
@@ -710,11 +704,6 @@ public final class Auto extends LinearOpMode {
                 telemetryPacket -> {
                     pose = robot.drivetrain.pose;
                     robot.run();
-//                    telemetry.addData("dx (in)", targetOffset.x);
-//                    telemetry.addData("dy (in)", targetOffset.y);
-//                    telemetry.addData("d(theta) (deg)", toDegrees(targetOffset.heading));
-//                    telemetry.addData("Extension (in)", hypot(targetOffset.x, targetOffset.y));
-//                    telemetry.update();
                     return opModeIsActive();
                 }
         );

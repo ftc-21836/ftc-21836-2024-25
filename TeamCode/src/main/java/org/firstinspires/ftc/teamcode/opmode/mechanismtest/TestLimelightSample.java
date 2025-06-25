@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_EXTEND_OFFSET;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SPEED_MAX_EXTENDO;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SWEEP_ANGLE_RANGE;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_SWEEP_SPEED;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_WAIT_INTAKE;
 
 import static java.lang.Math.hypot;
 import static java.lang.Math.min;
@@ -18,6 +19,7 @@ import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -25,6 +27,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.control.FirstTerminateAction;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.control.vision.AutoSampleAligner;
@@ -66,26 +69,23 @@ public class TestLimelightSample extends LinearOpMode {
 
         robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
-        Action traj = robot.drivetrain.actionBuilder(new Pose2d(0, 0, 0))
+        Action traj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
                 .turn(-targetOffset.heading)
                 .stopAndAdd(() -> {
                     robot.intake.extendo.setTarget(extendoInches);
                     robot.intake.setAngle(0.01);
                     robot.intake.setRoller(1);
-                    timer.reset();
                 })
-                .stopAndAdd(new SequentialAction(
-                        t -> !(robot.intake.extendo.getPosition() >= extendoInches - LL_DISTANCE_START_LOWERING || timer.seconds() >= 1),
-                        new InstantAction(timer::reset),
-                        t -> {
-                            double s = timer.seconds();
-                            robot.intake.setAngle(min(s * LL_ANGLE_BUCKET_INCREMENT, 1));
-                            return s * LL_ANGLE_BUCKET_INCREMENT < 1;
-                        }
+                .stopAndAdd(new FirstTerminateAction(
+                        t -> robot.intake.extendo.getPosition() < extendoInches - LL_DISTANCE_START_LOWERING,
+                        new SleepAction(1)
                 ))
+                .stopAndAdd(timer::reset)
+                .stopAndAdd(t -> !robot.intake.setAngle(timer.seconds() * LL_ANGLE_BUCKET_INCREMENT))
                 .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                 .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                 .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                .waitSeconds(LL_WAIT_INTAKE)
 
                 .stopAndAdd(t -> !robot.hasSample())
                 .stopAndAdd(() -> robot.intake.setRollerAndAngle(0))
