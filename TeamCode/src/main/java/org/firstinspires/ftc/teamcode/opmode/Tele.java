@@ -78,7 +78,7 @@ public final class Tele extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
-        robot.drivetrain.trackHeadingOnly = true;
+        // robot.drivetrain.trackHeadingOnly = true;
 
         LEDIndicator indicator = new LEDIndicator(hardwareMap, "green", "red");
 
