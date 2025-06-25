@@ -474,14 +474,8 @@ public final class Auto extends LinearOpMode {
                         case SCORING_PRELOAD:
 
                             if (trajDone) {
-//                                if (usePartnerSample_Final) {
-//                                    activeTraj = intakePartnerSample;
-//                                    state = INTAKING_PARTNER_SAMPLE;
-//                                } else {
-
                                 activeTraj = intake1;
                                 state = INTAKING_1;
-//                                }
                             }
                             break;
 
