@@ -108,7 +108,7 @@ public final class Auto extends LinearOpMode {
             LL_SPEED_MAX_EXTENDO = 1,
             LL_SWEEP_ANGLE_RANGE = 5,
             LL_SWEEP_SPEED = 0.5,
-            LL_WAIT_INTAKE = 0.5,
+            LL_WAIT_INTAKE = 0.65,
 
             EXTEND_SAMPLE_1 = 21,
             EXTEND_SAMPLE_2 = 20,
@@ -628,6 +628,7 @@ public final class Auto extends LinearOpMode {
                                         .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                                         .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                                         .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                                        .waitSeconds(LL_WAIT_INTAKE)
                                         .build();
 
                                 state = SUB_INTAKING;
