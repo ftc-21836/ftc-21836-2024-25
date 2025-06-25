@@ -111,6 +111,8 @@ public final class Auto extends LinearOpMode {
             LL_SWEEP_SPEED = 0.5,
             LL_WAIT_INTAKE = 0.65,
 
+            WAIT_MAX_INTAKE = 1,
+
             ANGLE_PITCH_FROM_SUB = 0.5,
 
             EXTEND_SAMPLE_1 = 21,
@@ -151,16 +153,14 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, 0.05),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
-            intaking1 = new EditablePose(-61, -54, PI/3),
-            intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
+            scoringPreloadIntaking1 = new EditablePose(-61, -54, PI/3),
+            scoring1Intaking2Scoring2 = new EditablePose(-62, -51.5, 1.4632986527692424),
             intaking3 = new EditablePose(-59, -50, 2 * PI / 3),
+            scoring3 = new EditablePose(-54.5, -54.5, PI / 4),
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
             sample2 = new EditablePose(-60, -27.4, PI / 2),
             sample3 = new EditablePose(-68.5, -27.8, PI / 2),
-
-            scoring2 = new EditablePose(-63, -54, 1),
-            scoring3 = new EditablePose(-54.5, -54.5, PI / 4),
 
             snapshotPos = new EditablePose(-26.5, -14, toRadians(40)),
 
@@ -205,8 +205,8 @@ public final class Auto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        intaking1.heading = intaking1.angleTo(sample1);
-        intaking2.heading = intaking2.angleTo(sample2);
+        scoringPreloadIntaking1.heading = scoringPreloadIntaking1.angleTo(sample1);
+        scoring1Intaking2Scoring2.heading = scoring1Intaking2Scoring2.angleTo(sample2);
         intaking3.heading = intaking3.angleTo(sample3);
 
         // Initialize multiple telemetry outputs:
@@ -367,12 +367,12 @@ public final class Auto extends LinearOpMode {
             // wait until deposit in position
             Action scorePreload = robot.drivetrain.actionBuilder(pose)
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_1))
-                    .strafeToLinearHeading(intaking1.toVector2d(), intaking1.heading)
+                    .strafeToLinearHeading(scoringPreloadIntaking1.toVector2d(), scoringPreloadIntaking1.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
-            Action intake1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
-                    .turnTo(intaking1.heading + .01)
+            Action intake1 = robot.drivetrain.actionBuilder(scoringPreloadIntaking1.toPose2d())
+//                    .turnTo(scoringPreloadIntaking1.heading + .01)
 
                     .stopAndAdd(() -> {
                         robot.intake.setRollerAndAngle(1);
@@ -382,19 +382,20 @@ public final class Auto extends LinearOpMode {
                             telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)),
                             new SleepAction(WAIT_EXTEND_MAX_SPIKE)
                     ))
-                    .setTangent(intaking1.heading)
-                    .lineToY(intaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .waitSeconds(WAIT_MAX_INTAKE)
+//                    .setTangent(scoringPreloadIntaking1.heading)
+//                    .lineToY(scoringPreloadIntaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
-            Action score1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
+            Action score1 = robot.drivetrain.actionBuilder(scoringPreloadIntaking1.toPose2d())
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_2))
                     .stopAndAdd(finishIntaking(robot))
-                    .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
+                    .strafeToLinearHeading(scoring1Intaking2Scoring2.toVector2d(), scoring1Intaking2Scoring2.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
-            Action intake2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
-                    .turnTo(intaking2.heading + .01)
+            Action intake2 = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
+//                    .turnTo(scoring1Intaking2Scoring2.heading + .01)
 
                     .stopAndAdd(() -> {
                         robot.intake.setRollerAndAngle(1);
@@ -404,18 +405,19 @@ public final class Auto extends LinearOpMode {
                             telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)),
                             new SleepAction(WAIT_EXTEND_MAX_SPIKE)
                     ))
-                    .setTangent(intaking2.heading)
-                    .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                    .waitSeconds(WAIT_MAX_INTAKE)
+//                    .setTangent(scoring1Intaking2Scoring2.heading)
+//                    .lineToY(scoring1Intaking2Scoring2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                     .build();
 
-            Action score2 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
+            Action score2 = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_3))
                     .stopAndAdd(finishIntaking(robot))
-                    .strafeToLinearHeading(scoring2.toVector2d(), scoring2.heading)
+//                    .strafeToLinearHeading(scoring1Intaking2Scoring2.toVector2d(), scoring1Intaking2Scoring2.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
-            Action intake3 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
+            Action intake3 = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
                     .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading, new AngularVelConstraint(VEL_ANG_INTAKING_3))
                     .stopAndAdd(() -> {
                         robot.intake.setRollerAndAngle(1);
@@ -492,7 +494,7 @@ public final class Auto extends LinearOpMode {
                             else if (trajDone) { // skip to 2 if didn't get 1
                                 activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
                                         .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                                        .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
+                                        .strafeToLinearHeading(scoring1Intaking2Scoring2.toVector2d(), scoring1Intaking2Scoring2.heading)
                                         .stopAndAdd(() -> {
                                             robot.intake.setRollerAndAngle(1);
                                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
@@ -501,8 +503,9 @@ public final class Auto extends LinearOpMode {
                                                 telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)),
                                                 new SleepAction(WAIT_EXTEND_MAX_SPIKE)
                                         ))
-                                        .setTangent(intaking2.heading)
-                                        .lineToY(intaking2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
+                                        .waitSeconds(WAIT_MAX_INTAKE)
+//                                        .setTangent(scoring1Intaking2Scoring2.heading)
+//                                        .lineToY(scoring1Intaking2Scoring2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
                                         .build();
                                 state = INTAKING_2;
                                 robot.intake.extendo.setExtended(false);
@@ -526,7 +529,7 @@ public final class Auto extends LinearOpMode {
                                 stopDt();
                             }
                             else if (trajDone) { // skip to 3 if didn't get 2
-                                activeTraj = robot.drivetrain.actionBuilder(intaking2.toPose2d())
+                                activeTraj = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
                                         .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading)
                                         .stopAndAdd(() -> {
                                             robot.intake.setRollerAndAngle(1);
