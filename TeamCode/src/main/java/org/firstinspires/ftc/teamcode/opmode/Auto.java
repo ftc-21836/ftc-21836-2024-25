@@ -155,6 +155,8 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, 0.05),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
+            basketError = new EditablePose(0.5, 0.5, toRadians(4)),
+
             intaking1 = new EditablePose(-61, -54, PI/3),
             intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
             intaking3 = new EditablePose(-59, -50, 2 * PI / 3),
@@ -456,7 +458,8 @@ public final class Auto extends LinearOpMode {
                     switch (state) {
                         case SCORING_PRELOAD:
 
-                            if (trajDone) {
+                            if (trajDone || atPose(robot, intaking1) && !robot.hasSample()) {
+                                stopDt();
                                 activeTraj = intake1;
                                 state = INTAKING_1;
                             }
@@ -758,6 +761,13 @@ public final class Auto extends LinearOpMode {
                     robot.intake.setRollerAndAngle(1);
                 })
         );
+    }
+
+    private static boolean atPose(Robot robot, EditablePose target) {
+        EditablePose current = new EditablePose(robot.drivetrain.pose);
+        return abs(target.x - current.x) <= basketError.x &&
+                abs(target.y - current.y) <= basketError.y &&
+                abs(target.heading - current.heading) <= basketError.heading;
     }
 
 }
