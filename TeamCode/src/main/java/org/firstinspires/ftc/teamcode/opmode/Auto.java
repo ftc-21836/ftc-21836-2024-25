@@ -128,7 +128,7 @@ public final class Auto extends LinearOpMode {
             VEL_ANG_INCHING = 0.75,
             VEL_ANG_INTAKING_3 = 2,
 
-            WAIT_BEFORE_SCORING_PRELOAD = 0.65,
+            WAIT_BEFORE_SCORING_PRELOAD = 0.8,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
@@ -563,8 +563,9 @@ public final class Auto extends LinearOpMode {
                                     state = PARKING;
                                     stopDt();
                                 } else {
-                                    activeTraj = robot.drivetrain.actionBuilder(scoring.toPose2d())
-                                            .setTangent(scoring.heading)
+                                    Pose2d current = robot.drivetrain.pose;
+                                    activeTraj = robot.drivetrain.actionBuilder(current)
+                                            .setTangent(current.heading.toDouble())
                                             .splineTo(snapshotPos.toVector2d(), snapshotPos.heading)
                                             .build();
                                     state = DRIVING_TO_SUB;
