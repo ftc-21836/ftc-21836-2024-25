@@ -663,6 +663,7 @@ public final class Auto extends LinearOpMode {
                 private void searchAgainForSample(Robot robot) {
                     robot.intake.setRollerAndAngle(0);
                     robot.intake.extendo.setExtended(false);
+                    robot.intake.ejectSample();
 
                     Pose2d current = robot.drivetrain.pose;
                     activeTraj = new NullAction();
