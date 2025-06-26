@@ -118,7 +118,7 @@ public final class Intake {
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
-    private Sample sample, badSample = RED;
+    private Sample sample, oppSample = RED;
 
     private final CachedSimpleServo bucketR, bucketL;
 
@@ -149,7 +149,7 @@ public final class Intake {
     }
 
     public void setAlliance(boolean redAlliance) {
-        badSample = redAlliance ? BLUE : RED;
+        oppSample = redAlliance ? BLUE : RED;
     }
 
     Intake(HardwareMap hardwareMap) {
@@ -195,7 +195,7 @@ public final class Intake {
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                    if (getSample() == badSample || (hasSample() && deposit.hasSample())) {
+                    if (specimenMode && getSample() == NEUTRAL || getSample() == oppSample || hasSample() && deposit.hasSample()) {
                         ejectSample();
                         break;
                     }
