@@ -108,7 +108,7 @@ public final class Auto extends LinearOpMode {
             LL_MIN_PICTURE_TIME = 0,
             LL_NO_DETECTION_Y_MOVE = 3,
             LL_SPEED_MAX_EXTENDO = 1,
-            LL_SWEEP_ANGLE_RANGE = 5,
+            LL_SWEEP_ANGLE_RANGE = 10,
             LL_SWEEP_SPEED = 0.5,
             LL_WAIT_INTAKE = 0.65,
 
