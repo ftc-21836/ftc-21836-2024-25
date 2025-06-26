@@ -162,7 +162,7 @@ public final class Auto extends LinearOpMode {
             snapshotPos = new EditablePose(-26.5, -14, toRadians(40)),
 
             scoring = new EditablePose(-56, -56, PI / 4),
-            scoringFromSub = new EditablePose(-57.25, 57.25, PI/4),
+            scoringFromSub = new EditablePose(-57.25, -57.25, PI/4),
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
             sample2 = new EditablePose(-60, -27.4, PI / 2),
