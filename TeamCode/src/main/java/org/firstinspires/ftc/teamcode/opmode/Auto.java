@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode;
 
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.A;
-import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.B;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_DOWN;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.DPAD_UP;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
@@ -61,6 +60,7 @@ import org.firstinspires.ftc.teamcode.control.vision.AutoSampleAligner;
 import org.firstinspires.ftc.teamcode.subsystem.Deposit;
 import org.firstinspires.ftc.teamcode.control.vision.LimelightEx;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
+import org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedDcMotorEx;
 
 import java.util.Arrays;
 
@@ -113,6 +113,7 @@ public final class Auto extends LinearOpMode {
 
             WAIT_MAX_INTAKE = 1,
 
+            ANGLE_PITCH_SPIKES = 0.5,
             ANGLE_PITCH_FROM_SUB = 0.5,
 
             EXTEND_SAMPLE_1 = 21,
@@ -128,10 +129,9 @@ public final class Auto extends LinearOpMode {
             VEL_ANG_INTAKING_3 = 2,
 
             WAIT_APPROACH_WALL = 0,
-            WAIT_APPROACH_BASKET = 0.1,
+            WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
-            WAIT_POST_INTAKING = 0,
-            WAIT_SCORE_BASKET = 0.25,
+            WAIT_SCORE_BASKET = 0.2,
             WAIT_SCORE_CHAMBER = 0.1,
             WAIT_INTAKE_RETRACT_POST_SUB = 0,
             WAIT_EXTEND_MAX_SPIKE = 2,
@@ -153,16 +153,17 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, 0.05),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
-            scoringPreloadIntaking1 = new EditablePose(-61, -54, PI/3),
-            scoring1Intaking2Scoring2 = new EditablePose(-62, -51.5, 1.4632986527692424),
+            intaking1 = new EditablePose(-61, -54, PI/3),
+            intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
             intaking3 = new EditablePose(-59, -50, 2 * PI / 3),
-            scoring3 = new EditablePose(-56, -56, PI / 4),
+
+            snapshotPos = new EditablePose(-26.5, -14, toRadians(40)),
+
+            scoring = new EditablePose(-56, -56, PI / 4),
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
             sample2 = new EditablePose(-60, -27.4, PI / 2),
             sample3 = new EditablePose(-68.5, -27.8, PI / 2),
-
-            snapshotPos = new EditablePose(-26.5, -14, toRadians(40)),
 
             sub = new EditablePose(-22.5, -11, 0),
 
@@ -186,10 +187,10 @@ public final class Auto extends LinearOpMode {
     static boolean isRedAlliance = false;
 
     enum AutonConfig {
+        CONFIRMING,
         EDITING_ALLIANCE,
         EDITING_SIDE,
-        EDITING_CYCLES,
-        CONFIRMING;
+        EDITING_CYCLES;
 
         public static final AutonConfig[] selections = values();
 
@@ -205,8 +206,8 @@ public final class Auto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        scoringPreloadIntaking1.heading = scoringPreloadIntaking1.angleTo(sample1);
-        scoring1Intaking2Scoring2.heading = scoring1Intaking2Scoring2.angleTo(sample2);
+        intaking1.heading = intaking1.angleTo(sample1);
+        intaking2.heading = intaking2.angleTo(sample2);
         intaking3.heading = intaking3.angleTo(sample3);
 
         // Initialize multiple telemetry outputs:
@@ -235,23 +236,19 @@ public final class Auto extends LinearOpMode {
             boolean y = gamepadEx1.wasJustPressed(Y);
             boolean x = gamepadEx1.wasJustPressed(X);
             boolean a = gamepadEx1.wasJustPressed(A);
-            boolean b = gamepadEx1.wasJustPressed(B);
 
-            if (up || down || y || a || x || b) timer.reset();
+            if (up || down || y || a || x) timer.reset();
 
-            if (up) {
+            if (up)
                 do selection = selection.plus(-1);
-                while (
-                        selection == EDITING_CYCLES && !specimenSide
-                );
-            } else if (down) {
+                while (selection == EDITING_CYCLES && !specimenSide);
+            else if (down)
                 do selection = selection.plus(1);
-                while (
-                        selection == EDITING_CYCLES && !specimenSide
-                );
-            }
+                while (selection == EDITING_CYCLES && !specimenSide);
 
             switch (selection) {
+                case CONFIRMING:
+                    if (x) break config;
                 case EDITING_ALLIANCE:
                     if (x) isRedAlliance = !isRedAlliance;
                     break;
@@ -262,16 +259,9 @@ public final class Auto extends LinearOpMode {
                     if (specimenSide && y) cycles++;
                     if (specimenSide && a && cycles > 0) cycles--;
                     break;
-                case CONFIRMING:
-                    if (x) break config;
             }
 
-            printConfig(selection, specimenSide, cycles);
-            mTelemetry.addLine();
-            mTelemetry.addLine();
-            mTelemetry.addLine("Confirm configuration (confirming in " + (int) ceil(5 - timer.seconds()) + " seconds)" + selection.markIf(CONFIRMING));
-
-            mTelemetry.update();
+            printConfig(false, timer.seconds(), selection, specimenSide, cycles);
         }
 
         Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
@@ -283,7 +273,6 @@ public final class Auto extends LinearOpMode {
         );
         limelight3a.stop();
         limelight3a.start();
-
 
         robot.intake.setAlliance(isRedAlliance);
 
@@ -351,6 +340,7 @@ public final class Auto extends LinearOpMode {
             robot.deposit.preloadSample();
 
             robot.intake.retractBucketBeforeExtendo = false;
+            robot.deposit.requireDistBeforeLoweringLift = false;
 
             pose = new Pose2d(0.5 * LENGTH_ROBOT + 0.375 - 2 * SIZE_TILE, 0.5 * WIDTH_ROBOT - SIZE_HALF_FIELD, 0);
 
@@ -361,62 +351,51 @@ public final class Auto extends LinearOpMode {
                     new AngularVelConstraint(VEL_ANG_INCHING)
             ));
 
-            robot.deposit.setWristPitchingAngle(0.5);
+            robot.deposit.setWristPitchingAngle(ANGLE_PITCH_SPIKES);
 
             // wait until deposit in position
             Action scorePreload = robot.drivetrain.actionBuilder(pose)
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_1))
-                    .strafeToLinearHeading(scoringPreloadIntaking1.toVector2d(), scoringPreloadIntaking1.heading)
+                    .strafeToLinearHeading(intaking1.toVector2d(), intaking1.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
-            Action intake1 = robot.drivetrain.actionBuilder(scoringPreloadIntaking1.toPose2d())
-//                    .turnTo(scoringPreloadIntaking1.heading + .01)
-
-                    .stopAndAdd(() -> {
+            Action intake1 = new SequentialAction(
+                    new InstantAction(() -> {
                         robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_1);
-                    })
-                    .stopAndAdd(new FirstTerminateAction(
-                            telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)),
+                    }),
+                    new FirstTerminateAction(
+                            t -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_1)),
                             new SleepAction(WAIT_EXTEND_MAX_SPIKE)
-                    ))
-                    .waitSeconds(WAIT_MAX_INTAKE)
-//                    .setTangent(scoringPreloadIntaking1.heading)
-//                    .lineToY(scoringPreloadIntaking1.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
-                    .build();
+                    ),
+                    new SleepAction(WAIT_MAX_INTAKE)
+            );
 
-            Action score1 = robot.drivetrain.actionBuilder(scoringPreloadIntaking1.toPose2d())
+            Action score1 = robot.drivetrain.actionBuilder(intaking1.toPose2d())
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_2))
-                    .stopAndAdd(finishIntaking(robot))
-                    .strafeToLinearHeading(scoring1Intaking2Scoring2.toVector2d(), scoring1Intaking2Scoring2.heading)
+                    .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
-            Action intake2 = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
-//                    .turnTo(scoring1Intaking2Scoring2.heading + .01)
-
-                    .stopAndAdd(() -> {
+            Action intake2 = new SequentialAction(
+                    new InstantAction(() -> {
                         robot.intake.setRollerAndAngle(1);
                         robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
-                    })
-                    .stopAndAdd(new FirstTerminateAction(
-                            telemetryPacket -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)),
+                    }),
+                    new FirstTerminateAction(
+                            t -> !(robot.intake.hasSample() || robot.intake.extendo.atPosition(EXTEND_SAMPLE_2)),
                             new SleepAction(WAIT_EXTEND_MAX_SPIKE)
-                    ))
-                    .waitSeconds(WAIT_MAX_INTAKE)
-//                    .setTangent(scoring1Intaking2Scoring2.heading)
-//                    .lineToY(scoring1Intaking2Scoring2.y + Y_INCHING_FORWARD_WHEN_INTAKING, inchingConstraint)
-                    .build();
+                    ),
+                    new SleepAction(WAIT_MAX_INTAKE)
+            );
 
-            Action score2 = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
-                    .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_3))
-                    .stopAndAdd(finishIntaking(robot))
-//                    .strafeToLinearHeading(scoring1Intaking2Scoring2.toVector2d(), scoring1Intaking2Scoring2.heading)
-                    .stopAndAdd(scoreSample(robot))
-                    .build();
+            Action score2 = new ParallelAction(
+                    preExtend(robot, PRE_EXTEND_SAMPLE_3),
+                    scoreSample(robot)
+            );
 
-            Action intake3 = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
+            Action intake3 = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                     .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading, new AngularVelConstraint(VEL_ANG_INTAKING_3))
                     .stopAndAdd(() -> {
                         robot.intake.setRollerAndAngle(1);
@@ -431,21 +410,22 @@ public final class Auto extends LinearOpMode {
                     .build();
 
             Action score3 = robot.drivetrain.actionBuilder(intaking3.toPose2d())
-                    .stopAndAdd(finishIntaking(robot))
-                    .strafeToLinearHeading(scoring3.toVector2d(), scoring3.heading)
+                    .stopAndAdd(new InstantAction(() -> robot.intake.setRollerAndAngle(0)))
+                    .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
                     .stopAndAdd(scoreSample(robot))
                     .build();
 
-            Action i3ToSub = robot.drivetrain.actionBuilder(intaking3.toPose2d())
-                    .setTangent(scoring3.heading)
-                    .splineToSplineHeading(snapshotPos.toPose2d(), snapshotPos.heading)
-                    .build();
-
-            Action park = robot.drivetrain.actionBuilder(scoring3.toPose2d())
+            Action park = robot.drivetrain.actionBuilder(scoring.toPose2d())
                     .afterTime(0, () -> robot.deposit.lift.setTarget(0))
                     .splineTo(sub.toVector2d(), sub.heading)
                     .build();
 
+            CachedDcMotorEx[] dtMotors = {
+                    robot.drivetrain.leftFront,
+                    robot.drivetrain.leftBack,
+                    robot.drivetrain.rightBack,
+                    robot.drivetrain.rightFront,
+            };
 
             trajectory = new Action() {
 
@@ -460,10 +440,7 @@ public final class Auto extends LinearOpMode {
                 int subCycle = 1;
 
                 void stopDt() {
-                    robot.drivetrain.leftFront.setPower(0);
-                    robot.drivetrain.leftBack.setPower(0);
-                    robot.drivetrain.rightBack.setPower(0);
-                    robot.drivetrain.rightFront.setPower(0);
+                    for (CachedDcMotorEx motor : dtMotors) motor.setPower(0);
                 }
 
                 public boolean run(@NonNull TelemetryPacket p) {
@@ -486,6 +463,7 @@ public final class Auto extends LinearOpMode {
 
                             // Sample intaked
                             if (robot.intake.hasSample()) {
+                                robot.intake.setRollerAndAngle(0);
                                 activeTraj = score1;
                                 state = SCORING_1;
                                 stopDt();
@@ -493,7 +471,7 @@ public final class Auto extends LinearOpMode {
                             else if (trajDone) { // skip to 2 if didn't get 1
                                 activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
                                         .afterTime(0, () -> robot.intake.extendo.setExtended(false))
-                                        .strafeToLinearHeading(scoring1Intaking2Scoring2.toVector2d(), scoring1Intaking2Scoring2.heading)
+                                        .strafeToLinearHeading(intaking2.toVector2d(), intaking2.heading)
                                         .stopAndAdd(() -> {
                                             robot.intake.setRollerAndAngle(1);
                                             robot.intake.extendo.setTarget(EXTEND_SAMPLE_2);
@@ -523,12 +501,13 @@ public final class Auto extends LinearOpMode {
 
                             // Sample intaked
                             if (robot.intake.hasSample()) {
+                                robot.intake.setRollerAndAngle(0);
                                 activeTraj = score2;
                                 state = SCORING_2;
                                 stopDt();
                             }
                             else if (trajDone) { // skip to 3 if didn't get 2
-                                activeTraj = robot.drivetrain.actionBuilder(scoring1Intaking2Scoring2.toPose2d())
+                                activeTraj = robot.drivetrain.actionBuilder(intaking2.toPose2d())
                                         .strafeToLinearHeading(intaking3.toVector2d(), intaking3.heading)
                                         .stopAndAdd(() -> {
                                             robot.intake.setRollerAndAngle(1);
@@ -558,12 +537,16 @@ public final class Auto extends LinearOpMode {
 
                             // Sample intaked
                             if (robot.intake.hasSample()) {
+                                robot.intake.setRollerAndAngle(0);
                                 activeTraj = score3;
                                 state = SCORING;
                                 stopDt();
                             }
                             else if (trajDone) { // skip to sub if didn't get 3
-                                activeTraj = i3ToSub;
+                                activeTraj = robot.drivetrain.actionBuilder(intaking3.toPose2d())
+                                        .setTangent(scoring.heading)
+                                        .splineToSplineHeading(snapshotPos.toPose2d(), snapshotPos.heading)
+                                        .build();
                                 state = DRIVING_TO_SUB;
                                 robot.intake.setRollerAndAngle(0);
                                 robot.intake.ejectSample();
@@ -578,8 +561,8 @@ public final class Auto extends LinearOpMode {
                                     state = PARKING;
                                     stopDt();
                                 } else {
-                                    activeTraj = robot.drivetrain.actionBuilder(scoring3.toPose2d())
-                                            .setTangent(scoring3.heading)
+                                    activeTraj = robot.drivetrain.actionBuilder(scoring.toPose2d())
+                                            .setTangent(scoring.heading)
                                             .splineTo(snapshotPos.toVector2d(), snapshotPos.heading)
                                             .build();
                                     state = DRIVING_TO_SUB;
@@ -648,15 +631,16 @@ public final class Auto extends LinearOpMode {
                             if (robot.hasSample()) {
                                 Pose2d current = robot.drivetrain.pose;
 
+                                robot.deposit.requireDistBeforeLoweringLift = true;
                                 robot.intake.retractBucketBeforeExtendo = true;
                                 robot.intake.extendo.powerCap = 1;
                                 robot.deposit.setWristPitchingAngle(0);
 
                                 activeTraj = robot.drivetrain.actionBuilder(current)
-                                        .stopAndAdd(finishIntaking(robot))
+                                        .stopAndAdd(() -> robot.intake.setRollerAndAngle(0))
                                         .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
-                                        .splineTo(scoring3.toVector2d(), PI + scoring3.heading)
+                                        .splineTo(scoring.toVector2d(), PI + scoring.heading)
                                         .afterTime(0, () -> robot.deposit.setWristPitchingAngle(ANGLE_PITCH_FROM_SUB))
                                         .stopAndAdd(scoreSample(robot))
                                         .afterTime(0, () -> robot.deposit.setWristPitchingAngle(0))
@@ -708,11 +692,7 @@ public final class Auto extends LinearOpMode {
                 }
         );
 
-
-        mTelemetry.addLine("AUTONOMOUS READY");
-        mTelemetry.addLine();
-        mTelemetry.addLine();
-        printConfig(selection, specimenSide, cycles);
+        printConfig(true, 0, selection, specimenSide, cycles);
         mTelemetry.update();
 
         waitForStart(); //--------------------------------------------------------------------------------------------------------------------------
@@ -726,30 +706,23 @@ public final class Auto extends LinearOpMode {
         Thread.sleep((long) (DEAD_TIME * 1000));
     }
 
-    private static void printConfig(AutonConfig selection, boolean specimenSide, int cycles) {
+    private static void printConfig(boolean confirmed, double t, AutonConfig selection, boolean specimenSide, int cycles) {
+        mTelemetry.addLine(confirmed ?
+                "AUTONOMOUS READY" :
+                "Confirm configuration (confirming in " + (int) ceil(5 - t) + " seconds)" + selection.markIf(CONFIRMING)
+        );
+        mTelemetry.addLine();
+        mTelemetry.addLine();
         mTelemetry.addLine((isRedAlliance ? "RED" : "BLUE") + " alliance" + selection.markIf(EDITING_ALLIANCE));
         mTelemetry.addLine();
-        if (!specimenSide) mTelemetry.addLine("LEFT (basket-side)" + selection.markIf(EDITING_SIDE));
-        else {
-
+        if (specimenSide) {
             mTelemetry.addLine("RIGHT (observation-side)" + selection.markIf(EDITING_SIDE));
             mTelemetry.addLine();
-            mTelemetry.addLine(cycles + " specimen" + (cycles == 1 ? "" : "s") + " from observation zone" + selection.markIf(EDITING_CYCLES));
+            mTelemetry.addLine((cycles + 1) + "+0 (" + cycles + " from observation zone)" + selection.markIf(EDITING_CYCLES));
 
-        }
-    }
+        } else mTelemetry.addLine("LEFT (basket-side)" + selection.markIf(EDITING_SIDE));
 
-    private static Action scoreSample(Robot robot) {
-        return new SequentialAction(
-
-                new InstantAction(() -> {
-                    if (!robot.hasSample()) robot.intake.transfer(NEUTRAL);
-                }),
-                new SleepAction(WAIT_APPROACH_BASKET),
-                telemetryPacket -> !(robot.deposit.basketReady() && abs(robot.deposit.lift.getPosition() - HEIGHT_BASKET_HIGH) <= LIFT_HEIGHT_TOLERANCE),
-                new InstantAction(robot.deposit::nextState),
-                new SleepAction(WAIT_SCORE_BASKET)
-        );
+        mTelemetry.update();
     }
 
     private static Action scoreSpecimen(Robot robot) {
@@ -765,17 +738,20 @@ public final class Auto extends LinearOpMode {
         );
     }
 
-    private static Action finishIntaking(Robot robot) {
+    private static Action scoreSample(Robot robot) {
         return new SequentialAction(
-                new InstantAction(() -> robot.intake.setRollerAndAngle(1)),
-                new SleepAction(WAIT_POST_INTAKING),
-                new InstantAction(() -> robot.intake.setRollerAndAngle(0))
+                new InstantAction(() -> {
+                    if (!robot.hasSample()) robot.intake.transfer(NEUTRAL);
+                }),
+                new SleepAction(WAIT_APPROACH_BASKET),
+                t -> !(robot.deposit.basketReady() && abs(robot.deposit.lift.getPosition() - HEIGHT_BASKET_HIGH) <= LIFT_HEIGHT_TOLERANCE),
+                new InstantAction(robot.deposit::nextState),
+                new SleepAction(WAIT_SCORE_BASKET)
         );
     }
 
     private static Action preExtend(Robot robot, double length) {
         return new SequentialAction(
-                t -> robot.intake.hasSample(),
                 t -> robot.deposit.state.ordinal() < Deposit.State.ARM_MOVING_TO_BASKET.ordinal(),
                 new InstantAction(() -> {
                     robot.intake.extendo.setTarget(length);

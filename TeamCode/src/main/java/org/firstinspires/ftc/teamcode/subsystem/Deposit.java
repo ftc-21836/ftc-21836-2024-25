@@ -67,6 +67,7 @@ public final class Deposit {
             TIME_EXITING_BUCKET = 0,
             TIME_TO_BASKET = 0.38,
             TIME_MAX_SAMPLE_RELEASE = 1,
+            TIME_SAMPLE_RELEASE = .125,
             TIME_BASKET_TO_STANDBY = .38,
             TIME_TO_INTAKING_SPEC = 1,
             TIME_SPEC_GRAB = 1,
@@ -138,7 +139,7 @@ public final class Deposit {
     public final CachedSimpleServo claw;
     private final CachedSimpleServo wrist, armR, armL;
 
-    public boolean lvl1Ascent = false;
+    public boolean lvl1Ascent = false, requireDistBeforeLoweringLift = true;
 
     public final ElapsedTime timer = new ElapsedTime();
 
@@ -147,7 +148,7 @@ public final class Deposit {
     private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH, wristPitchingAngle = 0;
 
     private final MecanumDrive dt;
-    private Pose2d lastBasketPos = Auto.scoring3.toPose2d();
+    private Pose2d lastBasketPos = Auto.scoring.toPose2d();
 
     Deposit(HardwareMap hardwareMap, MecanumDrive dt) {
         lift = new Lift(hardwareMap, this.dt = dt, this::goToBasket);
@@ -179,10 +180,16 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_TO_BASKET) nextState();
                 break;
             case FALLING_BASKET:
+
                 boolean farEnoughFromBasket =   dt.pose.position.x - lastBasketPos.position.x > distFromBasketLiftDown.x &&
                         dt.pose.position.y - lastBasketPos.position.y > distFromBasketLiftDown.y;
 
-                if (farEnoughFromBasket || timer.seconds() >= TIME_MAX_SAMPLE_RELEASE) nextState();
+                double t = timer.seconds();
+                if (
+                        t >= TIME_MAX_SAMPLE_RELEASE ||
+                        farEnoughFromBasket ||
+                        !requireDistBeforeLoweringLift && t >= TIME_SAMPLE_RELEASE
+                ) nextState();
                 break;
             case BASKET_TO_STANDBY:
                 if (timer.seconds() >= TIME_BASKET_TO_STANDBY) nextState();
