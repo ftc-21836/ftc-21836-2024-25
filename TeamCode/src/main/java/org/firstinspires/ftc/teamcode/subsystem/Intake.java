@@ -203,14 +203,14 @@ public final class Intake {
                     if (autoTransfer && hasSample()) transfer(sample);
                     else break;
                     
-                } else if (!hasSample()) { // retracted
+                } else { // retracted
 
                     setBucket(deposit.requestingIntakeToMove() ? ANGLE_AVOID_ARM : angleBucketRetracted);
                     roller.set(0);
 
                     break;
 
-                } else transfer(sample);
+                }
 
             case BUCKET_RETRACTING:
 
@@ -364,7 +364,7 @@ public final class Intake {
     void printTelemetry() {
         mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? getSample() + " sample" : "empty"));
         mTelemetry.addLine();
-        mTelemetry.addData("Transfer", "on color detect" + (autoTransfer ? "" : " & trigger release"));
+        mTelemetry.addData("Transfer", autoTransfer ? "on color detect" : "manually");
         hsv.toTelemetry();
         divider();
         extendo.printTelemetry();

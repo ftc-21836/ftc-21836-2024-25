@@ -247,7 +247,10 @@ public final class Tele extends LinearOpMode {
             }
 
             double t = matchTimer.seconds();
-            indicator.setState(t >= CLIMB_TIME && sin(PI * t / TIME_CLIMB_INDICATOR_ON) >= 0 ? GREEN : OFF);
+            indicator.setState(t >= CLIMB_TIME ?
+                    sin(PI * t / TIME_CLIMB_INDICATOR_ON) >= 0 ? GREEN : OFF :
+                    robot.intake.hasSample() ? GREEN : OFF
+            );
         }
     }
 }
