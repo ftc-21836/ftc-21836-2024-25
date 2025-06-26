@@ -128,6 +128,7 @@ public final class Auto extends LinearOpMode {
             VEL_ANG_INCHING = 0.75,
             VEL_ANG_INTAKING_3 = 2,
 
+            WAIT_BEFORE_SCORING_PRELOAD = 0.65,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
             WAIT_APPROACH_CHAMBER = 0,
@@ -356,8 +357,8 @@ public final class Auto extends LinearOpMode {
             // wait until deposit in position
             Action scorePreload = robot.drivetrain.actionBuilder(pose)
                     .afterTime(0, preExtend(robot, PRE_EXTEND_SAMPLE_1))
+                    .afterTime(WAIT_BEFORE_SCORING_PRELOAD, scoreSample(robot))
                     .strafeToLinearHeading(intaking1.toVector2d(), intaking1.heading)
-                    .stopAndAdd(scoreSample(robot))
                     .build();
 
             Action intake1 = new SequentialAction(
