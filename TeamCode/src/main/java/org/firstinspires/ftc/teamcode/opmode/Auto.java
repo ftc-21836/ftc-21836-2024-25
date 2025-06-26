@@ -752,6 +752,7 @@ public final class Auto extends LinearOpMode {
 
     private static Action preExtend(Robot robot, double length) {
         return new SequentialAction(
+                t -> robot.intake.hasSample(),
                 t -> robot.deposit.state.ordinal() < Deposit.State.ARM_MOVING_TO_BASKET.ordinal(),
                 new InstantAction(() -> {
                     robot.intake.extendo.setTarget(length);
