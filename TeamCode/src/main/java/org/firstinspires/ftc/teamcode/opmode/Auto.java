@@ -613,16 +613,7 @@ public final class Auto extends LinearOpMode {
 
                                 state = SUB_INTAKING;
 
-                            } else if (timer.seconds() > LL_MAX_PICTURE_TIME) {
-
-                                Pose2d current = robot.drivetrain.pose;
-                                activeTraj = robot.drivetrain.actionBuilder(current)
-                                        .setTangent(PI / 2)
-                                        .lineToY(current.position.y + LL_NO_DETECTION_Y_MOVE)
-                                        .build();
-
-                                state = DRIVING_TO_SUB;
-                            }
+                            } else if (timer.seconds() > LL_MAX_PICTURE_TIME) searchAgainForSample(robot);
 
                             break;
 
@@ -651,20 +642,7 @@ public final class Auto extends LinearOpMode {
                                 state = SCORING;
                                 stopDt();
 
-                            } else if (trajDone) {
-
-                                robot.intake.setRollerAndAngle(0);
-                                robot.intake.extendo.setExtended(false);
-
-                                Pose2d current = robot.drivetrain.pose;
-                                activeTraj = robot.drivetrain.actionBuilder(current)
-                                        .setTangent(PI / 2)
-                                        .lineToY(current.position.y + LL_NO_DETECTION_Y_MOVE)
-                                        .build();
-
-                                state = DRIVING_TO_SUB;
-
-                            }
+                            } else if (trajDone) searchAgainForSample(robot);
 
                             break;
 
@@ -675,6 +653,19 @@ public final class Auto extends LinearOpMode {
                     }
 
                     return true;
+                }
+
+                private void searchAgainForSample(Robot robot) {
+                    robot.intake.setRollerAndAngle(0);
+                    robot.intake.extendo.setExtended(false);
+
+                    Pose2d current = robot.drivetrain.pose;
+                    activeTraj = robot.drivetrain.actionBuilder(current)
+                            .setTangent(PI / 2)
+                            .strafeToLinearHeading(snapshotPos.toVector2d(), snapshotPos.heading)
+                            .build();
+
+                    state = DRIVING_TO_SUB;
                 }
             };
         }
