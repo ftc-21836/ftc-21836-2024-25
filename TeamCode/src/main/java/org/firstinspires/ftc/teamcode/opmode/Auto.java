@@ -38,6 +38,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.MinVelConstraint;
+import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -662,10 +663,11 @@ public final class Auto extends LinearOpMode {
                     robot.intake.extendo.setExtended(false);
 
                     Pose2d current = robot.drivetrain.pose;
-                    activeTraj = robot.drivetrain.actionBuilder(current)
-                            .setTangent(PI / 2)
-                            .strafeToLinearHeading(snapshotPos.toVector2d(), snapshotPos.heading)
-                            .build();
+                    activeTraj = new NullAction();
+//                            robot.drivetrain.actionBuilder(current)
+//                            .setTangent(PI / 2)
+//                            .strafeToLinearHeading(snapshotPos.toVector2d(), snapshotPos.heading)
+//                            .build();
 
                     state = DRIVING_TO_SUB;
                 }
