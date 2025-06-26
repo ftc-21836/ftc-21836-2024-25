@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.control.vision;
 
 import static java.lang.Math.atan2;
 import static java.lang.Math.tan;
+import static java.lang.Math.toRadians;
 
 import androidx.annotation.NonNull;
 
@@ -35,18 +36,20 @@ public class AutoSampleAligner {
     }
 
     public static double
-            xOffset = 5,
-            yOffset = 5,
-            limelightTilt = 58.5,
-            limelightHeight = 16.25;
+            xOffset = 9.5,
+            yOffset = 4.45,
+            limelightTilt = 30,
+            limelightHeight = 16;
 
     private double
             xDistance = 0,
             yDistance = 0,
-            xDistanceFromCenter = 0,
-            yDistanceFromCenter = 0,
-            desiredSampleX = 0,
-            desiredSampleY = 0;
+            xDistanceFromCenter = 0, // x 13, y 33, d 34
+            yDistanceFromCenter = 0;
+
+    public double
+            measuredXDegreesDiff = 0,
+            measuredYDegreesDiff = 0;
 
     private Pose2d targetOffset = new Pose2d(0, 0, 0);
 
@@ -67,8 +70,8 @@ public class AutoSampleAligner {
         // checks and returns detection
         if (targets == null || targets.isEmpty() || targets.get(0) == null) return false;
         
-        desiredSampleX = targets.get(0).getTargetXDegrees() + 0.0;
-        desiredSampleY = targets.get(0).getTargetYDegrees() + 0.0;
+        measuredXDegreesDiff = targets.get(0).getTargetXDegrees() + 0.0;
+        measuredYDegreesDiff = targets.get(0).getTargetYDegrees() + 0.0;
         return true;
 
     }
@@ -94,8 +97,8 @@ public class AutoSampleAligner {
 
                 if (sampleDetected) {
 
-                    yDistance = tan(Math.toRadians(limelightTilt + desiredSampleY)) * limelightHeight;
-                    xDistance = tan(Math.toRadians(desiredSampleX)) * yDistance;
+                    yDistance = limelightHeight / tan(toRadians(limelightTilt - measuredYDegreesDiff));
+                    xDistance = tan(toRadians(measuredXDegreesDiff)) * yDistance;
 
                     yDistanceFromCenter = yDistance + yOffset;
                     xDistanceFromCenter = xDistance + xOffset;
@@ -108,7 +111,7 @@ public class AutoSampleAligner {
         };
     }
 
-    public Pose2d getTargetedOffset() {
+    public Pose2d getTargetOffset() {
         return targetOffset;
     }
 }

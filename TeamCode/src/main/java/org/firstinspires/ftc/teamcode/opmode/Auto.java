@@ -102,7 +102,7 @@ public final class Auto extends LinearOpMode {
 
             LL_ANGLE_BUCKET_INCREMENT = 50,
             LL_DISTANCE_START_LOWERING = 10,
-            LL_EXTEND_OFFSET = -3,
+            LL_EXTEND_OFFSET = -9.5,
             LL_MAX_PICTURE_TIME = 3,
             LL_MIN_PICTURE_TIME = 0,
             LL_NO_DETECTION_Y_MOVE = 3,
@@ -583,7 +583,7 @@ public final class Auto extends LinearOpMode {
 
                             if (timer.seconds() < LL_MIN_PICTURE_TIME) break;
 
-                            EditablePose offset = new EditablePose(sampleAligner.getTargetedOffset());
+                            EditablePose offset = new EditablePose(sampleAligner.getTargetOffset());
 
                             if (!(offset.x == 0 && offset.y == 0 && offset.heading == 0)) {
 
