@@ -575,6 +575,7 @@ public final class Auto extends LinearOpMode {
                             break;
 
                         case DRIVING_TO_SUB:
+                            robot.headlight.setActivated(true);
                             if (trajDone) {
                                 state = TAKING_PICTURE;
                                 timer.reset();
@@ -624,6 +625,7 @@ public final class Auto extends LinearOpMode {
 
 
                             if (robot.hasSample()) {
+                                robot.headlight.setActivated(false);
                                 Pose2d current = robot.drivetrain.pose;
 
                                 robot.deposit.requireDistBeforeLoweringLift = true;
