@@ -161,6 +161,7 @@ public final class Auto extends LinearOpMode {
             snapshotPos = new EditablePose(-26.5, -14, toRadians(40)),
 
             scoring = new EditablePose(-56, -56, PI / 4),
+            scoringFromSub = new EditablePose(-57.25, 57.25, PI/4),
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
             sample2 = new EditablePose(-60, -27.4, PI / 2),
@@ -632,7 +633,7 @@ public final class Auto extends LinearOpMode {
                                         .stopAndAdd(() -> robot.intake.setRollerAndAngle(0))
                                         .setTangent(PI + current.heading.toDouble())
                                         .waitSeconds(WAIT_INTAKE_RETRACT_POST_SUB)
-                                        .splineTo(scoring.toVector2d(), PI + scoring.heading)
+                                        .splineTo(scoringFromSub.toVector2d(), PI + scoringFromSub.heading)
                                         .afterTime(0, () -> robot.deposit.setWristPitchingAngle(ANGLE_PITCH_FROM_SUB))
                                         .stopAndAdd(scoreSample(robot))
                                         .afterTime(0, () -> robot.deposit.setWristPitchingAngle(0))
