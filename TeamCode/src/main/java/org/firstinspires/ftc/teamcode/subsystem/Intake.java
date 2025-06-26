@@ -111,7 +111,7 @@ public final class Intake {
                 null;
     }
 
-    public boolean retractBucketBeforeExtendo = true, autoTransfer = true;
+    public boolean retractBucketBeforeExtendo = true, specimenMode = false;
 
     private final CachedMotorEx roller;
     private double rollerSpeed, bucketAngle;
@@ -200,7 +200,7 @@ public final class Intake {
                         break;
                     }
 
-                    if (autoTransfer && hasSample()) transfer(sample);
+                    if (hasSample() && rollerSpeed > 0) transfer(sample);
                     else break;
                     
                 } else { // retracted
@@ -257,9 +257,15 @@ public final class Intake {
                 extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_BUCKET_SETTLING) {
-                    state = ARM_ENTERING_BUCKET;
-                    deposit.transfer();
-                    timer.reset();
+                    if (specimenMode) {
+                        state = STANDBY;
+                        timer.reset();
+                        break;
+                    } else {
+                        state = ARM_ENTERING_BUCKET;
+                        deposit.transfer();
+                        timer.reset();
+                    }
                 } else break;
 
             case ARM_ENTERING_BUCKET:
@@ -364,7 +370,7 @@ public final class Intake {
     void printTelemetry() {
         mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? getSample() + " sample" : "empty"));
         mTelemetry.addLine();
-        mTelemetry.addData("Transfer", autoTransfer ? "on color detect" : "manually");
+        mTelemetry.addData("Transfer", specimenMode ? "manually" : "on color detect");
         hsv.toTelemetry();
         divider();
         extendo.printTelemetry();
