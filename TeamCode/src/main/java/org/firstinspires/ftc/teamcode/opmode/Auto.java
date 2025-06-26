@@ -155,7 +155,7 @@ public final class Auto extends LinearOpMode {
             admissibleError = new EditablePose(1, 1, 0.05),
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
-            basketError = new EditablePose(0.5, 0.5, toRadians(4)),
+            basketError = new EditablePose(1, 1, toRadians(4)),
 
             intaking1 = new EditablePose(-61, -54, PI/3),
             intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
