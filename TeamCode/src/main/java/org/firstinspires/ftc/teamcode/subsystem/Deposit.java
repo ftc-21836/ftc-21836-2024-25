@@ -362,8 +362,8 @@ public final class Deposit {
         switch (state) {
             case STANDBY:
 
-//                lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
-//                state = State.MOVING_TO_INTAKING_SPEC;
+                lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
+                state = State.MOVING_TO_INTAKING_SPEC;
                 break;
 
             case CLAW_CLOSING:
