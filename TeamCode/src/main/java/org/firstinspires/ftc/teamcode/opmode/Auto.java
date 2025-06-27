@@ -41,6 +41,7 @@ import com.acmerobotics.roadrunner.MinVelConstraint;
 import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -156,6 +157,7 @@ public final class Auto extends LinearOpMode {
             admissibleVel = new EditablePose(25, 25, toRadians(30)),
 
             basketError = new EditablePose(1, 1, toRadians(4)),
+            basketVelError = new EditablePose(12, 12, toRadians(30)),
 
             intaking1 = new EditablePose(-61, -54, PI/3),
             intaking2 = new EditablePose(-62, -51.5, 1.4632986527692424),
@@ -765,9 +767,14 @@ public final class Auto extends LinearOpMode {
 
     private static boolean atPose(Robot robot, EditablePose target) {
         EditablePose current = new EditablePose(robot.drivetrain.pose);
-        return abs(target.x - current.x) <= basketError.x &&
+        PoseVelocity2d velocityRR = robot.drivetrain.pinpoint.getVelocityRR();
+        return  abs(target.x - current.x) <= basketError.x &&
                 abs(target.y - current.y) <= basketError.y &&
-                abs(target.heading - current.heading) <= basketError.heading;
+                abs(target.heading - current.heading) <= basketError.heading &&
+                abs(velocityRR.linearVel.x) <= basketVelError.x &&
+                abs(velocityRR.linearVel.y) <= basketVelError.y &&
+                abs(velocityRR.angVel) <= basketVelError.heading;
+
     }
 
 }
