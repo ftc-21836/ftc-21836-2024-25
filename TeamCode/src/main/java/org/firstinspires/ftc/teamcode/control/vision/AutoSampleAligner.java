@@ -36,9 +36,9 @@ public class AutoSampleAligner {
     }
 
     public static double
-            lensXFromRobotCenter = 4,
+            lensXFromRobotCenter = 4.4,
             lensYFromRobotCenter = 4.5,
-            lensAngleFromFlatOnFloor = 50,
+            lensAngleFromFlatOnFloor = 60,
             lensHeightFromFloor = 16;
 
     private double
