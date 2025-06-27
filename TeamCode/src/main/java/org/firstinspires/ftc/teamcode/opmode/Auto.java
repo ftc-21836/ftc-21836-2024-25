@@ -110,7 +110,7 @@ public final class Auto extends LinearOpMode {
             LL_SPEED_MAX_EXTENDO = 1,
             LL_SWEEP_ANGLE_RANGE = 10,
             LL_SWEEP_SPEED = 0.5,
-            LL_WAIT_INTAKE = 0,
+            LL_WAIT_INTAKE = 1,
 
             WAIT_MAX_INTAKE = 1,
 
@@ -121,7 +121,7 @@ public final class Auto extends LinearOpMode {
             EXTEND_SAMPLE_2 = 20,
             EXTEND_SAMPLE_3 = 24,
 
-            PRE_EXTEND_SAMPLE_1 = 12,
+            PRE_EXTEND_SAMPLE_1 = 12.5,
             PRE_EXTEND_SAMPLE_2 = 12,
             PRE_EXTEND_SAMPLE_3 = 12,
 
@@ -602,21 +602,24 @@ public final class Auto extends LinearOpMode {
                                 robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
                                 activeTraj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-                                        .turn(-targetOffset.heading)
+                                        .turn(-targetOffset.heading * 1.25)
                                         .stopAndAdd(() -> {
                                             robot.intake.extendo.setTarget(extendoInches);
                                             robot.intake.setAngle(0.01);
-                                            robot.intake.setRoller(1);
+                                            robot.intake.setRoller(0);
                                         })
                                         .stopAndAdd(new FirstTerminateAction(
                                                 t -> robot.intake.extendo.getPosition() < extendoInches - LL_DISTANCE_START_LOWERING,
                                                 new SleepAction(1)
                                         ))
+                                        .stopAndAdd(() -> {
+                                            robot.intake.setRoller(1);
+                                        })
                                         .stopAndAdd(timer::reset)
                                         .afterTime(0, t -> !robot.intake.setAngle(timer.seconds() * LL_ANGLE_BUCKET_INCREMENT))
-                                        .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
-                                        .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
-                                        .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                                        // .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                                        // .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                                        // .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                                         .waitSeconds(LL_WAIT_INTAKE)
                                         .build();
 

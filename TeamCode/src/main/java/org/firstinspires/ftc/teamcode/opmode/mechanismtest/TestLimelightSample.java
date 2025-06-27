@@ -75,7 +75,7 @@ public class TestLimelightSample extends LinearOpMode {
         robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
         Action traj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-                .turn(-targetOffset.heading)
+                .turn(-targetOffset.heading * 1.25)
                 .stopAndAdd(() -> {
                     robot.intake.extendo.setTarget(extendoInches);
                     robot.intake.setAngle(0.01);
