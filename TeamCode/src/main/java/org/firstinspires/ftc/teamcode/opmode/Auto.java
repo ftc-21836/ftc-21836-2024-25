@@ -110,7 +110,7 @@ public final class Auto extends LinearOpMode {
             LL_SPEED_MAX_EXTENDO = 1,
             LL_SWEEP_ANGLE_RANGE = 10,
             LL_SWEEP_SPEED = 0.5,
-            LL_WAIT_INTAKE = 0.65,
+            LL_WAIT_INTAKE = 0,
 
             WAIT_MAX_INTAKE = 1,
 
