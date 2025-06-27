@@ -102,7 +102,7 @@ public final class Auto extends LinearOpMode {
             DISTANCE_BETWEEN_SPECIMENS = 2,
 
             LL_ANGLE_BUCKET_INCREMENT = 50,
-            LL_DISTANCE_START_LOWERING = 10,
+            LL_DISTANCE_START_LOWERING = 13,
             LL_EXTEND_OFFSET = -9.5,
             LL_MAX_PICTURE_TIME = 3,
             LL_MIN_PICTURE_TIME = 0,
