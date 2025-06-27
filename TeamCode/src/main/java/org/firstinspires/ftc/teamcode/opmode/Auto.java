@@ -38,7 +38,6 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.MinVelConstraint;
-import com.acmerobotics.roadrunner.NullAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
@@ -130,6 +129,7 @@ public final class Auto extends LinearOpMode {
             VEL_ANG_INCHING = 0.75,
             VEL_ANG_INTAKING_3 = 2,
 
+            WAIT_BEFORE_RE_SEARCH = 0.25,
             WAIT_BEFORE_SCORING_PRELOAD = 0.8,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
@@ -671,7 +671,7 @@ public final class Auto extends LinearOpMode {
                     robot.intake.ejectSample();
 
                     Pose2d current = robot.drivetrain.pose;
-                    activeTraj = new NullAction();
+                    activeTraj = new SleepAction(WAIT_BEFORE_RE_SEARCH);
 //                            robot.drivetrain.actionBuilder(current)
 //                            .setTangent(PI / 2)
 //                            .strafeToLinearHeading(snapshotPos.toVector2d(), snapshotPos.heading)
