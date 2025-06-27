@@ -613,7 +613,7 @@ public final class Auto extends LinearOpMode {
                                                 new SleepAction(1)
                                         ))
                                         .stopAndAdd(timer::reset)
-                                        .stopAndAdd(t -> !robot.intake.setAngle(timer.seconds() * LL_ANGLE_BUCKET_INCREMENT))
+                                        .afterTime(0, t -> !robot.intake.setAngle(timer.seconds() * LL_ANGLE_BUCKET_INCREMENT))
                                         .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                                         .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
                                         .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
