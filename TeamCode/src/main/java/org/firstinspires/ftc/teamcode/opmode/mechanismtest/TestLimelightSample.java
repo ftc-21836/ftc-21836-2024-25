@@ -44,6 +44,7 @@ public class TestLimelightSample extends LinearOpMode {
         mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, new Pose2d(0, 0, 0));
+        robot.headlight.toggle();
 
         Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
         AutoSampleAligner sampleAligner = new AutoSampleAligner(new LimelightEx(limelight3a, hardwareMap));

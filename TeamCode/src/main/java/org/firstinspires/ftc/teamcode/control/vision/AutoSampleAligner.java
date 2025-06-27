@@ -36,10 +36,10 @@ public class AutoSampleAligner {
     }
 
     public static double
-            xOffset = 9.5,
-            yOffset = 4.45,
-            limelightTilt = 30,
-            limelightHeight = 16;
+            lensXFromRobotCenter = 4,
+            lensYFromRobotCenter = 4.5,
+            lensAngleFromFlatOnFloor = 50,
+            lensHeightFromFloor = 16;
 
     private double
             xDistance = 0,
@@ -97,11 +97,11 @@ public class AutoSampleAligner {
 
                 if (sampleDetected) {
 
-                    yDistance = limelightHeight / tan(toRadians(limelightTilt - measuredYDegreesDiff));
+                    yDistance = lensHeightFromFloor * tan(toRadians(lensAngleFromFlatOnFloor + measuredYDegreesDiff));
                     xDistance = tan(toRadians(measuredXDegreesDiff)) * yDistance;
 
-                    yDistanceFromCenter = yDistance + yOffset;
-                    xDistanceFromCenter = xDistance + xOffset;
+                    yDistanceFromCenter = yDistance + lensYFromRobotCenter;
+                    xDistanceFromCenter = xDistance + lensXFromRobotCenter;
 
                     targetOffset = new Pose2d(xDistanceFromCenter, yDistanceFromCenter, atan2(xDistanceFromCenter, yDistanceFromCenter));
                 }
