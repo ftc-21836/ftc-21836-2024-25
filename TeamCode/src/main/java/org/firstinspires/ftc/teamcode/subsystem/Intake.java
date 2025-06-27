@@ -215,7 +215,7 @@ public final class Intake {
             case BUCKET_RETRACTING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(holdingSpeed);
+                roller.set(0);
 
                 if (bucketSensor.isPressed() || timer.seconds() >= TIME_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
