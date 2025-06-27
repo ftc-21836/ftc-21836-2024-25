@@ -26,13 +26,7 @@ public class AutoSampleAligner {
         YELLOW_BLUE,
         YELLOW_RED,
         BLUE,
-        RED;
-
-        public final int number;
-
-        Pipeline() {
-            this.number = ordinal();
-        }
+        RED,
     }
 
     public static double
@@ -58,7 +52,7 @@ public class AutoSampleAligner {
     }
 
     public void activateLimelight(Pipeline pipeline) {
-        limelightEx.limelight.pipelineSwitch(pipeline.number);
+        limelightEx.limelight.pipelineSwitch(pipeline.ordinal());
 
         limelightEx.limelight.setPollRateHz(10);
     }
