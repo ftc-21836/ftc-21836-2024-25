@@ -914,6 +914,7 @@ public final class Auto extends LinearOpMode {
                                         .stopAndAdd(() -> {
                                             robot.intake.extendo.setTarget(extendoInches);
                                             robot.intake.setAngle(0.01);
+                                            robot.intake.setRoller(0.001);
                                         })
                                         .stopAndAdd(new FirstTerminateAction(
                                                 t -> robot.intake.extendo.getPosition() < extendoInches - LL_DISTANCE_START_LOWERING,
