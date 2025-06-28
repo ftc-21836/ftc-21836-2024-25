@@ -767,7 +767,9 @@ public final class Auto extends LinearOpMode {
                     switch (state) {
                         case SCORING_PRELOAD:
 
-                            if (trajDone || atPose(robot, intaking1) && !robot.hasSample()) {
+                            if (trajDone
+//                                    || atPose(robot, intaking1) && !robot.hasSample()
+                            ) {
                                 stopDt();
                                 activeTraj = intake1;
                                 state = INTAKING_1;
