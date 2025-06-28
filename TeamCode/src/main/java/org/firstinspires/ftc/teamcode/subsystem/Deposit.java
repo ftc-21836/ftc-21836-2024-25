@@ -201,7 +201,7 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_BASKET_TO_STANDBY) nextState();
                 break;
             case WAITING_FOR_BUCKET:
-                if (timer.seconds() >= TIME_WAIT_FOR_BUCKET) nextState();
+                if (!requestingIntakeToMove() || timer.seconds() >= TIME_WAIT_FOR_BUCKET) nextState();
                 break;
             case MOVING_TO_INTAKING_SPEC:
                 if (timer.seconds() >= TIME_TO_INTAKING_SPEC) nextState();
@@ -223,7 +223,7 @@ public final class Deposit {
                 if (farEnoughFromChamber || timer.seconds() >= TIME_MAX_SPEC_RELEASE) nextState();
                 break;
             case RELEASED_SPEC_TO_STANDBY:
-                if (timer.seconds() >= TIME_RELEASED_SPEC_TO_STANDBY) nextState();
+                if (timer.seconds() >= TIME_RELEASED_SPEC_TO_STANDBY) state = State.STANDBY;
                 break;
         }
 
@@ -365,6 +365,7 @@ public final class Deposit {
     public void nextState() {
         timer.reset();
         switch (state) {
+            case RELEASED_SPEC_TO_STANDBY:
             case STANDBY:
 
                 lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
@@ -416,7 +417,6 @@ public final class Deposit {
                 break;
 
             case BASKET_TO_STANDBY:
-            case RELEASED_SPEC_TO_STANDBY:
 
                 state = State.STANDBY;
                 break;
