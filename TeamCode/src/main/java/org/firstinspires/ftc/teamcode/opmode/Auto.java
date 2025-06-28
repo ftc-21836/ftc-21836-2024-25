@@ -865,6 +865,7 @@ public final class Auto extends LinearOpMode {
                                 state = DRIVING_TO_SUB;
                                 robot.intake.setRollerAndAngle(0);
                                 robot.intake.ejectSample();
+                                robot.intake.extendo.setExtended(false);
                             }
 
                             break;
