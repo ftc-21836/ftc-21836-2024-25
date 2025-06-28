@@ -122,7 +122,7 @@ public final class Auto extends LinearOpMode {
 
             EXTEND_SAMPLE_1 = 21,
             EXTEND_SAMPLE_2 = 20,
-            EXTEND_SAMPLE_3 = 24,
+            EXTEND_SAMPLE_3 = 23,
 
             PRE_EXTEND_SAMPLE_1 = 12.5,
             PRE_EXTEND_SAMPLE_2 = 12,
@@ -190,7 +190,7 @@ public final class Auto extends LinearOpMode {
 
             sample1 = new EditablePose(-48, -26.8, PI / 2),
             sample2 = new EditablePose(-60, -27.4, PI / 2),
-            sample3 = new EditablePose(-69, -27.8, PI / 2),
+            sample3 = new EditablePose(-68.5, -27.8, PI / 2),
 
             sub = new EditablePose(-22.5, -11, 0),
 
