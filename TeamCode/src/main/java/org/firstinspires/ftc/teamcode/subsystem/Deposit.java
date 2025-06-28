@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
+import static org.firstinspires.ftc.teamcode.opmode.Auto.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
@@ -77,10 +78,10 @@ public final class Deposit {
             TIME_RAISE_SPEC = 0.5,
             TIME_RAISED_SPEC_TO_STANDBY = 0.75,
             TIME_STANDBY_TO_CHAMBER = 0.5,
-            TIME_SPEC_RELEASE = 0.75,
+            TIME_MAX_SPEC_RELEASE = 1,
             TIME_RELEASED_SPEC_TO_STANDBY = 0.1,
 
-            TIME_BUCKET_AVOID = 1;
+            Y_DIST_FROM_CHAMBER_RETRACT = -3;
 
     public static EditablePose distFromBasketLiftDown = new EditablePose(1, 1, 0);
 
@@ -150,7 +151,7 @@ public final class Deposit {
     public Deposit.State state = Deposit.State.STANDBY;
 
     private boolean topRung = true;
-    private double sampleHeight = HEIGHT_BASKET_HIGH, wristPitchingAngle = 0;
+    private double sampleHeight = HEIGHT_BASKET_HIGH, wristPitchingAngle = 0, lastChamberY = chamberRight.y;
 
     private final MecanumDrive dt;
     private Pose2d lastBasketPos = Auto.scoring.toPose2d();
@@ -218,7 +219,8 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_STANDBY_TO_CHAMBER) nextState();
                 break;
             case RELEASING_SPECIMEN:
-                if (timer.seconds() >= TIME_SPEC_RELEASE) nextState();
+                boolean farEnoughFromChamber = dt.pose.position.y - lastChamberY > Y_DIST_FROM_CHAMBER_RETRACT;
+                if (farEnoughFromChamber || timer.seconds() >= TIME_MAX_SPEC_RELEASE) nextState();
                 break;
             case RELEASED_SPEC_TO_STANDBY:
                 if (timer.seconds() >= TIME_RELEASED_SPEC_TO_STANDBY) nextState();
@@ -408,6 +410,7 @@ public final class Deposit {
 
             case AT_CHAMBER:
 
+                lastChamberY = dt.pose.position.y;
                 topRung = lift.getTarget() > 0.5 * (HEIGHT_CHAMBER_HIGH + HEIGHT_CHAMBER_LOW);
                 state = state.next();
                 break;
