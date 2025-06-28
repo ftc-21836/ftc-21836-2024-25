@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.mechanismtest;
 
+import static org.firstinspires.ftc.teamcode.control.vision.AutoSampleAligner.LL_TURN_MULTIPLIER;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_ANGLE_BUCKET_INCREMENT;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_DISTANCE_START_LOWERING;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.LL_EXTEND_OFFSET;
@@ -45,6 +46,7 @@ public class TestLimelightSample extends LinearOpMode {
 
         Robot robot = new Robot(hardwareMap, new Pose2d(0, 0, 0));
         robot.headlight.toggle();
+        robot.intake.specimenMode = true;
 
         Limelight3A limelight3a = hardwareMap.get(Limelight3A.class, "limelight");
         AutoSampleAligner sampleAligner = new AutoSampleAligner(new LimelightEx(limelight3a, hardwareMap));
@@ -75,21 +77,18 @@ public class TestLimelightSample extends LinearOpMode {
         robot.intake.extendo.powerCap = LL_SPEED_MAX_EXTENDO;
 
         Action traj = robot.drivetrain.actionBuilder(robot.drivetrain.pose)
-                .turn(-targetOffset.heading * 1.25)
+                .turn(-targetOffset.heading * LL_TURN_MULTIPLIER)
                 .stopAndAdd(() -> {
                     robot.intake.extendo.setTarget(extendoInches);
                     robot.intake.setAngle(0.01);
-                    robot.intake.setRoller(1);
                 })
                 .stopAndAdd(new FirstTerminateAction(
                         t -> robot.intake.extendo.getPosition() < extendoInches - LL_DISTANCE_START_LOWERING,
                         new SleepAction(1)
                 ))
+                .stopAndAdd(() -> robot.intake.setRoller(1))
                 .stopAndAdd(timer::reset)
-                .stopAndAdd(t -> !robot.intake.setAngle(timer.seconds() * LL_ANGLE_BUCKET_INCREMENT))
-                .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
-                .turn(-2 * toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
-                .turn(toRadians(LL_SWEEP_ANGLE_RANGE), llSweepConstraint)
+                .afterTime(0, t -> !robot.intake.setAngle(timer.seconds() * LL_ANGLE_BUCKET_INCREMENT))
                 .waitSeconds(LL_WAIT_INTAKE)
 
                 .stopAndAdd(t -> !robot.hasSample())

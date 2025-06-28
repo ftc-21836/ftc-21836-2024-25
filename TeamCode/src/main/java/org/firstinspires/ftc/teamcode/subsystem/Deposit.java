@@ -22,6 +22,7 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.INTAKING_SP
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.RAISING_SPECIMEN;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.STANDBY_TO_CHAMBER;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.CLAW_CLOSING;
+import static org.firstinspires.ftc.teamcode.subsystem.Deposit.State.WAITING_FOR_BUCKET;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 
 import static java.lang.Math.abs;
@@ -56,8 +57,8 @@ public final class Deposit {
 
             AT_BASKET_TOLERANCE = 10,
 
-            HEIGHT_CHAMBER_HIGH = 0,
-            HEIGHT_CHAMBER_LOW = HEIGHT_CHAMBER_HIGH,
+            HEIGHT_CHAMBER_HIGH = 13,
+            HEIGHT_CHAMBER_LOW = 0,
 
             ANGLE_WRIST_PITCH = 104,
 
@@ -69,13 +70,15 @@ public final class Deposit {
             TIME_MAX_SAMPLE_RELEASE = 1,
             TIME_SAMPLE_RELEASE = .125,
             TIME_BASKET_TO_STANDBY = .38,
-            TIME_TO_INTAKING_SPEC = 1,
-            TIME_SPEC_GRAB = 1,
-            TIME_RAISE_SPEC = 1,
-            TIME_RAISED_SPEC_TO_STANDBY = 1,
-            TIME_STANDBY_TO_CHAMBER = 1,
-            TIME_SPEC_RELEASE = 1,
-            TIME_RELEASED_SPEC_TO_STANDBY = 1,
+
+            TIME_WAIT_FOR_BUCKET = 0.15,
+            TIME_TO_INTAKING_SPEC = 0.125,
+            TIME_SPEC_GRAB = 0.2,
+            TIME_RAISE_SPEC = 0.5,
+            TIME_RAISED_SPEC_TO_STANDBY = 0.75,
+            TIME_STANDBY_TO_CHAMBER = 0.5,
+            TIME_SPEC_RELEASE = 0.75,
+            TIME_RELEASED_SPEC_TO_STANDBY = 0.1,
 
             TIME_BUCKET_AVOID = 1;
 
@@ -105,6 +108,7 @@ public final class Deposit {
         FALLING_BASKET      (BASKET),
         BASKET_TO_STANDBY   (Deposit.STANDBY),
 
+        WAITING_FOR_BUCKET      (Deposit.STANDBY),
         MOVING_TO_INTAKING_SPEC (Deposit.MOVING_TO_INTAKING_SPEC),
         INTAKING_SPECIMEN       (INTAKING_SPEC),
         GRABBING_SPECIMEN       (INTAKING_SPEC),
@@ -139,13 +143,14 @@ public final class Deposit {
     public final CachedSimpleServo claw;
     private final CachedSimpleServo wrist, armR, armL;
 
-    public boolean lvl1Ascent = false, requireDistBeforeLoweringLift = true;
+    public boolean lvl1Ascent = false, requireDistBeforeLoweringLift = true, steepArm = false;
 
     public final ElapsedTime timer = new ElapsedTime();
 
     public Deposit.State state = Deposit.State.STANDBY;
 
-    private double sampleHeight = HEIGHT_BASKET_HIGH, specimenHeight = HEIGHT_CHAMBER_HIGH, wristPitchingAngle = 0;
+    private boolean topRung = true;
+    private double sampleHeight = HEIGHT_BASKET_HIGH, wristPitchingAngle = 0;
 
     private final MecanumDrive dt;
     private Pose2d lastBasketPos = Auto.scoring.toPose2d();
@@ -194,6 +199,9 @@ public final class Deposit {
             case BASKET_TO_STANDBY:
                 if (timer.seconds() >= TIME_BASKET_TO_STANDBY) nextState();
                 break;
+            case WAITING_FOR_BUCKET:
+                if (timer.seconds() >= TIME_WAIT_FOR_BUCKET) nextState();
+                break;
             case MOVING_TO_INTAKING_SPEC:
                 if (timer.seconds() >= TIME_TO_INTAKING_SPEC) nextState();
                 break;
@@ -220,6 +228,7 @@ public final class Deposit {
         lift.run();
 
         ArmPosition armPosition =
+                state.armPosition == BASKET && steepArm ? BASKET_STEEP :
                 state == State.STANDBY && lvl1Ascent ? ASCENT :
                 state.armPosition;
 
@@ -278,9 +287,8 @@ public final class Deposit {
     // when does the intake need to move out of the way
     boolean requestingIntakeToMove() {
         return lift.getPosition() < HEIGHT_ABOVE_INTAKE && (
-                        state == State.MOVING_TO_INTAKING_SPEC ||
-                        state == RAISED_TO_STANDBY ||
-                        state == STANDBY_TO_CHAMBER
+                        state.ordinal() >= WAITING_FOR_BUCKET.ordinal() &&
+                        state.ordinal() <= STANDBY_TO_CHAMBER.ordinal()
         );
     }
 
@@ -319,7 +327,7 @@ public final class Deposit {
             case MOVING_TO_INTAKING_SPEC:
             case INTAKING_SPECIMEN:
                 if (position != FLOOR) break;
-                state = State.STANDBY;
+                while (state != State.STANDBY) nextState();
                 lift.setTarget(0);
                 break;
 
@@ -336,11 +344,6 @@ public final class Deposit {
                 }
 
             case RELEASING_SPECIMEN:
-
-                if (position == FLOOR) {
-                    while (state != AT_CHAMBER) nextState();
-                    break;
-                }
 
                 lift.setTarget(
                         position == HIGH ?
@@ -363,7 +366,7 @@ public final class Deposit {
             case STANDBY:
 
                 lift.setTarget(HEIGHT_INTAKING_SPECIMEN);
-                state = State.MOVING_TO_INTAKING_SPEC;
+                state = WAITING_FOR_BUCKET;
                 break;
 
             case CLAW_CLOSING:
@@ -373,7 +376,7 @@ public final class Deposit {
                 break;
 
             case GRABBING_SPECIMEN:
-                lift.setTarget(specimenHeight);
+                lift.setTarget(topRung ? HEIGHT_CHAMBER_HIGH : HEIGHT_CHAMBER_LOW);
                 state = state.next();
                 break;
 
@@ -385,6 +388,8 @@ public final class Deposit {
             case EXITING_BUCKET:
             case LIFT_MOVING_TO_BASKET:
             case ARM_MOVING_TO_BASKET:
+
+            case WAITING_FOR_BUCKET:
             case MOVING_TO_INTAKING_SPEC:
             case INTAKING_SPECIMEN:
             case RAISING_SPECIMEN:
@@ -403,7 +408,7 @@ public final class Deposit {
 
             case AT_CHAMBER:
 
-                specimenHeight = lift.getTarget();
+                topRung = lift.getTarget() > 0.5 * (HEIGHT_CHAMBER_HIGH + HEIGHT_CHAMBER_LOW);
                 state = state.next();
                 break;
 
@@ -442,7 +447,7 @@ public final class Deposit {
         return state == INTAKING_SPECIMEN;
     }
 
-    public boolean intaked() {
+    public boolean specGrabbed() {
         return state == RAISED_TO_STANDBY;
     }
 

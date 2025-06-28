@@ -474,10 +474,10 @@ public class MecanumDrive {
             if (t >= turn.duration
 //                    + 1 || t >= timeTrajectory.duration &&
 //                    error.position.norm() < admissibleError.x &&
-                    && (
-                                ( abs(error.heading.toDouble()) <= admissibleError.heading ) ||
-                                        t >= turn.duration + 1
-                        )
+//                    && (
+//                                ( abs(error.heading.toDouble()) <= admissibleError.heading ) ||
+//                                        t >= turn.duration + 1
+//                        )
 //                    robotVelRobot.linearVel.norm() < admissibleVel.x &&
 //                    abs(robotVelRobot.angVel) < admissibleVel.heading
             ) {

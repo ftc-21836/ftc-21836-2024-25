@@ -41,7 +41,7 @@ public final class Intake {
             ANGLE_BUCKET_RETRACTED = 5,
             ANGLE_BUCKET_RETRACTED_OVER_BAR = 30,
             ANGLE_BUCKET_OVER_SUB_BAR = 80,
-            ANGLE_AVOID_ARM = 35,
+            ANGLE_AVOID_ARM = 60,
             ANGLE_BUCKET_INTAKING_NEAR = 140,
             ANGLE_BUCKET_INTAKING_FAR = 127,
 
@@ -111,7 +111,7 @@ public final class Intake {
                 null;
     }
 
-    public boolean retractBucketBeforeExtendo = true, specimenMode = false;
+    public boolean retractBucketBeforeExtendo = true, specimenMode = false, doTransfer = true;
 
     private final CachedMotorEx roller;
     private double rollerSpeed, bucketAngle;
@@ -200,7 +200,7 @@ public final class Intake {
                         break;
                     }
 
-                    if (hasSample() && rollerSpeed > 0) transfer(sample);
+                    if (hasSample() && rollerSpeed > 0 && doTransfer) transfer(sample);
                     else break;
                     
                 } else { // retracted
