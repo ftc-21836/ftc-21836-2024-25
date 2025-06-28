@@ -75,7 +75,8 @@ public final class Tele extends LinearOpMode {
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
 
-        mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        mTelemetry = telemetry;
+//                new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
         // robot.drivetrain.trackHeadingOnly = true;

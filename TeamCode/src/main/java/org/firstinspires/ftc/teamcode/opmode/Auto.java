@@ -56,6 +56,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.control.FirstTerminateAction;
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
@@ -87,7 +88,7 @@ public final class Auto extends LinearOpMode {
         PARKING
     }
 
-    public static MultipleTelemetry mTelemetry;
+    public static Telemetry mTelemetry;
 
     public static void divider() {
         mTelemetry.addLine();
