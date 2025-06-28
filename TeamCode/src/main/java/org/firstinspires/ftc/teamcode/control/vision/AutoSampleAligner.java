@@ -34,7 +34,7 @@ public class AutoSampleAligner {
             lensYFromRobotCenter = 4.5,
             lensAngleFromFlatOnFloor = 60,
             lensHeightFromFloor = 16,
-            LL_TURN_MULTIPLIER = 1.5;
+            LL_TURN_MULTIPLIER = 1.25;
 
     private double
             xDistance = 0,
