@@ -132,7 +132,7 @@ public final class Auto extends LinearOpMode {
             VEL_ANG_INCHING = 0.75,
             VEL_ANG_INTAKING_3 = 2,
 
-            WAIT_BEFORE_RE_SEARCH = 0.25,
+            WAIT_MAX_BEFORE_RE_SEARCH = 1,
             WAIT_BEFORE_SCORING_PRELOAD = 0.8,
             WAIT_APPROACH_WALL = 0,
             WAIT_APPROACH_BASKET = 0,
@@ -650,7 +650,7 @@ public final class Auto extends LinearOpMode {
                     robot.intake.extendo.setExtended(false);
                     robot.intake.ejectSample();
 
-                    activeTraj = new SleepAction(WAIT_BEFORE_RE_SEARCH);
+                    activeTraj = new SleepAction(WAIT_MAX_BEFORE_RE_SEARCH);
 
                     state = SCORING_PRELOAD;
                 }
@@ -978,7 +978,10 @@ public final class Auto extends LinearOpMode {
                     robot.intake.ejectSample();
 
                     Pose2d current = robot.drivetrain.pose;
-                    activeTraj = new SleepAction(WAIT_BEFORE_RE_SEARCH);
+                    activeTraj = new FirstTerminateAction(
+                            t -> !(robot.intake.extendo.getPosition() <= 2),
+                            new SleepAction(WAIT_MAX_BEFORE_RE_SEARCH)
+                    );
 //                            robot.drivetrain.actionBuilder(current)
 //                            .setTangent(PI / 2)
 //                            .strafeToLinearHeading(snapshotPos.toVector2d(), snapshotPos.heading)
