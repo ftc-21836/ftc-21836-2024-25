@@ -219,7 +219,7 @@ public final class Deposit {
                 if (timer.seconds() >= TIME_STANDBY_TO_CHAMBER) nextState();
                 break;
             case RELEASING_SPECIMEN:
-                boolean farEnoughFromChamber = dt.pose.position.y - lastChamberY > Y_DIST_FROM_CHAMBER_RETRACT;
+                boolean farEnoughFromChamber = dt.pose.position.y - lastChamberY < Y_DIST_FROM_CHAMBER_RETRACT;
                 if (farEnoughFromChamber || timer.seconds() >= TIME_MAX_SPEC_RELEASE) nextState();
                 break;
             case RELEASED_SPEC_TO_STANDBY:
