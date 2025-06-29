@@ -76,7 +76,7 @@ public final class Deposit {
             TIME_TO_INTAKING_SPEC = 0.125,
             TIME_SPEC_GRAB = 0.2,
             TIME_RAISE_SPEC = 0.5,
-            TIME_RAISED_SPEC_TO_STANDBY = 0.75,
+            TIME_RAISED_SPEC_TO_STANDBY = 0.25,
             TIME_STANDBY_TO_CHAMBER = 0.5,
             TIME_MAX_SPEC_RELEASE = 1,
             TIME_RELEASED_SPEC_TO_STANDBY = 0.1,
