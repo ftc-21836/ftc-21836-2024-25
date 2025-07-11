@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystem;
 
-import static org.firstinspires.ftc.teamcode.opmode.Auto.SPEED_INTAKING;
+import static com.qualcomm.robotcore.util.Range.clip;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.divider;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.mTelemetry;
 import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.ARM_ENTERING_BUCKET;
@@ -15,9 +15,10 @@ import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.STANDBY;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
-import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.TRANSFERRING;
+import static org.firstinspires.ftc.teamcode.subsystem.Intake.State.CLAW_CLOSING;
 import static org.firstinspires.ftc.teamcode.subsystem.utility.cachedhardware.CachedSimpleServo.getAxon;
 import static java.lang.Math.abs;
+import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
@@ -36,11 +37,11 @@ public final class Intake {
 
     public static double
 
-            ANGLE_ARM_EXITING = 25,
+            ANGLE_ARM_EXITING = 5,
             ANGLE_BUCKET_RETRACTED = 5,
             ANGLE_BUCKET_RETRACTED_OVER_BAR = 30,
             ANGLE_BUCKET_OVER_SUB_BAR = 80,
-            ANGLE_AVOID_ARM = 35,
+            ANGLE_AVOID_ARM = 60,
             ANGLE_BUCKET_INTAKING_NEAR = 140,
             ANGLE_BUCKET_INTAKING_FAR = 127,
 
@@ -60,8 +61,8 @@ public final class Intake {
             SPEED_HOLDING = 0.75,
             SPEED_ARM_ENTERING = 1,
             SPEED_COUNTER_ROLLING = -1,
-            SPEED_TRANSFERRING = -1,
-            SPEED_ARM_EXITING = -.74,
+            SPEED_CLAW_CLOSING = -1,
+            SPEED_ARM_EXITING = -1,
             COLOR_SENSOR_GAIN = 1;
 
     /**
@@ -110,14 +111,14 @@ public final class Intake {
                 null;
     }
 
-    public boolean retractBucketBeforeExtendo = true;
+    public boolean retractBucketBeforeExtendo = true, specimenMode = false, doTransfer = true;
 
     private final CachedMotorEx roller;
     private double rollerSpeed, bucketAngle;
 
     private final ColorSensor colorSensor;
     private HSV hsv = new HSV();
-    private Sample sample, badSample = RED;
+    private Sample sample, oppSample = RED;
 
     private final CachedSimpleServo bucketR, bucketL;
 
@@ -143,12 +144,12 @@ public final class Intake {
         SETTLING,
         ARM_ENTERING_BUCKET,
         COUNTER_ROLLING,
-        TRANSFERRING,
+        CLAW_CLOSING,
         ARM_EXITING_BUCKET,
     }
 
     public void setAlliance(boolean redAlliance) {
-        badSample = redAlliance ? BLUE : RED;
+        oppSample = redAlliance ? BLUE : RED;
     }
 
     Intake(HardwareMap hardwareMap) {
@@ -189,28 +190,32 @@ public final class Intake {
                 if (rollerSpeed != 0) { // intaking, trigger held down
 
                     setBucket(lerp(ANGLE_BUCKET_OVER_SUB_BAR, ANGLE_BUCKET_INTAKING, abs(bucketAngle)));
-                    roller.set(deposit.hasSample() ? 0 : rollerSpeed / SPEED_INTAKING);
+                    roller.set(deposit.hasSample() ? min(rollerSpeed, 0) : rollerSpeed);
                     
                     colorSensor.update();
                     sample = hsvToSample(hsv = colorSensor.getHSV());
 
-                    if (getSample() == badSample || (hasSample() && deposit.hasSample())) ejectSample();
+                    if (specimenMode && getSample() == NEUTRAL || getSample() == oppSample || hasSample() && deposit.hasSample()) {
+                        ejectSample();
+                        break;
+                    }
+
+                    if (hasSample() && rollerSpeed > 0 && doTransfer) transfer(sample);
+                    else break;
                     
-                    break;
-                    
-                } else if (!hasSample()) { // retracted
+                } else { // retracted
 
                     setBucket(deposit.requestingIntakeToMove() ? ANGLE_AVOID_ARM : angleBucketRetracted);
                     roller.set(0);
 
                     break;
 
-                } else transfer(sample);
+                }
 
             case BUCKET_RETRACTING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(holdingSpeed);
+                roller.set(0);
 
                 if (bucketSensor.isPressed() || timer.seconds() >= TIME_BUCKET_RETRACT || !retractBucketBeforeExtendo) {
                     state = EXTENDO_RETRACTING;
@@ -252,9 +257,15 @@ public final class Intake {
                 extendo.setExtended(false);
 
                 if (timer.seconds() >= TIME_BUCKET_SETTLING) {
-                    state = ARM_ENTERING_BUCKET;
-                    deposit.transfer();
-                    timer.reset();
+                    if (specimenMode) {
+                        state = STANDBY;
+                        timer.reset();
+                        break;
+                    } else {
+                        state = ARM_ENTERING_BUCKET;
+                        deposit.transfer();
+                        timer.reset();
+                    }
                 } else break;
 
             case ARM_ENTERING_BUCKET:
@@ -274,16 +285,16 @@ public final class Intake {
                 roller.set(SPEED_COUNTER_ROLLING);
                 extendo.setExtended(false);
 
-                if (deposit.state == Deposit.State.TRANSFERRING) {
-                    state = TRANSFERRING;
+                if (deposit.state == Deposit.State.CLAW_CLOSING) {
+                    state = CLAW_CLOSING;
                     sample = null;
                     timer.reset();
                 } else break;
 
-            case TRANSFERRING:
+            case CLAW_CLOSING:
 
                 setBucket(angleBucketRetracted);
-                roller.set(SPEED_TRANSFERRING);
+                roller.set(SPEED_CLAW_CLOSING);
                 extendo.setExtended(false);
 
                 if (deposit.state == Deposit.State.EXITING_BUCKET) {
@@ -330,6 +341,10 @@ public final class Intake {
         return (1 - t) * start + t * end;
     }
 
+    public boolean extendoRetracting() {
+        return state == EXTENDO_RETRACTING;
+    }
+
     public boolean hasSample() {
         return getSample() != null;
     }
@@ -344,15 +359,18 @@ public final class Intake {
     }
 
     public void setRoller(double power) {
-        rollerSpeed = power;
+        rollerSpeed = clip(power, -1, 1);
     }
 
-    public void setAngle(double angle) {
-        bucketAngle = abs(angle);
+    public boolean setAngle(double angle) {
+        bucketAngle = clip(abs(angle), 0, 1);
+        return bucketAngle == 1;
     }
 
     void printTelemetry() {
         mTelemetry.addData("INTAKE", state + ", " + (hasSample() ? getSample() + " sample" : "empty"));
+        mTelemetry.addLine();
+        mTelemetry.addData("Transfer", specimenMode ? "manually" : "on color detect");
         hsv.toTelemetry();
         divider();
         extendo.printTelemetry();

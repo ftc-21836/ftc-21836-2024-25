@@ -10,9 +10,7 @@ import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.LEFT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.RIGHT_BUMPER;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.X;
 import static com.arcrobotics.ftclib.gamepad.GamepadKeys.Button.Y;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.BLUE;
-import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.RED;
-import static org.firstinspires.ftc.teamcode.opmode.Auto.basket3;
+import static org.firstinspires.ftc.teamcode.opmode.Auto.scoring;
 import static org.firstinspires.ftc.teamcode.opmode.Auto.chamberRight;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_ALLIANCE;
 import static org.firstinspires.ftc.teamcode.opmode.Tele.TeleOpConfig.EDITING_FIELD_CENTRIC;
@@ -26,7 +24,10 @@ import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.FLOOR;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.HIGH;
 import static org.firstinspires.ftc.teamcode.subsystem.Deposit.Position.LOW;
 import static org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample.NEUTRAL;
-import static java.lang.Math.round;
+import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.GREEN;
+import static org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator.State.OFF;
+import static java.lang.Math.PI;
+import static java.lang.Math.sin;
 import static java.lang.Math.toDegrees;
 
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -34,12 +35,10 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.control.motion.EditablePose;
 import org.firstinspires.ftc.teamcode.control.motion.PIDDriver;
-import org.firstinspires.ftc.teamcode.control.vision.pipeline.Sample;
 import org.firstinspires.ftc.teamcode.subsystem.Robot;
 import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
 
@@ -47,6 +46,8 @@ import org.firstinspires.ftc.teamcode.subsystem.utility.LEDIndicator;
 public final class Tele extends LinearOpMode {
 
     public static boolean holdingSample = false;
+
+    public static double TIME_CLIMB_INDICATOR_ON = 0.05;
 
     enum TeleOpConfig {
         PRELOAD_SAMPLE,
@@ -69,16 +70,16 @@ public final class Tele extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        ElapsedTime matchTimer = new ElapsedTime(), indicatorTimer = new ElapsedTime();
+        ElapsedTime matchTimer = new ElapsedTime();
 
         double TELE = 120; // seconds
         double CLIMB_TIME = TELE - 15; // 15 seconds for climb
-        boolean rumbledClimb = false, rumbledSample = false;
 
-        mTelemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+        mTelemetry = telemetry;
+//                new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
         Robot robot = new Robot(hardwareMap, pose);
-        robot.drivetrain.trackHeadingOnly = true;
+        // robot.drivetrain.trackHeadingOnly = true;
 
         LEDIndicator indicator = new LEDIndicator(hardwareMap, "green", "red");
 
@@ -129,13 +130,6 @@ public final class Tele extends LinearOpMode {
                     break;
             }
 
-            gamepad1.setLedColor(
-                    isRedAlliance ? 1 : 0,
-                    0,
-                    !isRedAlliance ? 1 : 0,
-                    Gamepad.LED_DURATION_CONTINUOUS
-            );
-
             robot.drivetrain.setHeadingWithStick(gamepadEx1.getRightX(), gamepadEx1.getRightY());
             robot.drivetrain.updatePoseEstimate();
 
@@ -164,6 +158,8 @@ public final class Tele extends LinearOpMode {
 
         matchTimer.reset();
 
+        boolean extended = true;
+
         // Control loop:
         while (opModeIsActive()) {
             // Read sensors + gamepads:
@@ -171,9 +167,13 @@ public final class Tele extends LinearOpMode {
             robot.drivetrain.updatePoseEstimate();
             gamepadEx1.readButtons();
 
+            if (!robot.intake.extendo.isExtended()) extended = false;
+
             double triggers = gamepad1.right_trigger - gamepad1.left_trigger;
 
             if (gamepadEx1.isDown(LEFT_BUMPER)) {
+
+                extended = false;
 
                 robot.intake.setRollerAndAngle(0);
                 robot.intake.extendo.runManual(triggers);
@@ -192,14 +192,14 @@ public final class Tele extends LinearOpMode {
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.deposit.goToBasket();
                 // else if (gamepadEx1.wasJustPressed(DPAD_UP))        
                 else if (gamepadEx1.wasJustPressed(DPAD_LEFT))      robot.deposit.preloadSpecimen();
-                 else if (gamepadEx1.wasJustPressed(DPAD_DOWN))     robot.intake.ejectSample();
+                else if (gamepadEx1.wasJustPressed(DPAD_DOWN))     robot.intake.specimenMode = !robot.intake.specimenMode;
 
             } else {
 
                 robot.intake.setRollerAndAngle(robot.deposit.hasSample() ? 0 : triggers);
                 robot.deposit.setWristPitchingAngle(robot.deposit.hasSample() ? triggers : 0);
-                robot.intake.extendo.runManual(0);
-                robot.deposit.lift.runManual(0);
+                robot.intake.extendo.runManual(extended && robot.intake.extendoRetracting() ? -1 : 0);
+                if (!robot.deposit.lift.isClimbing()) robot.deposit.lift.runManual(0);
 
                 if (gamepadEx1.wasJustPressed(X)) driver.reset();
 
@@ -210,7 +210,7 @@ public final class Tele extends LinearOpMode {
                             gamepadEx1.isDown(X) && (robot.deposit.basketReady() || robot.intake.hasSample() || robot.deposit.intaking())?
                                     driver.driveTo(
                                             new EditablePose(robot.drivetrain.pose),
-                                            robot.deposit.intaking() ? chamberRight : basket3
+                                            robot.deposit.intaking() ? chamberRight : scoring
                                     ).drivePower.heading :
                                     gamepadEx1.getRightX(),
                             slowModeLocked || gamepadEx1.isDown(RIGHT_BUMPER) || triggers > 0,
@@ -227,7 +227,7 @@ public final class Tele extends LinearOpMode {
 //                    if (robot.deposit.basketReady()) robot.deposit.nextState();
 //                }
 
-                robot.headlight.setActivated(robot.intake.extendo.isExtended() || gamepad1.cross || rumbledClimb);
+                robot.headlight.setActivated(robot.intake.extendo.isExtended() || gamepad1.cross);
     
                 if (gamepadEx1.wasJustPressed(DPAD_RIGHT))          robot.intake.transfer(NEUTRAL);
                 else if (gamepadEx1.wasJustPressed(DPAD_UP))        robot.deposit.setPosition(HIGH);
@@ -247,50 +247,11 @@ public final class Tele extends LinearOpMode {
                 mTelemetry.update();
             }
 
-            if (!rumbledClimb && matchTimer.seconds() >= CLIMB_TIME) {
-                gamepad1.rumble(1, 1, 2000);
-                rumbledClimb = true;
-                indicatorTimer.reset();
-            }
-
-            if (rumbledClimb) {
-                indicator.setState(
-                        round(10 * indicatorTimer.seconds()) % 2 == 0 ?
-                                LEDIndicator.State.GREEN :
-                                LEDIndicator.State.OFF
-                );
-            }
-
-            if (!robot.intake.hasSample()) {
-                rumbledSample = false;
-                if (!robot.deposit.hasSample()) {
-                    gamepad1.setLedColor(0, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
-                    indicator.setState(LEDIndicator.State.OFF);
-                }
-            } else {
-
-                indicator.setState(
-                        round(10 * indicatorTimer.seconds()) % 2 == 0 ?
-                                LEDIndicator.State.AMBER :
-                                LEDIndicator.State.OFF
-                );
-
-                if (!rumbledSample) {
-
-                    Sample sample = robot.intake.getSample();
-                    gamepad1.setLedColor(
-                            sample == RED || sample == NEUTRAL ? 1 : 0,
-                            sample == NEUTRAL ? 1 : 0,
-                            sample == BLUE ? 1 : 0,
-                            Gamepad.LED_DURATION_CONTINUOUS
-                    );
-
-
-                    if (!gamepad1.isRumbling()) gamepad1.rumble(1, 1, 200);
-                    rumbledSample = true;
-                }
-            }
-
+            double t = matchTimer.seconds();
+            indicator.setState(t >= CLIMB_TIME ?
+                    sin(PI * t / TIME_CLIMB_INDICATOR_ON) >= 0 ? GREEN : OFF :
+                    robot.intake.hasSample() ? GREEN : OFF
+            );
         }
     }
 }
